@@ -1,0 +1,5 @@
+# ソロ運用のため全ファイルを単一オーナーに割り当てる。
+# レビュアーが増えたら、TSOD の役割別書込スコープ（Contract / API 実装 / Web 実装 / Test）を
+# 分割軸にすること。役割の定義は .claude/skills/impact-scope/write-scopes.json が正
+# （.claude/ は claude-code-canon の配置で作る）。
+* @Motoki-Tabata

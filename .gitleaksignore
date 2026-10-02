@@ -1,0 +1,7 @@
+# gitleaks（.github/workflows/ci.yml の secret-scan ジョブと .githooks/pre-push）の誤検知抑制リスト。
+# フィンガープリント形式: commit:file:ruleID:startLine（gitleaks README §.gitleaksignore）。
+#
+# docker/compose.yaml と apps/api の application-local.yml にある開発専用の既知資格情報は
+# 低エントロピーの辞書的な文字列にしてあり、既定ルールでは検出されない想定（vim で実測済みの方針）。
+# 誤検知が出た場合だけ、実際に gitleaks を実行して得たフィンガープリントを理由コメント付きで追記する
+# （実行せずに値を捏造しない）。

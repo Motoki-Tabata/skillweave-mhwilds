@@ -1,0 +1,36 @@
+# ベース設定（環境非依存）。接続先などの環境固有値は application-local.yml へ。
+spring:
+  application:
+    name: skillweave-mhwilds
+  profiles:
+    default: local
+  jackson:
+    time-zone: UTC
+  jpa:
+    hibernate:
+      # Flyway にスキーマ管理を委任する。validate 等にすると
+      # Flyway 実行前に Hibernate が検証して起動失敗する。
+      ddl-auto: none
+    open-in-view: false
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

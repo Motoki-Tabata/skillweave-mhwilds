@@ -1,0 +1,34 @@
+# Attribute（データ項目）辞書 — design/data-model-standard.md の「三層」節で定義される SSoT。
+#
+# 目的: 同じ項目が別テーブルで別の型・別の桁になる事故を防ぐ。項目ごとに
+# 論理名・物理名・型・桁・NULL可否・ドメイン制約を一度だけ定義する。
+#
+# 運用: 機能が1つ TSOD で確定するたびに、その機能が扱う項目をここに追記する。
+# 物理名・型は design/data-model-standard.md の命名規則に従うこと（区分カラムは text + CHECK、
+# ENUM 型は使わない等）。最初のエントリは機能005（charm-save）で確定する予定
+# （候補: temp/initial-design.md §6.3）。
+#
+# エントリ形式（論理名をキーにした map）:
+#
+#   <論理名（日本語可）>:
+#     physical_name: <物理名（カラム名）。snake_case・単数形>
+#     type: <PostgreSQL の型。例: text, integer, boolean, date, timestamptz, uuid, jsonb>
+#     length: <桁数上限。text 型で制約する場合のみ。無制限なら省略可>
+#     nullable: <true | false>
+#     domain: <値の制約（CHECK 制約の内容）か参照先テーブル名。制約が無ければ省略可>
+#     used_in: [<テーブル名.カラム名>, ...]  # 実際に登場する箇所。機能確定のたびに追記
+#     defined_by: <specs/NNN-<slug> のうち、この項目を最初に確定した機能。未確定なら null>
+#     note: <補足。任意>
+#
+# 例（記入イメージ。実エントリではない）:
+#
+#   所有者ID:
+#     physical_name: user_id
+#     type: uuid
+#     nullable: false
+#     domain: users (id)
+#     used_in: [charms.user_id]
+#     defined_by: null
+
+version: 1
+attributes: {}

@@ -1,0 +1,79 @@
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+.settings/
+.classpath
+.project
+
+# ===== Gradle / Java (apps/api/) =====
+apps/api/.gradle/
+apps/api/build/
+# JDK が自動bindする AF_UNIX 一時ソケット（socket_<乱数>）。cwd 直下に落ちるため
+# apps/api/ 以外にも出る（vim で観測）。
+socket_*
+apps/api/bin/
+apps/api/out/
+!apps/api/gradle/wrapper/gradle-wrapper.jar
+*.class
+*.log
+hs_err_pid*
+
+# ===== Node / Vite（pnpm workspace: apps/web・packages/*） =====
+node_modules/
+.vite/
+coverage/
+*.local
+.eslintcache
+*.tsbuildinfo
+apps/web/dist/
+apps/web/dist-ssr/
+apps/web/dev-dist/
+# packages/data/dist/ はマスターデータの生成物としてコミットする（temp/initial-design.md §4）。
+
+# ===== Playwright (apps/web/e2e/) =====
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/blob-report/
+
+# ===== 契約定義書の生成物 (contracts/) =====
+# pnpm contract:docs（Redoc）/ pnpm contract:swagger（Swagger UI）で生成される HTML。
+# openapi.yaml から再生成できるため管理対象外。
+contracts/dist/
+
+# ===== 環境変数・秘匿情報 =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ===== Docker =====
+docker/volumes/
+
+# ===== 一時ファイル =====
+*.tmp
+*.bak
+
+# ===== canon 配置時の退避ディレクトリ =====
+# claude-code-canon の deploy.js が配置直前の管理ファイルを退避する先。
+# 中身は配置直前のコミットそのもので git 履歴に既にあるため追跡しない
+# （ロールバックは `git checkout <配置前のコミット> -- CLAUDE.md .claude/ .mcp.json` で足りる）。
+# 新しいカスタマイズ一式の動作確認後に、ユーザーが任意のタイミングで削除してよい。
+# 末尾一致の `*.bak` ではディレクトリ名 `.claude-canon.bak.<ts>/` に当たらないため別途列挙する。
+.claude-canon.bak.*/
+
+# ===== ローカル SonarQube (scripts/sonar-local.sh) =====
+# 認証情報・指摘一覧・スキャナ作業領域。ローカル専用で共有しない。
+.sonar-local/
+.scannerwork/
+
+# ===== Playwright MCP の出力（スナップショット・コンソールログ） =====
+.playwright-mcp/

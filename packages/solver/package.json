@@ -1,0 +1,31 @@
+{
+  "name": "@swv/solver",
+  "version": "0.0.1",
+  "private": true,
+  "description": "ソルバー本体（ILP 組み立て・装飾品の後処理配置・Worker メッセージ）",
+  "type": "module",
+  "exports": {
+    ".": "./src/main/index.ts"
+  },
+  "scripts": {
+    "test:unit": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
+    "lint:oxlint": "oxlint . --fix",
+    "lint:eslint": "eslint . --fix --cache",
+    "lint": "pnpm run lint:oxlint && pnpm run lint:eslint",
+    "lint:check": "oxlint . --deny-warnings && eslint . --max-warnings 0",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-oxlint": "catalog:",
+    "oxlint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vitest": "catalog:"
+  }
+}

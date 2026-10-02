@@ -1,0 +1,51 @@
+#!/bin/sh
+# main への直接 push を拒否し、push 対象のコミットを gitleaks で検査する。
+#
+# 有効化（リポジトリごとに1回）:
+#   git config core.hooksPath .githooks
+#
+# GitHub の Ruleset（main の保護）と併用する理由: Ruleset は push をサーバー側で拒否するが、
+# gitleaks の検査は CI まで走らない。push 前に手元で止めて手戻りを減らすため、
+# ローカルでも同じ制約を強制する（README.md「main への直接 push を防ぐ」節）。
+
+protected_branch='main'
+protected_ref="refs/heads/${protected_branch}"
+
+# gitleaks（CI の secret-scan ジョブと同じ版・同じ .gitleaksignore）で push 対象の
+# コミット範囲を検査する。CI で初めて検出されて PR をやり直す手戻りを push 前に止める。
+# ローカルに gitleaks が無くても動くよう docker 経由で実行し、docker が無ければ警告だけ出す。
+gitleaks_image='zricethezav/gitleaks:v8.30.1'
+zero_sha='0000000000000000000000000000000000000000'
+repo_root=$(git rev-parse --show-toplevel)
+
+scan_range() {
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "警告: docker が無いため gitleaks の検査をスキップしました（CI の secret-scan で検査されます）。" >&2
+    return 0
+  fi
+  docker run --rm -u "$(id -u):$(id -g)" -v "${repo_root}:/repo" -w /repo \
+    "$gitleaks_image" git --no-banner --redact --log-opts="$1" /repo
+}
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "$protected_ref" ]; then
+    echo "エラー: '${protected_branch}' への直接 push は禁止されています。" >&2
+    echo "PR 経由でマージしてください（README.md「main への直接 push を防ぐ」節を参照）。" >&2
+    exit 1
+  fi
+  # ブランチ削除の push は検査対象のコミットが無い
+  [ "$local_sha" = "$zero_sha" ] && continue
+  if [ "$remote_sha" = "$zero_sha" ]; then
+    # 新規ブランチ: リモートのどのブランチにも含まれないコミットだけを検査する
+    range="${local_sha} --not --remotes"
+  else
+    range="${remote_sha}..${local_sha}"
+  fi
+  if ! scan_range "$range"; then
+    echo "エラー: gitleaks がシークレットらしき文字列を検出しました。" >&2
+    echo "誤検知の場合は .gitleaksignore に理由付きで登録してください（値そのものはコメントに書かない）。" >&2
+    exit 1
+  fi
+done
+
+exit 0

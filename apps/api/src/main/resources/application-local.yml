@@ -1,0 +1,10 @@
+# ローカル開発用（docker/compose.yaml の設定値と対応）
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/swv_db
+    username: swv_app
+    password: swv_app_password
+
+logging:
+  level:
+    io.github.motokitabata.skillweave: DEBUG

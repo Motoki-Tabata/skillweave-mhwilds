@@ -1,0 +1,28 @@
+# ローカル専用の SonarQube（Community Build）。CI では使わない。
+#
+# 直接起動せず scripts/sonar-local.sh 経由で使う（起動待ち・トークン発行・解析・指摘取得まで行う）。
+#   scripts/sonar-local.sh          # 解析して未解決の指摘を一覧表示（1件以上で exit 1）
+#   scripts/sonar-local.sh --down   # 停止
+#
+# 通常の開発用インフラ（compose.yaml）とはファイルを分け、`up` の対象に含めない。
+# 採用判断の経緯は design/tech-stack.md「SonarQube のローカル限定採用」節を参照。
+
+name: swv-sonar
+
+services:
+  sonarqube:
+    image: sonarqube:26.9.0.129388-community
+    container_name: swv_sonarqube
+    environment:
+      TZ: UTC
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:

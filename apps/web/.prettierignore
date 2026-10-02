@@ -1,0 +1,3 @@
+# openapi-typescript の生成物。contracts/openapi.yaml から再生成されるため
+# 手で直さない・整形もしない（pnpm contract:types で再生成すること）。
+src/main/lib/api/schema.ts

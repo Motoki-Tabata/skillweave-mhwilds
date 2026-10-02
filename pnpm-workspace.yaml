@@ -1,0 +1,48 @@
+# pnpm workspace の定義と、npm サプライチェーン対策の設定の集約先（リポジトリ直下に1つだけ置く）。
+# pnpm 10+ ではプラグイン固有設定は .npmrc ではなくこのファイルから読まれる。
+# .npmrc に書いても黙って無視されるため注意。
+
+packages:
+  - apps/web
+  - packages/*
+
+# 複数パッケージで共有する開発ツールの版はここで一元管理し、各 package.json からは
+# `catalog:` で参照する（版の食い違いを防ぐため）。版の選定理由は design/tech-stack.md。
+catalog:
+  '@types/node': 26.6.2
+  '@vitest/coverage-v8': 5.0.1
+  eslint: 10.11.0
+  eslint-plugin-oxlint: 1.85.0
+  oxlint: 1.85.0
+  prettier: 3.9.9
+  typescript: 6.0.3
+  typescript-eslint: 8.70.1
+  vitest: 5.0.1
+
+# ワーム型マルウェアによる npm サプライチェーン汚染対策（2026年に複数件発生:
+# Shai-Hulud, Mini Shai-Hulud, axios侵害等）として、以下を有効化する。
+
+# 公開から 7 日未満のバージョンは解決しない。
+# 悪性版の大半は数時間〜1日で検出・撤回されるため、7日あれば実質的に排除できる。
+minimumReleaseAge: 10080
+
+# クールダウン対象外にするパッケージ（現状なし。例外を作る場合は理由をコメントで残す）
+minimumReleaseAgeExclude: []
+
+# 推移的依存が git / tarball URL 経由でパッケージを取得することを禁止する。
+blockExoticSubdeps: true
+
+# provenance・署名の信頼度が既存より下がるバージョンへの更新を拒否する。
+trustPolicy: no-downgrade
+
+# lockfile と node_modules の実体が乖離していないかを検証する。
+verifyDepsBeforeRun: true
+
+# postinstall 等のビルドスクリプトは既定で全て遮断する。
+# allowBuilds は「パッケージ名: true/false」のマップ形式（配列ではない）。
+# 誤った形式で書くと pnpm がエラーを出さずに設定ファイル自体を
+# プレースホルダーで上書きすることがあるため注意（実機で確認済み）。
+allowBuilds:
+  # swagger-ui-dist（生成時のみの devDependency）の推移的依存。postinstall は
+  # 利用状況テレメトリの送信のみで生成物の正しさに寄与しないため、既定どおり遮断する。
+  '@scarf/scarf': false
