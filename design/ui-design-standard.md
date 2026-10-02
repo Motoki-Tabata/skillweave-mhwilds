@@ -2,7 +2,7 @@
 
 > 全機能が従う横断標準。TSOD の画面設計（`/tsod-screen-table`）はこの標準に従うこと。
 >
-> 作成日: 2026-10-02（vehicle-intake-management の同名文書を複製し、業務画面に固有の記述を除いた**暫定版**）
+> 作成日: 2026-10-02（**暫定版**）
 > 対象: `skillweave-mhwilds`（swv） `apps/web` 全体
 >
 > **ゲーム用途に合わせた見直しは、画面を持つ最初の機能（003 solver-ui）の画面設計で行う。**
@@ -64,7 +64,7 @@ font-family: 'BIZ UDPGothic', 'Yu Gothic UI', 'Meiryo', system-ui, sans-serif;
 
 - **外部フォントを読み込まない。** Google Fonts 等の CDN もセルフホストも使わない。
   依存を増やさない方針と整合し、読込遅延・オフライン時の表示崩れ・利用者IPの外部送信をいずれも避けられる。
-- フォントスタックは vim から引き継いだ暫定値。スマートフォン（iOS・Android）での表示を含めて 003 で見直す。
+- フォントスタックは暫定値。スマートフォン（iOS・Android）での表示を含めて 003 で見直す。
 
 ### 2.2 サイズ
 

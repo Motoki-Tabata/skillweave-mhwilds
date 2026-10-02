@@ -43,7 +43,7 @@ contracts/
 - ファイル名はパスからそのまま作る: `/api/charms` → `paths/charms/charms.yaml`
 - パスパラメータを含む場合はパラメータ名をそのままハイフンでつなげる:
   `/api/charms/{id}` → `paths/charms/charms-id.yaml`、`/api/builds/{id}/shares` →
-  `paths/builds/builds-id-shares.yaml`。`-by-` は付けない（vim で実態に合わせて是正した規約を引き継ぐ）。
+  `paths/builds/builds-id-shares.yaml`。`-by-` は付けない。
 - 1 ファイルの中に同じパスの全 HTTP メソッド（GET/POST/...）をまとめる（Path Item Object の単位）
 - `components/parameters/` は現在使っていない。共通のクエリ/パスパラメータが要る機能で初めて作る。
 

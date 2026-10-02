@@ -10,13 +10,11 @@
 
 ## 版の選び方
 
-参照元の vehicle-intake-management（以下 vim。2026-09 に選定）を出発点と比較基準にして、
-**本日時点の最新安定版、ただし公開から7日（クールダウン）を経たもの**を採る。
+**選定時点の最新安定版、ただし公開から7日（クールダウン）を経たもの**を採る。
 
-1. ランタイム・ツールの**メジャー版は vim と同じ**にする（Java 25・Node 24・pnpm 11・Gradle 9・Spring Boot 4・Vite 8・Vue 3・Tailwind 4）。vim で踏んだ落とし穴の記録がそのまま効くため。
+1. ランタイム・ツールのメジャー版は、検証済みの組み合わせとして Java 25・Node 24・pnpm 11・Gradle 9・Spring Boot 4・Vite 8・Vue 3・Tailwind 4 とする。メジャー版を上げるときは個別に判定して本書に理由を残す。
 2. ライブラリのパッチ・マイナーは最新を取る。npm は `pnpm-workspace.yaml` の `minimumReleaseAge`（7日）が自動で効く。Maven Central は公開日を確認し、7日未満なら1つ前を選ぶ。
-3. vim 以後に出たメジャー更新・非推奨は個別に判定し、本書に理由を残す。
-4. vim が不採用とした選択肢（TypeScript 7）は再検証し、通らなければ vim と同じ版に留める。
+3. 依存の更新で非推奨・不適合が見つかったものは、本書に判断と理由を残す。
 
 ---
 
@@ -29,14 +27,14 @@
 | Spring Boot | 4.1.1 | 4.1.1 が最新（2026-08-20） |
 | Spring Framework | 7.0.9 | Boot BOM が解決 |
 | Hibernate ORM | 7.4.5.Final | Boot BOM が解決 |
-| Flyway | 12.4.0（＋ `flyway-database-postgresql`） | Boot BOM が解決。PostgreSQL モジュールが無いと起動失敗する（vim で実測） |
+| Flyway | 12.4.0（＋ `flyway-database-postgresql`） | Boot BOM が解決。`flyway-database-postgresql` が無いと "Unsupported Database" で起動失敗する |
 | Jackson | 3.1.5（`tools.jackson`） | Boot BOM が解決 |
 | Tomcat | 11.0.24 | Boot BOM が解決 |
 | springdoc-openapi | 3.1.1 | |
-| Spotless（palantir-java-format） | 8.10.3 | フォーマッタの版は固定せず Spotless に委ねる（JDK 25 対応を Spotless が選ぶ。vim で実測） |
+| Spotless（palantir-java-format） | 8.10.3 | フォーマッタの版は固定せず、JDK に対応する版の選択を Spotless に委ねる（固定すると JDK 25 非対応の版を固定しうる） |
 | Testcontainers | 2.0.5 | 座標は `org.testcontainers:testcontainers-postgresql` |
 | JUnit Jupiter | 6.0.3 | Boot BOM が解決 |
-| swagger-parser | 2.1.48 | contractTest 専用。`jaxb-api` 2.3.1 を testRuntimeOnly で併用（vim と同じ理由） |
+| swagger-parser | 2.1.48 | contractTest 専用。swagger-core が参照する `javax.xml.bind` が JDK に無いため、`jaxb-api` 2.3.1 を testRuntimeOnly で併用 |
 
 ### 後の機能で導入するもの（今回は入れない）
 
@@ -56,7 +54,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | 項目 | 版 | 備考 |
 |---|---|---|
 | Node.js | 24（`.nvmrc`）。`engines` は `^24.12.0` | |
-| pnpm | 11.25.0（`packageManager`） | 12 系が出ているがメジャーは vim に合わせる（下記「vim との差分」） |
+| pnpm | 11.25.0（`packageManager`） | 12 系が出ているが、メジャー版は上記「版の選び方」1 のとおり 11 に留める |
 | Vue | 3.5.43 | |
 | Vue Router | 5.3.1 | |
 | Pinia | 4.0.3 | |
@@ -76,7 +74,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | @vue/eslint-config-prettier | 10.2.0 | |
 | Prettier | 3.9.9 | catalog |
 | @types/node | 26.6.2 | catalog。26.6.3 はクールダウン中 |
-| openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、vim と同じ組み合わせで動作する。生成は CI で検査 |
+| openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
 
@@ -85,7 +83,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | 項目 | 導入する機能 | 備考 |
 |---|---|---|
 | shadcn-vue の部品（reka-ui・class-variance-authority・clsx・tailwind-merge） | 003 solver-ui | `components.json` だけ置いてある。部品は CLI でソースとしてコピーする |
-| アイコン | 003 solver-ui | vim の `lucide-vue-next` は npm 上で deprecated。後継は `@lucide/vue`（1.49.0 が最新・2026-09-29）。導入時に再確認する |
+| アイコン | 003 solver-ui | `lucide-vue-next` は npm 上で deprecated。後継の `@lucide/vue`（1.49.0 が最新・2026-09-29）を導入時に確認する |
 | vite-plugin-pwa | 未定（下記「PWA」） | **サプライチェーン対策の判断待ち** |
 | HiGHS（npm `highs`） | 001 solver-spike | 下記「§3.3 の確認結果」 |
 | Playwright | 003 solver-ui（e2e ジョブと同時） | 画面が無いため今回は入れない |
@@ -97,7 +95,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 ### 1. TypeScript は 6.0.3（7 系は今回も不採用）
 
 TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新 8.71.0（2026-09-28）でも peer 依存が
-`typescript >=4.8.4 <6.1.0` のまま。TS 7 を入れた時点で lint が壊れるため、vim と同じ 6.0.3 に留める（2026-10-02 確認）。
+`typescript >=4.8.4 <6.1.0` のまま。TS 7 を入れた時点で lint が壊れるため、6.0.3 に留める（2026-10-02 確認）。
 
 ### 2. Vitest 5 を採用し、5.0.1 に留める
 
@@ -115,12 +113,12 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
   に依存しており、この版は provenance が無い（同パッケージの 2.4.3・2.5.0・4.0.0-pre1/pre2 にはある）。
   pnpm が `ERR_PNPM_TRUST_DOWNGRADE` で止める。
 - 回避策は (a) `trustPolicy` の例外に加える、(b) overrides でフォークを provenance のある版に差し替える、
-  (c) 上流の修正を待つ、のいずれか。サプライチェーン対策の例外になるため**オーナーの判断事項**とし、
-  オフライン対応が必要になる機能の前に決める。
+  (c) 上流の修正を待つ、のいずれか。サプライチェーン対策の例外になりうるため、詳細を確認したうえで
+  別途方針を決める（決まるまで PWA 関連の依存は入れない）。
 
 ### 4. ローカル DB のポートは 5433
 
-同じマシンで vim の PostgreSQL（5432）と同時に起動できるよう、`docker/compose.yaml` のホスト側ポートを
+同じマシンで別プロジェクトの PostgreSQL（5432）と同時に起動できるよう、`docker/compose.yaml` のホスト側ポートを
 5433 にした。コンテナ名・ボリューム名も `swv_` 接頭辞で分けている。
 
 ### 5. packages は TypeScript のソースをそのまま公開する
@@ -144,45 +142,37 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
 
 ---
 
-## vim との差分
-
-| 項目 | vim | swv | 理由 |
-|---|---|---|---|
-| セッションストア | Valkey | Spring Session JDBC（004 で導入） | 固定費を出さない（`temp/initial-design.md` §3.2） |
-| タイムゾーン | JST | UTC | 同上 |
-| pnpm workspace | `frontend/` 内 | リポジトリ直下（`apps/web`・`packages/*`） | 同上 |
-| 共有ツールの版 | 各 package.json | `pnpm-workspace.yaml` の `catalog` | 複数パッケージで版を食い違わせないため |
-| Gradle | 9.7.1 | 9.8.0 | 最新・クールダウン済み |
-| Spotless | 8.10.2 | 8.10.3 | 同上 |
-| Vitest | 4.1.11 | 5.0.1 | 判断 2 |
-| Vite・ESLint・oxlint ほか | 9 月時点の版 | パッチ・マイナーを更新 | 版の選び方 2 |
-| `lucide-vue-next` | 1.0.0 | 未導入（後継 `@lucide/vue` を 003 で検討） | deprecated |
-| Spring Security | 導入済み | 004 で導入 | 判断は「後の機能で導入するもの」 |
-| ローカル DB のポート | 5432 | 5433 | 判断 4 |
-| pnpm | 11.25.0 | 11.25.0 | 12.8.1 が出ているが、メジャーは vim に合わせる |
-
----
-
 ## CI
 
 `.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages。e2e は 003 で追加する。
 
 ## SonarQube のローカル限定採用
 
-`scripts/sonar-local.sh` でローカルだけで解析し、PR の CI には入れない（vim と同じ方針。採用理由の詳細は
-vim の `design/tech-stack.md` の同名の節）。領域モードの領域名は `api`・`web`・`packages`。
+`scripts/sonar-local.sh` でローカルだけで解析し、PR の CI には入れない。
+
+- 理由: IDE（SonarQube for IDE）でしか見えない指摘はコマンドで再現・集計できず、完了条件に組み込めない。
+  一方で SonarCloud や CI への常駐は維持コストと Actions の無料枠を消費する。ローカルの docker だけで
+  動かせば、どちらの問題も避けられる。
+- 構成: `docker/compose.sonar.yaml`（SonarQube Community Build）を起動し、`sonarsource/sonar-scanner-cli` の
+  docker イメージで解析する。Sonar の Gradle プラグインは入れず、`apps/api/build.gradle.kts` の
+  `sonarClasspath` タスクが classpath と JDK のパスを書き出してスキャナへ渡す。
+- 使い方: 未解決の指摘が 0 件なら exit 0、1 件以上なら exit 1。領域モード（`--area api|web|packages`）は、
+  テストを再実行せず、base からの変更ファイルの新規コードだけを別プロジェクトで解析する。
+  認証情報・指摘一覧は `.sonar-local/`（gitignore 済み）に置く。
+- 誤検知の抑止は `sonar-project.properties` の `sonar.issue.ignore.multicriteria` に理由コメント付きで登録し、
+  ソースへの `// NOSONAR` は使わない。
 イメージの版は `docker/compose.sonar.yaml` が正。
 
 ## カバレッジのローカル計測
 
 API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm workspace は Vitest の coverage-v8
-（`pnpm test:coverage`）で計測し、Sonar の全体解析が取り込む。閾値は置かず、CI でも計測しない（vim と同じ方針）。
+（`pnpm test:coverage`）で計測し、Sonar の全体解析が取り込む。閾値は置かず、CI でも計測しない（数値を目標にせず、テストの漏れを見つける材料として使うため）。
 ブートストラップ・生成物・shadcn-vue のコピー部品は、`sonar-project.properties` と各 `vitest.config.ts` で同じものを除外する。
 
 ## 既知の警告
 
 - `pnpm --filter @swv/web test:unit` で Vite が「`vitest.config.ts` の `import './vite.config'` に拡張子が無い
-  （将来の `configLoader: 'native'` 既定化で非対応）」と警告する。vim と同じ書き方で、現状の動作には影響しない。
+  （将来の `configLoader: 'native'` 既定化で非対応）」と警告する。現状の動作には影響しない。
 
 ## 関連ドキュメント
 

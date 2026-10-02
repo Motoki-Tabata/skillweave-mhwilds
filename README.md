@@ -22,7 +22,7 @@
 | `.claude/`（TSOD 一式）と `CLAUDE.md`（憲法・検証コマンドの正）を claude-code-canon で生成・配置する | 次のセッション |
 | `/tsod-discover` で機能マップ（`specs/feature-map.md`）を作る | `.claude/` の配置後 |
 | e2e ジョブ（Playwright）を CI に追加する | 画面を持つ最初の機能（003） |
-| PWA（vite-plugin-pwa）の導入可否を決める（サプライチェーン対策の例外になるため。[`design/tech-stack.md`](design/tech-stack.md)「主な判断」の 3） | オフライン対応が必要な機能の前 |
+| PWA（vite-plugin-pwa）の方針を決める（依存の provenance 欠落。[`design/tech-stack.md`](design/tech-stack.md)「主な判断」の 3） | 別セッションで詳細を確認して決める |
 
 ### 未決事項
 

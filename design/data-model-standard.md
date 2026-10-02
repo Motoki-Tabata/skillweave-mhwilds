@@ -2,7 +2,7 @@
 
 > 全機能が従う横断標準。TSOD で機能を1つずつ確定する際、`plan.md`「データモデル」節はこの標準に従うこと。
 >
-> 作成日: 2026-10-02（vehicle-intake-management の同名文書を複製し、`temp/initial-design.md` §6 の差分を反映した）
+> 作成日: 2026-10-02（出典: `temp/initial-design.md` §5・§6）
 > 対象: `skillweave-mhwilds`（swv）のユーザーデータ（PostgreSQL）
 
 ---
