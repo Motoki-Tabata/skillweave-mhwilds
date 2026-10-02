@@ -12,7 +12,7 @@
 
 **選定時点の最新安定版、ただし公開から7日（クールダウン）を経たもの**を採る。
 
-1. ランタイム・ツールのメジャー版は、検証済みの組み合わせとして Java 25・Node 24・pnpm 11・Gradle 9・Spring Boot 4・Vite 8・Vue 3・Tailwind 4 とする。メジャー版を上げるときは個別に判定して本書に理由を残す。
+1. ランタイム・ツールのメジャー版は、検証済みの組み合わせとして Java 25・Node 24・pnpm 11・Gradle 9・Spring Boot 4・Vite 8・Vue 3・Tailwind 4 とする。メジャー版は下記「更新の方針」の棚卸しで判定し、本書に理由を残す。
 2. ライブラリのパッチ・マイナーは最新を取る。npm は `pnpm-workspace.yaml` の `minimumReleaseAge`（7日）が自動で効く。Maven Central は公開日を確認し、7日未満なら1つ前を選ぶ。
 3. 依存の更新で非推奨・不適合が見つかったものは、本書に判断と理由を残す。
 
@@ -127,6 +127,62 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
 （利用側の Vite・Vitest がそのまま変換する）。そのため packages の検証は lint・format・type-check・test のみ。
 `packages/solver` の tsconfig は `lib: ["ES2024"]`・`types: []` で、DOM と Node の型を使うと型検査で落ちる
 （ソルバーを DOM・API の型に依存させない方針を機械で守るため）。Worker 用の型は 001 で足す。
+
+---
+
+## 更新の方針（2026-10-02）
+
+パッチ・マイナーは週次でまとめて取り込み、メジャーは四半期の棚卸しで計画して上げる。
+Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
+
+### 決めた経緯（2026-10-02 の実測）
+
+- Dependabot は1パッケージ1PRで、パッチ・マイナー・メジャーを区別せずに届けていた。初回の実行で、
+  不採用と決めている TypeScript 7（上記「判断 1」）の PR が届いた。
+- `@types/node` が 26 系（catalog）なのに、実行環境は Node 24（`.nvmrc`・`engines`）。
+  これでは Node 26 にしか無い API を使っても、型チェックを通ってしまう。
+- Dependabot は非推奨を知らせない。また、Dependabot の対象外のもの（`.nvmrc`・`.github/workflows/ci.yml` の
+  `java-version`・Spring Boot BOM が解決する推移的依存）を点検する時期が決まっていなかった。
+
+### パッチ・マイナー: 毎週、エコシステムごとに1本
+
+- Dependabot の `groups` で、gradle・npm・github-actions・docker-compose ごとに、パッチ・マイナーを1本の PR にまとめる。
+  CI が緑ならマージする。機能ブランチには混ぜない。
+- クールダウンは7日にする（`pnpm-workspace.yaml` の `minimumReleaseAge` と揃える）。github-actions・docker-compose にも同じ7日を置く。
+- セキュリティ更新は `groups` と `ignore` の対象外なので、個別に届く。届いたら、棚卸しを待たずに取り込む。
+
+### メジャー: 四半期の棚卸しで計画して上げる
+
+- Dependabot の `ignore` で、すべてのメジャーの version updates を止める。
+- 棚卸しは 1月・4月・7月・10月の初めに行う。機能開発の区切りに、`chore/deps-review-YYYYQn` ブランチで進める。
+  1. `pnpm outdated -r` と Maven Central のメタデータで、メジャーの差分と非推奨のパッケージを一覧にする。
+  2. Dependabot の対象外（`.nvmrc`・CI の `java-version`）を点検する。compose のイメージのメジャーもここで見る。
+  3. 1件ずつ「上げる／見送る」を決める。見送るものは下の一覧に、理由と次に見直す条件を書く。
+  4. 上げるものは1メジャー1PRにして、README「検証コマンド」の全段（CI と同じ）を通す。
+- 上げる条件（すべて満たすこと）:
+  - GA から1か月以上たっている。
+  - 依存先（peer 依存・Spring Boot BOM）が対応を宣言している。
+  - ただし、現行版のサポート終了まで3か月を切ったときや、セキュリティ上の理由があるときは前倒しする。
+- 個別の基準:
+  - **Spring Boot**: 新しいマイナー（4.2 など）は推移的依存（Hibernate・Flyway 等）のメジャーを含むので、
+    メジャーと同じように棚卸しで扱う。最初のパッチ（x.y.1）が出てから上げる。現行マイナーの OSS サポートが終わる前には必ず上げる。
+  - **Java・Node**: LTS だけを使う。次の LTS への移行は、LTS 入りから半年たってからの棚卸しで行う。
+    現行 LTS のサポートが終わる1年前までには移る。
+  - **@types/node**: メジャーは Node 本体のメジャーに合わせる。
+  - **vitest と @vitest/coverage-v8**: 同じ版にそろえて、1本の PR で上げる。
+  - **pnpm**: 上記「版の選び方」1 に従う。
+  - **PostgreSQL**: メジャーは、本番のマネージド DB（Neon が第一候補）の方針が決まるまで見送る。
+
+### 見送り・是正待ちの一覧（2026-10-02 時点）
+
+| 対象 | 現行 | 状態 | 次に見直す条件 |
+|---|---|---|---|
+| TypeScript | 6.0.3 | 7.x は見送り（上記「判断 1」） | typescript-eslint の peer が 7 を許したとき |
+| @types/node | 26.6.2 | 方針に反している（Node 24 に対して 26 系）。24 系に戻す | — |
+| vitest / @vitest/coverage-v8 | 5.0.1 | 5.0.3 で `why-is-node-running` が provenance のある 3.2.1 に固定され、上記「判断 2」の理由は解消する見込み | 週次のまとめ PR で取り込み、CI で確かめる |
+| pnpm | 11.25.0 | 12 系は見送り | 次の棚卸し |
+| Node | 24 LTS | Node 26 は 2026-10-28 に LTS 入り | 2027-04 以降の棚卸し（24 のサポート終了は 2028-04-30） |
+| Spring Boot | 4.1.1 | 4.2 は 2026-09 時点でマイルストーン | 4.2.1 が出た後の棚卸し（4.1 の OSS サポート終了は 2027-07-31） |
 
 ---
 
