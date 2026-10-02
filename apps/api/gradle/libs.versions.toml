@@ -1,0 +1,32 @@
+# Version Catalog — バージョンをここに一元管理する。
+# Spring Boot / Testcontainers / JUnit / Mockito 等は Spring Boot BOM が
+# バージョンを解決するため、ここでは明示指定しない（bom 経由で自動整合）。
+#
+# 参照: design/tech-stack.md（実測値と選定理由の正）
+
+[versions]
+# --- プラグイン ---
+spring-boot = "4.1.1"
+spring-dependency-management = "1.1.7"
+spotless = "8.10.3"
+
+# --- 言語・ツールチェーン ---
+java = "25"
+
+# --- ライブラリ（Spring Boot BOM の管理外、または明示が必要なもの） ---
+springdoc-openapi = "3.1.1"
+testcontainers-postgresql = "2.0.5" # 座標変更に注意: org.testcontainers:testcontainers-postgresql
+swagger-parser = "2.1.48"           # contracts/openapi.yaml と実装の突合（contractTest）用
+jaxb-api = "2.3.1"                  # swagger-core の @XmlElement 参照解決に必要（Java 11+ で JDK 同梱が廃止された）
+
+[libraries]
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc-openapi" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers-postgresql" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers-postgresql" }
+swagger-parser = { module = "io.swagger.parser.v3:swagger-parser", version.ref = "swagger-parser" }
+jaxb-api = { module = "javax.xml.bind:jaxb-api", version.ref = "jaxb-api" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

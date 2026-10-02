@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info:
+  title: Skillweave for MH Wilds API
+  description: |
+    Skillweave for MH Wilds バックエンド API の契約。
+
+    この YAML が契約の正（source of truth）である。実装（springdoc が実行時に
+    出力する /v3/api-docs）はこの内容と一致するよう、apps/api の contract テスト
+    （`./gradlew contractTest`）で突合される。運用ルールは README.md を参照。
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: ローカル開発環境（docker compose + ./gradlew bootRun）
+paths: {}

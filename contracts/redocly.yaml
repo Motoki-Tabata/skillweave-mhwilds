@@ -1,0 +1,15 @@
+# redocly lint / build-docs の設定。
+# ルートの package.json の contract:lint / contract:docs / contract:bundle スクリプトから参照される。
+#
+# `recommended-strict`（recommended の warning をすべて error 扱いにしたもの）を使う。
+# warning は `pnpm contract:lint` の終了コードに反映されず CI で気づけないため、
+# 指摘は 0 件に保ち、無効化するルールは下記に理由を必ず書く。
+extends:
+  - recommended-strict
+
+rules:
+  # servers には docker compose + ./gradlew bootRun のローカル開発環境（http://localhost:8080）を
+  # 意図して記載している（Swagger UI の Try it out の送信先）。本番 URL は未確定。
+  no-server-example.com: off
+  # 配布ライセンスが未定（README.md「未決事項」節）のため、info.license を書けない。
+  info-license: off
