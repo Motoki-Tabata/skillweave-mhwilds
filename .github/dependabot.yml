@@ -1,0 +1,30 @@
+version: 2
+
+updates:
+  - package-ecosystem: gradle
+    directory: /apps/api
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+
+  # pnpm も "npm" エコシステムで検出される（pnpm-lock.yaml を自動認識、pnpm 専用の
+  # 値は存在しない）。pnpm workspace はリポジトリ直下にあるため directory は / とする。
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # pnpm-workspace.yaml の minimumReleaseAge（7日）と揃える。揃えないと
+    # Dependabot が公開7日未満のバージョンを提案し、その PR の
+    # `pnpm install --frozen-lockfile` が ERR_PNPM_NO_MATURE_MATCHING_VERSION で
+    # 失敗する（vim の design/tech-stack.md の実測記録）。
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

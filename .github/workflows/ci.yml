@@ -1,0 +1,127 @@
+name: CI
+
+# パスフィルタは意図的に付けない。main の Ruleset で全ジョブを必須チェックにしているため
+# （README.md「main への直接 push を防ぐ」節）、パスフィルタで skip されたジョブが PR を
+# 永久にブロックする GitHub の既知の制約を踏まないよう、フィルタなしで全ジョブを走らせる。
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # main への push は最後まで走らせる（履歴に残す）。PR は新しいコミットが来たら古い実行を打ち切る。
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  secret-scan:
+    name: secret-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # PR の差分のみを対象にする（個人開発規模での費用対効果を優先し、push:main での再スキャンや
+    # 週次フルスキャンは採らない。開発用資格情報の扱いは .gitleaksignore の冒頭コメントを参照）。
+    if: github.event_name == 'pull_request'
+    # gitleaks-action は PR のコミット一覧を GitHub API（Pulls API）経由で取得するため、
+    # ワークフロー全体の contents: read だけでは 403 Resource not accessible by integration
+    # になる（実機で確認済み）。このジョブだけ pull-requests: read を追加で許可する。
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # 個人アカウント配下のリポジトリのため GITLEAKS_LICENSE は不要
+        # （組織配下リポジトリのみ必須。gitleaks-action README で確認済み）。
+
+  api:
+    name: api
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: corretto
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+      # spotlessCheck: フォーマット / build: コンパイル+テスト+jar化 / contractTest: 契約突合
+      # を1回の gradlew 呼び出しにまとめる（build が test を内包するため二重実行を避ける）。
+      - name: spotlessCheck / build / contractTest
+        working-directory: apps/api
+        run: ./gradlew spotlessCheck build contractTest --console=plain
+
+  # apps/web と packages/* は同じ pnpm workspace（リポジトリ直下）に属する。
+  # 依存の導入はジョブごとに1回行い、`--filter` で検証対象を分ける。
+  web:
+    name: web
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Corepack ではなく pnpm/action-setup を使う。pnpm 公式が CI では Corepack のシム起動
+      # コスト（毎回 Node を起動し直す）を理由に非推奨としているため。ルートの package.json の
+      # packageManager フィールドから版を自動検出するので、版のピン留め先は変わらない。
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm --filter @swv/web run lint:check
+      - name: Format check
+        run: pnpm --filter @swv/web run format:check
+      - name: Type check
+        run: pnpm --filter @swv/web run type-check
+      # Build の vue-tsc 呼び出しは上記と重複するように見えるが、tsconfig が composite: true の
+      # project references 構成のため .tsbuildinfo により2回目は増分ビルドでほぼ無コストになる。
+      - name: Unit tests
+        run: pnpm --filter @swv/web run test:unit
+      - name: Build
+        run: pnpm --filter @swv/web run build
+      - name: Contract lint
+        run: pnpm contract:lint
+      # 契約から生成される型（apps/web/src/main/lib/api/schema.ts）はコミット対象。
+      # 再生成して差分が出たら「契約は変えたが型を再生成し忘れた」PR として検出する。
+      - name: Contract types freshness
+        run: |
+          pnpm contract:types
+          git diff --exit-code -- apps/web/src/main/lib/api/schema.ts
+      # 定義書生成スクリプトの腐り（swagger-ui-dist のレイアウト変更・bundle 失敗）を検出する。
+      # 生成物は非コミット（contracts/dist/）のため成果物比較はしない。
+      - name: Contract docs build
+        run: |
+          pnpm contract:docs
+          pnpm contract:swagger
+
+  packages:
+    name: packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm --filter './packages/*' run lint:check
+      - name: Format check
+        run: pnpm --filter './packages/*' run format:check
+      - name: Type check
+        run: pnpm --filter './packages/*' run type-check
+      - name: Unit tests
+        run: pnpm --filter './packages/*' run test:unit
+
+  # e2e ジョブは画面を持つ最初の機能（003 solver-ui）で追加する（README.md「残作業」節）。
