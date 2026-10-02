@@ -10,7 +10,7 @@ packages:
 # `catalog:` で参照する（版の食い違いを防ぐため）。版の選定理由は design/tech-stack.md。
 catalog:
   '@types/node': 26.6.2
-  '@vitest/coverage-v8': 5.0.1
+  '@vitest/coverage-v8': 5.0.2
   eslint: 10.11.0
   eslint-plugin-oxlint: 1.85.0
   oxlint: 1.85.0
