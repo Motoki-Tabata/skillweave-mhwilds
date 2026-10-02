@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+
+/* tailwind.config.js は作らない（Tailwind v4 は @tailwindcss/vite のみで動作）。
+   テーマ変数・デザイントークンはここに集約する。値は design/ui-design-standard.md を正とし、
+   画面を作る機能（003）で定める。 */
