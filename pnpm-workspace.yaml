@@ -15,7 +15,7 @@ catalog:
   eslint-plugin-oxlint: 1.85.0
   oxlint: 1.85.0
   prettier: 3.9.9
-  typescript: 6.0.3
+  typescript: 7.0.2
   typescript-eslint: 8.70.1
   vitest: 5.0.1
 
