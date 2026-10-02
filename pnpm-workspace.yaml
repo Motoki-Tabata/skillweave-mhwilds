@@ -9,7 +9,7 @@ packages:
 # 複数パッケージで共有する開発ツールの版はここで一元管理し、各 package.json からは
 # `catalog:` で参照する（版の食い違いを防ぐため）。版の選定理由は design/tech-stack.md。
 catalog:
-  '@types/node': 26.6.2
+  '@types/node': 24.13.6
   '@vitest/coverage-v8': 5.0.1
   eslint: 10.11.0
   eslint-plugin-oxlint: 1.85.0

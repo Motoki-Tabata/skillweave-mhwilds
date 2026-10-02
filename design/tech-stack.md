@@ -73,7 +73,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | @vue/eslint-config-typescript | 14.9.0 | |
 | @vue/eslint-config-prettier | 10.2.0 | |
 | Prettier | 3.9.9 | catalog |
-| @types/node | 26.6.2 | catalog。26.6.3 はクールダウン中 |
+| @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中 |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
@@ -139,8 +139,8 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 - Dependabot は1パッケージ1PRで、パッチ・マイナー・メジャーを区別せずに届けていた。初回の実行で、
   不採用と決めている TypeScript 7（上記「判断 1」）の PR が届いた。
-- `@types/node` が 26 系（catalog）なのに、実行環境は Node 24（`.nvmrc`・`engines`）。
-  これでは Node 26 にしか無い API を使っても、型チェックを通ってしまう。
+- `@types/node` が 26 系（catalog）なのに、実行環境は Node 24（`.nvmrc`・`engines`）だった（2026-10-02 に 24 系へ戻した）。
+  その間は、Node 26 にしか無い API を使っても型チェックを通ってしまう状態だった。
 - Dependabot は非推奨を知らせない。また、Dependabot の対象外のもの（`.nvmrc`・`.github/workflows/ci.yml` の
   `java-version`・Spring Boot BOM が解決する推移的依存）を点検する時期が決まっていなかった。
 
@@ -178,7 +178,6 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 | 対象 | 現行 | 状態 | 次に見直す条件 |
 |---|---|---|---|
 | TypeScript | 6.0.3 | 7.x は見送り（上記「判断 1」） | typescript-eslint の peer が 7 を許したとき |
-| @types/node | 26.6.2 | 方針に反している（Node 24 に対して 26 系）。24 系に戻す | — |
 | vitest / @vitest/coverage-v8 | 5.0.1 | 5.0.3 で `why-is-node-running` が provenance のある 3.2.1 に固定され、上記「判断 2」の理由は解消する見込み | 週次のまとめ PR で取り込み、CI で確かめる |
 | pnpm | 11.25.0 | 12 系は見送り | 次の棚卸し |
 | Node | 24 LTS | Node 26 は 2026-10-28 に LTS 入り | 2027-04 以降の棚卸し（24 のサポート終了は 2028-04-30） |
