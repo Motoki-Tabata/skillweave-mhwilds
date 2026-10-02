@@ -1,5 +1,11 @@
 version: 2
 
+# 更新の時期の方針は design/tech-stack.md「更新の方針」節が正。
+# - パッチ・マイナーは週次で、エコシステムごとに1本の PR にまとめる（groups）。
+# - メジャーは自動 PR を止め、四半期の棚卸しで計画して上げる（ignore）。
+# ignore の update-types と groups（既定の applies-to: version-updates）はどちらも
+# version updates にだけ効くため、セキュリティ更新は従来どおり個別に届く。
+
 updates:
   - package-ecosystem: gradle
     directory: /apps/api
@@ -8,6 +14,12 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 5
+    groups:
+      gradle-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
 
   # pnpm も "npm" エコシステムで検出される（pnpm-lock.yaml を自動認識、pnpm 専用の
   # 値は存在しない）。pnpm workspace はリポジトリ直下にあるため directory は / とする。
@@ -22,9 +34,40 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    # Actions もサプライチェーン攻撃の経路になる。SHA 固定は「侵害された新しい版」の
+    # 取り込みを防がないため、npm・gradle と同じ7日のクールダウンを置く。
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
+    groups:
+      actions-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  # docker/ 配下の compose.yaml・compose.sonar.yaml のイメージタグ。
+  - package-ecosystem: docker-compose
+    directory: /docker
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    groups:
+      compose-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']

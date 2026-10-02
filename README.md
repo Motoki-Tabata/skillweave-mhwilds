@@ -115,7 +115,7 @@ CI（[`.github/workflows/ci.yml`](.github/workflows/ci.yml)）と同じ検証で
 skillweave-mhwilds/
 ├── .github/
 │   ├── workflows/ci.yml        # secret-scan / api / web / packages
-│   ├── dependabot.yml          # gradle（apps/api）/ npm（pnpm workspace）/ github-actions
+│   ├── dependabot.yml          # gradle / npm / github-actions / docker-compose のパッチ・マイナーを週次でまとめて更新（メジャーは四半期の棚卸し）
 │   ├── pull_request_template.md
 │   └── CODEOWNERS
 ├── .githooks/pre-push          # main への直接 push を拒否し、push 範囲を gitleaks で検査
