@@ -42,7 +42,7 @@
 ## 区間の再開点
 - 一括検証が緑になった時点のコミット: dbb1824
 - その時点の verify の要約行: 総合結果: PASS（`verify.mjs --e2e`。e2e・sonar は SKIP。Sonar 件数行は最終検証で取る）
-- レビューの進捗: 未着手
+- レビューの進捗: 2回目まで済み・未解決の所見なし。最終検証（--e2e --sonar）PASS、Sonar issue 0 / hotspot 0 / Quality Gate OK
 <!-- 区間 D の文脈が膨らんで中断するときに書く。再開した区間 D はここからレビュー（または是正）を始める -->
 
 ## 委譲の記録
@@ -53,12 +53,15 @@
 | 生成物 dist（T4） | main | 8a6048b |
 | data テスト（T5・T6） | data-test-agent | 7b340d8 |
 | passWithNoTests 削除（T7） | main | dbb1824 |
+| 是正: thresholds の整数検証（data 実装） | data-agent | 5b36aba |
+| 是正: 同上のテスト（data テスト） | data-test-agent | 9696f8c |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
 | 回 | 範囲 | 所見の要約 | 状態 |
 |---|---|---|---|
-| 1 | 7672feb..dbb1824 | 要修正: (1) validate.ts の thresholds の level・pieces が整数かを見ていない（受入基準 8。欠落・小数が通る）(2) 直接修正の表が空欄。任意: 置換後の値の型の防御、パスの文字列連結、`in` を `Object.hasOwn` に、`?? ''` と型キャストの黙った通過、levelDescriptions の長さ検査、generate.spec の2回目比較の名前、writeAtomic の重複。受入基準 1〜15 は (1) を除き充足。plan・憲法の逸脱なし | 要修正 |
+| 1 | 7672feb..dbb1824 | 要修正: (1) validate.ts の thresholds の level・pieces が整数かを見ていない（受入基準 8。欠落・小数が通る）(2) 直接修正の表が空欄。任意: 置換後の値の型の防御、パスの文字列連結、`in` を `Object.hasOwn` に、`?? ''` と型キャストの黙った通過、levelDescriptions の長さ検査、generate.spec の2回目比較の名前、writeAtomic の重複。受入基準 1〜15 は (1) を除き充足。plan・憲法の逸脱なし | 是正済み |
+| 2 | 6dc7712..9696f8c | 問題なし（要修正・任意なし）。前回の要修正 2 件は解消 | 解消 |
 <!-- 区間 D。所見は要約で書く（差分や所見の全文を貼らない）。状態: 要修正 / 是正済み / 解消 -->
 
 ## メインの直接修正
