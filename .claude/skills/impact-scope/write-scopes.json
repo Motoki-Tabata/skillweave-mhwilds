@@ -1,0 +1,22 @@
+{
+  "$comment": "実装エージェントの書込許可フォルダの唯一の正。agent-write-guard.mjs（PreToolUse・PostToolUse の両方）と tsod-spec-check の spec-check.mjs が読む。列挙に無いパスは deny。共有構成ファイル（ビルド設定・依存定義・実行時設定）は宣言駆動の例外で、どのロールにも含めない。packages/data/dist/** はどのロールにも含めない（生成物）。表示用の表は .claude/skills/impact-scope/SKILL.md にあり、一致は agent-write-guard.test.mjs が検査する。",
+  "version": 1,
+  "roles": {
+    "contract-agent": ["contracts/**"],
+    "api-agent": ["apps/api/src/main/java/**", "apps/api/src/main/resources/application*.yml"],
+    "web-agent": ["apps/web/src/main/**"],
+    "api-test-agent": ["apps/api/src/test/**"],
+    "web-test-agent": ["apps/web/src/test/**"],
+    "e2e-agent": ["apps/web/e2e/**"],
+    "data-model-agent": [
+      "apps/api/src/main/resources/db/migration/**",
+      "design/data-model-standard.md",
+      "design/attributes.yaml"
+    ],
+    "solver-agent": ["packages/solver/src/main/**"],
+    "solver-test-agent": ["packages/solver/src/test/**"],
+    "data-agent": ["packages/data/src/main/**"],
+    "data-test-agent": ["packages/data/src/test/**"],
+    "test-investigator": []
+  }
+}
