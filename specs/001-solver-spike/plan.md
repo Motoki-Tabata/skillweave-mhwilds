@@ -48,7 +48,7 @@
     - `design/tech-stack.md`: 測定の後（T7・T10）。
 
 ## 常時許可外の変更
-- `packages/solver/package.json`（dependencies に highs 1.15.3、devDependencies に @types/node を `catalog:` で追加。scripts に measure を足し、type-check を2本の tsc にする。担当: メイン。理由: 決定事項 1・7・8）
+- `packages/solver/package.json`（dependencies に highs 1.15.3、devDependencies に @types/node を catalog: で追加。scripts に measure を足し、type-check を2本の tsc にする。担当: メイン。理由: 決定事項 1・7・8）
 - `pnpm-lock.yaml`（highs・@types/node の追加に伴う更新。担当: メイン。理由: 依存の追加）
 - `packages/solver/vitest.config.ts`（mode で通常のテストと測定を分ける。passWithNoTests は T6 で外す。担当: メイン。理由: 決定事項 8・14）
 - `packages/solver/tsconfig.json`（include を src/main/** に絞る。lib と types は変えない。担当: メイン。理由: 決定事項 7）
