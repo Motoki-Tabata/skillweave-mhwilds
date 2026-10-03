@@ -88,13 +88,22 @@ function checkSetBonuses(
     }
     setBonus.thresholds.forEach((threshold, index) => {
       const previous = setBonus.thresholds[index - 1]
+      if (!Number.isInteger(threshold.pieces)) {
+        out.push({
+          rule: 'threshold-pieces',
+          message: `${setBonus.id}: 発動部位数 ${threshold.pieces} が整数ではありません`,
+        })
+      }
       if (previous && threshold.pieces <= previous.pieces) {
         out.push({
           rule: 'threshold-order',
           message: `${setBonus.id}: 発動部位数が昇順になっていないか重複しています（${setBonus.thresholds.map((t) => t.pieces).join(', ')}）`,
         })
       }
-      if (max !== undefined && (threshold.level < 1 || threshold.level > max)) {
+      if (
+        max !== undefined &&
+        (!Number.isInteger(threshold.level) || threshold.level < 1 || threshold.level > max)
+      ) {
         out.push({
           rule: 'skill-level',
           message: `${setBonus.id}: レベル ${threshold.level} が 1 以上 ${max} 以下ではありません`,
