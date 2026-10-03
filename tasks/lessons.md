@@ -38,3 +38,8 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 - 種別: 規律昇華
 - 何が起きたか: `packages/solver/tsconfig.json`（`lib: ["ES2024"]`・`types: []`）のままでは、テストと測定ハーネスが使う `performance`・`console` が型エラーになる。001 で `tsconfig.json` の `include` を `src/main/**` に絞り、`tsconfig.vitest.json`（`types: ["node"]`）で `src/test/**` も検査する形に分け、`type-check` で2本を実行した。verify・Sonar（`sonar.typescript.tsconfigPaths` に追加）とも通った（一括検証 PASS・Sonar issue 0）。
 - 提案: `.claude/rules/solver.md`（と、同じ `types: []` の `packages/data` を扱う `.claude/rules/data.md`）に「`src/main` は `types: []` の `tsconfig.json` で、テストと測定は `tsconfig.vitest.json`（`types: ["node"]`）で型検査する。`sonar-project.properties` の `sonar.typescript.tsconfigPaths` にも後者を足す」を加える。
+
+## 2026-10-04 overlay の置き場が決まったので、data-agent の書込許可に足す（機能002・区間A）
+- 種別: 矛盾是正
+- 何が起きたか: `.claude/skills/impact-scope/SKILL.md`「書込許可フォルダ」は、overlay の置き場が機能 002 で決まったら担当フォルダを足すとしている。002 の決定（`specs/002-master-data-pipeline/decisions.md` Q10）で、overlay を `packages/data/overlays/*.yaml`、パイプラインのコードを `packages/data/src/main/` に置くと決めた。反映までは overlay を spec の「常時許可外の変更予定」に挙げ、メインが書く。
+- 提案: `.claude/skills/impact-scope/write-scopes.json` の `data-agent` に `packages/data/overlays/**` を足し、同 `SKILL.md` の表と「`packages/data/{scripts,overlays}/` も現時点では含めない」の箇所を直す。`.claude/rules/data.md` の「overlay とパイプラインの置き場は、パイプラインを導入する機能で決まる」を、決まった置き場に書き換える。
