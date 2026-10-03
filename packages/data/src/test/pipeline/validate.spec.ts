@@ -62,6 +62,29 @@ describe('検証（受入基準 8）', () => {
     ])
   })
 
+  it.each([
+    ['欠落（undefined）', undefined],
+    ['小数（1.5）', 1.5],
+  ])('シリーズ／グループスキルの発動レベルが %s のとき skill-level を検出する', (_label, level) => {
+    const violations = check((b) => {
+      b.setBonuses[0]!.thresholds = [{ pieces: 2, level: level as never }]
+    })
+    expect(rules(violations)).toEqual(['skill-level'])
+  })
+
+  it.each([
+    ['欠落（undefined）', undefined],
+    ['小数（2.5）', 2.5],
+  ])(
+    'シリーズ／グループスキルの発動部位数が %s のとき threshold-pieces を検出する',
+    (_label, pieces) => {
+      const violations = check((b) => {
+        b.setBonuses[0]!.thresholds = [{ pieces: pieces as never, level: 1 }]
+      })
+      expect(rules(violations)).toEqual(['threshold-pieces'])
+    },
+  )
+
   it('スロット Lv が 1〜4 でないときを検出する（防具・武器・装飾品・護石・鑑定護石）', () => {
     const violations = check((b) => {
       b.armors[0]!.slots = [{ target: 'armor', level: 5 as never }]
