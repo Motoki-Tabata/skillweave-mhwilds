@@ -23,6 +23,16 @@ describe('合成データ生成器', () => {
     expect(makeInfeasibleRequired(data, 1, 6)).toEqual(makeInfeasibleRequired(data, 1, 6))
   })
 
+  it('[AC8] 解なしのケースの下限は現実的な範囲（Lv 7 以下）で、スキルは重複しない', () => {
+    const data = generateData(7)
+    for (const k of [3, 6, 10]) {
+      const required = makeInfeasibleRequired(data, 1, k)
+      expect(required).toHaveLength(k)
+      expect(required.every((r) => r.level >= 1 && r.level <= 7)).toBe(true)
+      expect(new Set(required.map((r) => r.skillId)).size).toBe(k)
+    }
+  })
+
   it('[AC8] 件数が decisions.md Q2 の MHDB 実測値（上位防具 582・装飾品 361・護石 187）に合う', () => {
     const data = generateData(7)
     expect(data.armors).toHaveLength(582)

@@ -4,7 +4,7 @@
  * 一部のケースだけ走らせるときは `-t "k=3 解あり"` のように名前で絞る。
  */
 import os from 'node:os'
-import highsLoader, { type Highs } from 'highs'
+import highsLoader, { type Highs, type Model } from 'highs'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { searchBuilds } from '../main/searchBuilds'
 import type { SearchResult, SkillLevel } from '../main/types'
@@ -27,6 +27,10 @@ interface Measurement {
   run: number
   totalMs: number
   solveMs: number[]
+  /** run() ごとの分枝限定のノード数（取れないときは 0） */
+  nodes: number[]
+  /** run() ごとの単体法の反復数（presolve で判定されたときは 0） */
+  lpIterations: number[]
   builds: number
   status: SearchResult['status']
 }
@@ -35,8 +39,23 @@ let highs: Highs
 let data: SyntheticData
 const measurements: Measurement[] = []
 
-/** withModel が渡すモデルの run() ごとに時間を計る（src/main に計測用の引数を足さない） */
-function instrument(target: Highs, solveMs: number[]): Highs {
+interface SolveStats {
+  solveMs: number[]
+  nodes: number[]
+  lpIterations: number[]
+}
+
+/** 求解後の info の値。取れないとき（求解前・アルゴリズムによる）は 0 */
+function readInfo(model: Model, name: string): number {
+  try {
+    return Number(model.info.get(name))
+  } catch {
+    return 0
+  }
+}
+
+/** withModel が渡すモデルの run() ごとに時間・ノード数・反復数を取る（src/main に計測用の引数を足さない） */
+function instrument(target: Highs, stats: SolveStats): Highs {
   const timeRun = (model: object) =>
     new Proxy(model, {
       get(m, prop) {
@@ -45,7 +64,9 @@ function instrument(target: Highs, solveMs: number[]): Highs {
           return (...args: unknown[]) => {
             const start = performance.now()
             const result: unknown = value.apply(m, args)
-            solveMs.push(performance.now() - start)
+            stats.solveMs.push(performance.now() - start)
+            stats.nodes.push(readInfo(m as Model, 'mip_node_count'))
+            stats.lpIterations.push(readInfo(m as Model, 'simplex_iteration_count'))
             return result
           }
         }
@@ -66,16 +87,16 @@ function instrument(target: Highs, solveMs: number[]): Highs {
 
 function measureCase(label: string, required: SkillLevel[], expected: SearchResult['status']) {
   for (let run = 1; run <= REPEATS; run++) {
-    const solveMs: number[] = []
+    const stats: SolveStats = { solveMs: [], nodes: [], lpIterations: [] }
     const input = toInput(data, required)
     const start = performance.now()
-    const result = searchBuilds(instrument(highs, solveMs), input)
+    const result = searchBuilds(instrument(highs, stats), input)
     const totalMs = performance.now() - start
     measurements.push({
       label,
       run,
       totalMs,
-      solveMs,
+      ...stats,
       builds: result.builds.length,
       status: result.status,
     })
@@ -97,6 +118,8 @@ function report() {
     'total ms': fmt(m.totalMs),
     'solve max ms': fmt(Math.max(0, ...m.solveMs)),
     'solve mean ms': fmt(m.solveMs.reduce((s, v) => s + v, 0) / Math.max(1, m.solveMs.length)),
+    'nodes max': Math.max(0, ...m.nodes),
+    'lp iter max': Math.max(0, ...m.lpIterations),
   }))
   const lines = [
     `HiGHS version: ${highs.version.string} (${highs.version.gitHash})`,

@@ -275,6 +275,22 @@ describe('searchBuilds: 合成データ', () => {
     expect(verifyBuild(stricter, build)).not.toEqual([])
   })
 
+  it('[AC7] 検算がスロットに収まらない構成を検出できる（検算自体の確認）', () => {
+    const required = makeFeasibleRequired(data, 103, 3)
+    const search = toInput(data, required)
+    const build = searchBuilds(highs, { ...search, maxResults: 1 }).builds[0]
+    const first = build?.decorations[0]
+    if (build === undefined || first === undefined)
+      throw new Error('装飾品を使う構成が見つからない')
+    // 全スロット数を超える個数にすれば、どの割り当てでも置けない
+    const overfull = {
+      ...build,
+      decorations: [{ ...first, count: first.count + 100 }, ...build.decorations.slice(1)],
+    }
+    expect(verifyBuild(search, build)).toEqual([])
+    expect(verifyBuild(search, overfull).some((p) => p.includes('置けない'))).toBe(true)
+  })
+
   it.each([3, 6, 10])('[AC6] 解なし（必須スキル %i 個）は構成を返さず infeasible を返す', (k) => {
     const required = makeInfeasibleRequired(data, 200 + k, k)
     expect(keys(toInput(data, required), 30)).toEqual({ status: 'infeasible', builds: [] })

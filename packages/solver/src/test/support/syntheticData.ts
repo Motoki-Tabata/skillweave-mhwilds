@@ -1,7 +1,7 @@
 /**
  * シード固定の合成データ生成器（機能 001・decisions.md Q2）。
  *
- * 件数とスロット・スキルの分布は MHDB の実測値に合わせる。
+ * 件数は MHDB の実測値に合わせる。分布の形のうち実測に合わせたのは防具のスキル数の平均だけ（重みの節を参照）。
  * 出典: wilds.mhdb.io/en/*（2026-10-03 取得。数値だけをここに書き、MHDB の JSON は取り込まない）
  *   - 防具 714（頭164・胴140・腕135・腰137・脚138）、下位を除くと 582。1部位あたりのスキル数の平均 2.97
  *   - 装飾品 361（武器用 295・防具用 66。スロット Lv 1〜3。スキルを2つ持つもの 173）
@@ -49,15 +49,20 @@ export const MHDB_COUNTS: DataCounts = {
   charms: 187,
 }
 
-/** 防具1つのスキル数 1〜5 の重み（平均 2.97） */
+/*
+ * 以下の重みのうち、MHDB の実測値に合わせてあるのは防具のスキル数の平均 2.97 だけ。
+ * スロット数・スロット Lv・スキル Lv の重みは実測に基づかない仮定の値である
+ * （件数は MHDB_COUNTS が実測。分布の形は仮定）。
+ */
+/** 防具1つのスキル数 1〜5 の重み（平均 2.97。実測値に合わせた） */
 const ARMOR_SKILL_COUNT_WEIGHTS = [0.11, 0.25, 0.3, 0.24, 0.1]
-/** 防具のスロット数 0〜3 の重み */
+/** 防具のスロット数 0〜3 の重み（仮定） */
 const ARMOR_SLOT_COUNT_WEIGHTS = [0.15, 0.3, 0.3, 0.25]
-/** 護石のスロット数 0〜2 の重み */
+/** 護石のスロット数 0〜2 の重み（仮定） */
 const CHARM_SLOT_COUNT_WEIGHTS = [0.4, 0.4, 0.2]
-/** スロット Lv 1〜3 の重み */
+/** スロット Lv 1〜3 の重み（仮定） */
 const SLOT_LEVEL_WEIGHTS = [0.4, 0.35, 0.25]
-/** スキル Lv 1〜3 の重み */
+/** スキル Lv 1〜3 の重み（仮定） */
 const SKILL_LEVEL_WEIGHTS = [0.7, 0.22, 0.08]
 
 export interface SyntheticData {
@@ -231,18 +236,27 @@ function singleSkillReach(data: SyntheticData, skillId: SkillId): number {
   return reach
 }
 
+/** スキルの最大 Lv（decisions.md Q2: MHDB の実測で 7） */
+const MAX_SKILL_LEVEL = 7
+
 /**
- * 解なしのケース: 必須スキルのどれもが単独では届く下限（singleSkillReach）にする。
- * 届く構成が互いに別の防具・スロットを使うので、組み合わせとしては満たせない
- * （単独で届かない下限は presolve ですぐ判定され、重いケースを測れないため）。
- * 満たせないことの確認は呼び出し側（searchBuilds の結果）が行う。
+ * 解なしのケース: 必須スキルの下限をすべて現実的な最大 Lv（7）にする。
+ * 各スキルは単独では 7 に届く（singleSkillReach >= 7 のものだけを選ぶ）が、届く構成は
+ * 互いに別の防具・スロットを使うので、組み合わせとしては満たせない。
+ * 競合を強めるため、単独で届きにくい（singleSkillReach の小さい）スキルの上位 1.5k 個から k 個を選ぶ。
+ * 下限を単独の到達値そのもの（9〜29）に置くと、Lv の最大 7 を超えて非現実的になる。
+ * 満たせないことの確認は呼び出し側（searchBuilds の結果）が行う（k が小さいと満たせる組もある）。
  */
 export function makeInfeasibleRequired(data: SyntheticData, seed: number, k: number): SkillLevel[] {
   const rng = createRng(seed)
-  const reachable = rng
-    .shuffle(data.armorSkillIds)
-    .map((skillId) => ({ skillId, level: singleSkillReach(data, skillId) }))
-    .filter((s) => s.level >= 2)
-  if (reachable.length < k) throw new Error(`k=${k} の解なしのケースを作れなかった`)
-  return reachable.slice(0, k)
+  const scarce = data.armorSkillIds
+    .map((skillId) => ({ skillId, reach: singleSkillReach(data, skillId) }))
+    .filter((s) => s.reach >= MAX_SKILL_LEVEL)
+    .sort((a, b) => a.reach - b.reach)
+    .slice(0, Math.ceil(k * 1.5))
+  if (scarce.length < k) throw new Error(`k=${k} の解なしのケースを作れなかった`)
+  return rng
+    .shuffle(scarce)
+    .slice(0, k)
+    .map(({ skillId }) => ({ skillId, level: MAX_SKILL_LEVEL }))
 }
