@@ -19,7 +19,6 @@
 
 | 作業 | 時期 |
 |---|---|
-| `.claude/`（TSOD 一式）と `CLAUDE.md`（憲法・検証コマンドの正）を claude-code-canon で生成・配置する | 次のセッション |
 | `/tsod-discover` で機能マップ（`specs/feature-map.md`）を作る | `.claude/` の配置後 |
 | e2e ジョブ（Playwright）を CI に追加する | 画面を持つ最初の機能（003） |
 | PWA（vite-plugin-pwa）の方針を決める（依存の provenance 欠落。[`design/tech-stack.md`](design/tech-stack.md)「主な判断」の 3） | 別セッションで詳細を確認して決める |
@@ -90,22 +89,7 @@ pnpm --filter @swv/web dev                       # http://localhost:5173
 
 ## 検証コマンド
 
-CI（[`.github/workflows/ci.yml`](.github/workflows/ci.yml)）と同じ検証です。`CLAUDE.md` を canon で配置するまでは、この表を暫定の正とします。
-
-| 種別 | apps/api（`apps/api` で実行） | pnpm workspace（リポジトリ直下で実行） |
-|---|---|---|
-| build | `./gradlew build` | `pnpm build` |
-| test | `./gradlew test` | `pnpm test:unit` |
-| lint | `./gradlew spotlessCheck` | `pnpm lint:check`（oxlint → ESLint の順） |
-| format | — | `pnpm format:check` |
-| typecheck | `./gradlew classes testClasses` | `pnpm type-check` |
-| contract | `./gradlew contractTest` | `pnpm contract:lint` |
-| contract 型の鮮度 | — | `pnpm contract:types` の後に `git diff --exit-code -- apps/web/src/main/lib/api/schema.ts` |
-| contract 定義書 | — | `pnpm contract:docs`・`pnpm contract:swagger`（生成物は `contracts/dist/`・非コミット） |
-| coverage（ローカル限定） | `./gradlew test contractTest jacocoTestReport` | `pnpm test:coverage` |
-| 静的解析（ローカル限定） | `scripts/sonar-local.sh`（全体）／ `scripts/sonar-local.sh --area api\|web\|packages` | 左に同じ |
-
-特定のパッケージだけを検証するときは `pnpm --filter @swv/web run <script>`・`pnpm --filter './packages/*' run <script>`。
+CI（[`.github/workflows/ci.yml`](.github/workflows/ci.yml)）と同じ検証です。検証コマンドの正は [`CLAUDE.md`](CLAUDE.md) の「Commands」節です。
 
 ---
 
