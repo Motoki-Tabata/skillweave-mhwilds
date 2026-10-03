@@ -73,7 +73,8 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | @vue/eslint-config-typescript | 14.9.0 | |
 | @vue/eslint-config-prettier | 10.2.0 | |
 | Prettier | 3.9.9 | catalog |
-| @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中 |
+| @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中。`packages/solver` の devDependencies（テストと測定が Node の型を使う） |
+| highs（HiGHS の WASM 版） | 1.15.3（2026-09-11） | `packages/solver` の dependencies。完全一致の版。MIT。採用（下記「HiGHS の測定結果」） |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
@@ -85,7 +86,6 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | shadcn-vue の部品（reka-ui・class-variance-authority・clsx・tailwind-merge） | 004 solver-ui | `components.json` だけ置いてある。部品は CLI でソースとしてコピーする |
 | アイコン | 004 solver-ui | `lucide-vue-next` は npm 上で deprecated。後継の `@lucide/vue`（1.49.0 が最新・2026-09-29）を導入時に確認する |
 | vite-plugin-pwa | 未定（下記「PWA」） | **サプライチェーン対策の判断待ち** |
-| HiGHS（npm `highs`） | 001 solver-spike | 下記「§3.3 の確認結果」 |
 | Playwright | 004 solver-ui（e2e ジョブと同時） | 画面が無いため今回は入れない |
 
 ---
@@ -126,7 +126,9 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
 `packages/solver`・`packages/data` は `exports` で `src/main/index.ts` を指し、ビルド成果物を持たない
 （利用側の Vite・Vitest がそのまま変換する）。そのため packages の検証は lint・format・type-check・test のみ。
 `packages/solver` の tsconfig は `lib: ["ES2024"]`・`types: []` で、DOM と Node の型を使うと型検査で落ちる
-（ソルバーを DOM・API の型に依存させない方針を機械で守るため）。Worker 用の型は 001 で足す。
+（ソルバーを DOM・API の型に依存させない方針を機械で守るため）。ただしテストと測定は `performance`・`console` を使うので、
+`tsconfig.json` は `include` を `src/main/**` に絞り、`src/test/**` は `tsconfig.vitest.json`（`types: ["node"]`）で別に型検査する
+（`type-check` script が両方を実行する）。Worker 用の型は後の機能で足す。
 
 ---
 
@@ -191,9 +193,36 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 |---|---|
 | マネージド DB の PostgreSQL 18 | **Neon: 提供あり**（14〜18 をサポート。2026-08 時点で 18.6。[Neon の版ポリシー](https://neon.com/docs/postgresql/postgres-version-policy)）。**Supabase: 新規プロジェクトでの提供告知を確認できず**（GitHub の Discussion で要望が出ている段階。17 のままの可能性が高い）。Neon が第一候補 |
 | vite-plugin-pwa と Vite のメジャー版 | peer は適合。導入はサプライチェーン上の理由で保留（上記「判断 3」） |
-| HiGHS WASM（npm `highs`） | 1.15.3（2026-09-11）。MIT。ESM（`build/highs.mjs`）と型定義あり、peer 依存なし。WASM は `highs/runtime` で取り出せる。導入と性能測定は 001 |
+| HiGHS WASM（npm `highs`） | 1.15.3（2026-09-11）。MIT。ESM（`build/highs.mjs`）と型定義あり、peer 依存なし。WASM は `highs/runtime` で取り出せる。採用（性能は下記「HiGHS の測定結果」） |
 | TypeScript 7 と typescript-eslint | 不適合のまま（上記「判断 1」） |
 | Cookie の同一サイト化 | 独自ドメインが未決のため未対応。dev では Vite の proxy で同一オリジンに見せている |
+
+---
+
+## HiGHS の測定結果（001 solver-spike・2026-10-04）
+
+**結論: 合格。HiGHS（npm `highs` 1.15.3）を採用する。縮約は不要。**
+
+- 条件: 合成データ（シード 20261003。上位防具 582・装飾品 361・生産護石 187。件数と分布は MHDB の実測値 `wilds.mhdb.io/en/*`・2026-10-03 取得に合わせた）。
+  必須スキル 3／6／10 個 × 解あり／解なし。各ケースを 3 回。1 回の検索は防御力の最大化で最大 30 件まで列挙（1 件ごとに 1 回の求解）。
+  HiGHS の初期化（`highs` の読み込み）は時間に含めない。
+- 合格基準: 検索 1 回の合計時間の最大が 3 秒以下。
+- 測定環境: Node v24.21.0・linux x64（WSL2）・AMD Ryzen 7 5700X。HiGHS 本体の版は `1.15.1 (04024d7)`（npm パッケージ 1.15.3 が同梱するもの）。
+- 実行: `pnpm --filter @swv/solver run measure`（通常のテスト・CI では実行しない。出力は reporter が verbose のときだけ表示される）。
+
+| ケース | 結果 | 求解回数 | 合計時間（3 回, ms） | 1 求解の最大（ms） |
+|---|---|---|---|---|
+| k=3 解あり | 30 件 | 30 | 760.2 / 624.6 / 600.4 | 91.7 / 23.0 / 23.7 |
+| k=6 解あり | 30 件 | 30 | 712.6 / 665.2 / 685.1 | 42.7 / 26.5 / 27.4 |
+| k=10 解あり | 30 件 | 30 | 652.7 / 635.7 / 627.9 | 28.9 / 23.8 / 24.5 |
+| k=3 解なし | 解なし | 1 | 21.7 / 23.2 / 20.9 | 19.9 / 20.8 / 18.8 |
+| k=6 解なし | 解なし | 1 | 22.2 / 22.6 / 22.4 | 20.4 / 20.1 / 20.6 |
+| k=10 解なし | 解なし | 1 | 25.1 / 23.1 / 24.8 | 21.5 / 21.0 / 20.6 |
+
+- 全ケース・全回の合計時間の最大: **760.2 ms**（基準 3000 ms に対して合格。余裕は約 4 倍）。
+- 1 求解は 20〜25 ms で、必須スキルの数にほぼよらない。時間の大半は求解の繰り返し（30 回）。
+- 縮約（必須スキルに寄与しない防具のまとめ）は、基準を超えなかったので加えていない。
+- 限界: 合成データでの測定であり、実データ（002 のマスターデータ）と Worker 上での時間は未測定。実データでの再測定は 003、Worker での測定は 004。
 
 ---
 
