@@ -36,6 +36,7 @@ coverage/
 apps/web/dist/
 apps/web/dist-ssr/
 apps/web/dev-dist/
+packages/data/.cache/
 # packages/data/dist/ はマスターデータの生成物としてコミットする（temp/initial-design.md §4）。
 
 # ===== Playwright (apps/web/e2e/) =====

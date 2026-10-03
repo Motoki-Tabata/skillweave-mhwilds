@@ -75,6 +75,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | Prettier | 3.9.9 | catalog |
 | @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中。`packages/solver` の devDependencies（テストと測定が Node の型を使う） |
 | highs（HiGHS の WASM 版） | 1.15.3（2026-09-11） | `packages/solver` の dependencies。完全一致の版。MIT。採用（下記「HiGHS の測定結果」） |
+| yaml | 2.9.1（2026-09-11） | `packages/data` の devDependencies。完全一致の版。ISC・依存0。パイプラインがオーバーレイ（`overlays/*.yaml`）を読むときだけ使い、ブラウザへは配信しない。provenance は 2.9.0 以前にも無く、`trustPolicy: no-downgrade` に抵触しない |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
@@ -129,6 +130,7 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
 （ソルバーを DOM・API の型に依存させない方針を機械で守るため）。ただしテストと測定は `performance`・`console` を使うので、
 `tsconfig.json` は `include` を `src/main/**` に絞り、`src/test/**` は `tsconfig.vitest.json`（`types: ["node"]`）で別に型検査する
 （`type-check` script が両方を実行する）。Worker 用の型は後の機能で足す。
+`packages/data` は Node の API を使うパイプラインを `src/main/pipeline/` に置くため `types: ["node"]` だが、ブラウザが読む入口 `src/main/index.ts` は型だけを直接書き、import を持たせない。`tsconfig.entry.json`（`types: []`・`include` は入口だけ）が入口だけを型検査し（`type-check` script が `tsconfig.json` の検査に続けて実行する）、入口が Node の API や Node 依存のモジュールを読み込むと型エラーで落ちる。
 
 ---
 

@@ -1,0 +1,18 @@
+# MHDB（mhdb-wilds-data c50a1eb892f4a1ad9bb35c147801658804be2cc2）の誤りの訂正。
+# 防具セットが持つ set_bonus の ranks が、同じ発動部位数・レベルを重複して持っている。
+# 発動部位数は昇順で重複しないため（検証の規則）、重複を除いた値に置き換える。
+replace:
+  # 護鎖刃竜の命脈。ゴグβの set_bonus の ranks が 2→1, 2→1, 4→2, 4→2 と重複し、
+  # 護鎖刃竜・α・β の 2→1, 4→2 と一致しない。
+  - id: sb:-1432692352
+    field: thresholds
+    value:
+      - { pieces: 2, level: 1 }
+      - { pieces: 4, level: 2 }
+  # 巨戟龍の黙示録。これを定義する唯一の防具セットであるゴグαの ranks が、
+  # 同じく 2→1, 2→1, 4→2, 4→2 と重複している。
+  - id: sb:5590
+    field: thresholds
+    value:
+      - { pieces: 2, level: 1 }
+      - { pieces: 4, level: 2 }
