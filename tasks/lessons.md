@@ -28,3 +28,13 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 - 種別: 矛盾是正
 - 何が起きたか: `tsod-build/SKILL.md`「委譲」1 は、C-1 で承認された常時許可外の変更を「ワーカーへの委譲の前に」メインが書くとしている。001 では `design/tech-stack.md`（測定結果の記録）は solver-test-agent の測定ハーネスができるまで書けず、`packages/solver/vitest.config.ts` の `passWithNoTests` の削除は、テストが無いうちに行うと solver-agent の検証（`test:unit`）が0件で落ちる。`specs/001-solver-spike/plan.md` 決定事項 14 で、この2つだけ委譲の後に書くと決めた。
 - 提案: `tsod-build/SKILL.md`「委譲」1 と `tsod-plan/SKILL.md`「常時許可外の変更」の説明に、「後続の成果に依存する変更は、plan の決定事項に書く時期を明記し、その時期に `[main]` のタスクとして書く」を足す。
+
+## 2026-10-04 solver のテスト配置規約が、補助部品・測定ハーネス・main と対応しないテストを許していない（機能001・区間 D）
+- 種別: 矛盾是正
+- 何が起きたか: `.claude/skills/impact-scope/conventions.md`「テスト配置・命名規約」は `src/test/<main と同じ相対パス>/<名前>.spec.ts` だけを定めている。001 では、合成データ生成器と検算の補助（`packages/solver/src/test/support/`）、時間の測定ハーネス（`*.measure.ts`。plan 決定事項 8 で通常のテストから分離）、main のファイルに対応しないテスト（`support/syntheticData.spec.ts`・`ciTiming.spec.ts`）が必要になり、規約の外に置いた。reviewer-agent がこの点を要修正として挙げた。
+- 提案: `conventions.md`「テスト配置・命名規約」と `.claude/rules/solver.md` に、solver の例外として「テスト用の補助は `src/test/support/`」「測定は `src/test/**/*.measure.ts`（`--mode measure` のときだけ実行。CI では実行しない）」「main に対応しないテストは `src/test/` 直下に置いてよい」を足す。
+
+## 2026-10-04 packages の tsconfig が `types: []` のため、テストと測定の型検査を分ける必要がある（機能001・区間 D）
+- 種別: 規律昇華
+- 何が起きたか: `packages/solver/tsconfig.json`（`lib: ["ES2024"]`・`types: []`）のままでは、テストと測定ハーネスが使う `performance`・`console` が型エラーになる。001 で `tsconfig.json` の `include` を `src/main/**` に絞り、`tsconfig.vitest.json`（`types: ["node"]`）で `src/test/**` も検査する形に分け、`type-check` で2本を実行した。verify・Sonar（`sonar.typescript.tsconfigPaths` に追加）とも通った（一括検証 PASS・Sonar issue 0）。
+- 提案: `.claude/rules/solver.md`（と、同じ `types: []` の `packages/data` を扱う `.claude/rules/data.md`）に「`src/main` は `types: []` の `tsconfig.json` で、テストと測定は `tsconfig.vitest.json`（`types: ["node"]`）で型検査する。`sonar-project.properties` の `sonar.typescript.tsconfigPaths` にも後者を足す」を加える。
