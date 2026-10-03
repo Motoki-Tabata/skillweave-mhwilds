@@ -18,3 +18,8 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 - 種別: 矛盾是正
 - 何が起きたか: `/tsod-discover` で `specs/feature-map.md` を作り、機能 ID を実装順に振り直した（solver-ui は 003 → 004、discord-login は 004 → 009、charm-save は 005 → 010）。非管理側（`README.md`・`design/*`・`contracts/README.md`・`ci.yml`・`main.css`）は同じブランチで新番号に直した。管理側の `CLAUDE.md`「e2e の追加」節の「機能 003 で e2e を足すときは」と、`.claude/skills/tsod-ship/SKILL.md` の「画面を持つ最初の機能（機能 003）で e2e を CI に足すとき」は旧番号のまま残っていたため、オーナーの指示で配置先の両箇所を直接「機能 004」に直した（`docs/canon-feature-number` ブランチ）。canon のリポジトリ（`claude-code-canon`）を grep しても両箇所の文言は見つからず、生成元のどこに対応するかは特定できていない。
 - 提案: canon の生成元で両箇所に当たる箇所を特定し、機能番号を「004」に直す（直さないと、次の配置で配置先の修正が「機能 003」に戻る）。番号の振り直しで再び食い違わないよう、番号ではなく「画面を持つ最初の機能（`specs/feature-map.md` 参照）」と書く形にするかも同時に決める。
+
+## 2026-10-03 `components/common/` を先に作ったため、canon 管理下の「予約の場所」の記述が実態とずれた（フォルダ構成の適用・区間外）
+- 種別: 矛盾是正
+- 何が起きたか: 機能 001 の前に、apps/api のレイヤー別パッケージ・apps/web の `components/common/`・`constants/`・`types/`・`stores/`・各 `src/docs/` を、置き場の規約を書いた `README.md` 付きで作った（`chore/folder-structure` ブランチ）。`.claude/skills/impact-scope/conventions.md`「共有部品の扱い」節は `apps/web/src/main/components/common/` を「予約の場所で、最初の共通部品を足す機能で作られる」と書いており、フォルダが既にある実態と合わない。
+- 提案: canon の生成元で同節の `components/common/` の行から「予約の場所で、最初の共通部品を足す機能で作られる」を外し、「置き場の規約は同フォルダの `README.md`」に置き換える。あわせて、各フォルダの `README.md` を置き場の規約の正として参照するかを決める。
