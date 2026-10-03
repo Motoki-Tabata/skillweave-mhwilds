@@ -1,6 +1,9 @@
 /**
  * packages/solver 入出力型（たたき台 v0）
  *
+ * 卒業記録: 機能001で使う分（Brand・SkillId・ArmorId・DecorationId・Uuid・ArmorPart・SlotLevel・SlotTarget・Slot・SkillLevel・SolverStatus と、
+ *   防具・装飾品・護石・武器の最小形）を `packages/solver/src/main/types.ts` へ移設済み。残りの型は未卒業（機能003）。
+ *
  * 方針
  * - ソルバーは純粋関数。マスターやユーザーデータを自分で取りに行かない（受け取るだけ）。
  * - マスターの参照は文字列ID（ブランド型）。ユーザーデータはUUID。
