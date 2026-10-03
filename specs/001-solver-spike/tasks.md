@@ -2,7 +2,7 @@
 
 順序: T1 → T2 → T3・T4・T5（同じ領域なので1回の委譲でよい）→ T6 → T7 →（T7 で不合格のときだけ）T8 → T9 → T10。すべて pnpm workspace を検証する役割なので並列にしない。
 
-- [ ] T1 [main]                委譲前の常時許可外の変更: highs と @types/node の追加と `pnpm install`、measure・type-check の script、vitest.config.ts の mode の切り替え、tsconfig の分割（plan 決定事項 7・8）、C-1 で承認されたときだけ sonar-project.properties     refs spec §受入基準 1, 9, 13, 14
+- [x] T1 [main]                委譲前の常時許可外の変更: highs と @types/node の追加と `pnpm install`、measure・type-check の script、vitest.config.ts の mode の切り替え、tsconfig の分割（plan 決定事項 7・8）、C-1 で承認されたときだけ sonar-project.properties     refs spec §受入基準 1, 9, 13, 14
 - [ ] T2 [solver-agent]        型の移設と `searchBuilds`（plan 決定事項 1〜6: ILP の組み立て、HiGHS の永続 API での求解、除外の行を足す列挙、解なし）     refs spec §受入基準 1, 2, 3, 4, 5, 6, 14
 - [ ] T3 [solver-test-agent]   シード固定の合成データ生成器（Q2 の分布と出典の記載、解あり・解なしのケースの作り方は plan 決定事項 10）と、同じシードから同じデータになることのテスト     refs spec §受入基準 8
 - [ ] T4 [solver-test-agent]   正しさのテスト: 小さい手作りのデータで、必須スキルの下限・武器用と防具用のスロットの区別・スロット Lv 以下の装飾品だけ・防御力の最大化・30 件での打ち切りと解が尽きるまでの列挙・防具と護石の組の重複なし・解なしを確かめ、生成器のデータで返した全構成を独立に検算する（plan 決定事項 11）。時間は検査しない     refs spec §受入基準 1, 2, 3, 4, 5, 6, 7, 13
