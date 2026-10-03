@@ -43,3 +43,8 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 - 種別: 矛盾是正
 - 何が起きたか: `.claude/skills/impact-scope/SKILL.md`「書込許可フォルダ」は、overlay の置き場が機能 002 で決まったら担当フォルダを足すとしている。002 の決定（`specs/002-master-data-pipeline/decisions.md` Q10）で、overlay を `packages/data/overlays/*.yaml`、パイプラインのコードを `packages/data/src/main/` に置くと決めた。反映までは overlay を spec の「常時許可外の変更予定」に挙げ、メインが書く。
 - 提案: `.claude/skills/impact-scope/write-scopes.json` の `data-agent` に `packages/data/overlays/**` を足し、同 `SKILL.md` の表と「`packages/data/{scripts,overlays}/` も現時点では含めない」の箇所を直す。`.claude/rules/data.md` の「overlay とパイプラインの置き場は、パイプラインを導入する機能で決まる」を、決まった置き場に書き換える。
+
+## 2026-10-04 新設した design/master-data.md に .claude/rules の配線が無い（機能002・区間 E）
+- 種別: 矛盾是正
+- 何が起きたか: 002 のドリフト検査で、temp §7 を卒業させるために `design/master-data.md` を新設した。`design/` 直下の文書には `.claude/rules/**` のいずれかが「正」として参照する配線が要る（temp-graduation.md の不変条件）が、`.claude/` は canon の管理下のため drift PR では配線できない。
+- 提案: `.claude/rules/data.md` に「マスターデータの情報源・ID 規則・overlay の書式・検証・出力の正は `design/master-data.md`」を足す。あわせて、同ファイルの「overlay とパイプラインの置き場は、パイプラインを導入する機能で決まる」を、決まった置き場（`packages/data/overlays/*.yaml`・`src/main/pipeline/`）に書き換える（上の「overlay の置き場が決まったので…」と同じ改修で行える）。

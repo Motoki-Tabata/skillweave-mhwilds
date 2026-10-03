@@ -200,6 +200,8 @@ Attribute／Entity／Column の三層と `attributes.yaml` を SSoT とする運
 
 ## 7. マスターデータ
 
+> 卒業記録: 機能002で §7 全体を `design/master-data.md` へ移設し、実装（`packages/data`）済み。以降は `design/master-data.md` が正。
+
 ### 7.1 情報源（決定）
 
 - **主: MHDB**（`LartTyler/mhdb-wilds-data` の `output/merged`、または `wilds.mhdb.io` API）。ゲームファイル由来で日本語を含む全言語の名前がある。
