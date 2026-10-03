@@ -7,8 +7,6 @@ export default defineConfig(({ mode }) => {
   return {
     test: {
       include: [measure ? 'src/test/**/*.measure.ts' : 'src/test/**/*.spec.ts'],
-      // テストを書いたら外す（plan 決定事項 14。T6）。それまではテストが0件でも成功させる。
-      passWithNoTests: true,
       ...(measure && { testTimeout: 600_000, hookTimeout: 600_000 }),
       // `pnpm test:coverage` のときだけ有効になる（ローカル限定。閾値は置かない）。
       coverage: {
