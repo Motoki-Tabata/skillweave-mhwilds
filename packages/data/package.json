@@ -8,9 +8,11 @@
     ".": "./src/main/index.ts"
   },
   "scripts": {
+    "generate": "node src/main/pipeline/generate.ts",
+    "generate:check": "node src/main/pipeline/generate.ts --check",
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit && tsc --noEmit -p tsconfig.entry.json",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "lint": "pnpm run lint:oxlint && pnpm run lint:eslint",
@@ -27,6 +29,7 @@
     "prettier": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "yaml": "2.9.1"
   }
 }
