@@ -2,9 +2,9 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: C
-- 次に起動するコマンド: `/tsod-plan 002-master-data-pipeline`
-- 推奨モデル: Opus
+- 区間: D
+- 次に起動するコマンド: `/tsod-build 002-master-data-pipeline`
+- 推奨モデル: Sonnet
 - ブランチ: `feat/002-master-data-pipeline`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
@@ -27,7 +27,7 @@
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-10-04 / 19bdfc0 |
 | B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | |
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | |
-| C-1 | plan.md・tasks.md | 未 | |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-10-04 / a41db24 |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
@@ -62,18 +62,19 @@
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- spec に無く plan で足した常時許可外の変更（ゲート C-1 で承認）: `packages/data/tsconfig.entry.json`（新規。入口を `types: []` で型検査し、受入基準 15 を機械で守る）、`design/tech-stack.md`（yaml 2.9.1 の追加）
+- MHDB の訂正（`overlays/corrections.yaml`）は、spec が挙げる護鎖刃竜の命脈に加え、巨戟龍の黙示録（`sb:5590`）も同じ重複のため訂正する（plan 決定事項 13。訂正値はゲート C-1 でオーナーが確認）
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
-なし（区間 A の canon への要求「overlay の書込許可」は `tasks/lessons.md` に起票済み）
+なし（区間 C で新たな候補なし。区間 A の canon への要求「overlay の書込許可」は `tasks/lessons.md` に起票済み）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
-- 護鎖刃竜の命脈の訂正値（ゴグβ の発動部位数が `2→1, 2→1, 4→2, 4→2` と重複。他のセットは `2→1, 4→2`）は、最終確認をオーナーに求める（`temp/initial-design.md` §7.5 と同じ扱い）。
-- `packages/data/overlays/**` の書込許可の canon への反映状況。未反映なら `corrections.yaml` は plan の常時許可外としてメインが書く。
+- `packages/data/overlays/**` の書込許可は 2026-10-04 時点で canon に未反映。`corrections.yaml` は plan の常時許可外として T1 でメインが書く。区間 D の開始時に `write-scopes.json` を見て、反映済みでもこの機能ではメインが書く（plan どおり）。
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
-- 区間 A の時点の MHDB `main` の HEAD は `c50a1eb892f4a1ad9bb35c147801658804be2cc2`（`wilds.mhdb.io/version` は `2026-04-15T01:28:18+00:00`）。固定する SHA は区間 C で決める。
+- 固定する MHDB の SHA は `c50a1eb892f4a1ad9bb35c147801658804be2cc2`、版は `2026.10.1`（plan「スタック」）。訂正値（命脈・黙示録とも `2→1, 4→2`）はゲート C-1 でオーナーが確認済み。
 - 取得対象: `output/merged/` の `Skill.json`・`Armor.json`・`Accessory.json`・`Amulet.json`、`output/merged/weapons/` の武器種14ファイル（`HuntingHorn{EchoBubbles,EchoWaves,Melodies,Songs}.json` は対象外）。`Charm.json` は装飾用のアイテムで、護石ではない。
 - MHDB の形: 防具はセット単位の配列で `pieces[].kind` が部位。`set_bonus_id`・`group_bonus_id` はスキルの gameId。スキルの `kind` は `armor`・`weapon`・`set`・`group`。武器の属性は `specials[]`（`kind: element|status`・`element`・`raw`）。生産護石（`Amulet.json` の `is_random: false`）の `ranks[]` にスロットは無い。名前は15言語あり、ja・en だけを使う。
