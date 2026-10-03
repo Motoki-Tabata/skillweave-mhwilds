@@ -40,8 +40,8 @@
 
 | 項目 | 導入する機能 | 今回入れない理由 |
 |---|---|---|
-| Spring Session JDBC | 004 discord-login | クラスパスに載せるとセッションテーブルを要求する。テーブルは Flyway で作るので、その機能で一緒に入れる |
-| Spring Security・OAuth2 Client（Discord） | 004 discord-login | 認証の要件（スコープ・リダイレクト URI・CSRF）を機能の中で決める。エンドポイントがまだ無いので保護対象も無い |
+| Spring Session JDBC | 009 discord-login | クラスパスに載せるとセッションテーブルを要求する。テーブルは Flyway で作るので、その機能で一緒に入れる |
+| Spring Security・OAuth2 Client（Discord） | 009 discord-login | 認証の要件（スコープ・リダイレクト URI・CSRF）を機能の中で決める。エンドポイントがまだ無いので保護対象も無い |
 
 版はいずれも Spring Boot BOM が解決する。導入時に `./gradlew dependencies` で実測して本書に追記する。
 
@@ -82,11 +82,11 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 
 | 項目 | 導入する機能 | 備考 |
 |---|---|---|
-| shadcn-vue の部品（reka-ui・class-variance-authority・clsx・tailwind-merge） | 003 solver-ui | `components.json` だけ置いてある。部品は CLI でソースとしてコピーする |
-| アイコン | 003 solver-ui | `lucide-vue-next` は npm 上で deprecated。後継の `@lucide/vue`（1.49.0 が最新・2026-09-29）を導入時に確認する |
+| shadcn-vue の部品（reka-ui・class-variance-authority・clsx・tailwind-merge） | 004 solver-ui | `components.json` だけ置いてある。部品は CLI でソースとしてコピーする |
+| アイコン | 004 solver-ui | `lucide-vue-next` は npm 上で deprecated。後継の `@lucide/vue`（1.49.0 が最新・2026-09-29）を導入時に確認する |
 | vite-plugin-pwa | 未定（下記「PWA」） | **サプライチェーン対策の判断待ち** |
 | HiGHS（npm `highs`） | 001 solver-spike | 下記「§3.3 の確認結果」 |
-| Playwright | 003 solver-ui（e2e ジョブと同時） | 画面が無いため今回は入れない |
+| Playwright | 004 solver-ui（e2e ジョブと同時） | 画面が無いため今回は入れない |
 
 ---
 
@@ -199,7 +199,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## CI
 
-`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages。e2e は 003 で追加する。
+`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages。e2e は 004 で追加する。
 
 ## SonarQube のローカル限定採用
 

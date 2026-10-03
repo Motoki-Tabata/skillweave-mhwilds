@@ -124,4 +124,4 @@ jobs:
       - name: Unit tests
         run: pnpm --filter './packages/*' run test:unit
 
-  # e2e ジョブは画面を持つ最初の機能（003 solver-ui）で追加する（README.md「残作業」節）。
+  # e2e ジョブは画面を持つ最初の機能（004 solver-ui）で追加する（README.md「残作業」節）。
