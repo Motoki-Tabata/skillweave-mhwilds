@@ -10,7 +10,8 @@
   "scripts": {
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "type-check": "tsc --noEmit",
+    "measure": "vitest run --mode measure",
+    "type-check": "tsc --noEmit && tsc --noEmit -p tsconfig.vitest.json",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
     "lint": "pnpm run lint:oxlint && pnpm run lint:eslint",
@@ -18,7 +19,11 @@
     "format": "prettier --write src/",
     "format:check": "prettier --check src/"
   },
+  "dependencies": {
+    "highs": "1.15.3"
+  },
   "devDependencies": {
+    "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-oxlint": "catalog:",

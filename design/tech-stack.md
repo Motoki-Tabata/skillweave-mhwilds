@@ -73,7 +73,8 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | @vue/eslint-config-typescript | 14.9.0 | |
 | @vue/eslint-config-prettier | 10.2.0 | |
 | Prettier | 3.9.9 | catalog |
-| @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中 |
+| @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中。`packages/solver` の devDependencies（テストと測定が Node の型を使う） |
+| highs（HiGHS の WASM 版） | 1.15.3（2026-09-11） | `packages/solver` の dependencies。完全一致の版。MIT。採用（下記「HiGHS の測定結果」） |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
@@ -85,7 +86,6 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | shadcn-vue の部品（reka-ui・class-variance-authority・clsx・tailwind-merge） | 004 solver-ui | `components.json` だけ置いてある。部品は CLI でソースとしてコピーする |
 | アイコン | 004 solver-ui | `lucide-vue-next` は npm 上で deprecated。後継の `@lucide/vue`（1.49.0 が最新・2026-09-29）を導入時に確認する |
 | vite-plugin-pwa | 未定（下記「PWA」） | **サプライチェーン対策の判断待ち** |
-| HiGHS（npm `highs`） | 001 solver-spike | 下記「§3.3 の確認結果」 |
 | Playwright | 004 solver-ui（e2e ジョブと同時） | 画面が無いため今回は入れない |
 
 ---
@@ -126,7 +126,9 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
 `packages/solver`・`packages/data` は `exports` で `src/main/index.ts` を指し、ビルド成果物を持たない
 （利用側の Vite・Vitest がそのまま変換する）。そのため packages の検証は lint・format・type-check・test のみ。
 `packages/solver` の tsconfig は `lib: ["ES2024"]`・`types: []` で、DOM と Node の型を使うと型検査で落ちる
-（ソルバーを DOM・API の型に依存させない方針を機械で守るため）。Worker 用の型は 001 で足す。
+（ソルバーを DOM・API の型に依存させない方針を機械で守るため）。ただしテストと測定は `performance`・`console` を使うので、
+`tsconfig.json` は `include` を `src/main/**` に絞り、`src/test/**` は `tsconfig.vitest.json`（`types: ["node"]`）で別に型検査する
+（`type-check` script が両方を実行する）。Worker 用の型は後の機能で足す。
 
 ---
 
@@ -191,9 +193,42 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 |---|---|
 | マネージド DB の PostgreSQL 18 | **Neon: 提供あり**（14〜18 をサポート。2026-08 時点で 18.6。[Neon の版ポリシー](https://neon.com/docs/postgresql/postgres-version-policy)）。**Supabase: 新規プロジェクトでの提供告知を確認できず**（GitHub の Discussion で要望が出ている段階。17 のままの可能性が高い）。Neon が第一候補 |
 | vite-plugin-pwa と Vite のメジャー版 | peer は適合。導入はサプライチェーン上の理由で保留（上記「判断 3」） |
-| HiGHS WASM（npm `highs`） | 1.15.3（2026-09-11）。MIT。ESM（`build/highs.mjs`）と型定義あり、peer 依存なし。WASM は `highs/runtime` で取り出せる。導入と性能測定は 001 |
+| HiGHS WASM（npm `highs`） | 1.15.3（2026-09-11）。MIT。ESM（`build/highs.mjs`）と型定義あり、peer 依存なし。WASM は `highs/runtime` で取り出せる。採用（性能は下記「HiGHS の測定結果」） |
 | TypeScript 7 と typescript-eslint | 不適合のまま（上記「判断 1」） |
 | Cookie の同一サイト化 | 独自ドメインが未決のため未対応。dev では Vite の proxy で同一オリジンに見せている |
+
+---
+
+## HiGHS の測定結果（001 solver-spike・2026-10-04）
+
+**結論: 合格。HiGHS（npm `highs` 1.15.3）を採用する。縮約は不要。**
+
+- 条件: 合成データ（シード 20261003。上位防具 582・装飾品 361・生産護石 187）。件数と防具のスキル数の平均は MHDB の実測値
+  （`wilds.mhdb.io/en/*`・2026-10-03 取得）に合わせた。スロットの構成とスキル Lv の分布は仮定の値。
+  必須スキル 3／6／10 個 × 解あり／解なし。各ケースを 3 回。1 回の検索は防御力の最大化で最大 30 件まで列挙（1 件ごとに 1 回の求解）。
+  HiGHS の初期化（`highs` の読み込み）は時間に含めない。
+- 解なしの作り方: 単独では Lv 7 に届く希少なスキルを k 個選び、下限を Lv 7 にする（組み合わせとしてだけ満たせない）。
+- 合格基準: 検索 1 回の合計時間の最大が 3 秒以下。
+- 測定環境: Node v24.21.0・linux x64（WSL2）・AMD Ryzen 7 5700X。HiGHS 本体の版は `1.15.1 (04024d7)`（npm パッケージ 1.15.3 が同梱するもの）。
+- 実行: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose`
+  （`pnpm --filter @swv/solver run measure` でも走るが、表は reporter が verbose のときだけ表示される。通常のテスト・CI では実行しない）。
+
+| ケース | 結果 | 求解回数 | 合計時間（3 回, ms） | 1 求解の平均（ms） | 分枝のノード数・LP 反復数（最大） |
+|---|---|---|---|---|---|
+| k=3 解あり | 30 件 | 30 | 755.7 / 615.5 / 624.0 | 24.3 / 20.0 / 20.4 | 1 / 9 |
+| k=6 解あり | 30 件 | 30 | 708.6 / 684.4 / 688.1 | 23.3 / 22.5 / 22.6 | 1 / 16 |
+| k=10 解あり | 30 件 | 30 | 725.5 / 762.9 / 693.9 | 23.8 / 25.1 / 22.8 | 1 / 21 |
+| k=3 解なし | 解なし | 1 | 7.8 / 8.5 / 7.7 | 6.5 / 6.0 / 6.4 | 0 / 0（presolve で判定） |
+| k=6 解なし | 解なし | 1 | 22.6 / 23.4 / 20.7 | 20.1 / 20.7 / 18.6 | 1 / 18 |
+| k=10 解なし | 解なし | 1 | 21.0 / 21.3 / 22.5 | 19.1 / 18.6 / 20.0 | 1 / 24 |
+
+- 全ケース・全回の合計時間の最大: **762.9 ms**（k=10 解あり・2 回目。基準 3000 ms に対して合格。余裕は約 4 倍）。
+- 1 求解の最大は初回の 1 回目だけ大きい（k=3 解ありで 88.1 ms）。それ以外は 50 ms 未満。時間の大半は 30 回の求解の繰り返し。
+- 縮約（必須スキルに寄与しない防具のまとめ）は、基準を超えなかったので加えていない。
+- 限界 1: 解ありの求解は、LP の解がそのまま整数解になり、分枝しない（ノード数 1）。解なしも presolve か根ノードの LP で判定され、
+  分枝限定に入るケースは作れなかった（試した作り方: 解ありの構成の下限を +1〜+4 する・一部のスキルだけ +1〜+3 する・全スキルの下限を Lv 4〜7 にする・希少なスキルを選んで Lv 7 にする。旧方式の「単独の到達値そのもの」は Lv 17 超で、根ノードの LP で落ちていた。現実的な下限では、この定式化と合成データでは常に presolve か根ノードで決まる）。
+  したがって、分枝が必要になる難しい入力（実データの偏り・装飾品の所持数の制限・シリーズスキル）での時間は、この測定からは分からない。003 以降で再測定する。
+- 限界 2: 合成データでの測定であり、実データ（002 のマスターデータ）と Worker 上での時間は未測定。実データでの再測定は 003、Worker での測定は 004。
 
 ---
 
