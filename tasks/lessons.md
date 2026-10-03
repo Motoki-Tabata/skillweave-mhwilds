@@ -23,3 +23,8 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 - 種別: 矛盾是正
 - 何が起きたか: 機能 001 の前に、apps/api のレイヤー別パッケージ・apps/web の `components/common/`・`constants/`・`types/`・`stores/`・各 `src/docs/` を、置き場の規約を書いた `README.md` 付きで作った（`chore/folder-structure` ブランチ）。`.claude/skills/impact-scope/conventions.md`「共有部品の扱い」節は `apps/web/src/main/components/common/` を「予約の場所で、最初の共通部品を足す機能で作られる」と書いており、フォルダが既にある実態と合わない。
 - 提案: canon の生成元で同節の `components/common/` の行から「予約の場所で、最初の共通部品を足す機能で作られる」を外し、「置き場の規約は同フォルダの `README.md`」に置き換える。あわせて、各フォルダの `README.md` を置き場の規約の正として参照するかを決める。
+
+## 2026-10-04 常時許可外の変更の中に、委譲の前には書けないものがある（機能001・区間C）
+- 種別: 矛盾是正
+- 何が起きたか: `tsod-build/SKILL.md`「委譲」1 は、C-1 で承認された常時許可外の変更を「ワーカーへの委譲の前に」メインが書くとしている。001 では `design/tech-stack.md`（測定結果の記録）は solver-test-agent の測定ハーネスができるまで書けず、`packages/solver/vitest.config.ts` の `passWithNoTests` の削除は、テストが無いうちに行うと solver-agent の検証（`test:unit`）が0件で落ちる。`specs/001-solver-spike/plan.md` 決定事項 14 で、この2つだけ委譲の後に書くと決めた。
+- 提案: `tsod-build/SKILL.md`「委譲」1 と `tsod-plan/SKILL.md`「常時許可外の変更」の説明に、「後続の成果に依存する変更は、plan の決定事項に書く時期を明記し、その時期に `[main]` のタスクとして書く」を足す。

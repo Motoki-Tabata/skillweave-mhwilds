@@ -2,9 +2,9 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: C
-- 次に起動するコマンド: `/tsod-plan 001-solver-spike`
-- 推奨モデル: Opus
+- 区間: D
+- 次に起動するコマンド: `/tsod-build 001-solver-spike`
+- 推奨モデル: Sonnet
 - ブランチ: `feat/001-solver-spike`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
@@ -27,7 +27,7 @@
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-10-03 / c0dca9f |
 | B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | |
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | |
-| C-1 | plan.md・tasks.md | 未 | |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-10-04 / ab223fe（plan のみの常時許可外 3件を含む。`sonar-project.properties` は明示の承認あり） |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
@@ -62,13 +62,17 @@
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- spec の影響範囲に無く、ゲート C-1（区間 C）で承認された常時許可外の変更: `packages/solver/tsconfig.json`（include を src/main/** に絞る）・`packages/solver/tsconfig.vitest.json`（新規。テストに Node の型）・`sonar-project.properties`（tsconfigPaths に tsconfig.vitest.json を追加。人間の明示の承認あり）。理由は plan.md 決定事項 7
+- 台帳（tasks/lessons.md）に「常時許可外の変更の中に、委譲の前には書けないものがある」を起票（区間 C）
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
-なし
+- packages の tsconfig が `types: []` のため、テストでも `performance`・`console` が型エラーになる（2026-10-04 確認）。行き先候補は `.claude/rules/solver.md`（テストの型検査は tsconfig.vitest.json に分ける）。持ち越す理由: 分割（T1）が区間 D の検証と Sonar で通るのを確かめてから、規則の文面を決めるため
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
+- 常時許可外の変更のうち、`passWithNoTests` の削除は T6（テストの後）、`design/tech-stack.md` は T7・T10（測定の後）に書く（plan.md 決定事項 14）。それ以外は委譲の前（T1）
+- T8〜T10 は T7 で合計時間の最大が 3 秒を超えたときだけ行う
