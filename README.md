@@ -20,7 +20,7 @@
 | 作業 | 時期 |
 |---|---|
 | `/tsod-discover` で機能マップ（`specs/feature-map.md`）を作る | `.claude/` の配置後 |
-| e2e ジョブ（Playwright）を CI に追加する | 画面を持つ最初の機能（003） |
+| e2e ジョブ（Playwright）を CI に追加する | 画面を持つ最初の機能（004） |
 | PWA（vite-plugin-pwa）の方針を決める（依存の provenance 欠落。[`design/tech-stack.md`](design/tech-stack.md)「主な判断」の 3） | 別セッションで詳細を確認して決める |
 
 ### 未決事項
@@ -50,7 +50,7 @@
 
 - ソルバー（と将来の OCR）はブラウザ内で実行します。ユーザーの画像はサーバーへ送りません。
 - マスターデータは DB に置かず、`packages/data` が生成した JSON を静的配信します。DB はユーザーデータだけを持ちます。
-- ソルバーと護石の入力はログインなしで使えます（端末内の下書き）。保存・共有は Discord ログインが必要です（機能004 以降）。
+- ソルバーと護石の入力はログインなしで使えます（端末内の下書き）。保存・共有は Discord ログインが必要です（機能009 以降）。
 
 ---
 
@@ -61,7 +61,7 @@
 | レイヤ | 技術 |
 |---|---|
 | API | Java 25 LTS / Spring Boot 4 / Gradle 9（Kotlin DSL）/ Flyway / springdoc-openapi |
-| Web | Vue 3 / TypeScript 6 / Vite 8 / Tailwind CSS 4 /（shadcn-vue + Reka UI は 003 から） |
+| Web | Vue 3 / TypeScript 6 / Vite 8 / Tailwind CSS 4 /（shadcn-vue + Reka UI は 004 から） |
 | packages | TypeScript 6 / Vitest 5 |
 | Data | PostgreSQL 18 |
 | パッケージ管理 | pnpm 11（リポジトリ直下の workspace。クールダウン・ビルドスクリプト遮断・信頼度の低下の拒否を有効化） |

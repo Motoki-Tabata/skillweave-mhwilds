@@ -5,7 +5,7 @@
 #
 # 運用: 機能が1つ TSOD で確定するたびに、その機能が扱う項目をここに追記する。
 # 物理名・型は design/data-model-standard.md の命名規則に従うこと（区分カラムは text + CHECK、
-# ENUM 型は使わない等）。最初のエントリは機能005（charm-save）で確定する予定
+# ENUM 型は使わない等）。最初のエントリは機能010（charm-save）で確定する予定
 # （候補: temp/initial-design.md §6.3）。
 #
 # エントリ形式（論理名をキーにした map）:

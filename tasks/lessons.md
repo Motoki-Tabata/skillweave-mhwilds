@@ -13,3 +13,8 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 - 種別: 矛盾是正
 - 何が起きたか: 信頼済みのワークスペースで `claude -p` を起動すると、`.claude/settings.json` の `Bash(pnpm --filter './packages/*' run <script>)` 系の14ルールすべてに「wildcard before the rest of the command, so it also matches any options inserted at that position and approves them without a prompt」という警告が出た。クォート内の `*` が任意文字列に一致するため、`--filter './packages/` と `' run lint` の間に任意のオプションを挟んだコマンドまで確認なしで通る。2形（この形と `./gradlew …`）が確認なしで通ること自体は、通常の権限モードの `claude -p` で確かめた。
 - 提案: canon の settings.json の生成元で `pnpm --filter './packages/*' run …` の14ルールを削除し、既に列挙済みの `pnpm --filter @swv/solver run …`・`pnpm --filter @swv/data run …` に寄せる（許可パターンでは `*` をクォートで逃がせないため、パッケージ名の列挙に統一する）。CLAUDE.md の Commands とワーカー向けの手順で `--filter './packages/*'` を案内している箇所も、パッケージ名の形に合わせるかどうかを同時に決める。
+
+## 2026-10-03 機能番号を実装順に振り直したため、canon 管理下の「機能 003 で e2e を足す」が solver-ui を指さなくなった（機能分解・区間外）
+- 種別: 矛盾是正
+- 何が起きたか: `/tsod-discover` で `specs/feature-map.md` を作り、機能 ID を実装順に振り直した（solver-ui は 003 → 004、discord-login は 004 → 009、charm-save は 005 → 010）。非管理側（`README.md`・`design/*`・`contracts/README.md`・`ci.yml`・`main.css`）は同じブランチで新番号に直した。管理側の `CLAUDE.md`「e2e の追加」節の「機能 003 で e2e を足すときは」と、`.claude/skills/tsod-ship/SKILL.md` の「画面を持つ最初の機能（機能 003）で e2e を CI に足すとき」は旧番号のまま残っている。
+- 提案: canon の生成元で、両箇所の機能番号を「004」に直す。番号の振り直しで再び食い違わないよう、番号ではなく「画面を持つ最初の機能（`specs/feature-map.md` 参照）」と書く形にするかも同時に決める。

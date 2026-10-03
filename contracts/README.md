@@ -58,7 +58,7 @@ contracts/
   存在すると、`./gradlew contractTest` の `OpenApiContractTest#draftOperationsMustNotBeImplemented`
   が失敗する。除外は「未実装である前提」の運用にすぎず、その前提が崩れたら CI が落ちる
 
-現時点でオペレーションは 0 件。最初の API を持つ機能（004 discord-login 以降）から使う。
+現時点でオペレーションは 0 件。最初の API を持つ機能（009 discord-login 以降）から使う。
 
 ## `description` の書き方（固定テンプレート）
 
