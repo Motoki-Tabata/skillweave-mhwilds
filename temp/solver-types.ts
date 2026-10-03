@@ -3,6 +3,8 @@
  *
  * 卒業記録: 機能001で使う分（Brand・SkillId・ArmorId・DecorationId・Uuid・ArmorPart・SlotLevel・SlotTarget・Slot・SkillLevel・SolverStatus と、
  *   防具・装飾品・護石・武器の最小形）を `packages/solver/src/main/types.ts` へ移設済み。残りの型は未卒業（機能003）。
+ *   機能002で、マスターの型（MasterVersion 以下の ID 型・MasterSkill・SetBonus・MasterArmor・MasterDecoration・MasterCharm・AppraisedCharmPattern・CharmSkillGroup・MasterWeapon・MasterBundle）を
+ *   `packages/data/src/main/index.ts` へ移設済み（`source` と辞書の型 MasterDictionary・DictionaryEntry を追加）。
  *
  * 方針
  * - ソルバーは純粋関数。マスターやユーザーデータを自分で取りに行かない（受け取るだけ）。
