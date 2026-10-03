@@ -32,7 +32,7 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 ## 2026-10-04 solver のテスト配置規約が、補助部品・測定ハーネス・main と対応しないテストを許していない（機能001・区間 D）
 - 種別: 矛盾是正
 - 何が起きたか: `.claude/skills/impact-scope/conventions.md`「テスト配置・命名規約」は `src/test/<main と同じ相対パス>/<名前>.spec.ts` だけを定めている。001 では、合成データ生成器と検算の補助（`packages/solver/src/test/support/`）、時間の測定ハーネス（`*.measure.ts`。plan 決定事項 8 で通常のテストから分離）、main のファイルに対応しないテスト（`support/syntheticData.spec.ts`・`ciTiming.spec.ts`）が必要になり、規約の外に置いた。reviewer-agent がこの点を要修正として挙げた。
-- 提案: `conventions.md`「テスト配置・命名規約」と `.claude/rules/solver.md` に、solver の例外として「テスト用の補助は `src/test/support/`」「測定は `src/test/**/*.measure.ts`（`--mode measure` のときだけ実行。CI では実行しない）」「main に対応しないテストは `src/test/` 直下に置いてよい」を足す。
+- 提案: `conventions.md`「テスト配置・命名規約」と `.claude/rules/solver.md` に、solver の例外として「テスト用の補助は `src/test/support/`」「測定は `src/test/**/*.measure.ts`（`--mode measure` のときだけ実行。CI では実行しない）」「補助のテストは `src/test/support/` に置いてよい」「main に対応しないテストは `src/test/` 直下に置いてよい」を足す。
 
 ## 2026-10-04 packages の tsconfig が `types: []` のため、テストと測定の型検査を分ける必要がある（機能001・区間 D）
 - 種別: 規律昇華
