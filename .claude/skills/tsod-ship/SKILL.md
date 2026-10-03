@@ -77,7 +77,7 @@ bash .claude/skills/tsod-ship/scripts/pr-merge.sh <PR 番号>
 
 ### e2e を CI に足す機能のとき
 
-画面を持つ最初の機能（機能 003）で e2e を CI に足すとき（`README.md` の「残作業（ハーネス）」節に、時期が書かれている）は、次の3か所を同じ PR で揃える。ドリフト検査は、揃っていないことを指摘する。
+画面を持つ最初の機能（機能 004）で e2e を CI に足すとき（`README.md` の「残作業（ハーネス）」節に、時期が書かれている）は、次の3か所を同じ PR で揃える。ドリフト検査は、揃っていないことを指摘する。
 
 - `.github/workflows/ci.yml` の e2e ジョブ
 - `apps/web` の `package.json` の `test:e2e` と、`apps/web/e2e/`

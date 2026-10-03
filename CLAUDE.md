@@ -61,7 +61,7 @@ lint は2種類ある。`pnpm lint:check` は非破壊・警告も失敗（`oxli
 
 ## e2e の追加
 
-機能 003 で e2e を足すときは、次を同じ PR で揃える。揃えないと、一括検証・CI・本表の3者が食い違う。
+機能 004 で e2e を足すときは、次を同じ PR で揃える。揃えないと、一括検証・CI・本表の3者が食い違う。
 
 - `ci.yml` に e2e ジョブを足す。
 - `apps/web/package.json` に `test:e2e` script を足し、`apps/web/e2e/` を作る。
