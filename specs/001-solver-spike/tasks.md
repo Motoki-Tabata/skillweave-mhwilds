@@ -9,6 +9,8 @@
 - [x] T5 [solver-test-agent]   測定ハーネス（`src/test/**/*.measure.ts`）: 上位防具の全件、必須スキル 3／6／10 個 × 解あり／解なし、各 3 回、検索1回の合計時間と求解ごとの時間・合計時間の最大と 3 秒に対する合否・HiGHS の版を出力する（plan 決定事項 9）。HiGHS の初期化は時間に含めない     refs spec §受入基準 9, 13
 - [x] T6 [main]                `packages/solver/vitest.config.ts` の `passWithNoTests` を外す（T3〜T5 の後。plan 決定事項 14）     refs spec §受入基準 7, 8
 - [x] T7 [main]                `pnpm --filter @swv/solver run measure` を実行し、ケースごとの時間・合計時間の最大と合否・測定環境・HiGHS の版・採否を `design/tech-stack.md` に記録する     refs spec §受入基準 9, 10
-- [ ] T8 [solver-agent]        （T7 で合計時間の最大が 3 秒を超えたときだけ）縮約の純粋関数（plan 決定事項 12）     refs spec §受入基準 11
-- [ ] T9 [solver-test-agent]   （T8 を行ったときだけ）縮約のテスト（縮約後の候補で返した構成も検算を満たす）と、測定ハーネスに縮約の前後の両方を出力させる     refs spec §受入基準 7, 11
-- [ ] T10 [main]               （T8 を行ったときだけ）再測定し、縮約の前後の結果を `design/tech-stack.md` に記録する。それでも 3 秒を超えたら、代替の選定を `specs/open-questions.md` に新しい Q として起票し、001 を「不合格」で閉じる（plan 決定事項 13）     refs spec §受入基準 10, 11, 12
+- [-] T8 [solver-agent]        （T7 で合計時間の最大が 3 秒を超えたときだけ）縮約の純粋関数（plan 決定事項 12）     refs spec §受入基準 11
+- [-] T9 [solver-test-agent]   （T8 を行ったときだけ）縮約のテスト（縮約後の候補で返した構成も検算を満たす）と、測定ハーネスに縮約の前後の両方を出力させる     refs spec §受入基準 7, 11
+- [-] T10 [main]               （T8 を行ったときだけ）再測定し、縮約の前後の結果を `design/tech-stack.md` に記録する。それでも 3 秒を超えたら、代替の選定を `specs/open-questions.md` に新しい Q として起票し、001 を「不合格」で閉じる（plan 決定事項 13）     refs spec §受入基準 10, 11, 12
+
+T8〜T10 は、T7 の合計時間の最大が 762.9 ms（基準 3 秒）で条件を満たさなかったため行わなかった（`[-]` は不要の印）。
