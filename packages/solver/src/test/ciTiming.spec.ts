@@ -23,8 +23,8 @@ function specFiles(dir: string): string[] {
   )
 }
 
-// 受入基準 13（時間の測定を CI の検証コマンドで実行せず、CI のテストで時間を検査しない）
-describe('[AC13] 時間の測定は CI のテストから分かれている', () => {
+// 受入基準 14（時間の測定を CI の検証コマンドで実行せず、CI のテストで時間を検査しない）
+describe('[AC14] 時間の測定は CI のテストから分かれている', () => {
   it('通常のテスト実行（test:unit・test:coverage の mode）は *.spec.ts だけを対象にし、*.measure.ts を含めない', () => {
     for (const mode of ['test', 'development']) {
       const include = includeFor(mode)
