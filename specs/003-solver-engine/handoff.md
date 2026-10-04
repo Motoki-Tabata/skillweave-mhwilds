@@ -48,6 +48,9 @@
 ## 委譲の記録
 | 領域 | ワーカー | コミット |
 |---|---|---|
+| solver 実装 | solver-agent（T2） | 744e3b4 |
+| solver テスト | solver-test-agent（T3〜T6） | 8be47bd |
+| solver 実装 | solver-agent（T7） | ac6646c |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
