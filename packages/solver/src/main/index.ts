@@ -1,20 +1,17 @@
-export { searchBuilds } from './searchBuilds'
+export { InvalidRequestError, SolveCancelledError } from './errors'
 export type {
-  ArmorId,
-  ArmorPart,
-  DecorationId,
-  FoundBuild,
-  SearchInput,
-  SearchResult,
-  SkillId,
-  SkillLevel,
-  Slot,
-  SlotLevel,
-  SlotTarget,
-  SolverArmor,
+  Objective,
+  SlotOwner,
+  SlotRef,
+  SolveOptions,
+  SolvedBuild,
   SolverCharm,
-  SolverDecoration,
+  SolverRequest,
+  SolverResponse,
   SolverStatus,
   SolverWeapon,
   Uuid,
-} from './types'
+} from './request'
+export { solveBuilds } from './solveBuilds'
+export { createWorkerHandler } from './worker'
+export type { WorkerDeps, WorkerInbound, WorkerOutbound } from './worker'
