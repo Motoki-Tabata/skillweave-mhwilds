@@ -8,7 +8,7 @@
 |---|---|---|---|---|---|
 | 001 | solver-spike | HiGHS WASM で実データ規模の ILP（必須スキル・防具5部位・護石・スロット Lv 別の装飾品個数）が数秒以内に解けるかを測り、最大の技術リスクを先に潰す | P0 | M | 済 |
 | 002 | master-data-pipeline | MHDB（SHA 固定）の取得→gameId からの ID 生成→YAML オーバーレイ→検証→`master-<version>.json` と ja/en 辞書の出力を、1コマンドで再現できるようにする | P0 | L | 済 |
-| 003 | solver-engine | `SolverRequest`→`SolverResponse` の本実装（シリーズ／グループスキル・部位の固定と除外・武器固定・装飾品の配置の後処理・複数解・タイムアウトとキャンセル・`masterVersion` 照合・Worker のメッセージ型）を DOM 非依存の純関数で提供する | P0 | M | 未着手 |
+| 003 | solver-engine | `SolverRequest`→`SolverResponse` の本実装（シリーズ／グループスキル・部位の固定と除外・武器固定・装飾品の配置の後処理・複数解・タイムアウトとキャンセル・`masterVersion` 照合・Worker のメッセージ型）を DOM 非依存の純関数で提供する | P0 | M | 済 |
 | 004 | solver-ui | ログインなしで、武器と必須スキルを指定して検索し、結果の構成（防具・装飾品・発動スキル・空きスロット）を見られる最初の画面（マスター読込・Worker 結線・二次創作表記とクレジット・e2e 基盤を含む） | P0 | L | 未着手 |
 | 005 | charm-input | ゲストが鑑定護石を手入力して端末内（IndexedDB）に保存し、抽選テーブルで入力の妥当性を検査し、ソルバーの護石候補に使える | P0 | M | 未着手 |
 | 006 | damage-model | スキル効果（`effectsByLevel`）と発動条件をオーバーレイで定義し、構成の期待値を計算して、ソルバーの `maximize: expectedDamage` で使えるようにする | P1 | M | 未着手 |

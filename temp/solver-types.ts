@@ -2,7 +2,9 @@
  * packages/solver 入出力型（たたき台 v0）
  *
  * 卒業記録: 機能001で使う分（Brand・SkillId・ArmorId・DecorationId・Uuid・ArmorPart・SlotLevel・SlotTarget・Slot・SkillLevel・SolverStatus と、
- *   防具・装飾品・護石・武器の最小形）を `packages/solver/src/main/types.ts` へ移設済み。残りの型は未卒業（機能003）。
+ *   防具・装飾品・護石・武器の最小形）を `packages/solver/src/main/types.ts` へ移設済み。
+ *   機能003で、ソルバーの入出力の型（Uuid・SolverCharm・SolverWeapon・Objective・SolverRequest・SlotOwner・SlotRef・SolvedBuild・SolverStatus・SolverResponse）と Worker のメッセージ型（WorkerInbound・WorkerOutbound）を
+ *   `packages/solver/src/main/` へ移設済み（`SolveOptions` を追加）。火力に関わる型（SkillKind・EffectStat・Effect・ConditionId・`expectedDamage`）は未卒業（機能006）。
  *   機能002で、マスターの型（MasterVersion 以下の ID 型・MasterSkill・SetBonus・MasterArmor・MasterDecoration・MasterCharm・AppraisedCharmPattern・CharmSkillGroup・MasterWeapon・MasterBundle）を
  *   `packages/data/src/main/index.ts` へ移設済み（`source` と辞書の型 MasterDictionary・DictionaryEntry を追加）。
  *
