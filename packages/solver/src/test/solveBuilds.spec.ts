@@ -725,6 +725,93 @@ describe('[AC10] 時間の上限（偽の時計）', () => {
     expect(result.status).toBe('feasible')
     expect(result.builds).toHaveLength(4)
   })
+
+  /**
+   * highs.withModel を包み、model の呼び出しを記録する。`timeLimitOnRun` 回目の run() は
+   * 実際に解いたうえで、modelStatus だけ timeLimit に差し替えて返す（HiGHS が時間制限で
+   * 止まり、暫定解を持っている状態の再現）。
+   */
+  function spyHighs(timeLimitOnRun: number) {
+    const calls: string[] = []
+    let runs = 0
+    const bind = (target: object, prop: string | symbol): unknown => {
+      const value: unknown = Reflect.get(target, prop, target)
+      return typeof value === 'function' ? value.bind(target) : value
+    }
+    const wrapModel = <M extends object>(model: M): M =>
+      new Proxy(model, {
+        get(target, prop) {
+          if (prop === 'zeroAllClocks') {
+            return () => {
+              calls.push('zeroAllClocks')
+              return (target as unknown as { zeroAllClocks: () => unknown }).zeroAllClocks()
+            }
+          }
+          if (prop === 'run') {
+            return () => {
+              runs += 1
+              const real = (target as unknown as { run: () => object }).run()
+              return runs === timeLimitOnRun
+                ? { ...real, modelStatus: highs.constants.modelStatus.timeLimit }
+                : real
+            }
+          }
+          if (prop === 'options') {
+            const options = Reflect.get(target, prop, target) as object
+            return new Proxy(options, {
+              get(optTarget, optProp) {
+                if (optProp === 'set') {
+                  return (name: string, value: unknown) => {
+                    if (name === 'time_limit') calls.push(`time_limit=${String(value)}`)
+                    return (
+                      optTarget as unknown as { set: (n: string, v: unknown) => unknown }
+                    ).set(name, value)
+                  }
+                }
+                return bind(optTarget, optProp)
+              },
+            })
+          }
+          return bind(target, prop)
+        },
+      })
+    const spied = new Proxy(highs, {
+      get(target, prop) {
+        if (prop === 'withModel') {
+          return (callback: (model: never) => unknown) =>
+            target.withModel((model) => callback(wrapModel(model) as never))
+        }
+        return bind(target, prop)
+      },
+    })
+    return { spied, calls }
+  }
+
+  it('HiGHS が時間制限で止まったら、その求解の暫定解は捨て、それまでの構成を timeout で返す', async () => {
+    const { spied } = spyHighs(2)
+    const clock = fakeClock(100)
+    const result = await solveBuilds(spied, master, request(1000), clock.options)
+    // 2 回目の求解が timeLimit で止まる。その解は含めず、1 回目の構成だけを返す
+    expect(result.status).toBe('timeout')
+    expect(result.builds).toHaveLength(1)
+  })
+
+  it('求解のたびに時計を zeroAllClocks でリセットし、time_limit に残り時間（秒）を設定する', async () => {
+    const { spied, calls } = spyHighs(3)
+    const clock = fakeClock(100)
+    const result = await solveBuilds(spied, master, request(1000), clock.options)
+    // 求解ごとに 100ms 進む: 残りは 900ms・800ms・700ms。毎回リセットしてから設定する
+    expect(calls).toEqual([
+      'zeroAllClocks',
+      'time_limit=0.9',
+      'zeroAllClocks',
+      'time_limit=0.8',
+      'zeroAllClocks',
+      'time_limit=0.7',
+    ])
+    expect(result.status).toBe('timeout')
+    expect(result.builds).toHaveLength(2)
+  })
 })
 
 describe('[AC11][AC12] 進捗とキャンセル（solveBuilds）', () => {
