@@ -48,3 +48,8 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 - 種別: 矛盾是正
 - 何が起きたか: 002 のドリフト検査で、temp §7 を卒業させるために `design/master-data.md` を新設した。`design/` 直下の文書には `.claude/rules/**` のいずれかが「正」として参照する配線が要る（temp-graduation.md の不変条件）が、`.claude/` は canon の管理下のため drift PR では配線できない。
 - 提案: `.claude/rules/data.md` に「マスターデータの情報源・ID 規則・overlay の書式・検証・出力の正は `design/master-data.md`」を足す。あわせて、同ファイルの「overlay とパイプラインの置き場は、パイプラインを導入する機能で決まる」を、決まった置き場（`packages/data/overlays/*.yaml`・`src/main/pipeline/`）に書き換える（上の「overlay の置き場が決まったので…」と同じ改修で行える）。
+
+## 2026-10-06 API を持たない e2e でも、一括検証の e2e の段が docker と API を起動する（機能004・区間A）
+- 種別: 矛盾是正
+- 何が起きたか: 004 は e2e を、ビルドした web だけで API・DB なしで動かすと決めた（`specs/004-solver-ui/decisions.md` Q24）。`.claude/skills/tsod-verify/scripts/verify.mjs` の e2e の段は、`docker compose up` と API の起動・待ち受けを必ず前置きするため、API を持たない機能の e2e にも不要な前提（docker と java）が付く。`CLAUDE.md` の Commands 表には e2e の行が無い（同「e2e の追加」節が、行の追加を canon への改修要求で行うと定めている）。
+- 提案: `verify.mjs` の e2e の段で、docker と API の起動を、e2e が API を要るときだけ行うようにする（例: Playwright の設定や script で API の要否を宣言する）。`CLAUDE.md` の Commands 表に e2e の行（`pnpm --filter @swv/web run test:e2e`）を足し、`ci.yml` の e2e ジョブ（004 で追加）と一致させる。
