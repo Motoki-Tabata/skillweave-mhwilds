@@ -48,6 +48,10 @@
 ## 委譲の記録
 | 領域 | ワーカー | コミット |
 |---|---|---|
+| data 実装 | data-agent | 00a5cad |
+| data 再生成（メイン T4） | main | 5902539 |
+| solver テスト | solver-test-agent | dfab226 |
+| data テスト | data-test-agent | 3907ad1 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
@@ -70,16 +74,18 @@
 
 - 区間 D の T2 で、ユーザー承認のうえ `pnpm-workspace.yaml` に `trustPolicyExclude: [semver@6.3.1]` を足した（plan に無い変更。shadcn-vue の CLI の推移的依存。理由と調査は要確認事項。承認: 区間 D）。
 - 区間 D の T2 で、ユーザー承認のうえ `apps/web/components.json` から `"framework": "vite"` を削除した（plan に無い変更。shadcn-vue@2.8.2 のスキーマに無いキーで CLI が拒否するため。承認: 区間 D）。
+- 区間 D の T7 で、ユーザー承認のうえ `sonar-project.properties` に `sonar.issue.ignore.multicriteria`（e1〜e3）を足した（plan に無い変更）。`ui/input/Input.vue`・`ui/label/Label.vue`（shadcn-vue のコピー。編集禁止）と `RequiredSkillsCard.vue` の `SelectTrigger` に対する `Web:InputWithoutLabelCheck`・`Web:S6853` の誤検知3件。理由は各行のコメント。承認: 区間 D。
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 B の候補「キャンセルとやり直しのできる処理には、送信中の無効化が合わない」は、`design/ui-design-standard.md` §4 に反映して解消した）
+- 区間 D の候補（T7）: `role="group"`・`role="status"` は Sonar S6819 に引っかかるので `<fieldset>`・`<output>` で書く（`.claude/rules/web-vue.md` の Sonar 節へ）。Reka の `SelectTrigger` に `Web:InputWithoutLabelCheck` が出る（抑止済み）。TS6307 は `tsconfig.app.json` の include で通ることを確認（`web-vue.md` への昇華候補。T11 の後に判断）。Playwright の headless shell の版ずれ（1244 と 1243）は e2e-agent の前に `playwright install chromium` が要るか確認する。
 - 区間 D の候補（T2）: shadcn-vue の CLI は、`tsconfig.json` に `paths` が無いと失敗し、`components.json` の未知のキーも拒否する。`.claude/rules/ui-design.md` へ昇華するかは T7 の後に判断する（持ち越し）。
 - 区間 C の候補「web（composite の tsconfig）から `packages/*` のソースを import すると TS6307 で落ちるので、`tsconfig.app.json`・`tsconfig.vitest.json` の `include` に足す」は持ち越す。一時ファイルでの再現だけで、実際の import で通ることは区間 D の T1 で確かめるため。通ったら `.claude/rules/web-vue.md` への規律昇華として起票する。
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
-- 区間 D は T1・T2 まで完了（T1: 525e20e。T2: 下記の T2 のコミット）。次は T3（data-agent）から直列で進める。
+- 区間 D は T1・T2 まで完了（T1: 525e20e。T2: 下記の T2 のコミット）。T3〜T6 は完了、T7（web-agent）は実装済み。次は T8（web-test-agent）から直列で進める。
 - T2 のサプライチェーン調査の結論（2026-10-06）: ①`semver@6.3.1` は npm CLI チームの公開（2023-07-10）で、tarball の integrity 一致・6.3.0 との差分は正規表現の ReDoS 対策のみ（CVE-2022-25883 の移植）・install スクリプトなし・週間 DL 約4億。trustPolicy が落ちたのは、先に出た 7.5.1〜7.5.4 に provenance があり、後から出た 6.x 系の 6.3.1 に無いためで、誤検知と判断した。②`vue-demi@0.14.10` は antfu 公開・postinstall は Vue の版に応じた切替ファイルを書くだけでネットワーク等なし。`allowBuilds: false` の遮断を維持する。
 - T2 の実施: ユーザー承認のうえ `trustPolicyExclude: [semver@6.3.1]` を足した。その後 CLI が `components.json` の `framework` を拒否したので、承認のうえ削除した。CLI は `tsconfig.json` の `paths` が無いと `resolvedPaths` で失敗するため、実行中だけ一時的に足して戻した（差分なし）。部品は `@lucide/vue` の import で生成され（書き換え不要）、`package.json`・lockfile に差分は無い。コピーした `ui/` は Prettier で整形した（`format:check` 緑）。
 - T2 の時点で `type-check` は `@/lib/utils`（`cn()`）が無いため失敗する。plan 決定事項 20 のとおり、web-agent が T7 で `src/main/lib/utils.ts` を作る（T3〜T6 の検証では web の型検査は対象外）。
