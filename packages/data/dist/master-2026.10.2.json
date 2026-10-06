@@ -8,6 +8,7 @@
       "defense": 76,
       "id": "ar:-1077030272:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -31,6 +32,7 @@
       "defense": 76,
       "id": "ar:-1077030272:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -58,6 +60,7 @@
       "defense": 76,
       "id": "ar:-1077030272:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -81,6 +84,7 @@
       "defense": 76,
       "id": "ar:-1077030272:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -104,6 +108,7 @@
       "defense": 76,
       "id": "ar:-1077030272:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -135,6 +140,7 @@
       "defense": 82,
       "id": "ar:-1116023296:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2104075392",
@@ -169,6 +175,7 @@
       "defense": 82,
       "id": "ar:-1116023296:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2104075392",
@@ -195,6 +202,7 @@
       "defense": 82,
       "id": "ar:-1116023296:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2104075392",
@@ -225,6 +233,7 @@
       "defense": 82,
       "id": "ar:-1116023296:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2104075392",
@@ -255,6 +264,7 @@
       "defense": 82,
       "id": "ar:-1116023296:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2104075392",
@@ -281,6 +291,7 @@
       "defense": 78,
       "id": "ar:-1118126720:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -301,6 +312,7 @@
       "defense": 78,
       "id": "ar:-1118126720:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -326,6 +338,7 @@
       "defense": 78,
       "id": "ar:-1118126720:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -346,6 +359,7 @@
       "defense": 78,
       "id": "ar:-1118126720:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -371,6 +385,7 @@
       "defense": 78,
       "id": "ar:-1118126720:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -387,6 +402,7 @@
       "defense": 72,
       "id": "ar:-1128792192:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -407,6 +423,7 @@
       "defense": 40,
       "id": "ar:-1158391424:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -429,6 +446,7 @@
       "defense": 40,
       "id": "ar:-1158391424:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -450,6 +468,7 @@
       "defense": 40,
       "id": "ar:-1158391424:head",
       "part": "head",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -472,6 +491,7 @@
       "defense": 40,
       "id": "ar:-1158391424:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -493,6 +513,7 @@
       "defense": 40,
       "id": "ar:-1158391424:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -514,6 +535,7 @@
       "defense": 32,
       "id": "ar:-1253492608:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1487598336"
@@ -530,6 +552,7 @@
       "defense": 76,
       "id": "ar:-1266843008:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -559,6 +582,7 @@
       "defense": 76,
       "id": "ar:-1266843008:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -588,6 +612,7 @@
       "defense": 76,
       "id": "ar:-1266843008:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -617,6 +642,7 @@
       "defense": 76,
       "id": "ar:-1266843008:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -646,6 +672,7 @@
       "defense": 76,
       "id": "ar:-1266843008:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -675,6 +702,7 @@
       "defense": 72,
       "id": "ar:-1284130432:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -695,6 +723,7 @@
       "defense": 80,
       "id": "ar:-1309878016:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -725,6 +754,7 @@
       "defense": 80,
       "id": "ar:-1309878016:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -751,6 +781,7 @@
       "defense": 80,
       "id": "ar:-1309878016:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -781,6 +812,7 @@
       "defense": 80,
       "id": "ar:-1309878016:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -807,6 +839,7 @@
       "defense": 80,
       "id": "ar:-1309878016:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -837,6 +870,7 @@
       "defense": 82,
       "id": "ar:-1311785984:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -863,6 +897,7 @@
       "defense": 82,
       "id": "ar:-1311785984:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -893,6 +928,7 @@
       "defense": 82,
       "id": "ar:-1311785984:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -914,6 +950,7 @@
       "defense": 82,
       "id": "ar:-1311785984:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -940,6 +977,7 @@
       "defense": 82,
       "id": "ar:-1311785984:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -966,6 +1004,7 @@
       "defense": 82,
       "id": "ar:-1314912640:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -996,6 +1035,7 @@
       "defense": 82,
       "id": "ar:-1314912640:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1022,6 +1062,7 @@
       "defense": 82,
       "id": "ar:-1314912640:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1052,6 +1093,7 @@
       "defense": 82,
       "id": "ar:-1314912640:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1078,6 +1120,7 @@
       "defense": 82,
       "id": "ar:-1314912640:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1108,6 +1151,7 @@
       "defense": 82,
       "id": "ar:-1332061952:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1129,6 +1173,7 @@
       "defense": 82,
       "id": "ar:-1332061952:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1159,6 +1204,7 @@
       "defense": 82,
       "id": "ar:-1332061952:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1185,6 +1231,7 @@
       "defense": 82,
       "id": "ar:-1332061952:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1211,6 +1258,7 @@
       "defense": 82,
       "id": "ar:-1332061952:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -1241,6 +1289,7 @@
       "defense": 44,
       "id": "ar:-1346586880:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -1263,6 +1312,7 @@
       "defense": 44,
       "id": "ar:-1346586880:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -1284,6 +1334,7 @@
       "defense": 44,
       "id": "ar:-1346586880:head",
       "part": "head",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -1306,6 +1357,7 @@
       "defense": 44,
       "id": "ar:-1346586880:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -1328,6 +1380,7 @@
       "defense": 44,
       "id": "ar:-1346586880:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -1354,6 +1407,7 @@
       "defense": 78,
       "id": "ar:-1376663552:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -1374,6 +1428,7 @@
       "defense": 78,
       "id": "ar:-1376663552:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -1390,6 +1445,7 @@
       "defense": 78,
       "id": "ar:-1376663552:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -1415,6 +1471,7 @@
       "defense": 78,
       "id": "ar:-1376663552:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -1435,6 +1492,7 @@
       "defense": 78,
       "id": "ar:-1376663552:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -1455,6 +1513,7 @@
       "defense": 76,
       "id": "ar:-1400394880:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -1475,6 +1534,7 @@
       "defense": 76,
       "id": "ar:-1400394880:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -1500,6 +1560,7 @@
       "defense": 76,
       "id": "ar:-1400394880:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -1525,6 +1586,7 @@
       "defense": 76,
       "id": "ar:-1400394880:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -1545,6 +1607,7 @@
       "defense": 76,
       "id": "ar:-1400394880:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -1570,6 +1633,7 @@
       "defense": 78,
       "id": "ar:-1414663552:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -1593,6 +1657,7 @@
       "defense": 78,
       "id": "ar:-1414663552:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -1620,6 +1685,7 @@
       "defense": 78,
       "id": "ar:-1414663552:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -1643,6 +1709,7 @@
       "defense": 78,
       "id": "ar:-1414663552:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -1670,6 +1737,7 @@
       "defense": 78,
       "id": "ar:-1414663552:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -1697,6 +1765,7 @@
       "defense": 76,
       "id": "ar:-1456507776:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:583598144"
@@ -1718,6 +1787,7 @@
       "defense": 76,
       "id": "ar:-1456507776:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:583598144"
@@ -1747,6 +1817,7 @@
       "defense": 76,
       "id": "ar:-1456507776:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:583598144"
@@ -1768,6 +1839,7 @@
       "defense": 76,
       "id": "ar:-1456507776:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:583598144"
@@ -1789,6 +1861,7 @@
       "defense": 76,
       "id": "ar:-1456507776:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:583598144"
@@ -1810,6 +1883,7 @@
       "defense": 76,
       "id": "ar:-1496450816:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -1831,6 +1905,7 @@
       "defense": 76,
       "id": "ar:-1496450816:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -1860,6 +1935,7 @@
       "defense": 78,
       "id": "ar:-1535116544:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -1881,6 +1957,7 @@
       "defense": 78,
       "id": "ar:-1535116544:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -1910,6 +1987,7 @@
       "defense": 78,
       "id": "ar:-1535116544:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -1931,6 +2009,7 @@
       "defense": 78,
       "id": "ar:-1535116544:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -1956,6 +2035,7 @@
       "defense": 78,
       "id": "ar:-1535116544:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -1981,6 +2061,7 @@
       "defense": 36,
       "id": "ar:-1564879104:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672"
@@ -2002,6 +2083,7 @@
       "defense": 72,
       "id": "ar:-1569704320:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -2027,6 +2109,7 @@
       "defense": 78,
       "id": "ar:-1581546752:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -2052,6 +2135,7 @@
       "defense": 78,
       "id": "ar:-1581546752:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -2081,6 +2165,7 @@
       "defense": 78,
       "id": "ar:-1581546752:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -2106,6 +2191,7 @@
       "defense": 78,
       "id": "ar:-1581546752:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -2131,6 +2217,7 @@
       "defense": 78,
       "id": "ar:-1581546752:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -2152,6 +2239,7 @@
       "defense": 76,
       "id": "ar:-1649902080:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -2177,6 +2265,7 @@
       "defense": 76,
       "id": "ar:-1649902080:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -2202,6 +2291,7 @@
       "defense": 76,
       "id": "ar:-1649902080:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -2227,6 +2317,7 @@
       "defense": 76,
       "id": "ar:-1649902080:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -2252,6 +2343,7 @@
       "defense": 80,
       "id": "ar:-1699202560:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -2282,6 +2374,7 @@
       "defense": 80,
       "id": "ar:-1699202560:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -2308,6 +2401,7 @@
       "defense": 80,
       "id": "ar:-1699202560:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -2334,6 +2428,7 @@
       "defense": 80,
       "id": "ar:-1699202560:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -2360,6 +2455,7 @@
       "defense": 80,
       "id": "ar:-1699202560:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -2390,6 +2486,7 @@
       "defense": 86,
       "id": "ar:-1715492864:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -2416,6 +2513,7 @@
       "defense": 86,
       "id": "ar:-1715492864:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -2446,6 +2544,7 @@
       "defense": 86,
       "id": "ar:-1715492864:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -2480,6 +2579,7 @@
       "defense": 86,
       "id": "ar:-1715492864:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -2506,6 +2606,7 @@
       "defense": 86,
       "id": "ar:-1715492864:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -2540,6 +2641,7 @@
       "defense": 36,
       "id": "ar:-1727218944:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:-62248528",
@@ -2557,6 +2659,7 @@
       "defense": 36,
       "id": "ar:-1727218944:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:-62248528",
@@ -2574,6 +2677,7 @@
       "defense": 36,
       "id": "ar:-1727218944:head",
       "part": "head",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:-62248528",
@@ -2591,6 +2695,7 @@
       "defense": 36,
       "id": "ar:-1727218944:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:-62248528",
@@ -2608,6 +2713,7 @@
       "defense": 36,
       "id": "ar:-1727218944:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:-62248528",
@@ -2625,6 +2731,7 @@
       "defense": 24,
       "id": "ar:-1823673856:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -2641,6 +2748,7 @@
       "defense": 24,
       "id": "ar:-1823673856:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -2657,6 +2765,7 @@
       "defense": 24,
       "id": "ar:-1823673856:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -2673,6 +2782,7 @@
       "defense": 24,
       "id": "ar:-1823673856:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -2689,6 +2799,7 @@
       "defense": 24,
       "id": "ar:-1823673856:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -2705,6 +2816,7 @@
       "defense": 72,
       "id": "ar:-1830990336:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -2728,6 +2840,7 @@
       "defense": 72,
       "id": "ar:-1830990336:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -2751,6 +2864,7 @@
       "defense": 72,
       "id": "ar:-1830990336:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -2774,6 +2888,7 @@
       "defense": 72,
       "id": "ar:-1830990336:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -2797,6 +2912,7 @@
       "defense": 72,
       "id": "ar:-1830990336:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -2820,6 +2936,7 @@
       "defense": 76,
       "id": "ar:-1843265280:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -2845,6 +2962,7 @@
       "defense": 76,
       "id": "ar:-1843265280:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -2865,6 +2983,7 @@
       "defense": 76,
       "id": "ar:-1843265280:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -2890,6 +3009,7 @@
       "defense": 76,
       "id": "ar:-1843265280:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -2910,6 +3030,7 @@
       "defense": 76,
       "id": "ar:-1843265280:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -2935,6 +3056,7 @@
       "defense": 80,
       "id": "ar:-1853781504:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -2965,6 +3087,7 @@
       "defense": 80,
       "id": "ar:-1853781504:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -2991,6 +3114,7 @@
       "defense": 80,
       "id": "ar:-1853781504:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -3021,6 +3145,7 @@
       "defense": 80,
       "id": "ar:-1853781504:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -3051,6 +3176,7 @@
       "defense": 80,
       "id": "ar:-1853781504:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -3073,6 +3199,7 @@
       "defense": 72,
       "id": "ar:-1862504960:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -3096,6 +3223,7 @@
       "defense": 72,
       "id": "ar:-1862504960:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -3115,6 +3243,7 @@
       "defense": 72,
       "id": "ar:-1862504960:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -3138,6 +3267,7 @@
       "defense": 72,
       "id": "ar:-1862504960:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -3161,6 +3291,7 @@
       "defense": 72,
       "id": "ar:-1862504960:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -3184,6 +3315,7 @@
       "defense": 38,
       "id": "ar:-1916391168:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1487598336"
@@ -3204,6 +3336,7 @@
       "defense": 38,
       "id": "ar:-1916391168:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1487598336"
@@ -3224,6 +3357,7 @@
       "defense": 38,
       "id": "ar:-1916391168:head",
       "part": "head",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1487598336"
@@ -3244,6 +3378,7 @@
       "defense": 38,
       "id": "ar:-1916391168:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1487598336"
@@ -3264,6 +3399,7 @@
       "defense": 38,
       "id": "ar:-1916391168:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1487598336"
@@ -3284,6 +3420,7 @@
       "defense": 72,
       "id": "ar:-2040662912:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -3304,6 +3441,7 @@
       "defense": 72,
       "id": "ar:-2040662912:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -3329,6 +3467,7 @@
       "defense": 72,
       "id": "ar:-2040662912:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -3349,6 +3488,7 @@
       "defense": 72,
       "id": "ar:-2040662912:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -3378,6 +3518,7 @@
       "defense": 72,
       "id": "ar:-2040662912:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -3403,6 +3544,7 @@
       "defense": 80,
       "id": "ar:-2043813888:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -3430,6 +3572,7 @@
       "defense": 80,
       "id": "ar:-2043813888:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -3457,6 +3600,7 @@
       "defense": 80,
       "id": "ar:-2043813888:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -3484,6 +3628,7 @@
       "defense": 80,
       "id": "ar:-2043813888:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -3511,6 +3656,7 @@
       "defense": 80,
       "id": "ar:-2043813888:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -3538,6 +3684,7 @@
       "defense": 80,
       "id": "ar:-2058671360:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144",
@@ -3564,6 +3711,7 @@
       "defense": 80,
       "id": "ar:-2058671360:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144",
@@ -3586,6 +3734,7 @@
       "defense": 80,
       "id": "ar:-2058671360:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144",
@@ -3616,6 +3765,7 @@
       "defense": 80,
       "id": "ar:-2058671360:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144",
@@ -3642,6 +3792,7 @@
       "defense": 80,
       "id": "ar:-2058671360:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144",
@@ -3668,6 +3819,7 @@
       "defense": 82,
       "id": "ar:-2086657152:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -3698,6 +3850,7 @@
       "defense": 82,
       "id": "ar:-2086657152:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -3724,6 +3877,7 @@
       "defense": 82,
       "id": "ar:-2086657152:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -3750,6 +3904,7 @@
       "defense": 82,
       "id": "ar:-2086657152:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -3780,6 +3935,7 @@
       "defense": 82,
       "id": "ar:-2086657152:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -3810,6 +3966,7 @@
       "defense": 26,
       "id": "ar:-2109565568:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1487598336"
@@ -3826,6 +3983,7 @@
       "defense": 26,
       "id": "ar:-2109565568:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1487598336"
@@ -3842,6 +4000,7 @@
       "defense": 26,
       "id": "ar:-2109565568:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1487598336"
@@ -3858,6 +4017,7 @@
       "defense": 26,
       "id": "ar:-2109565568:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1487598336"
@@ -3874,6 +4034,7 @@
       "defense": 26,
       "id": "ar:-2109565568:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1487598336"
@@ -3890,6 +4051,7 @@
       "defense": 76,
       "id": "ar:-2117203456:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1998066176"
@@ -3910,6 +4072,7 @@
       "defense": 76,
       "id": "ar:-2117203456:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1998066176"
@@ -3930,6 +4093,7 @@
       "defense": 76,
       "id": "ar:-2117203456:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1998066176"
@@ -3955,6 +4119,7 @@
       "defense": 76,
       "id": "ar:-2117203456:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1998066176"
@@ -3975,6 +4140,7 @@
       "defense": 76,
       "id": "ar:-2117203456:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1998066176"
@@ -4000,6 +4166,7 @@
       "defense": 76,
       "id": "ar:-238549872:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1648695680"
@@ -4033,6 +4200,7 @@
       "defense": 28,
       "id": "ar:-24830612:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -4049,6 +4217,7 @@
       "defense": 28,
       "id": "ar:-24830612:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -4065,6 +4234,7 @@
       "defense": 28,
       "id": "ar:-24830612:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -4081,6 +4251,7 @@
       "defense": 28,
       "id": "ar:-24830612:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -4097,6 +4268,7 @@
       "defense": 28,
       "id": "ar:-24830612:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -4113,6 +4285,7 @@
       "defense": 40,
       "id": "ar:-282994240:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -4135,6 +4308,7 @@
       "defense": 40,
       "id": "ar:-282994240:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -4157,6 +4331,7 @@
       "defense": 40,
       "id": "ar:-282994240:head",
       "part": "head",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -4178,6 +4353,7 @@
       "defense": 40,
       "id": "ar:-282994240:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -4195,6 +4371,7 @@
       "defense": 40,
       "id": "ar:-282994240:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -4216,6 +4393,7 @@
       "defense": 84,
       "id": "ar:-295012384:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-418246240",
@@ -4242,6 +4420,7 @@
       "defense": 84,
       "id": "ar:-295012384:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-418246240",
@@ -4272,6 +4451,7 @@
       "defense": 84,
       "id": "ar:-295012384:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-418246240",
@@ -4302,6 +4482,7 @@
       "defense": 84,
       "id": "ar:-295012384:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-418246240",
@@ -4332,6 +4513,7 @@
       "defense": 84,
       "id": "ar:-295012384:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-418246240",
@@ -4358,6 +4540,7 @@
       "defense": 40,
       "id": "ar:-309477024:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -4380,6 +4563,7 @@
       "defense": 40,
       "id": "ar:-309477024:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -4402,6 +4586,7 @@
       "defense": 40,
       "id": "ar:-309477024:head",
       "part": "head",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -4423,6 +4608,7 @@
       "defense": 40,
       "id": "ar:-309477024:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -4445,6 +4631,7 @@
       "defense": 40,
       "id": "ar:-309477024:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -4467,6 +4654,7 @@
       "defense": 76,
       "id": "ar:-355167712:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904"
@@ -4496,6 +4684,7 @@
       "defense": 76,
       "id": "ar:-434190656:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1998066176"
@@ -4521,6 +4710,7 @@
       "defense": 84,
       "id": "ar:-436938720:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -4543,6 +4733,7 @@
       "defense": 84,
       "id": "ar:-436938720:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -4573,6 +4764,7 @@
       "defense": 84,
       "id": "ar:-436938720:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -4599,6 +4791,7 @@
       "defense": 84,
       "id": "ar:-436938720:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -4629,6 +4822,7 @@
       "defense": 84,
       "id": "ar:-436938720:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1664678272",
@@ -4659,6 +4853,7 @@
       "defense": 40,
       "id": "ar:-520738208:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1648695680"
@@ -4680,6 +4875,7 @@
       "defense": 40,
       "id": "ar:-520738208:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1648695680"
@@ -4701,6 +4897,7 @@
       "defense": 40,
       "id": "ar:-520738208:head",
       "part": "head",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1648695680"
@@ -4722,6 +4919,7 @@
       "defense": 40,
       "id": "ar:-520738208:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1648695680"
@@ -4743,6 +4941,7 @@
       "defense": 40,
       "id": "ar:-520738208:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1648695680"
@@ -4763,6 +4962,7 @@
       "defense": 82,
       "id": "ar:-59351948:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-215826112",
@@ -4789,6 +4989,7 @@
       "defense": 82,
       "id": "ar:-59351948:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-215826112",
@@ -4819,6 +5020,7 @@
       "defense": 82,
       "id": "ar:-59351948:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-215826112",
@@ -4845,6 +5047,7 @@
       "defense": 82,
       "id": "ar:-59351948:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-215826112",
@@ -4867,6 +5070,7 @@
       "defense": 82,
       "id": "ar:-59351948:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-215826112",
@@ -4901,6 +5105,7 @@
       "defense": 86,
       "id": "ar:-605699072:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -4931,6 +5136,7 @@
       "defense": 86,
       "id": "ar:-605699072:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -4957,6 +5163,7 @@
       "defense": 86,
       "id": "ar:-605699072:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -4978,6 +5185,7 @@
       "defense": 86,
       "id": "ar:-605699072:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -5008,6 +5216,7 @@
       "defense": 86,
       "id": "ar:-605699072:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -5034,6 +5243,7 @@
       "defense": 76,
       "id": "ar:-631500928:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -5059,6 +5269,7 @@
       "defense": 76,
       "id": "ar:-631500928:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -5084,6 +5295,7 @@
       "defense": 76,
       "id": "ar:-631500928:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -5105,6 +5317,7 @@
       "defense": 76,
       "id": "ar:-631500928:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -5134,6 +5347,7 @@
       "defense": 76,
       "id": "ar:-631500928:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -5159,6 +5373,7 @@
       "defense": 76,
       "id": "ar:-636732672:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5184,6 +5399,7 @@
       "defense": 76,
       "id": "ar:-636732672:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5209,6 +5425,7 @@
       "defense": 76,
       "id": "ar:-636732672:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5234,6 +5451,7 @@
       "defense": 76,
       "id": "ar:-636732672:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5259,6 +5477,7 @@
       "defense": 76,
       "id": "ar:-636732672:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5279,6 +5498,7 @@
       "defense": 76,
       "id": "ar:-647496960:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -5304,6 +5524,7 @@
       "defense": 76,
       "id": "ar:-647496960:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -5325,6 +5546,7 @@
       "defense": 76,
       "id": "ar:-647496960:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -5346,6 +5568,7 @@
       "defense": 76,
       "id": "ar:-647496960:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -5375,6 +5598,7 @@
       "defense": 76,
       "id": "ar:-647496960:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -5396,6 +5620,7 @@
       "defense": 76,
       "id": "ar:-746475968:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -5425,6 +5650,7 @@
       "defense": 80,
       "id": "ar:-796412032:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -5451,6 +5677,7 @@
       "defense": 80,
       "id": "ar:-796412032:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -5472,6 +5699,7 @@
       "defense": 80,
       "id": "ar:-796412032:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -5498,6 +5726,7 @@
       "defense": 80,
       "id": "ar:-796412032:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -5528,6 +5757,7 @@
       "defense": 80,
       "id": "ar:-796412032:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -5554,6 +5784,7 @@
       "defense": 76,
       "id": "ar:-805142080:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -5575,6 +5806,7 @@
       "defense": 76,
       "id": "ar:-805142080:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -5596,6 +5828,7 @@
       "defense": 76,
       "id": "ar:-805142080:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -5621,6 +5854,7 @@
       "defense": 76,
       "id": "ar:-805142080:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -5646,6 +5880,7 @@
       "defense": 76,
       "id": "ar:-805142080:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -5671,6 +5906,7 @@
       "defense": 76,
       "id": "ar:-830764992:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -5696,6 +5932,7 @@
       "defense": 76,
       "id": "ar:-830764992:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -5717,6 +5954,7 @@
       "defense": 76,
       "id": "ar:-830764992:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -5742,6 +5980,7 @@
       "defense": 76,
       "id": "ar:-830764992:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -5763,6 +6002,7 @@
       "defense": 76,
       "id": "ar:-830764992:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -5788,6 +6028,7 @@
       "defense": 24,
       "id": "ar:-909939840:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:-1648695680"
@@ -5804,6 +6045,7 @@
       "defense": 78,
       "id": "ar:-932860800:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5824,6 +6066,7 @@
       "defense": 78,
       "id": "ar:-932860800:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5849,6 +6092,7 @@
       "defense": 78,
       "id": "ar:-932860800:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5874,6 +6118,7 @@
       "defense": 78,
       "id": "ar:-932860800:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5903,6 +6148,7 @@
       "defense": 78,
       "id": "ar:-932860800:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -5923,6 +6169,7 @@
       "defense": 40,
       "id": "ar:-972610496:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -5945,6 +6192,7 @@
       "defense": 40,
       "id": "ar:-972610496:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -5962,6 +6210,7 @@
       "defense": 40,
       "id": "ar:-972610496:head",
       "part": "head",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -5979,6 +6228,7 @@
       "defense": 40,
       "id": "ar:-972610496:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6000,6 +6250,7 @@
       "defense": 40,
       "id": "ar:-972610496:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6022,6 +6273,7 @@
       "defense": 40,
       "id": "ar:1044071680:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6044,6 +6296,7 @@
       "defense": 40,
       "id": "ar:1044071680:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6065,6 +6318,7 @@
       "defense": 40,
       "id": "ar:1044071680:head",
       "part": "head",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6087,6 +6341,7 @@
       "defense": 40,
       "id": "ar:1044071680:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6109,6 +6364,7 @@
       "defense": 40,
       "id": "ar:1044071680:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6131,6 +6387,7 @@
       "defense": 76,
       "id": "ar:1064459456:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -6152,6 +6409,7 @@
       "defense": 76,
       "id": "ar:1064459456:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -6173,6 +6431,7 @@
       "defense": 76,
       "id": "ar:1064459456:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -6198,6 +6457,7 @@
       "defense": 76,
       "id": "ar:1064459456:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -6219,6 +6479,7 @@
       "defense": 76,
       "id": "ar:1064459456:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -6240,6 +6501,7 @@
       "defense": 82,
       "id": "ar:10911:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -6263,6 +6525,7 @@
       "defense": 82,
       "id": "ar:11052:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -6281,6 +6544,7 @@
       "defense": 76,
       "id": "ar:11061:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:2237"
@@ -6306,6 +6570,7 @@
       "defense": 78,
       "id": "ar:1116493056:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -6331,6 +6596,7 @@
       "defense": 78,
       "id": "ar:1116493056:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -6351,6 +6617,7 @@
       "defense": 78,
       "id": "ar:1116493056:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -6371,6 +6638,7 @@
       "defense": 78,
       "id": "ar:1116493056:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -6396,6 +6664,7 @@
       "defense": 78,
       "id": "ar:1116493056:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -6416,6 +6685,7 @@
       "defense": 72,
       "id": "ar:1122640768:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -6441,6 +6711,7 @@
       "defense": 86,
       "id": "ar:1137760384:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -6467,6 +6738,7 @@
       "defense": 86,
       "id": "ar:1137760384:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -6497,6 +6769,7 @@
       "defense": 86,
       "id": "ar:1137760384:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -6527,6 +6800,7 @@
       "defense": 86,
       "id": "ar:1137760384:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -6552,6 +6826,7 @@
       "defense": 86,
       "id": "ar:1137760384:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1487598336",
@@ -6582,6 +6857,7 @@
       "defense": 82,
       "id": "ar:1178166400:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6608,6 +6884,7 @@
       "defense": 82,
       "id": "ar:1178166400:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6638,6 +6915,7 @@
       "defense": 82,
       "id": "ar:1178166400:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6668,6 +6946,7 @@
       "defense": 82,
       "id": "ar:1178166400:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6694,6 +6973,7 @@
       "defense": 82,
       "id": "ar:1178166400:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1769550080",
@@ -6720,6 +7000,7 @@
       "defense": 24,
       "id": "ar:11:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:-1648695680"
@@ -6736,6 +7017,7 @@
       "defense": 26,
       "id": "ar:1204277120:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:-1648695680"
@@ -6752,6 +7034,7 @@
       "defense": 26,
       "id": "ar:1204277120:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:-1648695680"
@@ -6768,6 +7051,7 @@
       "defense": 26,
       "id": "ar:1204277120:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:-1648695680"
@@ -6784,6 +7068,7 @@
       "defense": 26,
       "id": "ar:1204277120:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:-1648695680"
@@ -6800,6 +7085,7 @@
       "defense": 26,
       "id": "ar:1204277120:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:-1648695680"
@@ -6816,6 +7102,7 @@
       "defense": 80,
       "id": "ar:12183:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -6842,6 +7129,7 @@
       "defense": 80,
       "id": "ar:12183:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -6872,6 +7160,7 @@
       "defense": 80,
       "id": "ar:12183:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -6898,6 +7187,7 @@
       "defense": 80,
       "id": "ar:12183:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -6920,6 +7210,7 @@
       "defense": 80,
       "id": "ar:12183:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -6950,6 +7241,7 @@
       "defense": 78,
       "id": "ar:12330399:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -6971,6 +7263,7 @@
       "defense": 78,
       "id": "ar:12330399:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -7000,6 +7293,7 @@
       "defense": 78,
       "id": "ar:12330399:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -7021,6 +7315,7 @@
       "defense": 78,
       "id": "ar:12330399:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -7050,6 +7345,7 @@
       "defense": 78,
       "id": "ar:12330399:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -7075,6 +7371,7 @@
       "defense": 80,
       "id": "ar:124521752:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -7105,6 +7402,7 @@
       "defense": 80,
       "id": "ar:124521752:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -7131,6 +7429,7 @@
       "defense": 80,
       "id": "ar:124521752:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -7153,6 +7452,7 @@
       "defense": 80,
       "id": "ar:124521752:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -7183,6 +7483,7 @@
       "defense": 80,
       "id": "ar:124521752:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -7209,6 +7510,7 @@
       "defense": 86,
       "id": "ar:12528:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -7232,6 +7534,7 @@
       "defense": 40,
       "id": "ar:1254402048:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1998066176"
@@ -7252,6 +7555,7 @@
       "defense": 40,
       "id": "ar:1254402048:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1998066176"
@@ -7268,6 +7572,7 @@
       "defense": 40,
       "id": "ar:1254402048:head",
       "part": "head",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1998066176"
@@ -7288,6 +7593,7 @@
       "defense": 40,
       "id": "ar:1254402048:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1998066176"
@@ -7308,6 +7614,7 @@
       "defense": 40,
       "id": "ar:1254402048:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1998066176"
@@ -7328,6 +7635,7 @@
       "defense": 86,
       "id": "ar:1266:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -7351,6 +7659,7 @@
       "defense": 24,
       "id": "ar:12:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:1968728576"
@@ -7367,6 +7676,7 @@
       "defense": 80,
       "id": "ar:130302384:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -7397,6 +7707,7 @@
       "defense": 80,
       "id": "ar:130302384:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -7427,6 +7738,7 @@
       "defense": 80,
       "id": "ar:130302384:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -7461,6 +7773,7 @@
       "defense": 80,
       "id": "ar:130302384:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -7495,6 +7808,7 @@
       "defense": 80,
       "id": "ar:130302384:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -7521,6 +7835,7 @@
       "defense": 72,
       "id": "ar:1349287168:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -7542,6 +7857,7 @@
       "defense": 80,
       "id": "ar:1354790272:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144"
@@ -7571,6 +7887,7 @@
       "defense": 80,
       "id": "ar:1354790272:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144"
@@ -7592,6 +7909,7 @@
       "defense": 80,
       "id": "ar:1354790272:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144"
@@ -7621,6 +7939,7 @@
       "defense": 80,
       "id": "ar:1354790272:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144"
@@ -7646,6 +7965,7 @@
       "defense": 80,
       "id": "ar:1354790272:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:583598144"
@@ -7671,6 +7991,7 @@
       "defense": 72,
       "id": "ar:139617472:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -7692,6 +8013,7 @@
       "defense": 86,
       "id": "ar:14725:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:2237",
@@ -7722,6 +8044,7 @@
       "defense": 86,
       "id": "ar:14725:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:2237",
@@ -7747,6 +8070,7 @@
       "defense": 86,
       "id": "ar:14725:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:2237",
@@ -7777,6 +8101,7 @@
       "defense": 86,
       "id": "ar:14725:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:2237",
@@ -7807,6 +8132,7 @@
       "defense": 86,
       "id": "ar:14725:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:2237",
@@ -7828,6 +8154,7 @@
       "defense": 80,
       "id": "ar:1493203456:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -7854,6 +8181,7 @@
       "defense": 80,
       "id": "ar:1493203456:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -7880,6 +8208,7 @@
       "defense": 80,
       "id": "ar:1493203456:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -7901,6 +8230,7 @@
       "defense": 80,
       "id": "ar:1493203456:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -7927,6 +8257,7 @@
       "defense": 80,
       "id": "ar:1493203456:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -7957,6 +8288,7 @@
       "defense": 80,
       "id": "ar:1552524288:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -7978,6 +8310,7 @@
       "defense": 80,
       "id": "ar:1552524288:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -8004,6 +8337,7 @@
       "defense": 80,
       "id": "ar:1552524288:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -8025,6 +8359,7 @@
       "defense": 80,
       "id": "ar:1552524288:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -8051,6 +8386,7 @@
       "defense": 80,
       "id": "ar:1552524288:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -8077,6 +8413,7 @@
       "defense": 76,
       "id": "ar:15655:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-911441792",
@@ -8107,6 +8444,7 @@
       "defense": 76,
       "id": "ar:15655:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-911441792",
@@ -8133,6 +8471,7 @@
       "defense": 76,
       "id": "ar:15655:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-911441792",
@@ -8154,6 +8493,7 @@
       "defense": 76,
       "id": "ar:15655:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-911441792",
@@ -8180,6 +8520,7 @@
       "defense": 76,
       "id": "ar:15655:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-911441792",
@@ -8210,6 +8551,7 @@
       "defense": 88,
       "id": "ar:15894:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-215826112",
@@ -8236,6 +8578,7 @@
       "defense": 88,
       "id": "ar:15894:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-215826112",
@@ -8262,6 +8605,7 @@
       "defense": 88,
       "id": "ar:15894:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-215826112",
@@ -8288,6 +8632,7 @@
       "defense": 88,
       "id": "ar:15894:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-215826112",
@@ -8314,6 +8659,7 @@
       "defense": 88,
       "id": "ar:15894:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-215826112",
@@ -8340,6 +8686,7 @@
       "defense": 76,
       "id": "ar:1619457664:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904"
@@ -8365,6 +8712,7 @@
       "defense": 76,
       "id": "ar:1619457664:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904"
@@ -8398,6 +8746,7 @@
       "defense": 76,
       "id": "ar:1619457664:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904"
@@ -8427,6 +8776,7 @@
       "defense": 76,
       "id": "ar:1619457664:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904"
@@ -8452,6 +8802,7 @@
       "defense": 76,
       "id": "ar:1619457664:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904"
@@ -8477,6 +8828,7 @@
       "defense": 80,
       "id": "ar:16428:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -8504,6 +8856,7 @@
       "defense": 76,
       "id": "ar:16685:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -8524,6 +8877,7 @@
       "defense": 86,
       "id": "ar:1693966848:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -8554,6 +8908,7 @@
       "defense": 86,
       "id": "ar:1693966848:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -8580,6 +8935,7 @@
       "defense": 86,
       "id": "ar:1693966848:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -8610,6 +8966,7 @@
       "defense": 86,
       "id": "ar:1693966848:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -8640,6 +8997,7 @@
       "defense": 86,
       "id": "ar:1693966848:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -8670,6 +9028,7 @@
       "defense": 32,
       "id": "ar:1699065088:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1487598336"
@@ -8686,6 +9045,7 @@
       "defense": 32,
       "id": "ar:1699065088:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1487598336"
@@ -8702,6 +9062,7 @@
       "defense": 32,
       "id": "ar:1699065088:head",
       "part": "head",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1487598336"
@@ -8718,6 +9079,7 @@
       "defense": 32,
       "id": "ar:1699065088:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1487598336"
@@ -8734,6 +9096,7 @@
       "defense": 32,
       "id": "ar:1699065088:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1487598336"
@@ -8750,6 +9113,7 @@
       "defense": 80,
       "id": "ar:17173:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -8775,6 +9139,7 @@
       "defense": 72,
       "id": "ar:1719980800:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -8795,6 +9160,7 @@
       "defense": 80,
       "id": "ar:1725739136:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1768553344",
@@ -8821,6 +9187,7 @@
       "defense": 80,
       "id": "ar:1725739136:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1768553344",
@@ -8851,6 +9218,7 @@
       "defense": 80,
       "id": "ar:1725739136:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1768553344",
@@ -8873,6 +9241,7 @@
       "defense": 80,
       "id": "ar:1725739136:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1768553344",
@@ -8903,6 +9272,7 @@
       "defense": 80,
       "id": "ar:1725739136:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1768553344",
@@ -8929,6 +9299,7 @@
       "defense": 24,
       "id": "ar:1766304512:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [
         "sb:-1648695680"
@@ -8945,6 +9316,7 @@
       "defense": 80,
       "id": "ar:1769659776:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-3666104",
@@ -8975,6 +9347,7 @@
       "defense": 80,
       "id": "ar:1769659776:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-3666104",
@@ -9001,6 +9374,7 @@
       "defense": 80,
       "id": "ar:1769659776:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-3666104",
@@ -9031,6 +9405,7 @@
       "defense": 80,
       "id": "ar:1769659776:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-3666104",
@@ -9057,6 +9432,7 @@
       "defense": 80,
       "id": "ar:1769659776:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-3666104",
@@ -9078,6 +9454,7 @@
       "defense": 80,
       "id": "ar:17725:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:2237"
@@ -9111,6 +9488,7 @@
       "defense": 80,
       "id": "ar:17725:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:2237"
@@ -9140,6 +9518,7 @@
       "defense": 80,
       "id": "ar:17725:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:2237"
@@ -9173,6 +9552,7 @@
       "defense": 80,
       "id": "ar:17725:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:2237"
@@ -9202,6 +9582,7 @@
       "defense": 80,
       "id": "ar:17725:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:2237"
@@ -9227,6 +9608,7 @@
       "defense": 80,
       "id": "ar:1827374976:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -9257,6 +9639,7 @@
       "defense": 80,
       "id": "ar:1827374976:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -9283,6 +9666,7 @@
       "defense": 80,
       "id": "ar:1827374976:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -9309,6 +9693,7 @@
       "defense": 80,
       "id": "ar:1827374976:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -9339,6 +9724,7 @@
       "defense": 80,
       "id": "ar:1827374976:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1468066176",
@@ -9373,6 +9759,7 @@
       "defense": 88,
       "id": "ar:18386:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -9403,6 +9790,7 @@
       "defense": 88,
       "id": "ar:18386:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -9429,6 +9817,7 @@
       "defense": 88,
       "id": "ar:18386:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -9459,6 +9848,7 @@
       "defense": 88,
       "id": "ar:18386:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -9489,6 +9879,7 @@
       "defense": 88,
       "id": "ar:18386:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -9515,6 +9906,7 @@
       "defense": 66,
       "id": "ar:1845864960:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -9538,6 +9930,7 @@
       "defense": 66,
       "id": "ar:1845864960:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -9561,6 +9954,7 @@
       "defense": 66,
       "id": "ar:1845864960:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -9580,6 +9974,7 @@
       "defense": 66,
       "id": "ar:1845864960:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -9603,6 +9998,7 @@
       "defense": 66,
       "id": "ar:1845864960:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -9626,6 +10022,7 @@
       "defense": 76,
       "id": "ar:1869289088:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -9651,6 +10048,7 @@
       "defense": 76,
       "id": "ar:1869289088:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -9672,6 +10070,7 @@
       "defense": 76,
       "id": "ar:1869289088:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -9701,6 +10100,7 @@
       "defense": 78,
       "id": "ar:1903087232:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -9728,6 +10128,7 @@
       "defense": 78,
       "id": "ar:1903087232:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -9755,6 +10156,7 @@
       "defense": 78,
       "id": "ar:1903087232:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -9782,6 +10184,7 @@
       "defense": 78,
       "id": "ar:1903087232:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -9805,6 +10208,7 @@
       "defense": 78,
       "id": "ar:1903087232:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -9832,6 +10236,7 @@
       "defense": 80,
       "id": "ar:1905422464:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176"
@@ -9857,6 +10262,7 @@
       "defense": 80,
       "id": "ar:1905422464:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176"
@@ -9882,6 +10288,7 @@
       "defense": 80,
       "id": "ar:1905422464:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176"
@@ -9907,6 +10314,7 @@
       "defense": 80,
       "id": "ar:1905422464:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176"
@@ -9927,6 +10335,7 @@
       "defense": 80,
       "id": "ar:1905422464:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176"
@@ -9952,6 +10361,7 @@
       "defense": 82,
       "id": "ar:1956132992:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -9982,6 +10392,7 @@
       "defense": 82,
       "id": "ar:1956132992:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -10008,6 +10419,7 @@
       "defense": 82,
       "id": "ar:1956132992:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -10038,6 +10450,7 @@
       "defense": 82,
       "id": "ar:1956132992:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -10072,6 +10485,7 @@
       "defense": 82,
       "id": "ar:1956132992:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1664678272",
@@ -10098,6 +10512,7 @@
       "defense": 76,
       "id": "ar:20042:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -10127,6 +10542,7 @@
       "defense": 76,
       "id": "ar:20042:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -10156,6 +10572,7 @@
       "defense": 76,
       "id": "ar:20042:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -10181,6 +10598,7 @@
       "defense": 76,
       "id": "ar:20042:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -10210,6 +10628,7 @@
       "defense": 76,
       "id": "ar:20042:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -10239,6 +10658,7 @@
       "defense": 66,
       "id": "ar:2013193984:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -10262,6 +10682,7 @@
       "defense": 66,
       "id": "ar:2013193984:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -10285,6 +10706,7 @@
       "defense": 66,
       "id": "ar:2013193984:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -10308,6 +10730,7 @@
       "defense": 66,
       "id": "ar:2013193984:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -10331,6 +10754,7 @@
       "defense": 66,
       "id": "ar:2013193984:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -10354,6 +10778,7 @@
       "defense": 86,
       "id": "ar:20427:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:16835",
@@ -10380,6 +10805,7 @@
       "defense": 86,
       "id": "ar:20427:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:16835",
@@ -10414,6 +10840,7 @@
       "defense": 86,
       "id": "ar:20427:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:16835",
@@ -10444,6 +10871,7 @@
       "defense": 86,
       "id": "ar:20427:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:16835",
@@ -10470,6 +10898,7 @@
       "defense": 86,
       "id": "ar:20427:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:16835",
@@ -10504,6 +10933,7 @@
       "defense": 34,
       "id": "ar:2045212544:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10524,6 +10954,7 @@
       "defense": 34,
       "id": "ar:2045212544:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10540,6 +10971,7 @@
       "defense": 34,
       "id": "ar:2045212544:head",
       "part": "head",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10556,6 +10988,7 @@
       "defense": 34,
       "id": "ar:2045212544:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10572,6 +11005,7 @@
       "defense": 34,
       "id": "ar:2045212544:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10592,6 +11026,7 @@
       "defense": 72,
       "id": "ar:2048560000:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -10612,6 +11047,7 @@
       "defense": 80,
       "id": "ar:2057674112:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -10626,6 +11062,7 @@
       "defense": 76,
       "id": "ar:2113410944:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10651,6 +11088,7 @@
       "defense": 76,
       "id": "ar:2113410944:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10676,6 +11114,7 @@
       "defense": 76,
       "id": "ar:2113410944:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10701,6 +11140,7 @@
       "defense": 76,
       "id": "ar:2113410944:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10721,6 +11161,7 @@
       "defense": 76,
       "id": "ar:2113410944:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -10741,6 +11182,7 @@
       "defense": 88,
       "id": "ar:22297:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-2041451904",
@@ -10767,6 +11209,7 @@
       "defense": 88,
       "id": "ar:22297:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-2041451904",
@@ -10789,6 +11232,7 @@
       "defense": 88,
       "id": "ar:22297:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-2041451904",
@@ -10823,6 +11267,7 @@
       "defense": 88,
       "id": "ar:22297:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-2041451904",
@@ -10857,6 +11302,7 @@
       "defense": 88,
       "id": "ar:22297:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-2041451904",
@@ -10883,6 +11329,7 @@
       "defense": 80,
       "id": "ar:2261:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:2237"
@@ -10904,6 +11351,7 @@
       "defense": 88,
       "id": "ar:22921:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:24531"
@@ -10933,6 +11381,7 @@
       "defense": 88,
       "id": "ar:22921:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:24531"
@@ -10958,6 +11407,7 @@
       "defense": 88,
       "id": "ar:22921:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:24531"
@@ -10987,6 +11437,7 @@
       "defense": 88,
       "id": "ar:22921:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:24531"
@@ -11012,6 +11463,7 @@
       "defense": 88,
       "id": "ar:22921:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:24531"
@@ -11045,6 +11497,7 @@
       "defense": 86,
       "id": "ar:238882304:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -11071,6 +11524,7 @@
       "defense": 86,
       "id": "ar:238882304:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -11092,6 +11546,7 @@
       "defense": 86,
       "id": "ar:238882304:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -11122,6 +11577,7 @@
       "defense": 86,
       "id": "ar:238882304:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -11143,6 +11599,7 @@
       "defense": 86,
       "id": "ar:238882304:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -11164,6 +11621,7 @@
       "defense": 88,
       "id": "ar:23957:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -11194,6 +11652,7 @@
       "defense": 88,
       "id": "ar:23957:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -11224,6 +11683,7 @@
       "defense": 88,
       "id": "ar:23957:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -11250,6 +11710,7 @@
       "defense": 88,
       "id": "ar:23957:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -11280,6 +11741,7 @@
       "defense": 88,
       "id": "ar:23957:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-964369920",
@@ -11314,6 +11776,7 @@
       "defense": 86,
       "id": "ar:2461:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11347,6 +11810,7 @@
       "defense": 86,
       "id": "ar:2461:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11380,6 +11844,7 @@
       "defense": 86,
       "id": "ar:2461:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11409,6 +11874,7 @@
       "defense": 86,
       "id": "ar:2461:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11442,6 +11908,7 @@
       "defense": 86,
       "id": "ar:2461:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11475,6 +11942,7 @@
       "defense": 80,
       "id": "ar:24693:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -11493,6 +11961,7 @@
       "defense": 86,
       "id": "ar:25244:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -11516,6 +11985,7 @@
       "defense": 86,
       "id": "ar:25337:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11545,6 +12015,7 @@
       "defense": 86,
       "id": "ar:25337:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11578,6 +12049,7 @@
       "defense": 86,
       "id": "ar:25337:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11607,6 +12079,7 @@
       "defense": 86,
       "id": "ar:25337:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11640,6 +12113,7 @@
       "defense": 86,
       "id": "ar:25337:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:13941"
@@ -11669,6 +12143,7 @@
       "defense": 76,
       "id": "ar:253715744:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672"
@@ -11694,6 +12169,7 @@
       "defense": 88,
       "id": "ar:2561:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1768553344",
@@ -11724,6 +12200,7 @@
       "defense": 88,
       "id": "ar:2561:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1468066176",
@@ -11758,6 +12235,7 @@
       "defense": 88,
       "id": "ar:2561:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-555494336",
@@ -11788,6 +12266,7 @@
       "defense": 88,
       "id": "ar:2561:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-62248528",
@@ -11822,6 +12301,7 @@
       "defense": 88,
       "id": "ar:2561:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:5590",
@@ -11856,6 +12336,7 @@
       "defense": 76,
       "id": "ar:273:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -11880,6 +12361,7 @@
       "defense": 76,
       "id": "ar:273:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -11900,6 +12382,7 @@
       "defense": 76,
       "id": "ar:273:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -11929,6 +12412,7 @@
       "defense": 76,
       "id": "ar:273:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -11954,6 +12438,7 @@
       "defense": 76,
       "id": "ar:273:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -11987,6 +12472,7 @@
       "defense": 86,
       "id": "ar:29198:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -12009,6 +12495,7 @@
       "defense": 76,
       "id": "ar:29371:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:11709",
@@ -12039,6 +12526,7 @@
       "defense": 76,
       "id": "ar:29371:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:11709",
@@ -12069,6 +12557,7 @@
       "defense": 76,
       "id": "ar:29371:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:11709",
@@ -12094,6 +12583,7 @@
       "defense": 76,
       "id": "ar:29371:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:11709",
@@ -12124,6 +12614,7 @@
       "defense": 76,
       "id": "ar:29371:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:11709",
@@ -12145,6 +12636,7 @@
       "defense": 88,
       "id": "ar:29445:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -12171,6 +12663,7 @@
       "defense": 88,
       "id": "ar:29445:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -12192,6 +12685,7 @@
       "defense": 88,
       "id": "ar:29445:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -12222,6 +12716,7 @@
       "defense": 88,
       "id": "ar:29445:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -12256,6 +12751,7 @@
       "defense": 88,
       "id": "ar:29445:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -12282,6 +12778,7 @@
       "defense": 86,
       "id": "ar:29778:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -12313,6 +12810,7 @@
       "defense": 76,
       "id": "ar:297911136:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -12334,6 +12832,7 @@
       "defense": 76,
       "id": "ar:297911136:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -12363,6 +12862,7 @@
       "defense": 76,
       "id": "ar:297911136:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -12384,6 +12884,7 @@
       "defense": 76,
       "id": "ar:297911136:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -12405,6 +12906,7 @@
       "defense": 76,
       "id": "ar:297911136:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:451472896"
@@ -12430,6 +12932,7 @@
       "defense": 80,
       "id": "ar:29897828:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -12460,6 +12963,7 @@
       "defense": 80,
       "id": "ar:29897828:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -12486,6 +12990,7 @@
       "defense": 80,
       "id": "ar:29897828:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -12516,6 +13021,7 @@
       "defense": 80,
       "id": "ar:29897828:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -12546,6 +13052,7 @@
       "defense": 80,
       "id": "ar:29897828:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-2041451904",
@@ -12572,6 +13079,7 @@
       "defense": 22,
       "id": "ar:2:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -12586,6 +13094,7 @@
       "defense": 22,
       "id": "ar:2:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -12600,6 +13109,7 @@
       "defense": 22,
       "id": "ar:2:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -12614,6 +13124,7 @@
       "defense": 22,
       "id": "ar:2:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -12628,6 +13139,7 @@
       "defense": 22,
       "id": "ar:2:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -12642,6 +13154,7 @@
       "defense": 82,
       "id": "ar:30074:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -12665,6 +13178,7 @@
       "defense": 80,
       "id": "ar:30086:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -12691,6 +13205,7 @@
       "defense": 80,
       "id": "ar:30086:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -12717,6 +13232,7 @@
       "defense": 80,
       "id": "ar:30086:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -12743,6 +13259,7 @@
       "defense": 80,
       "id": "ar:30086:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -12769,6 +13286,7 @@
       "defense": 80,
       "id": "ar:30086:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-403054144",
@@ -12799,6 +13317,7 @@
       "defense": 80,
       "id": "ar:30090:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -12818,6 +13337,7 @@
       "defense": 86,
       "id": "ar:30138:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [],
       "skills": [
@@ -12837,6 +13357,7 @@
       "defense": 72,
       "id": "ar:303232896:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1648695680"
@@ -12857,6 +13378,7 @@
       "defense": 88,
       "id": "ar:30569:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -12883,6 +13405,7 @@
       "defense": 88,
       "id": "ar:30569:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -12909,6 +13432,7 @@
       "defense": 88,
       "id": "ar:30569:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -12939,6 +13463,7 @@
       "defense": 88,
       "id": "ar:30569:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -12973,6 +13498,7 @@
       "defense": 88,
       "id": "ar:30569:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1305836672",
@@ -12994,6 +13520,7 @@
       "defense": 86,
       "id": "ar:30649:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1648695680",
@@ -13024,6 +13551,7 @@
       "defense": 86,
       "id": "ar:30649:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1648695680",
@@ -13058,6 +13586,7 @@
       "defense": 86,
       "id": "ar:30649:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1648695680",
@@ -13088,6 +13617,7 @@
       "defense": 86,
       "id": "ar:30649:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1648695680",
@@ -13113,6 +13643,7 @@
       "defense": 86,
       "id": "ar:30649:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:-1648695680",
@@ -13151,6 +13682,7 @@
       "defense": 76,
       "id": "ar:307878816:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -13180,6 +13712,7 @@
       "defense": 76,
       "id": "ar:307878816:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -13200,6 +13733,7 @@
       "defense": 76,
       "id": "ar:307878816:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -13225,6 +13759,7 @@
       "defense": 76,
       "id": "ar:307878816:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -13250,6 +13785,7 @@
       "defense": 76,
       "id": "ar:307878816:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1487598336"
@@ -13270,6 +13806,7 @@
       "defense": 76,
       "id": "ar:309165664:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -13293,6 +13830,7 @@
       "defense": 76,
       "id": "ar:309165664:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -13316,6 +13854,7 @@
       "defense": 76,
       "id": "ar:309165664:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -13339,6 +13878,7 @@
       "defense": 76,
       "id": "ar:309165664:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -13362,6 +13902,7 @@
       "defense": 76,
       "id": "ar:309165664:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -13385,6 +13926,7 @@
       "defense": 76,
       "id": "ar:31453:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -13411,6 +13953,7 @@
       "defense": 76,
       "id": "ar:31453:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -13441,6 +13984,7 @@
       "defense": 76,
       "id": "ar:31453:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -13471,6 +14015,7 @@
       "defense": 76,
       "id": "ar:31453:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -13497,6 +14042,7 @@
       "defense": 76,
       "id": "ar:31453:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -13531,6 +14077,7 @@
       "defense": 76,
       "id": "ar:31514:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -13556,6 +14103,7 @@
       "defense": 76,
       "id": "ar:31514:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -13585,6 +14133,7 @@
       "defense": 76,
       "id": "ar:31514:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -13606,6 +14155,7 @@
       "defense": 76,
       "id": "ar:31514:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -13635,6 +14185,7 @@
       "defense": 76,
       "id": "ar:31514:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941"
@@ -13668,6 +14219,7 @@
       "defense": 76,
       "id": "ar:31658:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -13682,6 +14234,7 @@
       "defense": 88,
       "id": "ar:32083:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -13708,6 +14261,7 @@
       "defense": 88,
       "id": "ar:32083:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -13730,6 +14284,7 @@
       "defense": 88,
       "id": "ar:32083:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -13760,6 +14315,7 @@
       "defense": 88,
       "id": "ar:32083:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -13786,6 +14342,7 @@
       "defense": 88,
       "id": "ar:32083:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1484575872",
@@ -13807,6 +14364,7 @@
       "defense": 76,
       "id": "ar:3249367:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -13827,6 +14385,7 @@
       "defense": 76,
       "id": "ar:3249367:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -13847,6 +14406,7 @@
       "defense": 76,
       "id": "ar:3249367:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -13867,6 +14427,7 @@
       "defense": 76,
       "id": "ar:3249367:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -13887,6 +14448,7 @@
       "defense": 76,
       "id": "ar:3249367:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1968728576"
@@ -13908,6 +14470,7 @@
       "defense": 80,
       "id": "ar:32515:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -13931,6 +14494,7 @@
       "defense": 82,
       "id": "ar:327345216:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1980404096",
@@ -13961,6 +14525,7 @@
       "defense": 82,
       "id": "ar:327345216:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1980404096",
@@ -13991,6 +14556,7 @@
       "defense": 82,
       "id": "ar:327345216:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1980404096",
@@ -14021,6 +14587,7 @@
       "defense": 82,
       "id": "ar:327345216:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1980404096",
@@ -14051,6 +14618,7 @@
       "defense": 82,
       "id": "ar:327345216:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:1980404096",
@@ -14073,6 +14641,7 @@
       "defense": 86,
       "id": "ar:3531:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:16835",
@@ -14103,6 +14672,7 @@
       "defense": 86,
       "id": "ar:3531:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:16835",
@@ -14133,6 +14703,7 @@
       "defense": 86,
       "id": "ar:3531:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:16835",
@@ -14171,6 +14742,7 @@
       "defense": 86,
       "id": "ar:3531:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:16835",
@@ -14205,6 +14777,7 @@
       "defense": 86,
       "id": "ar:3531:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:16835",
@@ -14239,6 +14812,7 @@
       "defense": 80,
       "id": "ar:3633:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:4554"
@@ -14268,6 +14842,7 @@
       "defense": 80,
       "id": "ar:3633:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:4554"
@@ -14293,6 +14868,7 @@
       "defense": 80,
       "id": "ar:3633:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:4554"
@@ -14322,6 +14898,7 @@
       "defense": 80,
       "id": "ar:3633:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:4554"
@@ -14351,6 +14928,7 @@
       "defense": 80,
       "id": "ar:3633:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:4554"
@@ -14376,6 +14954,7 @@
       "defense": 22,
       "id": "ar:3:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -14390,6 +14969,7 @@
       "defense": 22,
       "id": "ar:3:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -14404,6 +14984,7 @@
       "defense": 22,
       "id": "ar:3:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -14418,6 +14999,7 @@
       "defense": 22,
       "id": "ar:3:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -14432,6 +15014,7 @@
       "defense": 22,
       "id": "ar:3:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -14446,6 +15029,7 @@
       "defense": 88,
       "id": "ar:4066:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:5590",
@@ -14476,6 +15060,7 @@
       "defense": 88,
       "id": "ar:4066:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-3666104",
@@ -14510,6 +15095,7 @@
       "defense": 88,
       "id": "ar:4066:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1432692352",
@@ -14540,6 +15126,7 @@
       "defense": 88,
       "id": "ar:4066:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-418246240",
@@ -14574,6 +15161,7 @@
       "defense": 88,
       "id": "ar:4066:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-403054144",
@@ -14608,6 +15196,7 @@
       "defense": 32,
       "id": "ar:417054528:head",
       "part": "head",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1968728576"
@@ -14624,6 +15213,7 @@
       "defense": 88,
       "id": "ar:4456:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:451472896"
@@ -14644,6 +15234,7 @@
       "defense": 80,
       "id": "ar:458233920:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176",
@@ -14670,6 +15261,7 @@
       "defense": 80,
       "id": "ar:458233920:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176",
@@ -14691,6 +15283,7 @@
       "defense": 80,
       "id": "ar:458233920:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176",
@@ -14721,6 +15314,7 @@
       "defense": 80,
       "id": "ar:458233920:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176",
@@ -14751,6 +15345,7 @@
       "defense": 80,
       "id": "ar:458233920:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:1998066176",
@@ -14777,6 +15372,7 @@
       "defense": 76,
       "id": "ar:459951104:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -14806,6 +15402,7 @@
       "defense": 76,
       "id": "ar:459951104:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -14827,6 +15424,7 @@
       "defense": 76,
       "id": "ar:459951104:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -14852,6 +15450,7 @@
       "defense": 76,
       "id": "ar:459951104:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -14881,6 +15480,7 @@
       "defense": 76,
       "id": "ar:459951104:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -14906,6 +15506,7 @@
       "defense": 80,
       "id": "ar:472240160:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -14940,6 +15541,7 @@
       "defense": 80,
       "id": "ar:472240160:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -14970,6 +15572,7 @@
       "defense": 80,
       "id": "ar:472240160:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -15000,6 +15603,7 @@
       "defense": 80,
       "id": "ar:472240160:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -15026,6 +15630,7 @@
       "defense": 80,
       "id": "ar:472240160:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1305836672",
@@ -15052,6 +15657,7 @@
       "defense": 86,
       "id": "ar:4744:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:1998066176"
@@ -15076,6 +15682,7 @@
       "defense": 22,
       "id": "ar:4:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15090,6 +15697,7 @@
       "defense": 22,
       "id": "ar:4:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15104,6 +15712,7 @@
       "defense": 22,
       "id": "ar:4:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15118,6 +15727,7 @@
       "defense": 22,
       "id": "ar:4:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15132,6 +15742,7 @@
       "defense": 22,
       "id": "ar:4:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15146,6 +15757,7 @@
       "defense": 76,
       "id": "ar:5330:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:2237"
@@ -15175,6 +15787,7 @@
       "defense": 76,
       "id": "ar:5330:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:2237"
@@ -15204,6 +15817,7 @@
       "defense": 76,
       "id": "ar:5330:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:2237"
@@ -15233,6 +15847,7 @@
       "defense": 76,
       "id": "ar:5330:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:2237"
@@ -15262,6 +15877,7 @@
       "defense": 76,
       "id": "ar:5330:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:2237"
@@ -15287,6 +15903,7 @@
       "defense": 82,
       "id": "ar:598400000:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2107855744",
@@ -15309,6 +15926,7 @@
       "defense": 82,
       "id": "ar:598400000:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2107855744",
@@ -15343,6 +15961,7 @@
       "defense": 82,
       "id": "ar:598400000:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2107855744",
@@ -15369,6 +15988,7 @@
       "defense": 82,
       "id": "ar:598400000:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2107855744",
@@ -15399,6 +16019,7 @@
       "defense": 82,
       "id": "ar:598400000:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [
         "sb:2107855744",
@@ -15429,6 +16050,7 @@
       "defense": 24,
       "id": "ar:5:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15443,6 +16065,7 @@
       "defense": 24,
       "id": "ar:5:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15457,6 +16080,7 @@
       "defense": 24,
       "id": "ar:5:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15471,6 +16095,7 @@
       "defense": 24,
       "id": "ar:5:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15485,6 +16110,7 @@
       "defense": 24,
       "id": "ar:5:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -15499,6 +16125,7 @@
       "defense": 40,
       "id": "ar:608781568:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -15521,6 +16148,7 @@
       "defense": 40,
       "id": "ar:608781568:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -15543,6 +16171,7 @@
       "defense": 40,
       "id": "ar:608781568:head",
       "part": "head",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -15565,6 +16194,7 @@
       "defense": 40,
       "id": "ar:608781568:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -15587,6 +16217,7 @@
       "defense": 40,
       "id": "ar:608781568:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 4,
       "setBonusIds": [
         "sb:-1305836672",
@@ -15608,6 +16239,7 @@
       "defense": 76,
       "id": "ar:638891520:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -15633,6 +16265,7 @@
       "defense": 76,
       "id": "ar:638891520:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -15658,6 +16291,7 @@
       "defense": 76,
       "id": "ar:638891520:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -15683,6 +16317,7 @@
       "defense": 76,
       "id": "ar:638891520:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -15708,6 +16343,7 @@
       "defense": 76,
       "id": "ar:638891520:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -15733,6 +16369,7 @@
       "defense": 66,
       "id": "ar:660577600:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -15756,6 +16393,7 @@
       "defense": 66,
       "id": "ar:660577600:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -15779,6 +16417,7 @@
       "defense": 66,
       "id": "ar:660577600:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -15798,6 +16437,7 @@
       "defense": 66,
       "id": "ar:660577600:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -15817,6 +16457,7 @@
       "defense": 66,
       "id": "ar:660577600:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [],
       "skills": [
@@ -15840,6 +16481,7 @@
       "defense": 82,
       "id": "ar:6716:head",
       "part": "head",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -15863,6 +16505,7 @@
       "defense": 28,
       "id": "ar:672494016:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1998066176"
@@ -15879,6 +16522,7 @@
       "defense": 28,
       "id": "ar:672494016:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1998066176"
@@ -15895,6 +16539,7 @@
       "defense": 28,
       "id": "ar:672494016:head",
       "part": "head",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1998066176"
@@ -15911,6 +16556,7 @@
       "defense": 28,
       "id": "ar:672494016:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1998066176"
@@ -15927,6 +16573,7 @@
       "defense": 28,
       "id": "ar:672494016:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 2,
       "setBonusIds": [
         "sb:1998066176"
@@ -15943,6 +16590,7 @@
       "defense": 36,
       "id": "ar:690915648:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1968728576"
@@ -15959,6 +16607,7 @@
       "defense": 36,
       "id": "ar:690915648:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1968728576"
@@ -15979,6 +16628,7 @@
       "defense": 36,
       "id": "ar:690915648:head",
       "part": "head",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1968728576"
@@ -15995,6 +16645,7 @@
       "defense": 36,
       "id": "ar:690915648:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1968728576"
@@ -16011,6 +16662,7 @@
       "defense": 36,
       "id": "ar:690915648:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [
         "sb:1968728576"
@@ -16031,6 +16683,7 @@
       "defense": 80,
       "id": "ar:7067:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -16058,6 +16711,7 @@
       "defense": 88,
       "id": "ar:723:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:31540"
@@ -16087,6 +16741,7 @@
       "defense": 88,
       "id": "ar:723:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:31540"
@@ -16112,6 +16767,7 @@
       "defense": 88,
       "id": "ar:723:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:31540"
@@ -16141,6 +16797,7 @@
       "defense": 88,
       "id": "ar:723:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:31540"
@@ -16166,6 +16823,7 @@
       "defense": 88,
       "id": "ar:723:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:31540"
@@ -16195,6 +16853,7 @@
       "defense": 72,
       "id": "ar:744512064:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -16216,6 +16875,7 @@
       "defense": 72,
       "id": "ar:744512064:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -16245,6 +16905,7 @@
       "defense": 72,
       "id": "ar:744512064:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -16266,6 +16927,7 @@
       "defense": 72,
       "id": "ar:744512064:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -16291,6 +16953,7 @@
       "defense": 72,
       "id": "ar:744512064:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -16320,6 +16983,7 @@
       "defense": 72,
       "id": "ar:790327424:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:1685697920"
@@ -16345,6 +17009,7 @@
       "defense": 26,
       "id": "ar:7:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -16359,6 +17024,7 @@
       "defense": 26,
       "id": "ar:7:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -16373,6 +17039,7 @@
       "defense": 26,
       "id": "ar:7:head",
       "part": "head",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -16387,6 +17054,7 @@
       "defense": 26,
       "id": "ar:7:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -16401,6 +17069,7 @@
       "defense": 26,
       "id": "ar:7:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 1,
       "setBonusIds": [],
       "skills": [
@@ -16415,6 +17084,7 @@
       "defense": 76,
       "id": "ar:808936256:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16440,6 +17110,7 @@
       "defense": 76,
       "id": "ar:808936256:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16465,6 +17136,7 @@
       "defense": 76,
       "id": "ar:808936256:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16490,6 +17162,7 @@
       "defense": 76,
       "id": "ar:808936256:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16519,6 +17192,7 @@
       "defense": 76,
       "id": "ar:808936256:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16548,6 +17222,7 @@
       "defense": 76,
       "id": "ar:8248:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -16570,6 +17245,7 @@
       "defense": 76,
       "id": "ar:8248:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -16596,6 +17272,7 @@
       "defense": 76,
       "id": "ar:8248:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -16622,6 +17299,7 @@
       "defense": 76,
       "id": "ar:8248:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -16656,6 +17334,7 @@
       "defense": 76,
       "id": "ar:8248:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:13941",
@@ -16681,6 +17360,7 @@
       "defense": 80,
       "id": "ar:8691:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -16704,6 +17384,7 @@
       "defense": 80,
       "id": "ar:884421248:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -16730,6 +17411,7 @@
       "defense": 80,
       "id": "ar:884421248:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -16756,6 +17438,7 @@
       "defense": 80,
       "id": "ar:884421248:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -16786,6 +17469,7 @@
       "defense": 80,
       "id": "ar:884421248:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -16816,6 +17500,7 @@
       "defense": 80,
       "id": "ar:884421248:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-62248528",
@@ -16838,6 +17523,7 @@
       "defense": 76,
       "id": "ar:889233792:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16859,6 +17545,7 @@
       "defense": 76,
       "id": "ar:889233792:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16884,6 +17571,7 @@
       "defense": 76,
       "id": "ar:889233792:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16905,6 +17593,7 @@
       "defense": 76,
       "id": "ar:889233792:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16930,6 +17619,7 @@
       "defense": 76,
       "id": "ar:889233792:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -16955,6 +17645,7 @@
       "defense": 82,
       "id": "ar:8912:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 7,
       "setBonusIds": [],
       "skills": [
@@ -16978,6 +17669,7 @@
       "defense": 32,
       "id": "ar:8:arms",
       "part": "arms",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [],
       "skills": [
@@ -16992,6 +17684,7 @@
       "defense": 32,
       "id": "ar:8:chest",
       "part": "chest",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [],
       "skills": [
@@ -17006,6 +17699,7 @@
       "defense": 32,
       "id": "ar:8:head",
       "part": "head",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [],
       "skills": [
@@ -17020,6 +17714,7 @@
       "defense": 32,
       "id": "ar:8:legs",
       "part": "legs",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [],
       "skills": [
@@ -17034,6 +17729,7 @@
       "defense": 32,
       "id": "ar:8:waist",
       "part": "waist",
+      "rank": "low",
       "rarity": 3,
       "setBonusIds": [],
       "skills": [
@@ -17048,6 +17744,7 @@
       "defense": 76,
       "id": "ar:939921856:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -17077,6 +17774,7 @@
       "defense": 76,
       "id": "ar:939921856:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -17106,6 +17804,7 @@
       "defense": 76,
       "id": "ar:939921856:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -17135,6 +17834,7 @@
       "defense": 76,
       "id": "ar:939921856:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -17164,6 +17864,7 @@
       "defense": 76,
       "id": "ar:939921856:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [
         "sb:-1642078720"
@@ -17193,6 +17894,7 @@
       "defense": 80,
       "id": "ar:939:head",
       "part": "head",
+      "rank": "high",
       "rarity": 6,
       "setBonusIds": [],
       "skills": [
@@ -17212,6 +17914,7 @@
       "defense": 86,
       "id": "ar:9442:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1648695680"
@@ -17245,6 +17948,7 @@
       "defense": 86,
       "id": "ar:9442:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1648695680"
@@ -17282,6 +17986,7 @@
       "defense": 78,
       "id": "ar:951292800:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -17307,6 +18012,7 @@
       "defense": 78,
       "id": "ar:951292800:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -17332,6 +18038,7 @@
       "defense": 78,
       "id": "ar:951292800:head",
       "part": "head",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -17357,6 +18064,7 @@
       "defense": 78,
       "id": "ar:951292800:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -17378,6 +18086,7 @@
       "defense": 78,
       "id": "ar:951292800:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 5,
       "setBonusIds": [
         "sb:-1664678272"
@@ -17399,6 +18108,7 @@
       "defense": 86,
       "id": "ar:955926336:arms",
       "part": "arms",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1432692352",
@@ -17429,6 +18139,7 @@
       "defense": 86,
       "id": "ar:955926336:chest",
       "part": "chest",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1432692352",
@@ -17455,6 +18166,7 @@
       "defense": 86,
       "id": "ar:955926336:head",
       "part": "head",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1432692352",
@@ -17485,6 +18197,7 @@
       "defense": 86,
       "id": "ar:955926336:legs",
       "part": "legs",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1432692352",
@@ -17515,6 +18228,7 @@
       "defense": 86,
       "id": "ar:955926336:waist",
       "part": "waist",
+      "rank": "high",
       "rarity": 8,
       "setBonusIds": [
         "sb:-1432692352",
@@ -25824,7 +26538,7 @@
     "commit": "c50a1eb892f4a1ad9bb35c147801658804be2cc2",
     "repository": "LartTyler/mhdb-wilds-data"
   },
-  "version": "2026.10.1",
+  "version": "2026.10.2",
   "weapons": [
     {
       "affinity": 0,
