@@ -61,11 +61,16 @@
 ## レビュー記録
 | 回 | 範囲 | 所見の要約 | 状態 |
 |---|---|---|---|
+| 1 | e8fb6af..0ea6f06 | 要修正1（直接修正の表が空）。確認事項10: ①使っていない ui/ 部品と PickerDialog の置き場 ②Sonar 抑止 e3 の範囲 ③trustPolicyExclude の恒久化 ④tech-stack の003の節の古い記述 ⑤web-vue.md の lucide 節が古い ⑥テスト規約外の置き場 ⑦App.spec のコメントの番号 ⑧e2e/.gitkeep ⑨進捗の記録 ⑩CI の e2e は CI 未確認。受入基準1〜14は実装とテストに対応、憲法・スコープ外の違反なし、セキュリティ問題なし。Sonar 全体は判定不能（最終検証で確かめる） | 解消（要修正は記録で解消。④⑦⑧⑨は直接修正、⑤⑥は台帳に起票。①②③⑩は D-1 で提示） |
 <!-- 区間 D。所見は要約で書く（差分や所見の全文を貼らない）。状態: 要修正 / 是正済み / 解消 -->
 
 ## メインの直接修正
 | 区間 | ファイル | 内容（1行） | 理由 |
 |---|---|---|---|
+| D | `apps/web/e2e/.gitkeep` | 削除 | e2e/ に実ファイルが入ったため（レビュー確認事項8） |
+| D | `apps/web/src/test/App.spec.ts` | コメントの受入基準の番号を 10 から 11 に直した | レビュー確認事項7（コメントのみ） |
+| D | `specs/004-solver-ui/tasks.md` | T1〜T11 のチェックボックスを更新 | レビュー確認事項9 |
+| D | `design/tech-stack.md` | 003 の節の「限界」「対策」の参照先を、004 の測定と decisions.md へ直した | レビュー確認事項4（古い記述） |
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
@@ -83,6 +88,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 B の候補「キャンセルとやり直しのできる処理には、送信中の無効化が合わない」は、`design/ui-design-standard.md` §4 に反映して解消した）
+- 区間 D の候補（T7）→ 起票済み（tasks/lessons.md 2026-10-07 の2件）。以下は経緯:
 - 区間 D の候補（T7）: `role="group"`・`role="status"` は Sonar S6819 に引っかかるので `<fieldset>`・`<output>` で書く（`.claude/rules/web-vue.md` の Sonar 節へ）。Reka の `SelectTrigger` に `Web:InputWithoutLabelCheck` が出る（抑止済み）。TS6307 は `tsconfig.app.json` の include で通ることを確認（`web-vue.md` への昇華候補。T11 の後に判断）。Playwright の headless shell の版ずれ（1244 と 1243）は e2e-agent の前に `playwright install chromium` が要るか確認する。
 - 区間 D の候補（T2）: shadcn-vue の CLI は、`tsconfig.json` に `paths` が無いと失敗し、`components.json` の未知のキーも拒否する。`.claude/rules/ui-design.md` へ昇華するかは T7 の後に判断する（持ち越し）。
 - 区間 C の候補「web（composite の tsconfig）から `packages/*` のソースを import すると TS6307 で落ちるので、`tsconfig.app.json`・`tsconfig.vitest.json` の `include` に足す」は持ち越す。一時ファイルでの再現だけで、実際の import で通ることは区間 D の T1 で確かめるため。通ったら `.claude/rules/web-vue.md` への規律昇華として起票する。

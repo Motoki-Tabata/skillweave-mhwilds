@@ -8,7 +8,7 @@ import {
 } from './support/mount'
 import type { Mounted } from './support/mount'
 
-// 受入基準 10（共通レイアウトの二次創作の表記とクレジット）
+// 受入基準 11（共通レイアウトの二次創作の表記とクレジット）
 describe('App（共通レイアウト C1）', () => {
   let mounted: Mounted | null = null
 
