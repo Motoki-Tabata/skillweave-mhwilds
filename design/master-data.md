@@ -52,6 +52,7 @@ MHDB 自身の `id` は取り込み直しで変わりうるので使わず、gam
 - スキルの種別 `set` は `series` に読み替える。`maxLevel` は `ranks` のレベルの最大。極意スキル（`raisesMaxLevel`）は出力しない（アセンダンス対応で扱う）。
 - シリーズ／グループスキルは同じ `SetBonus`（`thresholds` の配列）で表し、`kind` が `set`・`group` のスキルごとに1つ作る。`thresholds` は、そのスキルを持つ防具セットの `ranks`（発動部位数とレベル）から作る。防具の部位が持つ set・group のスキルは、防具の `skills` に入れず `setBonusIds` に入れる。
 - 防具は防具セットの部位ごとに1つ。防御力は強化後の最大値、スロットは防具用（`target: 'armor'`）。
+- 防具のランク（`rank`: `low`・`high`・`master`）は、レア度から `src/main/pipeline/config.ts` の対応表で決める。現行は 1〜4 が `low`、5〜8 が `high`。対応表に無いレア度の防具があれば、変換のエラーにして生成を失敗させる。`master` の対応は、アセンダンスのデータが MHDB に入ったときに対応表を直して決める。検証は、すべての防具の `rank` が3つの値のどれかであることを確かめる。
 - 武器は14種の全件。スロットは武器用（`target: 'weapon'`）。
 - 護石は、生産護石（MHDB の `is_random: false`）の rank ごとに1つ。鑑定護石の本体は含めず、抽選テーブルは overlay の `appraisedCharm` で定義する。
 - 取得元（リポジトリとコミット SHA）と版を `MasterBundle` に記録する。

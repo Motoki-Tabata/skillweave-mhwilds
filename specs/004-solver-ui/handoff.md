@@ -34,7 +34,7 @@
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、ゲートの直前に積んだ成果物のコミットの短縮ハッシュ。ゲートのコミット自身ではない）。E-1 は PR 番号（ユーザーが手動マージした場合は「承認済み（手動マージ）」と PR 番号）。E-2 は drift PR 番号（是正なしなら「承認済み（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
 
 ## コミット範囲
-- 区間 D の開始コミット: <区間 D を始めたときの HEAD>
+- 区間 D の開始コミット: e8fb6af
 - レビュー対象の範囲: `<開始コミット>..<再開点>`
 - 是正の範囲: `<前回のレビュー対象の終点>..<是正の最後のコミット>`
 <!-- 書くのは既に存在するコミットのハッシュだけ。区間 D 以外では空のまま -->
@@ -66,6 +66,7 @@
 - ゲート C-1 で承認された常時許可外の変更のうち、spec に無く plan にだけあるもの: `apps/web/env.d.ts`・`apps/web/index.html`・`apps/web/tsconfig.app.json`・`apps/web/tsconfig.vitest.json`・`apps/web/tsconfig.e2e.json`（新規）・`apps/web/src/main/components/ui/`（shadcn-vue の CLI でコピー）。理由は plan 決定事項 5・7・8・19・20。
 - `.github/workflows/ci.yml`（e2e ジョブ）と `README.md`（残作業の e2e の行）は「常に人間の明示指示を要するもの」に当たり、ゲート C-1 の承認を明示指示として扱ってメインが書いた（plan 決定事項 23）。
 - spec の「触る領域」（web, data）の外に、solver のテスト（`packages/solver/src/test/support/builders.ts` の `armor()` に `rank`。tasks T5）が入る。`MasterArmor.rank` を必須にしたことの型の追従で、ソルバーの本体は変えていない。
+- 区間 D の T1 で、ユーザー承認のうえ `pnpm-workspace.yaml` の `allowBuilds` に `vue-demi: false` を足した（plan に無い変更。`reka-ui` → `@floating-ui/vue` の推移的依存のビルドスクリプトが未判定で `pnpm install` が ERR_PNPM_IGNORED_BUILDS になるため。既定どおり遮断。0.14.x の既定の出力は Vue 3 向け。承認: 区間 D）。
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->

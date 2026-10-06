@@ -20,7 +20,6 @@
 | 作業 | 時期 |
 |---|---|
 | `/tsod-discover` で機能マップ（`specs/feature-map.md`）を作る | `.claude/` の配置後 |
-| e2e ジョブ（Playwright）を CI に追加する | 画面を持つ最初の機能（004） |
 | PWA（vite-plugin-pwa）の方針を決める（依存の provenance 欠落。[`design/tech-stack.md`](design/tech-stack.md)「主な判断」の 3） | 別セッションで詳細を確認して決める |
 
 ### 未決事項

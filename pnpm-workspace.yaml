@@ -46,3 +46,6 @@ allowBuilds:
   # swagger-ui-dist（生成時のみの devDependency）の推移的依存。postinstall は
   # 利用状況テレメトリの送信のみで生成物の正しさに寄与しないため、既定どおり遮断する。
   '@scarf/scarf': false
+  # reka-ui → @floating-ui/vue の推移的依存。postinstall は Vue のバージョン別の切り替えファイルを
+  # 作るだけで、0.14.x の既定の出力は Vue 3 向けなので、既定どおり遮断する。
+  vue-demi: false

@@ -76,6 +76,16 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中。`packages/solver` の devDependencies（テストと測定が Node の型を使う） |
 | highs（HiGHS の WASM 版） | 1.15.3（2026-09-11） | `packages/solver` の dependencies。完全一致の版。MIT。採用（下記「HiGHS の測定結果」） |
 | yaml | 2.9.1（2026-09-11） | `packages/data` の devDependencies。完全一致の版。ISC・依存0。パイプラインがオーバーレイ（`overlays/*.yaml`）を読むときだけ使い、ブラウザへは配信しない。provenance は 2.9.0 以前にも無く、`trustPolicy: no-downgrade` に抵触しない |
+| `@swv/solver`・`@swv/data` | `workspace:*` | `apps/web` の dependencies。ソルバーの入口と型、マスターの型（`import type` だけ） |
+| highs | 1.15.3（2026-09-11） | `apps/web` の dependencies。Worker で HiGHS を初期化する。`packages/solver` と同じ版 |
+| reka-ui | 2.10.5（2026-09-21） | shadcn-vue の部品の土台。2.11.0 はクールダウン中。推移的依存の `vue-demi` のビルドスクリプトは `allowBuilds` で遮断（`@floating-ui/vue` 経由。0.14.x の既定の出力は Vue 3 向け） |
+| class-variance-authority | 0.7.1（2024-11-26） | shadcn-vue の部品の variant |
+| clsx | 2.1.1（2024-04-23） | `cn()` |
+| tailwind-merge | 3.7.0（2026-09-12） | `cn()` |
+| @vueuse/core | 14.4.0（2026-07-29） | shadcn-vue の部品が import する。reka-ui 2.10.5 の要求 `^14.1.0` に合わせ、15.0.0 は採らない |
+| tw-animate-css | 1.4.0（2025-09-24） | Dialog などの開閉アニメーションのクラス |
+| @lucide/vue | 1.48.0（2026-09-24） | アイコン。`lucide-vue-next` は deprecated。1.49.0 以降はクールダウン中 |
+| @playwright/test | 1.63.0（2026-09-04） | `apps/web` の devDependencies。e2e と測定。Chromium だけ |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
@@ -84,10 +94,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 
 | 項目 | 導入する機能 | 備考 |
 |---|---|---|
-| shadcn-vue の部品（reka-ui・class-variance-authority・clsx・tailwind-merge） | 004 solver-ui | `components.json` だけ置いてある。部品は CLI でソースとしてコピーする |
-| アイコン | 004 solver-ui | `lucide-vue-next` は npm 上で deprecated。後継の `@lucide/vue`（1.49.0 が最新・2026-09-29）を導入時に確認する |
 | vite-plugin-pwa | 未定（下記「PWA」） | **サプライチェーン対策の判断待ち** |
-| Playwright | 004 solver-ui（e2e ジョブと同時） | 画面が無いため今回は入れない |
 
 ---
 
@@ -264,7 +271,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## CI
 
-`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages。e2e は 004 で追加する。
+`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。
 
 ## SonarQube のローカル限定採用
 
