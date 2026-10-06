@@ -18,6 +18,7 @@ export type CharmId = Brand<string, 'CharmId'> // 生産護石。例: "ch:-20846
 export type SetBonusId = Brand<string, 'SetBonusId'> // 例: "sb:-1432692352"（シリーズ／グループスキルのgameId）
 export type ConditionId = Brand<string, 'ConditionId'> // 例: "cond.monster_enraged"
 
+export type ArmorRank = 'low' | 'high' | 'master'
 export type ArmorPart = 'head' | 'chest' | 'arms' | 'waist' | 'legs'
 export type SlotLevel = 1 | 2 | 3 | 4
 export type SlotTarget = 'weapon' | 'armor' // 武器用珠／防具用珠
@@ -73,6 +74,7 @@ export interface MasterArmor {
   id: ArmorId
   part: ArmorPart
   rarity: number
+  rank: ArmorRank
   slots: Slot[]
   skills: SkillLevel[]
   setBonusIds: SetBonusId[] // シリーズ・グループの両方を入れる

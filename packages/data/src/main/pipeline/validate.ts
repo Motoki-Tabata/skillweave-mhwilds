@@ -14,6 +14,7 @@ export interface ValidateInput {
   mismatches?: SetBonusMismatch[]
 }
 
+const ARMOR_RANKS: ReadonlySet<string> = new Set(['low', 'high', 'master'])
 const MIN_SLOT_LEVEL = 1
 const MAX_SLOT_LEVEL = 4
 
@@ -171,6 +172,12 @@ export function validate(input: ValidateInput): Violation[] {
     checkSkillLevels(armor.id, armor.skills, maxLevels, out)
     checkBonusRefs(armor.id, armor.setBonusIds)
     checkSlots(armor.id, armor.slots, out)
+    if (!ARMOR_RANKS.has(armor.rank)) {
+      out.push({
+        rule: 'armor-rank',
+        message: `${armor.id}: rank ${String(armor.rank)} が low・high・master のどれでもありません`,
+      })
+    }
   }
   for (const decoration of bundle.decorations) {
     checkSkillLevels(decoration.id, decoration.skills, maxLevels, out)
