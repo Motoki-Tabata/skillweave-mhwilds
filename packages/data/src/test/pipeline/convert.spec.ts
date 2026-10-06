@@ -40,6 +40,7 @@ describe('変換（受入基準 3・4）', () => {
       id: 'ar:10:head',
       part: 'head',
       rarity: 5,
+      rank: 'high',
       slots: [
         { target: 'armor', level: 1 },
         { target: 'armor', level: 3 },
@@ -136,6 +137,31 @@ describe('変換（受入基準 3・4）', () => {
     const emptySkill = noRanks.skills[1]
     if (emptySkill) emptySkill.ranks = []
     expect(() => run(noRanks)).toThrow(/sk:101.*ranks が空/)
+  })
+})
+
+describe('防具のランク（受入基準 12）', () => {
+  it.each([
+    [1, 'low'],
+    [2, 'low'],
+    [3, 'low'],
+    [4, 'low'],
+    [5, 'high'],
+    [6, 'high'],
+    [7, 'high'],
+    [8, 'high'],
+  ])('レア度 %i は %s を付ける（12）', (rarity, rank) => {
+    const input = makeInput()
+    const set = input.armors[0]
+    if (set) set.rarity = rarity
+    expect(run(input).bundle.armors[0]?.rank).toBe(rank)
+  })
+
+  it.each([0, 9])('対応表に無いレア度 %i では防具 ID を示して失敗する（12）', (rarity) => {
+    const input = makeInput()
+    const set = input.armors[0]
+    if (set) set.rarity = rarity
+    expect(() => run(input)).toThrow(`ar:10:head: レア度 ${rarity} のランクが対応表にありません`)
   })
 })
 

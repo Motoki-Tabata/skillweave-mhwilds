@@ -17,6 +17,14 @@ describe('検証（受入基準 8）', () => {
     expect(check()).toEqual([])
   })
 
+  it('防具の rank が low・high・master 以外なら armor-rank の違反にする（12）', () => {
+    const violations = check((b) => {
+      b.armors[0]!.rank = 'legend' as never
+    })
+    expect(rules(violations)).toEqual(['armor-rank'])
+    expect(violations[0]?.message).toContain('ar:10:head')
+  })
+
   it('ID の重複を検出する（集合をまたぐ重複を含む）', () => {
     const violations = check((b) => {
       b.decorations.push({ ...b.decorations[0]! })

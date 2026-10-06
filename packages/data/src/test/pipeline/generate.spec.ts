@@ -10,8 +10,7 @@ const makeTempDir = useTempDirs()
 const quiet = (): void => undefined
 
 /** 手で書いた入力を、MHDB の URL の末尾のファイル名で返す fetch */
-function fakeFetch(calls: string[] = []): FetchFn {
-  const input = makeInput()
+function fakeFetch(calls: string[] = [], input = makeInput()): FetchFn {
   const byFile: Record<string, unknown> = {
     'Skill.json': input.skills,
     'Armor.json': input.armors,
@@ -92,6 +91,16 @@ describe('生成の入口（受入基準 1・2・10）', () => {
     await expect(generate(dir, false)).rejects.toThrow(
       /オーバーレイのエラー（1件）[\s\S]*bad\.yaml:1:1/,
     )
+    await expect(readdir(join(dir, 'dist'))).rejects.toThrow()
+  })
+
+  it('ランクの対応表に無いレア度の防具があれば、出力を書かずに失敗する（受入基準 12）', async () => {
+    const dir = await packageDir()
+    const input = makeInput()
+    input.armors[0]!.rarity = 9
+    await expect(
+      run({ check: false, fetchFn: fakeFetch([], input), packageDir: dir, log: quiet }),
+    ).rejects.toThrow('ar:10:head: レア度 9 のランクが対応表にありません')
     await expect(readdir(join(dir, 'dist'))).rejects.toThrow()
   })
 
