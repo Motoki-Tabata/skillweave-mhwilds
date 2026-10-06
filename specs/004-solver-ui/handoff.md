@@ -40,9 +40,9 @@
 <!-- 書くのは既に存在するコミットのハッシュだけ。区間 D 以外では空のまま -->
 
 ## 区間の再開点
-- 一括検証が緑になった時点のコミット: <ハッシュ>
-- その時点の verify の要約行: <総合結果の行と Sonar 件数行>
-- レビューの進捗: <何回目まで済み・未解決の所見>
+- 一括検証が緑になった時点のコミット: 0ea6f06
+- その時点の verify の要約行: `verify.mjs --e2e` 総合結果: PASS（Sonar は最終検証まで未実行。担当領域ごとの `--sonar-area` は issue 0 / hotspot 0）
+- レビューの進捗: 未着手（次はレビュー）
 <!-- 区間 D の文脈が膨らんで中断するときに書く。再開した区間 D はここからレビュー（または是正）を始める -->
 
 ## 委譲の記録
@@ -52,6 +52,10 @@
 | data 再生成（メイン T4） | main | 5902539 |
 | solver テスト | solver-test-agent | dfab226 |
 | data テスト | data-test-agent | 3907ad1 |
+| web 実装 | web-agent | 74237a3（Sonar 抑止の承認の記録は 02deff0） |
+| web 単体テスト | web-test-agent | ebcf74b |
+| E2E（T9・T10） | e2e-agent | 93e12e8 |
+| 測定の記録（メイン T11） | main | 0ea6f06 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
@@ -85,7 +89,7 @@
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
-- 区間 D は T1・T2 まで完了（T1: 525e20e。T2: 下記の T2 のコミット）。T3〜T6 は完了、T7（web-agent）は実装済み。次は T8（web-test-agent）から直列で進める。
+- 区間 D は T1・T2 まで完了（T1: 525e20e。T2: 下記の T2 のコミット）。T1〜T11 は完了し、一括検証は緑（0ea6f06）。次はレビュー。測定は合格（最大 1422.0 ms。design/tech-stack.md に記録済み）。
 - T2 のサプライチェーン調査の結論（2026-10-06）: ①`semver@6.3.1` は npm CLI チームの公開（2023-07-10）で、tarball の integrity 一致・6.3.0 との差分は正規表現の ReDoS 対策のみ（CVE-2022-25883 の移植）・install スクリプトなし・週間 DL 約4億。trustPolicy が落ちたのは、先に出た 7.5.1〜7.5.4 に provenance があり、後から出た 6.x 系の 6.3.1 に無いためで、誤検知と判断した。②`vue-demi@0.14.10` は antfu 公開・postinstall は Vue の版に応じた切替ファイルを書くだけでネットワーク等なし。`allowBuilds: false` の遮断を維持する。
 - T2 の実施: ユーザー承認のうえ `trustPolicyExclude: [semver@6.3.1]` を足した。その後 CLI が `components.json` の `framework` を拒否したので、承認のうえ削除した。CLI は `tsconfig.json` の `paths` が無いと `resolvedPaths` で失敗するため、実行中だけ一時的に足して戻した（差分なし）。部品は `@lucide/vue` の import で生成され（書き換え不要）、`package.json`・lockfile に差分は無い。コピーした `ui/` は Prettier で整形した（`format:check` 緑）。
 - T2 の時点で `type-check` は `@/lib/utils`（`cn()`）が無いため失敗する。plan 決定事項 20 のとおり、web-agent が T7 で `src/main/lib/utils.ts` を作る（T3〜T6 の検証では web の型検査は対象外）。
