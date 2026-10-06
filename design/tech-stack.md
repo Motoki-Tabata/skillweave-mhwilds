@@ -76,6 +76,16 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中。`packages/solver` の devDependencies（テストと測定が Node の型を使う） |
 | highs（HiGHS の WASM 版） | 1.15.3（2026-09-11） | `packages/solver` の dependencies。完全一致の版。MIT。採用（下記「HiGHS の測定結果」） |
 | yaml | 2.9.1（2026-09-11） | `packages/data` の devDependencies。完全一致の版。ISC・依存0。パイプラインがオーバーレイ（`overlays/*.yaml`）を読むときだけ使い、ブラウザへは配信しない。provenance は 2.9.0 以前にも無く、`trustPolicy: no-downgrade` に抵触しない |
+| `@swv/solver`・`@swv/data` | `workspace:*` | `apps/web` の dependencies。ソルバーの入口と型、マスターの型（`import type` だけ） |
+| highs | 1.15.3（2026-09-11） | `apps/web` の dependencies。Worker で HiGHS を初期化する。`packages/solver` と同じ版 |
+| reka-ui | 2.10.5（2026-09-21） | shadcn-vue の部品の土台。2.11.0 はクールダウン中。推移的依存の `vue-demi` のビルドスクリプトは `allowBuilds` で遮断（`@floating-ui/vue` 経由。0.14.x の既定の出力は Vue 3 向け） |
+| class-variance-authority | 0.7.1（2024-11-26） | shadcn-vue の部品の variant |
+| clsx | 2.1.1（2024-04-23） | `cn()` |
+| tailwind-merge | 3.7.0（2026-09-12） | `cn()` |
+| @vueuse/core | 14.4.0（2026-07-29） | shadcn-vue の部品が import する。reka-ui 2.10.5 の要求 `^14.1.0` に合わせ、15.0.0 は採らない |
+| tw-animate-css | 1.4.0（2025-09-24） | Dialog などの開閉アニメーションのクラス |
+| @lucide/vue | 1.48.0（2026-09-24） | アイコン。`lucide-vue-next` は deprecated。1.49.0 以降はクールダウン中 |
+| @playwright/test | 1.63.0（2026-09-04） | `apps/web` の devDependencies。e2e と測定。Chromium だけ |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
@@ -84,10 +94,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 
 | 項目 | 導入する機能 | 備考 |
 |---|---|---|
-| shadcn-vue の部品（reka-ui・class-variance-authority・clsx・tailwind-merge） | 004 solver-ui | `components.json` だけ置いてある。部品は CLI でソースとしてコピーする |
-| アイコン | 004 solver-ui | `lucide-vue-next` は npm 上で deprecated。後継の `@lucide/vue`（1.49.0 が最新・2026-09-29）を導入時に確認する |
 | vite-plugin-pwa | 未定（下記「PWA」） | **サプライチェーン対策の判断待ち** |
-| Playwright | 004 solver-ui（e2e ジョブと同時） | 画面が無いため今回は入れない |
 
 ---
 
@@ -257,14 +264,38 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 - 解ありの時間は、求解回数（30）と、後ろの求解ほど長くなること（観測。1 件ごとに除外の行が増えることが原因と推定しているが、切り分けていない）で決まる。k=10 の 1 求解は、最初の数件が約 30〜60 ms、最後の数件が約 600〜770 ms。001 の合成データ（合計 762.9 ms 以下）より大きく伸びた。
 - 解なしは 20〜50 ms で、ノード数 1・LP 反復数 12〜42。反復数が 0 でないので presolve では落ちておらず、根ノードの LP 緩和で判定されている（presolve の内部で先に判定された可能性までは切り分けていない）。分枝には入らなかった。
 - k=6・k=10 の解ありは分枝に入る（ノード数 9〜11、LP 反復数 1399〜2283）。k=3 の解ありは分枝しない（ノード数 1、LP 反復数 274）。001 の合成データの解ありはすべてノード数 1 だったので、001 の限界 1（分枝が必要になる入力の時間は未測定）のうち、実データでの解ありは今回測れた。解なしで分枝に入るケースは作れていない。
-- 限界: Worker 上の時間（004）、護石あり・装飾品の所持数の制限・目的関数が `freeSlots` のときの時間は未測定。
-- 対策: Q20（`specs/open-questions.md`）。
+- 限界: Worker 上の時間（004 で測定済み。次節）、護石あり・装飾品の所持数の制限・目的関数が `freeSlots` のときの時間は未測定。
+- 対策: Q20（`specs/open-questions.md`）。Q20 は 004 の決定（`specs/004-solver-ui/decisions.md`）へ移した。
+
+## HiGHS のブラウザの Worker での測定（004 solver-ui・2026-10-07）
+
+**結論: 合格。「検索」を押してから結果が表示されるまでの時間の最大が 1422.0 ms で、基準の 3 秒以下だった。** 003 の不合格（Node で件数 30・7677.9 ms）に対し、Q20 の読み替えで件数を既定の 10 にして測った。
+
+- 条件: ブラウザ（Chromium）でビルドした web を `vite preview` で配信し、画面を操作して測る。実データ（`packages/data/dist/master-2026.10.2.json`）。武器はスキルを持たないマスターの先頭の武器、護石なし、目的は「防御力の最大化」、候補のランクは「下位」「上位」の両方、件数 10、`timeoutMs` 30 秒（打ち切りなし）。必須スキルは 003 と同じ 3／6／10 個 × 解あり／解なしの 6 ケース。各ケースを 3 回。各回で `page.goto` して条件を入れ直す。
+- 時間の範囲: 「検索」の click の直前から、結果の見出し「<N> 件の構成が見つかりました」または解なしの Alert が見えるまでの、Node 側の経過時間。Playwright の往復の誤差を含む。HiGHS の初期化とマスターの読み込みは含めない。
+- 合格基準: 全ケース・全回の時間の最大が 3 秒以下（001・003 と同じ）。
+- 測定環境: Node v24.21.0・linux x64（WSL2）・AMD Ryzen 7 5700X（12 論理コア）・メモリ 19 GiB。ブラウザは Chromium 153.0.8010.12（Playwright 1.63.0 の headless shell）。HiGHS は npm `highs` 1.15.3（同梱の本体は `1.15.1 (04024d7)`）。マスターの版は `2026.10.2`。
+- 実行: `pnpm --filter @swv/web run measure`（CI では実行しない）。
+
+| ケース | 結果 | 時間（3 回, ms） |
+|---|---|---|
+| k=3 解あり | 10 件 | 993.2 / 879.9 / 879.5 |
+| k=6 解あり | 10 件 | 1397.8 / 1379.9 / 1401.6 |
+| k=10 解あり | 10 件 | 1422.0 / 1409.4 / 1420.8 |
+| k=3 解なし | 解なし | 265.0 / 269.9 / 262.1 |
+| k=6 解なし | 解なし | 268.8 / 265.4 / 262.5 |
+| k=10 解なし | 解なし | 279.6 / 252.3 / 261.1 |
+
+- 全ケース・全回の最大: **1422.0 ms**（k=10 解あり・1 回目）。
+- 同じ条件の別の実行（実装担当の確認の 1 回）では、最大が 1930.6 ms（k=6 解あり・2 回目）で、他の回より約 500 ms 長かった。ゆらぎはあるが、どちらも基準内。
+- 解なしの約 260 ms は、003 の Node での 20〜50 ms より長い。ページの再読み込みの後の画面の描画と Playwright の往復を含むため。この差の内訳は切り分けていない。
+- 限界: 護石あり・装飾品の所持数の制限・目的が `freeSlots` のときの時間、件数 30 のときの Worker 上の時間は未測定。時間は Node 側の経過で、画面上の体感（初回の描画など）とは一致しない。
 
 ---
 
 ## CI
 
-`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages。e2e は 004 で追加する。
+`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。
 
 ## SonarQube のローカル限定採用
 

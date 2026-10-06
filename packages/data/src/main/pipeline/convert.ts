@@ -1,5 +1,6 @@
 import type {
   ArmorPart,
+  ArmorRank,
   DictionaryEntry,
   MasterArmor,
   MasterBundle,
@@ -17,6 +18,7 @@ import type {
   SlotLevel,
   SlotTarget,
 } from '../index.ts'
+import { ARMOR_RANK_BY_RARITY } from './config.ts'
 import { formatList } from './format.ts'
 import { armorId, charmId, decorationId, setBonusId, skillId, weaponId } from './ids.ts'
 import type { MhdbArmorSet, MhdbBonus, MhdbInput, MhdbNames, MhdbSkill } from './mhdb.ts'
@@ -129,6 +131,7 @@ function buildArmors(
 ): MasterArmor[] {
   const result: MasterArmor[] = []
   for (const armorSet of armorSets) {
+    const rank: ArmorRank | undefined = ARMOR_RANK_BY_RARITY[armorSet.rarity]
     for (const piece of armorSet.pieces) {
       const id = armorId(armorSet.game_id, piece.kind as ArmorPart)
       if (!ARMOR_PARTS.has(piece.kind)) {
@@ -137,11 +140,16 @@ function buildArmors(
         )
         continue
       }
+      if (rank === undefined) {
+        errors.push(`${id}: レア度 ${armorSet.rarity} のランクが対応表にありません`)
+        continue
+      }
       const { skills, setBonusIds } = splitPieceSkills(id, piece.skills, skillKinds, errors)
       result.push({
         id,
         part: piece.kind as ArmorPart,
         rarity: armorSet.rarity,
+        rank,
         slots: toSlots(piece.slots, 'armor'),
         skills,
         setBonusIds,

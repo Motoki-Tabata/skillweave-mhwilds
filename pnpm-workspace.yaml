@@ -35,6 +35,14 @@ blockExoticSubdeps: true
 # provenance・署名の信頼度が既存より下がるバージョンへの更新を拒否する。
 trustPolicy: no-downgrade
 
+# trustPolicy の対象外にするバージョン（例外を作る場合は理由をコメントで残す）。
+# semver@6.3.1: shadcn-vue の CLI（dlx）の推移的依存。同じ semver の 7.5.1〜7.5.4 に provenance があり、
+# 後から出た 6.x 系の 6.3.1（2023-07-10、npm CLI チームの公開。CVE-2022-25883 の修正の移植）には
+# 無いため、信頼度の低下と誤判定される。tarball の integrity・6.3.0 との差分（正規表現の ReDoS 対策のみ）・
+# install スクリプトが無いことを確かめた（2026-10-06・機能004の区間 D）。版を固定した例外にとどめる。
+trustPolicyExclude:
+  - semver@6.3.1
+
 # lockfile と node_modules の実体が乖離していないかを検証する。
 verifyDepsBeforeRun: true
 
@@ -46,3 +54,6 @@ allowBuilds:
   # swagger-ui-dist（生成時のみの devDependency）の推移的依存。postinstall は
   # 利用状況テレメトリの送信のみで生成物の正しさに寄与しないため、既定どおり遮断する。
   '@scarf/scarf': false
+  # reka-ui → @floating-ui/vue の推移的依存。postinstall は Vue のバージョン別の切り替えファイルを
+  # 作るだけで、0.14.x の既定の出力は Vue 3 向けなので、既定どおり遮断する。
+  vue-demi: false

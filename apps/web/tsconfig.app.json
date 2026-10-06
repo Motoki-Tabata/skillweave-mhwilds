@@ -1,6 +1,12 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "src/main/**/*", "src/main/**/*.vue"],
+  "include": [
+    "env.d.ts",
+    "src/main/**/*",
+    "src/main/**/*.vue",
+    "../../packages/solver/src/main/**/*.ts",
+    "../../packages/data/src/main/index.ts"
+  ],
   "compilerOptions": {
     "composite": true,
     "paths": {

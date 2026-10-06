@@ -48,3 +48,18 @@ canon への改修要求と作業の教訓を、その場で起票する唯一�
 - 種別: 矛盾是正
 - 何が起きたか: 002 のドリフト検査で、temp §7 を卒業させるために `design/master-data.md` を新設した。`design/` 直下の文書には `.claude/rules/**` のいずれかが「正」として参照する配線が要る（temp-graduation.md の不変条件）が、`.claude/` は canon の管理下のため drift PR では配線できない。
 - 提案: `.claude/rules/data.md` に「マスターデータの情報源・ID 規則・overlay の書式・検証・出力の正は `design/master-data.md`」を足す。あわせて、同ファイルの「overlay とパイプラインの置き場は、パイプラインを導入する機能で決まる」を、決まった置き場（`packages/data/overlays/*.yaml`・`src/main/pipeline/`）に書き換える（上の「overlay の置き場が決まったので…」と同じ改修で行える）。
+
+## 2026-10-06 API を持たない e2e でも、一括検証の e2e の段が docker と API を起動する（機能004・区間A）
+- 種別: 矛盾是正
+- 何が起きたか: 004 は e2e を、ビルドした web だけで API・DB なしで動かすと決めた（`specs/004-solver-ui/decisions.md` Q24）。`.claude/skills/tsod-verify/scripts/verify.mjs` の e2e の段は、`docker compose up` と API の起動・待ち受けを必ず前置きするため、API を持たない機能の e2e にも不要な前提（docker と java）が付く。`CLAUDE.md` の Commands 表には e2e の行が無い（同「e2e の追加」節が、行の追加を canon への改修要求で行うと定めている）。
+- 提案: `verify.mjs` の e2e の段で、docker と API の起動を、e2e が API を要るときだけ行うようにする（例: Playwright の設定や script で API の要否を宣言する）。`CLAUDE.md` の Commands 表に e2e の行（`pnpm --filter @swv/web run test:e2e`）を足し、`ci.yml` の e2e ジョブ（004 で追加）と一致させる。
+
+## 2026-10-07 web-vue.md の「アイコン（lucide）」節が、導入後の実態と合わない（機能004・区間 D）
+- 種別: 矛盾是正
+- 何が起きたか: 004 で shadcn-vue と `@lucide/vue` を導入したが、`.claude/rules/web-vue.md` の「アイコン（lucide）」節は「アイコンの依存はまだ導入していない」「`design/tech-stack.md` の『後の機能で導入するもの』の表のアイコンの行を見る」のままで、その行は表から本表へ移して消えた。
+- 提案: 同節を「導入済み。CLI でコピーした部品の import は `@lucide/vue` になる（`lucide-vue-next` は deprecated）。版は `design/tech-stack.md` の Web の依存の表を見る」に書き換える。
+
+## 2026-10-07 web の Sonar とビルド設定の落とし穴を web-vue.md に足す（機能004・区間 D）
+- 種別: 規律昇華
+- 何が起きたか: 004 で次が分かった。(1) `role="group"`・`role="status"` は Sonar の S6819 に当たるので `<fieldset>`・`<output>` で書く。(2) Reka UI の `SelectTrigger` と shadcn-vue の汎用 `Input`・`Label` は、ラベルを付けても `Web:InputWithoutLabelCheck`・`Web:S6853` が出る誤検知で、`sonar.issue.ignore.multicriteria` で抑止した（`ui/` は編集禁止）。(3) web から `packages/*` のソースを import するには、`tsconfig.app.json`・`tsconfig.vitest.json` の `include` に足す（TS6307。実際の import で通ることを確認）。(4) shadcn-vue の CLI は、`tsconfig.json` に `paths` が無いと失敗し、`components.json` の未知のキーも拒否する。(5) vitest 内でリポジトリのファイルを読むときは `import.meta.dirname` を使う（`new URL(..., import.meta.url)` は `/@fs/` になる）。(6) Playwright の `getByRole('heading', { name })` は部分一致なので、連番の見出しには `exact: true`。
+- 提案: `.claude/rules/web-vue.md`（Sonar 節と、構成・テストの節）に上の6点を足す。
