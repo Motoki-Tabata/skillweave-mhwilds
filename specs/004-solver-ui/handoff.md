@@ -75,6 +75,9 @@
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
+- 区間 D は T1 まで完了（525e20e。`type-check`・`build`・`lint:check`・`format:check` は緑、`pnpm-lock.yaml` の差分は足した依存の推移的依存だけ）。T2（shadcn-vue の部品のコピー）で中断した。ユーザーの指示により、実装は別セッションで再開する（再開点の節は「一括検証が緑」の記録なので使わず、ここに書く）。
+- T2 の中断理由: `pnpm dlx shadcn-vue@2.8.2 add …` が `ERR_PNPM_TRUST_DOWNGRADE`（shadcn-vue → @unovue/detypes@0.8.5 → @babel/core@7.29.7 の推移的依存 `semver@6.3.1`。旧版にあった provenance が無い）で止まった。ファイルは何も書かれていない。
+- ユーザーの方針: 回避策（trustPolicy の無効化・例外・レジストリ JSON の直接取得）は選ばず、先に**サプライチェーンリスクを調査**し、問題なければ追加する。調査の対象は ①この `semver@6.3.1`（公開日・公開者・旧版との差・同版の利用実態）と、②T1 で足した `allowBuilds` の `vue-demi: false`（遮断なので追加ではないが、`vue-demi@0.14.10` の公開者・postinstall の中身も確かめる）。調査結果と、どの回避策を採るかは、再開したセッションでユーザーに提示して決める。
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
