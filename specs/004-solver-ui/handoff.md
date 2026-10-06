@@ -25,7 +25,7 @@
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-06 / 81447bd（移設先: Q4, Q20, Q21, Q22, Q23, Q24, Q25。Q4・Q20 は open-questions から移設、Q21〜Q25 は区間 A で新規に起票して決定） |
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-10-06 / c7d2bea |
-| B-1 | 画面設計 screen-design.md | 未 | |
+| B-1 | 画面設計 screen-design.md | 承認済み | 2026-10-06 / 57239c3 |
 | B-2 | テーブル設計（design/・migration） | 未 | |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
@@ -76,3 +76,5 @@
 - 区間 B では `design/ui-design-standard.md` の未決の項目（対応画面サイズ・密度・画面骨格・カテゴリ色・フォントスタックの見直し）を 004 の画面設計で決める（同文書の冒頭の注記）。
 - 004 は新しいテーブルを持たない（API・DB なし。decisions.md Q23 で端末保存もしない）。ゲート B-2 は該当なしの見込み。
 - 区間 A で、一括検証の e2e の段と Commands 表について canon への改修要求を `tasks/lessons.md` に起票した（2026-10-06 の項目）。
+- 画面設計のキャンバスは https://claude.ai/artifact/KiuQGu3oEf2g3UzLpfNjXv （`screen-design.md` が正）。B-1 で `design/ui-design-standard.md` の未決の項目も確定した。
+- スキルの攻撃系・会心系などの分類（スキルを選ぶダイアログの並びに使う）は、ユーザーが後で作りたいとした。マスターに無いデータなので 004 には含めない。後で `/tsod-discover` で機能マップに追加する（Q22 の固定・除外の入力 UI と同じ扱い）。
