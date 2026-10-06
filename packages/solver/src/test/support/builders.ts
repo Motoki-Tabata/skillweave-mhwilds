@@ -1,6 +1,7 @@
 import type {
   ArmorId,
   ArmorPart,
+  ArmorRank,
   DecorationId,
   MasterArmor,
   MasterBundle,
@@ -43,12 +44,19 @@ export function setBonus(skillId: string, thresholds: SetBonus['thresholds']): S
 export function armor(
   id: string,
   part: ArmorPart,
-  opts: { skills?: SkillLevel[]; slots?: Slot[]; defense?: number; setBonusIds?: string[] } = {},
+  opts: {
+    skills?: SkillLevel[]
+    slots?: Slot[]
+    defense?: number
+    setBonusIds?: string[]
+    rank?: ArmorRank
+  } = {},
 ): MasterArmor {
   return {
     id: armorId(id),
     part,
     rarity: 8,
+    rank: opts.rank ?? 'high',
     slots: opts.slots ?? [],
     skills: opts.skills ?? [],
     setBonusIds: (opts.setBonusIds ?? []).map(setBonusId),
