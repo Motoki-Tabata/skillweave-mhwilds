@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 
 /* tailwind.config.js は作らない（Tailwind v4 は @tailwindcss/vite のみで動作）。
-   テーマ変数・デザイントークンはここに集約する。値は design/ui-design-standard.md を正とする。 */
+   テーマ変数・デザイントークンはここに集約する。値は design-system/skillweave/MASTER.md を正とする。 */
 
 @custom-variant dark (&:is(.dark *));
 
