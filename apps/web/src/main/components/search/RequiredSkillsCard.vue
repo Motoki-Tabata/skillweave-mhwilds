@@ -85,7 +85,7 @@ async function remove(skillId: SkillId): Promise<void> {
               >
                 <SelectTrigger
                   :id="`level-${row.skill.id}`"
-                  class="h-10 w-[88px] text-base md:text-sm"
+                  class="h-10 w-[88px] font-num text-base tabular-nums md:text-sm"
                   :aria-label="`${master.nameOf(row.skill.id)}の下限レベル`"
                 >
                   <SelectValue />
@@ -95,6 +95,7 @@ async function remove(skillId: SkillId): Promise<void> {
                     v-for="level in levelsOf(row.skill.maxLevel)"
                     :key="level"
                     :value="String(level)"
+                    class="font-num tabular-nums"
                   >
                     Lv{{ level }}
                   </SelectItem>

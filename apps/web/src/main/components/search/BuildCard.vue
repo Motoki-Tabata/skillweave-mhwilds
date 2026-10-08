@@ -31,7 +31,7 @@ function levelLabel(level: number | null): string {
     <div class="flex items-baseline justify-between gap-2 px-4">
       <h3 class="text-base leading-snug font-semibold">構成 {{ index + 1 }}</h3>
       <p class="text-sm">
-        防御力 <span class="font-bold tabular-nums">{{ view.defenseTotal }}</span>
+        防御力 <span class="font-num font-bold tabular-nums">{{ view.defenseTotal }}</span>
       </p>
     </div>
     <div class="grid gap-4 px-4 @[600px]:grid-cols-2">
@@ -53,13 +53,13 @@ function levelLabel(level: number | null): string {
               <tr v-for="row in view.armors" :key="row.part" class="border-t">
                 <td class="py-1.5 pr-2 align-top">{{ row.partLabel }}</td>
                 <td class="py-1.5 pr-2 break-words">{{ row.name }}</td>
-                <td class="py-1.5 text-right align-top tabular-nums">{{ row.defense }}</td>
+                <td class="py-1.5 text-right align-top font-num tabular-nums">{{ row.defense }}</td>
               </tr>
             </tbody>
             <tfoot>
               <tr class="border-t font-bold">
                 <th scope="row" colspan="2" class="py-1.5 pr-2 text-left">防御力の合計</th>
-                <td class="py-1.5 text-right tabular-nums">{{ view.defenseTotal }}</td>
+                <td class="py-1.5 text-right font-num tabular-nums">{{ view.defenseTotal }}</td>
               </tr>
             </tfoot>
           </table>
@@ -82,7 +82,9 @@ function levelLabel(level: number | null): string {
             <tbody>
               <tr v-for="(row, i) in view.decorations" :key="i" class="border-t">
                 <td class="py-1.5 pr-2 align-top">{{ row.ownerLabel }}</td>
-                <td class="py-1.5 pr-2 align-top tabular-nums">{{ levelLabel(row.slotLevel) }}</td>
+                <td class="py-1.5 pr-2 align-top font-num tabular-nums">
+                  {{ levelLabel(row.slotLevel) }}
+                </td>
                 <td class="py-1.5 break-words">{{ row.name }}</td>
               </tr>
             </tbody>
@@ -102,7 +104,7 @@ function levelLabel(level: number | null): string {
                 :key="chip.name"
                 class="rounded-md border px-2 py-0.5 text-xs break-words"
               >
-                {{ chip.name }} <span class="tabular-nums">Lv{{ chip.level }}</span>
+                {{ chip.name }} <span class="font-num tabular-nums">Lv{{ chip.level }}</span>
               </li>
             </ul>
           </div>
@@ -118,7 +120,7 @@ function levelLabel(level: number | null): string {
               class="rounded-md border px-2 py-0.5 text-xs"
             >
               {{ slot.ownerLabel }}
-              <span class="tabular-nums">{{ levelLabel(slot.slotLevel) }}</span>
+              <span class="font-num tabular-nums">{{ levelLabel(slot.slotLevel) }}</span>
             </li>
           </ul>
         </section>

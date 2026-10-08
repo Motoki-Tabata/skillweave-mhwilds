@@ -113,7 +113,7 @@ defineExpose({ focusRanks })
                 <Minus class="size-4" />
               </NumberFieldDecrement>
               <NumberFieldInput
-                class="h-10 w-16 text-base tabular-nums md:text-sm"
+                class="h-10 w-16 font-num text-base tabular-nums md:text-sm"
                 inputmode="numeric"
               />
               <NumberFieldIncrement aria-label="件数を増やす" :class="stepButtonClass">
