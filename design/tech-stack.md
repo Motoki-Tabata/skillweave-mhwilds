@@ -139,6 +139,18 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
 （`type-check` script が両方を実行する）。Worker 用の型は後の機能で足す。
 `packages/data` は Node の API を使うパイプラインを `src/main/pipeline/` に置くため `types: ["node"]` だが、ブラウザが読む入口 `src/main/index.ts` は型だけを直接書き、import を持たせない。`tsconfig.entry.json`（`types: []`・`include` は入口だけ）が入口だけを型検査し（`type-check` script が `tsconfig.json` の検査に続けて実行する）、入口が Node の API や Node 依存のモジュールを読み込むと型エラーで落ちる。
 
+### 6. Web フォントは Google Fonts の CDN から読み込む（2026-10-08）
+
+デザインシステムの一新（`design-system/skillweave/MASTER.md` の Typography）で、IBM Plex Sans JP（和欧）と Inter（数字）を
+`apps/web/index.html` の `<link>` で Google Fonts の CDN から読み込むことにした。npm の依存ではないので、
+`pnpm-workspace.yaml` のサプライチェーン対策（クールダウン・provenance）の対象外で、版の固定もない。
+
+- 和文は文字の範囲ごとに分割して配信され、使う文字の分だけが読み込まれる。セルフホストより軽い。
+- 利用者の IP アドレスが Google に送られる。公開前にプライバシーの表記へ含める。
+- オフラインでは読み込めずフォールバックのシステムフォントになる。018 pwa-offline で、`fonts.googleapis.com`・
+  `fonts.gstatic.com` を実行時にキャッシュする設定を足す。
+- CSP を導入するときは、`style-src` に `https://fonts.googleapis.com`、`font-src` に `https://fonts.gstatic.com` を許可する。
+
 ---
 
 ## 更新の方針（2026-10-02）
