@@ -328,5 +328,5 @@ API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm worksp
 ## 関連ドキュメント
 
 - [`design/data-model-standard.md`](data-model-standard.md)
-- [`design/ui-design-standard.md`](ui-design-standard.md)
+- [`design-system/skillweave/MASTER.md`](../design-system/skillweave/MASTER.md)
 - [`temp/initial-design.md`](../temp/initial-design.md) — 設計方針の一次資料（§3 が本書の出典）

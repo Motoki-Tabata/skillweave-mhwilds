@@ -114,7 +114,8 @@ skillweave-mhwilds/
 │   ├── compose.yaml            # postgres:18 のみ（ホスト側ポート 5433）
 │   ├── compose.sonar.yaml      # SonarQube（ローカル限定）
 │   └── init/01_init.sql        # 初期化のみ（スキーマは Flyway）
-├── design/                     # tech-stack / data-model-standard / attributes.yaml / ui-design-standard
+├── design/                     # tech-stack / data-model-standard / attributes.yaml
+├── design-system/skillweave/   # デザインシステムの唯一の正（MASTER.md。画面別の上書きは pages/）
 ├── docs/method/                # TSOD の原典（歴史的資料。改変しない。下記）
 ├── specs/                      # 薄仕様（1機能 = 1ディレクトリ）
 ├── temp/                       # 設計方針の一次資料・ソルバー入出力型のたたき台
