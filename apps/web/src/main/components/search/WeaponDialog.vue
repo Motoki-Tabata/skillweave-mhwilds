@@ -126,7 +126,7 @@ function select(id: WeaponId): void {
               <span class="min-w-0 font-bold break-words">{{ master.nameOf(weapon.id) }}</span>
               <span class="shrink-0 text-xs">{{ weaponTypeName(weapon.weaponType) }}</span>
             </span>
-            <span class="text-xs tabular-nums">{{ formatWeaponStats(weapon) }}</span>
+            <span class="font-num text-xs tabular-nums">{{ formatWeaponStats(weapon) }}</span>
             <span v-if="weapon.skills.length > 0" class="flex flex-wrap gap-1">
               <span
                 v-for="tag in skillTags(weapon)"

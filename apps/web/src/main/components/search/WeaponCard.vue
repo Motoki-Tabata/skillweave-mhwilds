@@ -57,7 +57,7 @@ defineExpose({ focus: () => button.value?.focus() })
           </template>
           <template v-else>
             <span class="font-bold break-words">{{ master.nameOf(weapon.id) }}</span>
-            <span class="text-xs break-words tabular-nums">{{ specLine }}</span>
+            <span class="font-num text-xs break-words tabular-nums">{{ specLine }}</span>
             <span v-if="skillLine" class="text-xs break-words">{{ skillLine }}</span>
           </template>
         </span>
