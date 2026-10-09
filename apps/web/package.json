@@ -26,7 +26,7 @@
     "contract:swagger": "pnpm run contract:bundle && node scripts/build-swagger-ui.mjs"
   },
   "dependencies": {
-    "@lucide/vue": "1.48.0",
+    "@lucide/vue": "1.49.0",
     "@swv/data": "workspace:*",
     "@swv/solver": "workspace:*",
     "@vueuse/core": "14.4.0",
@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
-    "@redocly/cli": "2.54.2",
+    "@redocly/cli": "2.57.0",
     "@tailwindcss/vite": "4.3.3",
     "@tsconfig/node24": "24.0.5",
     "@types/node": "catalog:",
@@ -59,10 +59,10 @@
     "openapi-typescript": "7.13.0",
     "oxlint": "catalog:",
     "prettier": "catalog:",
-    "swagger-ui-dist": "5.33.0",
+    "swagger-ui-dist": "5.33.1",
     "tailwindcss": "4.3.3",
     "typescript": "catalog:",
-    "vite": "8.3.1",
+    "vite": "8.3.2",
     "vitest": "catalog:",
     "vue-tsc": "3.3.11"
   }
