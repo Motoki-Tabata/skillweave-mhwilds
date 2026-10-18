@@ -37,11 +37,12 @@ TSOD における「憲法」＝最初の仕様を書く前に確定している
 | contract | `./gradlew contractTest` | `pnpm contract:lint` |
 | contract 型の鮮度 | — | `pnpm contract:types` の後に `git diff --exit-code -- apps/web/src/main/lib/api/schema.ts` |
 | contract 定義書 | — | `pnpm contract:docs`・`pnpm contract:swagger`（生成物は `contracts/dist/`・非コミット） |
+| e2e | — | `pnpm --filter @swv/web run test:e2e` |
 | coverage（ローカル限定） | `./gradlew test contractTest jacocoTestReport` | `pnpm test:coverage` |
 | 静的解析（ローカル限定） | `scripts/sonar-local.sh`（全体）／ `scripts/sonar-local.sh --area api\|web\|packages` | 左に同じ |
-| 一括検証（要約のみ） | `node .claude/skills/tsod-verify/scripts/verify.mjs`（`--only api\|web\|packages\|e2e\|sonar`・`--e2e`・`--sonar`・`--sonar-area <api\|web\|packages>`・`--base <ref>`・`--allow-draft`・`--dry-run`） | 左に同じ |
+| 一括検証（要約のみ） | `node .claude/skills/tsod-verify/scripts/verify.mjs`（`--only api\|web\|packages\|e2e\|sonar`・`--e2e`・`--e2e-api`・`--sonar`・`--sonar-area <api\|web\|packages>`・`--base <ref>`・`--allow-draft`・`--dry-run`） | 左に同じ |
 
-特定のパッケージだけを検証するときは、リポジトリ直下で `pnpm --filter @swv/web run <script>`、`pnpm --filter './packages/*' run <script>` の形にする。
+特定のパッケージだけを検証するときは、リポジトリ直下で `pnpm --filter @swv/web run <script>`、`pnpm --filter @swv/solver run <script>`、`pnpm --filter @swv/data run <script>` の形にする。
 
 一括スクリプトは本表と同じコマンドを順に実行して要約だけを返すもので、本表を置き換えない。表と次の点だけ意図的に違う。
 
@@ -59,20 +60,10 @@ lint は2種類ある。`pnpm lint:check` は非破壊・警告も失敗（`oxli
 
 ---
 
-## e2e の追加
-
-機能 004 で e2e を足すときは、次を同じ PR で揃える。揃えないと、一括検証・CI・本表の3者が食い違う。
-
-- `ci.yml` に e2e ジョブを足す。
-- `apps/web/package.json` に `test:e2e` script を足し、`apps/web/e2e/` を作る。
-- 本表に e2e の行を足す。本表は canon の管理下にあるので、`tasks/lessons.md` に canon への改修要求として起票する。
-
----
-
 ## 参照
 
 - 区間 A〜E とコマンド・推奨モデルの正は `.claude/skills/tsod-workflow/SKILL.md`。
-- 設計標準は `design/`（技術スタック・データモデル・UI）。API 契約の規約は `contracts/README.md`。
+- 設計標準は `design/`（技術スタック・データモデル）と `design-system/skillweave/MASTER.md`（UI のデザインシステム）。API 契約の規約は `contracts/README.md`。
 - 作業対象のパスに応じて `.claude/rules/*.md` が自動ロードされる。
 - 実装前に `specs/NNN-<slug>/spec.md` の「影響範囲」「スコープ外」を確かめる。
 - 教訓・矛盾は発見したその場で `tasks/lessons.md` に記録する（書式と行き先の正は `.claude/skills/tsod-workflow/references/lessons-guide.md`）。

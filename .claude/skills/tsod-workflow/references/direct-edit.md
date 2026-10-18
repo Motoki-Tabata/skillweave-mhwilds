@@ -38,7 +38,7 @@
 | 項目 | 内容 |
 |---|---|
 | 許可条件 | (a) plan.md「常時許可外の変更」に列挙され、ゲート C-1 で承認済み → メインが、ワーカーへの委譲より前に書く。(b) plan に無く実装中に必要になった → ワーカーは書かずに停止して報告する。メインが AskUserQuestion でユーザーに提示し、承認後に書く。handoff の「PR 本文に必須の記載事項」へ記録する |
-| 強度 | ワーカーに対しては deterministic（Write/Edit に加え、Bash 経由の書換・`pnpm add` 等も hook が deny する）。メイン自身の書込は advisory |
+| 強度 | ワークスペースが信頼済みであれば、ワーカーに対しては deterministic（Write/Edit に加え、Bash 経由の書換・`pnpm add` 等も hook が deny する）。未信頼だと hook は適用されない（前提は `.claude/skills/impact-scope/guard-internals.md` の「強度」節が正）。メイン自身の書込は advisory |
 | 代わりの担保 | ゲート C-1 での `spec-check.mjs --compare-plan` の出力、reviewer-agent の差分分類、ゲート D-1 での人間の `git diff` 確認 |
 
 ### 常に人間の明示指示を要するもの

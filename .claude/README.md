@@ -1,7 +1,6 @@
 # このプロジェクトの Claude Code カスタマイズ
 
-この README は claude-canon の emit-manifest.js が、生成物の frontmatter と設定から規則で導いたものです。
-手で直しても次の配置で置き換わります。
+この README は配置のたびに作り直されます。手で直しても次の配置で置き換わります。
 
 ## できること
 
@@ -28,7 +27,7 @@
 | `api-agent` | 次のときメインが自動で使う: 薄仕様（specs/NNN-<slug>/spec.md）に従って Spring Boot の API・ドメイン・永続化層を apps/api/src/main/java/** と application*.yml に実装するバックエンドワーカー。tsod-build から、担当タスクが API の本体実装を含むときに委譲される。テストは api-test-agent、マイグレーションは data-model-agent の担当で、本エージェントは書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。 |
 | `api-test-agent` | 次のときメインが自動で使う: 薄仕様（specs/NNN-<slug>/spec.md）の受入基準ごとに、API のテスト（契約テストを含む）を apps/api/src/test/** に書くテストワーカー。tsod-build から、api-agent・contract-agent の実装の後に委譲される。実装は書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。 |
 | `contract-agent` | 次のときメインが自動で使う: 薄仕様（specs/NNN-<slug>/spec.md）の「契約差分」節に従って contracts/** を更新する OpenAPI 契約ワーカー。tsod-build から、担当タスクの影響範囲に契約変更（エンドポイント・スキーマの追加・変更・廃止）が含まれるときに委譲される。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。 |
-| `data-agent` | 次のときメインが自動で使う: 薄仕様（specs/NNN-<slug>/spec.md）に従って、データパッケージの実装を packages/data/src/main/** に書く実装ワーカー。tsod-build から、担当タスクが packages/data の実装を含むときに委譲される。テストは data-test-agent の担当で、本エージェントは書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。 |
+| `data-agent` | 次のときメインが自動で使う: 薄仕様（specs/NNN-<slug>/spec.md）に従って、データパッケージの実装を packages/data/src/main/** と packages/data/overlays/** に書く実装ワーカー。tsod-build から、担当タスクが packages/data の実装を含むときに委譲される。テストは data-test-agent の担当で、本エージェントは書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。 |
 | `data-model-agent` | 次のときメインが自動で使う: 区間 B（tsod-screen-table）でユーザーと合意したテーブル設計を、design/data-model-standard.md・design/attributes.yaml・マイグレーションへ書き出すデータモデルワーカー。tsod-screen-table から、当該機能に必要な最小のテーブル設計が合意された直後に委譲される。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。 |
 | `data-test-agent` | 次のときメインが自動で使う: 薄仕様（specs/NNN-<slug>/spec.md）の受入基準ごとに、データパッケージのテストを packages/data/src/test/** に書くテストワーカー。tsod-build から、data-agent の実装の後に委譲される。実装は書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。 |
 | `e2e-agent` | 次のときメインが自動で使う: 薄仕様（specs/NNN-<slug>/spec.md）の受入基準ごとに E2E テスト（Playwright）を apps/web/e2e/** に書くテストワーカー。tsod-build から、web-agent の実装の後に、画面を持つ機能で委譲される。単体テストは web-test-agent・api-test-agent の担当。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。 |
@@ -54,7 +53,7 @@
 | `solver` | `packages/solver/**` を扱うときに読み込まれる |
 | `specs-authoring` | `specs/**` を扱うときに読み込まれる |
 | `tech-stack` | `apps/api/build.gradle.kts`・`apps/api/gradle/libs.versions.toml`・`apps/api/gradle/wrapper/gradle-wrapper.properties`・`package.json`・`pnpm-workspace.yaml`・`apps/web/package.json`・`packages/*/package.json`・`.nvmrc`・`.github/dependabot.yml`・`docker/compose.yaml`・`sonar-project.properties`・`docker/compose.sonar.yaml` を扱うときに読み込まれる |
-| `ui-design` | `apps/web/src/main/**` を扱うときに読み込まれる |
+| `ui-design` | `apps/web/src/main/**`・`design-system/**` を扱うときに読み込まれる |
 | `web-vue` | `apps/web/**` を扱うときに読み込まれる |
 
 ## 前提セットアップと配置後の手作業
@@ -89,5 +88,5 @@
 - Rule `solver` は `packages/solver/**` を扱うときだけ効く。
 - Rule `specs-authoring` は `specs/**` を扱うときだけ効く。
 - Rule `tech-stack` は `apps/api/build.gradle.kts`・`apps/api/gradle/libs.versions.toml`・`apps/api/gradle/wrapper/gradle-wrapper.properties`・`package.json`・`pnpm-workspace.yaml`・`apps/web/package.json`・`packages/*/package.json`・`.nvmrc`・`.github/dependabot.yml`・`docker/compose.yaml`・`sonar-project.properties`・`docker/compose.sonar.yaml` を扱うときだけ効く。
-- Rule `ui-design` は `apps/web/src/main/**` を扱うときだけ効く。
+- Rule `ui-design` は `apps/web/src/main/**`・`design-system/**` を扱うときだけ効く。
 - Rule `web-vue` は `apps/web/**` を扱うときだけ効く。

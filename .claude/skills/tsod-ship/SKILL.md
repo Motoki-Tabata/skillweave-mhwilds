@@ -44,7 +44,7 @@ push と `gh pr create --base main` を行い、PR 番号を出力する。PR �
 bash .claude/skills/tsod-ship/scripts/ci-wait.sh <PR 番号>
 ```
 
-`run_in_background` で起動し、完了通知を待つ（[待ち方](../tsod-workflow/references/waiting.md)）。判定は `gh pr checks` の終了コードで行う。外部コマンド（`jq` 等）の有無に判定を依存させないため。出力はファイルにリダイレクトされ、文脈には要約行とログのパスだけが出る。`no checks reported` の取り直しと、ワークフローが起動していないときの扱い（exit 3。緑とみなさない）はスクリプトが持つ。本体の PR と drift PR の両方に同じ手順を使う。CI のジョブは `secret-scan`・`api`・`web`・`packages`。
+`run_in_background` で起動し、完了通知を待つ（[待ち方](../tsod-workflow/references/waiting.md)）。判定は `gh pr checks` の終了コードで行う。外部コマンド（`jq` 等）の有無に判定を依存させないため。出力はファイルにリダイレクトされ、文脈には要約行とログのパスだけが出る。`no checks reported` の取り直しと、ワークフローが起動していないときの扱い（exit 3。緑とみなさない）はスクリプトが持つ。本体の PR と drift PR の両方に同じ手順を使う。CI のジョブは `secret-scan`・`api`・`web`・`packages`・`e2e`。
 
 テストの失敗・flake なら、担当ワーカーに直させる前に test-investigator を新規起動して切り分ける（手順の正は [tsod-build の triage.md](../tsod-build/references/triage.md)）。
 
@@ -74,16 +74,6 @@ bash .claude/skills/tsod-ship/scripts/pr-merge.sh <PR 番号>
 4. `temp/` の卒業は [temp-graduation.md](./references/temp-graduation.md) に従い、卒業記録の文面を書く。
 
 マージ済み PR・CI 結果の確認は `gh pr view`・`gh run view` で行う。
-
-### e2e を CI に足す機能のとき
-
-画面を持つ最初の機能（機能 004）で e2e を CI に足すとき（`README.md` の「残作業（ハーネス）」節に、時期が書かれている）は、次の3か所を同じ PR で揃える。ドリフト検査は、揃っていないことを指摘する。
-
-- `.github/workflows/ci.yml` の e2e ジョブ
-- `apps/web` の `package.json` の `test:e2e` と、`apps/web/e2e/`
-- `CLAUDE.md` の「Commands」表の e2e の行（`CLAUDE.md` は canon の管理下なので、表の行は `tasks/lessons.md` に canon への改修要求として起票する）
-
-`drift-scan.mjs` の計画は、`apps/web` に `test:e2e` が定義され、`apps/web/e2e/` が作られたときに、自動で e2e を含む。そのとき、`CLAUDE.md` の Commands 表と `ci.yml` に e2e が無ければ、指摘として出る。e2e が未設定の間は、計画の e2e の段がコマンドを持たない SKIP になるので、表と `ci.yml` に e2e が無いことは指摘されない。
 
 ## ゲート E-2: ドリフト是正と drift PR のマージ
 

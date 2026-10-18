@@ -14,7 +14,7 @@
 | 受入基準 | `specs/NNN-<slug>/spec.md` |
 | ソルバーの入出力の型（`temp/solver-types.ts`） | `packages/solver` の型定義（`src/main/`）。その機能の薄仕様が、公開する型の範囲を定める |
 | 技術スタックの選定・版 | `design/tech-stack.md` |
-| UI の設計標準 | `design/ui-design-standard.md` |
+| UI の設計標準 | `design-system/skillweave/MASTER.md` |
 | 横断業務ルール | `design/` 直下の新設文書（新設した場合は、下の配線不変条件により `.claude/rules/` への配線が1本必要になる） |
 | 用語・要件概要（どの機能にも属さない節） | `design/` 直下の用語集・要件概要の文書。初回の卒業のときに drift ブランチで新設する。新設したら、`.claude/rules/` への配線を canon への要求として `tasks/lessons.md` に起票する（[lessons-guide.md](../../tsod-workflow/references/lessons-guide.md)） |
 | 開発手法の外部資料（例: TSOD の原典） | `docs/method/`（改変しない・参照のみの資料はここへ移設する） |

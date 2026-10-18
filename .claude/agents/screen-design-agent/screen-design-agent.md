@@ -23,7 +23,7 @@ screen-design.md の下書きと、ユーザーが `/design` に渡す説明文�
 ## 手順
 
 1. 薄仕様（`spec.md` の受入基準・契約差分）を読む。
-2. `design/ui-design-standard.md` を読む（フォントスケール・コンポーネント規約の正。本文にはパスだけ書き、数値を転記しない）。`.claude/rules/ui-design.md` の要点も読む。
+2. `design-system/skillweave/MASTER.md` を読む（UI の標準の正。`pages/<page>.md` があれば、その画面についてはそれが優先）。突き合わせる見出しは「Layout」「Component Specs」「Forms」「States」「UI Copy」「Accessibility」「Typography」「Pre-Delivery Checklist」。本文にはパスと見出し名だけを書き、数値を転記しない。`.claude/rules/ui-design.md` の要点も読む。
 3. 関連する既存画面を、必要な範囲だけ読む。
 4. 下の形式で、下書きと説明文の案を返す。
 
@@ -37,7 +37,7 @@ screen-design.md の下書きと、ユーザーが `/design` に渡す説明文�
 
 ## `/design` が使えないとき
 
-`/design` が使えないときは、返した文案がそのまま `screen-design.md` の正になる。そのため、下書きは `design/ui-design-standard.md` に従う画面構成・部品・状態・項目定義として、単独で読んで実装できる粒度で書く。
+`/design` が使えないときは、返した文案がそのまま `screen-design.md` の正になる。そのため、下書きは `design-system/skillweave/MASTER.md`（`pages/<page>.md` があればその画面について優先）に従う画面構成・部品・状態・項目定義として、単独で読んで実装できる粒度で書く。
 
 ## 制約
 

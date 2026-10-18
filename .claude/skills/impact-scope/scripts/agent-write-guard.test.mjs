@@ -160,11 +160,18 @@ test('packages/data/dist/** はどのロールも書けない', () => {
   }
 });
 
+test('data-agent: packages/data/overlays/** は allow、scripts・dist・packages/data 直下は deny', () => {
+  assert.equal(writeDecision('data-agent', 'packages/data/overlays/x.yaml').decision, 'allow');
+  for (const p of ['packages/data/scripts/x.ts', 'packages/data/dist/x.json', 'packages/data/x.ts']) {
+    assert.equal(writeDecision('data-agent', p).decision, 'deny', p);
+  }
+});
+
 test('contract-agent: contracts 配下は allow', () => {
   assert.equal(writeDecision('contract-agent', 'contracts/paths/x.yaml').decision, 'allow');
 });
 
-test('data-model-agent: migration・data-model-standard.md・attributes.yaml は allow、ui-design-standard.md は deny', () => {
+test('data-model-agent: migration・data-model-standard.md・attributes.yaml は allow、tech-stack.md は deny', () => {
   for (const p of [
     'apps/api/src/main/resources/db/migration/V9__x.sql',
     'design/data-model-standard.md',
@@ -172,7 +179,7 @@ test('data-model-agent: migration・data-model-standard.md・attributes.yaml は
   ]) {
     assert.equal(writeDecision('data-model-agent', p).decision, 'allow', p);
   }
-  assert.equal(writeDecision('data-model-agent', 'design/ui-design-standard.md').decision, 'deny');
+  assert.equal(writeDecision('data-model-agent', 'design/tech-stack.md').decision, 'deny');
 });
 
 test('test-investigator: リポジトリ内への書込は Write/Edit/NotebookEdit とも deny', () => {
@@ -383,6 +390,11 @@ test('Bash: リダイレクトの書込先で判定する（solver 系が packag
   assertBashRoles('echo x > packages/data/src/main/a.ts', { allow: ['data-agent'], deny: others('data-agent') });
   assertBashRoles('echo x > packages/solver/src/main/a.ts', { allow: ['solver-agent'], deny: others('solver-agent') });
   assertBashRoles('echo x > packages/data/dist/master.json', { deny: ALL_ROLES });
+});
+
+test('Bash: data-agent の overlays への書込は data-agent だけ allow、scripts は全ロール deny', () => {
+  assertBashRoles('echo x > packages/data/overlays/x.yaml', { allow: ['data-agent'], deny: others('data-agent') });
+  assertBashRoles('echo x > packages/data/scripts/x.ts', { deny: ALL_ROLES });
 });
 
 test('Bash: tee の書込先で判定する（web-agent allow）', () => {
@@ -620,7 +632,7 @@ test('Bash（違反の注入）: 各役割は許可外へ書く Bash を deny �
     'api-test-agent': 'apps/api/src/main/java/X.java',
     'web-test-agent': 'apps/web/src/main/a.ts',
     'e2e-agent': 'apps/web/src/test/x.spec.ts',
-    'data-model-agent': 'design/ui-design-standard.md',
+    'data-model-agent': 'design/tech-stack.md',
     'solver-agent': 'packages/data/src/main/a.ts',
     'solver-test-agent': 'packages/solver/src/main/a.ts',
     'data-agent': 'packages/solver/src/main/a.ts',

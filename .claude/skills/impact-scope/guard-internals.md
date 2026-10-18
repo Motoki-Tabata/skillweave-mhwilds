@@ -65,6 +65,13 @@ block または照合不能の通知を受けたワーカーの振る舞いは�
 | メインの書込 | advisory | handoff の「メインの直接修正」表（強制記入欄）、reviewer-agent の差分分類、ゲート D-1 |
 | native の `subagent_type` 以外での起動 | 無効（agent 定義の hooks・tools が載らない） | `tsod-build`・`tsod-screen-table` は native の `subagent_type` でのみ起動する |
 
+**前提: ワークスペースが信頼済みであること。** 書込ガード（Subagent の frontmatter hooks）と許可リスト（`.claude/settings.json` の `permissions.allow`）は、ワークスペースが信頼済みであることを前提に効く。未信頼のときは、どちらも適用されない。
+
+- 対話セッションでは、trust dialog を承認するまで適用されない。
+- `claude -p` と SDK のセッションは trust dialog を出さないので、信頼が成立しない。`-p` では `permissions.allow` は使われず、stderr に `this workspace has not been trusted` の警告が出る。
+- Subagent の frontmatter hooks は読み飛ばされる（Subagent 自体は動く）。ガードが外れたワーカーは、許可フォルダの外にも書ける。
+- 対象は project の `.claude/agents/` の定義である。ユーザーレベルの Subagent の hooks は、この前提によらない。
+
 `enforced`（settings.json の `permissions`）と OS-level は採らない。permissions はワーカー単位で分けられない。sandbox はユーザーが無効化する運用のため、前提にできない。
 
 **advisory である旨の注記**: 役割の識別は、hook の所属先とロール名引数で行う。機構的に強制されるのは対象パスと許可表の突合（事前）と git 差分の検出（事後）であり、事後に検出した変化を止める・報告するのはワーカーの規律（advisory）である。
@@ -79,13 +86,14 @@ block または照合不能の通知を受けたワーカーの振る舞いは�
 node --test .claude/skills/impact-scope/scripts/agent-write-guard.test.mjs
 ```
 
-「ロジックが正しい」と「hook が発火する」は別の検証である。実発火は、次の3種を、対象の役割を native の `subagent_type` で起動して確かめる。
+「ロジックが正しい」と「hook が発火する」は別の検証である。実発火は、次の (1) で信頼状態を確かめたうえで、(2)〜(4) の発火を、対象の役割を native の `subagent_type` で起動して確かめる。
 
-1. **Write の deny**: `api-test-agent` に `apps/api/src/main/java/__guard_canary.txt` への Write を指示して deny されることを確かめる。同じ `api-test-agent` に `apps/api/src/test/java/__guard_canary.txt` への Write を指示して通ることを確かめる。作ったファイルはメインが削除する。
-2. **Bash の事前 deny**: `api-test-agent` に `echo x > apps/api/src/main/java/__guard_canary.txt` を指示して deny を確かめる。
-3. **Bash の事後検出**: メインが OS の一時ディレクトリに「`apps/api/src/main/java/__guard_canary2.txt` を作るシェルスクリプト」を置き、`api-test-agent` にそのスクリプトを `sh <パス>` で実行させる。事前判定は通り、事後照合で block の通知が出ることを確かめる。作られたファイルはメインが削除する。
+1. **信頼状態の確認**: `~/.claude.json` の `projects["<リポジトリ root>"].hasTrustDialogAccepted` が `true` であることを読んで確かめる。`true` でなければ、対話セッションで起動して trust dialog を承認してから、以降を確かめる。有効なルールは `/permissions`、settings のソースは `/status` で確かめられる。`claude -p` は dialog を出さず、信頼を成立させられない。
+2. **Write の deny**: `api-test-agent` に `apps/api/src/main/java/__guard_canary.txt` への Write を指示して deny されることを確かめる。同じ `api-test-agent` に `apps/api/src/test/java/__guard_canary.txt` への Write を指示して通ることを確かめる。作ったファイルはメインが削除する。
+3. **Bash の事前 deny**: `api-test-agent` に `echo x > apps/api/src/main/java/__guard_canary.txt` を指示して deny を確かめる。
+4. **Bash の事後検出**: メインが OS の一時ディレクトリに「`apps/api/src/main/java/__guard_canary2.txt` を作るシェルスクリプト」を置き、`api-test-agent` にそのスクリプトを `sh <パス>` で実行させる。事前判定は通り、事後照合で block の通知が出ることを確かめる。作られたファイルはメインが削除する。
 
-Write を持つ11役割（`test-investigator` 以外）で (1) を最低1回、Bash を持つ11役割（`data-model-agent` 以外）で (2) を最低1回確かめる。`test-investigator` は Write を持たないので (1) の対象外で、Bash 経由の (2) を、リポジトリ内のパスへの書込で確かめる。
+Write を持つ11役割（`test-investigator` 以外）で (2) を最低1回、Bash を持つ11役割（`data-model-agent` 以外）で (3) を最低1回確かめる。`test-investigator` は Write を持たないので (2) の対象外で、Bash 経由の (3) を、リポジトリ内のパスへの書込で確かめる。
 
 ## 既知の限界
 
@@ -94,4 +102,5 @@ Write を持つ11役割（`test-investigator` 以外）で (1) を最低1回、B
 - バックグラウンド実行の Bash は事後照合できない。
 - 並行委譲では、他のワーカーの書込が事後照合に現れうる。
 - native 以外の起動（`general-purpose` での代替起動）では agent 定義の hooks が載らず、ガードが無効になる。
+- ワークスペースが未信頼だと、書込ガードと許可リストの両方が無効になる。前提と確認は「強度」節が正。
 - メインの書込はガード対象外。

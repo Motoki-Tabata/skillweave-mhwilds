@@ -36,7 +36,7 @@ hooks:
 |---|---|---|
 | solver-agent | `packages/solver/src/main/**` | |
 
-- `packages/solver/bench/` など列挙に無い場所と、テスト（担当は solver-test-agent）は書かない。
+- 列挙に無い場所と、テスト（担当は solver-test-agent）は書かない。
 - `packages/solver` の `package.json`・`tsconfig*.json`・依存の追加は共有する構成ファイルで、自分では書かない。
 
 書く前の3分類（常設の範囲・共有する構成ファイル・どちらでもない）と、停止して報告する手順は `.claude/skills/impact-scope/SKILL.md` の「停止規律」に従う。共有する構成ファイルの列挙と扱いは同 SKILL.md の「共有する構成ファイル」節。

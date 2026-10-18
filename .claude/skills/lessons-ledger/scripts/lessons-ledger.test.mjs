@@ -292,25 +292,61 @@ test('CLI: entries が配列でない・見出しが文字列でない reflectio
 
 // --- 直接実行と同梱データの整合 ---
 
-test('直接実行: 同梱データに対して check が0（台帳が無くても案内文だけでも）', () => {
-  for (const ledger of [null, PREAMBLE]) {
-    const root = makeRoot(ledger);
-    try {
-      const r = spawnSync(process.execPath, [SCRIPT, 'check', '--root', root], { encoding: 'utf8' });
-      assert.equal(r.status, 0, r.stdout + r.stderr);
-      assert.match(r.stdout, /反映済み 0 件・未反映 0 件/);
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
+test('直接実行: 同梱データに対して、同梱のスナップショットと同じ台帳なら check が0で、反映済みの件数が entries と一致する', () => {
+  const root = makeRoot(realSnapshot);
+  try {
+    const r = spawnSync(process.execPath, [SCRIPT, 'check', '--root', root], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stdout + r.stderr);
+    const m = /反映済み (\d+) 件/.exec(r.stdout);
+    assert.ok(m, r.stdout);
+    assert.equal(Number(m[1]), realReflection.entries.length);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 });
 
-test('同梱の reflection.json と ledger-snapshot.txt: 反映済みは0件で、スナップショットは空で整合している', () => {
+test('直接実行: 同梱データに対して apply は反映済みの見出しをすべて消し、前置きを残す', () => {
+  const root = makeRoot(realSnapshot);
+  try {
+    const r = spawnSync(process.execPath, [SCRIPT, 'apply', '--root', root], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stdout + r.stderr);
+    const { preamble } = parseLedger(realSnapshot);
+    const after = existsSync(ledgerPathOf(root)) ? readFileSync(ledgerPathOf(root), 'utf8') : '';
+    const remaining = parseLedger(after).entries.map((e) => e.heading);
+    for (const e of realReflection.entries) {
+      assert.ok(!remaining.includes(e.heading), `${e.heading} が残っている`);
+    }
+    if (preamble.trim() !== '') {
+      assert.ok(after.startsWith(preamble), '前置きが残っていない');
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('直接実行: 台帳が無い root での check は、スナップショットが空でなければ不一致（1）、空なら0', () => {
+  const root = makeRoot(null);
+  try {
+    const r = spawnSync(process.execPath, [SCRIPT, 'check', '--root', root], { encoding: 'utf8' });
+    const expected = realReflection.entries.length === 0 || realSnapshot.trim() === '' ? 0 : 1;
+    assert.equal(r.status, expected, r.stdout + r.stderr);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('同梱の reflection.json と ledger-snapshot.txt: 見出しがスナップショットに含まれ、重複が無い', () => {
   assert.ok(Array.isArray(realReflection.entries));
-  assert.equal(realReflection.entries.length, 0);
   assert.equal(typeof realReflection.canon_run, 'string');
   assert.equal(realReflection.ledger, 'tasks/lessons.md');
   assert.equal(realReflection.snapshot, 'ledger-snapshot.txt');
-  assert.equal(realSnapshot, '');
-  assert.deepEqual(parseLedger(realSnapshot).entries, []);
+  const headings = realReflection.entries.map((e) => e.heading);
+  for (const h of headings) {
+    assert.equal(typeof h, 'string');
+  }
+  assert.equal(new Set(headings).size, headings.length, '見出しが重複している');
+  const snapshotHeadings = parseLedger(realSnapshot).entries.map((e) => e.heading);
+  for (const h of headings) {
+    assert.ok(snapshotHeadings.includes(h), `${h} がスナップショットに無い`);
+  }
 });

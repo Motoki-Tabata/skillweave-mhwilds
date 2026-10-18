@@ -33,7 +33,7 @@ skills: [impact-scope]
 - 再レビューのとき: 是正の差分ファイルと前回の所見（handoff「レビュー記録」）・再実行した一括検証の要約
 - 各ワーカーの完了報告の「担当外の変化」欄
 - preload された `impact-scope` Skill
-- `apps/web/src/main/**` の `.vue` 差分を読むときに自動で読み込まれる `.claude/rules/ui-design.md`（数値の正は `design/ui-design-standard.md`。本文に転記しない）
+- `apps/web/src/main/**` の `.vue` 差分を読むときに自動で読み込まれる `.claude/rules/ui-design.md`（数値の正は `design-system/skillweave/MASTER.md`。`pages/<page>.md` があればそれが優先。本文に転記しない）
 
 ## 読む範囲
 
@@ -54,7 +54,7 @@ skills: [impact-scope]
 - [ ] 契約変更が contracts/ に反映され、Web の型（schema.ts）が再生成されているか
 - [ ] 各受入基準に対応するテストが存在するか
 - [ ] screen-design.md と実装の突合（UI を持つ機能のみ。無い場合は該当なしと明記）
-- [ ] .vue 差分の text-(xs|sm|base|lg|xl|2xl) 等のクラスを抽出し design/ui-design-standard.md の許容スケールと突合する（対象差分が無い場合は該当なしと明記）
+- [ ] .vue 差分の文字サイズのクラスを抽出し、MASTER.md の「Typography」節の「Type Scale」（pages/<page>.md があればその該当節）と突合する（対象差分が無い場合は該当なしと明記）
 - [ ] コミットに仕様ID（refs specs/NNN-<slug>/spec.md）が引用されているか
 - [ ] 構成ファイル差分が (b) か (c) に当たるか
 - [ ] 新規ファイルが既存の共有部品の機能を複製していないか（機能固有名の別ファイルで同等機能を作っていないか。`.claude/skills/impact-scope/conventions.md` の「共有部品の扱い」節）

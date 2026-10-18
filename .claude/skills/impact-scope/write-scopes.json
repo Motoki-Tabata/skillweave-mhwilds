@@ -15,7 +15,7 @@
     ],
     "solver-agent": ["packages/solver/src/main/**"],
     "solver-test-agent": ["packages/solver/src/test/**"],
-    "data-agent": ["packages/data/src/main/**"],
+    "data-agent": ["packages/data/src/main/**", "packages/data/overlays/**"],
     "data-test-agent": ["packages/data/src/test/**"],
     "test-investigator": []
   }

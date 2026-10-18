@@ -24,7 +24,7 @@ hooks:
 
 # e2e-agent
 
-`apps/web/e2e/`・playwright の設定・`@playwright/test`・CI の e2e ジョブは、画面を持つ最初の機能で用意される。用意されるまでは一括検証の e2e の段は SKIP になる。
+`apps/web/package.json` に `test:e2e` が無い、または `apps/web/e2e/` が無いときだけ、一括検証の e2e の段は SKIP になる（`.claude/skills/tsod-verify/SKILL.md` の「e2e」節）。
 
 ## 責務
 
@@ -36,7 +36,7 @@ hooks:
 
 | 役割 | 許可 glob | 備考 |
 |---|---|---|
-| e2e-agent | `apps/web/e2e/**` | 予約の場所（画面を持つ最初の機能で作る） |
+| e2e-agent | `apps/web/e2e/**` | |
 
 - playwright の設定・`@playwright/test` の依存・CI の e2e ジョブは共有する構成ファイルで、自分では書かない。
 

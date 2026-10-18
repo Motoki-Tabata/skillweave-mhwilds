@@ -27,9 +27,7 @@ for i in $(seq 1 N); do echo "--- run $i" >> /tmp/tsod-triage/vitest.log; pnpm -
 
 ## Playwright（E2E）
 
-E2E は、`apps/web` に `test:e2e` と `apps/web/e2e/` が作られてから使う。
-
-- 対象 spec だけを冷えた状態で再現する。api は起動し直し、起動時データが絡むならテスト用コンテナも作り直す。
+- 対象 spec だけを冷えた状態で再現する。既定の一括検証の e2e（`verify.mjs --e2e`）は API・DB を使わない。`--e2e-api` を要る e2e のときだけ、api は起動し直し、起動時データが絡むならテスト用コンテナも作り直す。
 - 反復: `pnpm --filter @swv/web exec playwright test e2e/<名前>.spec.ts --workers=1 --repeat-each=<N> --retries=0 --trace on`
 - 並列でだけ落ちるかは、`--workers` を既定にした同じ反復と比べて切り分ける。
 - 失敗した操作のリクエスト本文と応答を確かめる。

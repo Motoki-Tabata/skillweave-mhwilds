@@ -1,6 +1,77 @@
 {
-  "canon_run": "20261003_033830",
+  "canon_run": "20261014_232320",
   "ledger": "tasks/lessons.md",
   "snapshot": "ledger-snapshot.txt",
-  "entries": []
+  "entries": [
+    {
+      "heading": "## 2026-10-03 未信頼のワークスペースでは書込ガードと許可リストが黙って無効になる（canon 配置後の実発火確認・区間外）",
+      "reflected_to": [".claude/skills/impact-scope/guard-internals.md"]
+    },
+    {
+      "heading": "## 2026-10-03 許可リストの `'./packages/*'` の `*` がワイルドカードとして扱われ、許可が意図より広い（canon 配置後の実発火確認・区間外）",
+      "reflected_to": [".claude/settings.json", "CLAUDE.md", ".claude/skills/tsod-verify/SKILL.md"]
+    },
+    {
+      "heading": "## 2026-10-03 機能番号を実装順に振り直したため、canon 管理下の「機能 003 で e2e を足す」が solver-ui を指さなくなった（機能分解・区間外）",
+      "reflected_to": ["CLAUDE.md", ".claude/skills/tsod-ship/SKILL.md"]
+    },
+    {
+      "heading": "## 2026-10-03 `components/common/` を先に作ったため、canon 管理下の「予約の場所」の記述が実態とずれた（フォルダ構成の適用・区間外）",
+      "reflected_to": [".claude/skills/impact-scope/conventions.md"]
+    },
+    {
+      "heading": "## 2026-10-04 常時許可外の変更の中に、委譲の前には書けないものがある（機能001・区間C）",
+      "reflected_to": [".claude/skills/tsod-plan/SKILL.md", ".claude/skills/tsod-build/SKILL.md"]
+    },
+    {
+      "heading": "## 2026-10-04 solver のテスト配置規約が、補助部品・測定ハーネス・main と対応しないテストを許していない（機能001・区間 D）",
+      "reflected_to": [".claude/skills/impact-scope/conventions.md", ".claude/rules/solver.md"]
+    },
+    {
+      "heading": "## 2026-10-04 packages の tsconfig が `types: []` のため、テストと測定の型検査を分ける必要がある（機能001・区間 D）",
+      "reflected_to": [".claude/rules/solver.md"]
+    },
+    {
+      "heading": "## 2026-10-04 overlay の置き場が決まったので、data-agent の書込許可に足す（機能002・区間A）",
+      "reflected_to": [
+        ".claude/skills/impact-scope/write-scopes.json",
+        ".claude/skills/impact-scope/SKILL.md",
+        ".claude/agents/data-agent/data-agent.md",
+        ".claude/skills/impact-scope/scripts/agent-write-guard.test.mjs"
+      ]
+    },
+    {
+      "heading": "## 2026-10-04 新設した design/master-data.md に .claude/rules の配線が無い（機能002・区間 E）",
+      "reflected_to": [".claude/rules/data.md"]
+    },
+    {
+      "heading": "## 2026-10-06 API を持たない e2e でも、一括検証の e2e の段が docker と API を起動する（機能004・区間A）",
+      "reflected_to": [
+        ".claude/skills/tsod-verify/scripts/verify.mjs",
+        ".claude/skills/tsod-verify/scripts/verify.test.mjs",
+        ".claude/skills/tsod-verify/SKILL.md",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "heading": "## 2026-10-07 web-vue.md の「アイコン（lucide）」節が、導入後の実態と合わない（機能004・区間 D）",
+      "reflected_to": [".claude/rules/web-vue.md"]
+    },
+    {
+      "heading": "## 2026-10-07 web の Sonar とビルド設定の落とし穴を web-vue.md に足す（機能004・区間 D）",
+      "reflected_to": [".claude/rules/web-vue.md"]
+    },
+    {
+      "heading": "## 2026-10-08 デザインシステムの唯一の正を design-system/skillweave/MASTER.md に統合したが、canon 側の参照先が design/ui-design-standard.md のまま（デザインシステム一新・区間外）",
+      "reflected_to": [
+        ".claude/rules/ui-design.md",
+        ".claude/agents/reviewer-agent/reviewer-agent.md",
+        ".claude/agents/screen-design-agent/screen-design-agent.md",
+        ".claude/agents/web-agent/web-agent.md",
+        ".claude/skills/tsod-screen-table/SKILL.md",
+        ".claude/skills/tsod-ship/references/temp-graduation.md",
+        ".claude/skills/impact-scope/scripts/agent-write-guard.test.mjs"
+      ]
+    }
+  ]
 }

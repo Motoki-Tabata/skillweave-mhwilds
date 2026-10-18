@@ -42,17 +42,17 @@ effort: medium
 | web-agent | `apps/web/src/main/**` | `apps/web/src/main/lib/api/schema.ts` の再生成を含む |
 | api-test-agent | `apps/api/src/test/**` | |
 | web-test-agent | `apps/web/src/test/**` | |
-| e2e-agent | `apps/web/e2e/**` | 予約の場所（e2e を導入する機能で作られる） |
+| e2e-agent | `apps/web/e2e/**` | |
 | data-model-agent | `apps/api/src/main/resources/db/migration/**`・`design/data-model-standard.md`・`design/attributes.yaml` | migration は予約の場所（最初のマイグレーションを足す機能で作られる） |
 | solver-agent | `packages/solver/src/main/**` | |
 | solver-test-agent | `packages/solver/src/test/**` | |
-| data-agent | `packages/data/src/main/**` | |
+| data-agent | `packages/data/src/main/**`・`packages/data/overlays/**` | |
 | data-test-agent | `packages/data/src/test/**` | |
 | test-investigator | （空配列） | リポジトリ内は書けない。一時ディレクトリだけ |
 | reviewer-agent・screen-design-agent | 表に載せない | `tools` が Read・Grep・Glob だけであることで担保 |
 
 - ロール間で glob は重ならない。実装役はテストを書かず、テスト役は実装を書かない。
-- `packages/data/dist/**` はどのロールにも含めない（生成物で手編集しない）。`packages/solver/bench/`・`packages/data/{scripts,overlays}/` も現時点では含めない。データパイプラインと overlay の置き場は機能 002 で決まり、そのときに canon への改修要求（`tasks/lessons.md`）として担当フォルダを足す。予約として先に入れないのは、置き場が未決のまま glob を固定すると、決まった置き場と食い違ったときに誤った許可が残るため。
+- `packages/data/dist/**` はどのロールにも含めない（生成物で手編集しない）。`packages/data/scripts/` もどのロールにも含めない（実在しない）。置き場が決まったら、canon への改修要求（`tasks/lessons.md`）として担当フォルダを足す。予約として先に入れないのは、置き場が未決のまま glob を固定すると、決まった置き場と食い違ったときに誤った許可が残るため。
 - Bash での書込も、同じ許可フォルダで判定される。ファイルの作成・編集は Write/Edit を使う。Bash で書くのは、許可フォルダ内の静的パスへのリダイレクト・`sed -i`・ファイル指定のフォーマッタ等に限る。
 - マイグレーションは data-model-agent だけが書く。区間 D で追加のマイグレーションが必要になったら、api-agent は書かずに停止して報告する。メインは、区間 B のテーブル設計へ戻るか、data-model-agent を新規起動する。
 
