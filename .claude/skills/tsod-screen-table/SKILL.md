@@ -26,14 +26,14 @@ effort: high
 
 ### 手順
 
-1. **screen-design-agent** を native の `subagent_type` で起動する。`screen-design.md` の下書きと、`/design` に渡す説明文の案を受け取る。委譲プロンプトには、薄仕様のパス（`specs/NNN-<slug>/spec.md`）・機能 ID・UI 判定の結果・関連する既存画面（`apps/web/src/main/**` の該当ディレクトリの目安）を入れる。標準（`design/ui-design-standard.md`）の全文を読むのは screen-design-agent で、メインは報告の「標準との突合結果」で数値が許容値に収まることを確かめ、疑義のある項目だけ該当節を読む。
+1. **screen-design-agent** を native の `subagent_type` で起動する。`screen-design.md` の下書きと、`/design` に渡す説明文の案を受け取る。委譲プロンプトには、薄仕様のパス（`specs/NNN-<slug>/spec.md`）・機能 ID・UI 判定の結果・関連する既存画面（`apps/web/src/main/**` の該当ディレクトリの目安）を入れる。標準（`design-system/skillweave/MASTER.md`。`design-system/skillweave/pages/<page>.md` があればその画面について優先）の全文を読むのは screen-design-agent で、メインは報告の「標準との突合結果」で数値が許容値に収まることを確かめ、疑義のある項目だけ該当節を読む。
 2. メインが説明文を組み立ててユーザーに提示し、**「ユーザー自身が `/design <説明文>` を実行して、キャンバス URL と確定内容を返す」よう依頼する。** メインもサブエージェントも `/design` を起動しない（Skill ツールで呼ばない）。`/design` はユーザーだけが起動できるため。
 3. 返った URL と確定内容を `specs/NNN-<slug>/screen-design.md` に取り込む（書くのはメイン）。キャンバス URL は同ファイルの「キャンバス URL」欄に記録する。修正が要るときは、ユーザーが Artifact 上で直す。説明文を作り直す必要があるときは、screen-design-agent を新規起動する（前回の会話を再開しない）。
 4. 成果物と URL を提示して AskUserQuestion を1回取る（ゲート B-1）。承認されたら handoff に記録してコミットする。
 
 ### 使えないとき
 
-`/design` の前提（Claude Code のバージョン・プラン・ログイン方式・組織の設定など。前提の列挙の正は [builtin-skills.md](../tsod-workflow/references/builtin-skills.md)）を満たさない、または起動できない（挙動が変わった）ときは、`/design` を再試行せず、**キャンバス無しで進める**。screen-design-agent の下書きをもとに、`specs/NNN-<slug>/screen-design.md`（`design/ui-design-standard.md` に従う画面構成・部品・状態・項目定義）を正として、ユーザーと文章で確定する。その旨を handoff の「区間メモ」に1行残す。
+`/design` の前提（Claude Code のバージョン・プラン・ログイン方式・組織の設定など。前提の列挙の正は [builtin-skills.md](../tsod-workflow/references/builtin-skills.md)）を満たさない、または起動できない（挙動が変わった）ときは、`/design` を再試行せず、**キャンバス無しで進める**。screen-design-agent の下書きをもとに、`specs/NNN-<slug>/screen-design.md`（`design-system/skillweave/MASTER.md`（`pages/<page>.md` があればその画面について優先）に従う画面構成・部品・状態・項目定義）を正として、ユーザーと文章で確定する。その旨を handoff の「区間メモ」に1行残す。
 
 ### 出力: `specs/NNN-<slug>/screen-design.md`（これが正）
 
@@ -41,7 +41,7 @@ effort: high
 - 画面ごとの画面構成・部品・項目定義・入力規則・状態・遷移
 - キャンバス URL（キャンバス無しで進めたときは「なし」）
 
-項目定義・入力規則の数値（フォントスケール等）は `design/ui-design-standard.md` の許容値に従う。数値そのものは同ファイルが正で、ここにも `.claude/rules/ui-design.md` にも写さない。1行に複数の要素を並べるレイアウトは、最小対応幅での幅の合計を概算し、切り詰める要素と最小幅を決める（規律の正は `.claude/rules/ui-design.md`）。
+項目定義・入力規則の数値（フォントスケール等）は `design-system/skillweave/MASTER.md`（`pages/<page>.md` があればその画面について優先）の許容値に従う。フォントスケールの突合は、「Typography」節の「Type Scale」で行う。数値そのものは MASTER.md が正で、ここにも `.claude/rules/ui-design.md` にも写さない。1行に複数の要素を並べるレイアウトは、最小対応幅での幅の合計を概算し、切り詰める要素と最小幅を決める（規律の正は `.claude/rules/ui-design.md`）。
 
 既存画面の現状確認が要るときは、ユーザーに画面の提示（スクリーンショットなど）を依頼するか、`apps/web/src/main/` の該当コンポーネントを読む。
 

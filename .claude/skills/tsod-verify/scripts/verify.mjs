@@ -2,6 +2,9 @@
 // tsod-verify: CLAUDE.md「Commands」節・.github/workflows/ci.yml の api/web/packages ジョブの写し（e2e・Sonar は指定したときだけ）。
 // Node ESM・依存ゼロ（Node 組込みモジュールのみ）。Node 20+。
 //
+// e2e の段は、既定でビルドした web だけで実行する（pnpm --filter @swv/web run test:e2e の1段）。
+// API・DB が要るときだけ `--e2e-api` を付けて、docker compose と API の起動・停止の段を足す。
+//
 // CLAUDE.md の表・ci.yml との意図的な差（CLAUDE.md「Commands」の「意図的な差」と一致させる。一致は区間 E の drift-scan が検査する）。
 //   1. 契約型フレッシュネス: 作業ツリーの schema.ts を書き換えず、一時ファイルへ再生成して現行の schema.ts と
 //      バイト比較する（表は `pnpm contract:types` 実行後の `git diff --exit-code`。未コミット・未ステージでも正しく判定する）。
@@ -32,9 +35,10 @@ const E2E_UNSET_REASON = '未設定: apps/web に test:e2e と e2e/ が必要';
  * 引数を解析する。純関数。不正な引数は Error を投げる。
  * `--sonar-area <api|web|packages>`（領域の Sonar モード）は `--only`・`--e2e`・`--sonar` と併用できない。
  * `--base <ref>` は `--sonar-area` と一緒のときだけ有効。
+ * `--e2e-api` は e2e の段が計画に入るとき（`--e2e` か `--only e2e`）だけ有効。
  */
 export function parseArgs(argv) {
-  const result = { only: null, e2e: false, sonar: false, dryRun: false, allowDraft: false, sonarArea: null, base: null };
+  const result = { only: null, e2e: false, e2eApi: false, sonar: false, dryRun: false, allowDraft: false, sonarArea: null, base: null };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === '--only') {
@@ -60,6 +64,8 @@ export function parseArgs(argv) {
       i++;
     } else if (arg === '--e2e') {
       result.e2e = true;
+    } else if (arg === '--e2e-api') {
+      result.e2eApi = true;
     } else if (arg === '--sonar') {
       result.sonar = true;
     } else if (arg === '--dry-run') {
@@ -75,6 +81,9 @@ export function parseArgs(argv) {
   }
   if (result.base !== null && result.sonarArea === null) {
     throw new Error('--base は --sonar-area と一緒に指定したときだけ有効です。');
+  }
+  if (result.e2eApi && !(result.e2e || result.only === 'e2e')) {
+    throw new Error('--e2e-api は --e2e または --only e2e と一緒に指定したときだけ有効です。');
   }
   return result;
 }
@@ -124,7 +133,7 @@ function packagesStep(script) {
   };
 }
 
-function stepsForArea(area, { e2eConfigured = false } = {}) {
+function stepsForArea(area, { e2eConfigured = false, e2eApi = false } = {}) {
   if (area === 'api') {
     return [
       {
@@ -172,6 +181,17 @@ function stepsForArea(area, { e2eConfigured = false } = {}) {
     if (!e2eConfigured) {
       return [skipStep('e2e', 'e2e', E2E_UNSET_REASON)];
     }
+    const testStep = {
+      area: 'e2e',
+      name: 'pnpm test:e2e',
+      cwd: '.',
+      prereqCmd: 'pnpm',
+      command: 'pnpm',
+      args: ['--filter', '@swv/web', 'run', 'test:e2e'],
+    };
+    if (!e2eApi) {
+      return [testStep];
+    }
     return [
       {
         area: 'e2e',
@@ -188,14 +208,7 @@ function stepsForArea(area, { e2eConfigured = false } = {}) {
         prereqCmd: 'java',
         special: 'startApiAndWait',
       },
-      {
-        area: 'e2e',
-        name: 'pnpm test:e2e',
-        cwd: '.',
-        prereqCmd: 'pnpm',
-        command: 'pnpm',
-        args: ['--filter', '@swv/web', 'run', 'test:e2e'],
-      },
+      testStep,
       {
         area: 'e2e',
         name: 'api プロセス停止（自分が起動した PID のみ）',
@@ -224,9 +237,10 @@ function stepsForArea(area, { e2eConfigured = false } = {}) {
  * `sonarArea` のときは、領域の Sonar 解析の1段だけ（テストを再実行せず、変更したファイルの新規コードだけを解析する）。
  * 既定は api・web・packages。e2e と Sonar は、指定が無ければコマンドを持たない SKIP の段（未指定）にする。
  * e2e は `e2eConfigured`（detectE2eConfigured の結果）が false のとき、指定しても SKIP の段（未設定）になる。
+ * e2e が設定済みのときの既定は test:e2e の1段で、`options.e2eApi` が真のときだけ docker・API の起動と停止の段を足す。
  */
 export function buildPlan(options, { e2eConfigured = false } = {}) {
-  const env = { e2eConfigured };
+  const env = { e2eConfigured, e2eApi: Boolean(options.e2eApi) };
   if (options.sonarArea) {
     const area = options.sonarArea;
     return [

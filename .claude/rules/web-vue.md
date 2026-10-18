@@ -44,10 +44,10 @@ Dialog 系 spec が `document.body.innerHTML = ''` の後に自動 unmount し�
 `pnpm test:unit` と `pnpm test:coverage` の両方で確かめる。
 
 ## アイコン（lucide）
-shadcn-vue の CLI からコピーしたコンポーネントは `lucide-vue-next` から import している。
-`lucide-vue-next` は deprecated なので、コピーしたら import を `@lucide/vue` に書き換える。
-アイコンの依存はまだ導入していない（shadcn-vue を導入する機能で入れる）。導入時の版の確認は
-`design/tech-stack.md` の「後の機能で導入するもの」の表の「アイコン」の行を見る。
+アイコンの依存は導入済みである。shadcn-vue の CLI からコピーしたコンポーネントは
+`lucide-vue-next` から import しているが、`lucide-vue-next` は deprecated なので、
+コピーしたら import を `@lucide/vue` に書き換える。版は `design/tech-stack.md` の
+「Web（apps/web）と packages」節の表を見る。
 
 ## Sonar で繰り返し出たルールの避け方（web）
 このルール群の正はここだけ。
@@ -56,3 +56,18 @@ shadcn-vue の CLI からコピーしたコンポーネントは `lucide-vue-nex
   `TableHead` 等のラッパー越しだと Sonar の静的解析がコンポーネントの中身を追わず、この指摘が出る。
 - **`typescript:S3776`（認知的複雑度）**: 関数が分岐を重ねたら、判定を名前付きの小さな関数に分けるか、
   早期 return にして入れ子を減らす。
+- **`role="group"`・`role="status"`（S6819）**: これらの role はこのルールに当たるので、
+  `<fieldset>`・`<output>` で書く。
+- **`Web:InputWithoutLabelCheck`・`Web:S6853`**: Reka UI の SelectTrigger と shadcn-vue の汎用
+  Input・Label への指摘は誤検知である。`ui/` は編集禁止なので、抑止するときは
+  `sonar-project.properties` の `sonar.issue.ignore.multicriteria` の抑止の規約（同ファイルのコメント）に従う。
+  ユーザーの承認を得て、理由を付けて1件ずつ追記する。`// NOSONAR` は使わない。
+
+## ビルド設定とテストの落とし穴
+- web から `packages/*` のソースを import するときは、`tsconfig.app.json`・`tsconfig.vitest.json` の
+  `include` に足す。足さないと `TS6307` で失敗する。
+- shadcn-vue の CLI は、`tsconfig.json` に `paths` が無いと失敗する。`components.json` の未知のキーも拒否する。
+- vitest 内でリポジトリのファイルを読むときは `import.meta.dirname` を使う。
+  `new URL(..., import.meta.url)` は vitest 内で `/@fs/` になり、ファイルパスとして使えない。
+- Playwright の `getByRole('heading', { name })` は部分一致である。連番の見出しなど、
+  部分一致で別の見出しにも当たるものには `exact: true` を付ける。

@@ -21,7 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../../../..');
 const SONAR_SH = path.join(REPO_ROOT, 'scripts/sonar-local.sh');
 
-const DEFAULTS = { only: null, e2e: false, sonar: false, dryRun: false, allowDraft: false, sonarArea: null, base: null };
+const DEFAULTS = { only: null, e2e: false, e2eApi: false, sonar: false, dryRun: false, allowDraft: false, sonarArea: null, base: null };
 
 test('parseArgs: 既定値', () => {
   assert.deepEqual(parseArgs([]), DEFAULTS);
@@ -36,6 +36,15 @@ test('parseArgs: --e2e --sonar --dry-run', () => {
   assert.equal(opts.e2e, true);
   assert.equal(opts.sonar, true);
   assert.equal(opts.dryRun, true);
+});
+
+test('parseArgs: --e2e-api は e2e の段が計画に入るとき（--e2e か --only e2e）だけ有効', () => {
+  assert.equal(parseArgs(['--e2e', '--e2e-api']).e2eApi, true);
+  assert.equal(parseArgs(['--only', 'e2e', '--e2e-api']).e2eApi, true);
+  assert.equal(parseArgs(['--e2e']).e2eApi, false);
+  assert.throws(() => parseArgs(['--e2e-api']));
+  assert.throws(() => parseArgs(['--only', 'api', '--e2e-api']));
+  assert.throws(() => parseArgs(['--sonar-area', 'web', '--e2e-api']));
 });
 
 test('parseArgs: --allow-draft は allowDraft: true（既定は false）', () => {
@@ -129,8 +138,24 @@ test('buildPlan: e2e が未設定なら、--e2e を付けても --only e2e で�
   assert.ok(omitted[0].skip);
 });
 
-test('buildPlan: e2e が設定済みなら、インフラ起動・api 起動・test:e2e・停止の4段', () => {
+test('buildPlan: e2e が未設定なら、e2eApi を指定しても SKIP（未設定）の1段', () => {
+  const e2e = buildPlan({ ...DEFAULTS, only: 'e2e', e2eApi: true }, { e2eConfigured: false }).filter((s) => s.area === 'e2e');
+  assert.equal(e2e.length, 1);
+  assert.match(e2e[0].skip, /未設定: apps\/web に test:e2e と e2e\/ が必要/);
+});
+
+test('buildPlan: e2e が設定済みで既定なら、test:e2e の1段だけ（docker・api の起動と停止の段が無い）', () => {
   const plan = buildPlan({ ...DEFAULTS, only: 'e2e' }, { e2eConfigured: true });
+  assert.equal(plan.length, 1);
+  assert.equal(plan[0].command, 'pnpm');
+  assert.deepEqual(plan[0].args, ['--filter', '@swv/web', 'run', 'test:e2e']);
+  assert.ok(plan.every((s) => s.command !== 'docker'));
+  assert.ok(plan.every((s) => s.special !== 'startApiAndWait' && s.special !== 'stopApi'));
+  assert.ok(plan.every((s) => !s.skip));
+});
+
+test('buildPlan: e2e が設定済みで e2eApi なら、インフラ起動・api 起動・test:e2e・停止の4段', () => {
+  const plan = buildPlan({ ...DEFAULTS, only: 'e2e', e2eApi: true }, { e2eConfigured: true });
   assert.equal(plan.length, 4);
   assert.deepEqual(plan[0].args, ['compose', '-f', 'docker/compose.yaml', 'up', '-d', '--wait']);
   assert.equal(plan[1].cwd, 'apps/api');

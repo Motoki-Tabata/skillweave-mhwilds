@@ -36,7 +36,7 @@ hooks:
 |---|---|---|
 | solver-test-agent | `packages/solver/src/test/**` | |
 
-- `packages/solver/bench/` など列挙に無い場所は書かない。
+- 列挙に無い場所は書かない。
 
 書く前の3分類（常設の範囲・共有する構成ファイル・どちらでもない）と、停止して報告する手順は `.claude/skills/impact-scope/SKILL.md` の「停止規律」に従う。共有する構成ファイルの列挙と扱いは同 SKILL.md の「共有する構成ファイル」節。
 

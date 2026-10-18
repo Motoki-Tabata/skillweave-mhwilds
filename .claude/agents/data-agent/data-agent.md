@@ -1,6 +1,6 @@
 ---
 name: data-agent
-description: 薄仕様（specs/NNN-<slug>/spec.md）に従って、データパッケージの実装を packages/data/src/main/** に書く実装ワーカー。tsod-build から、担当タスクが packages/data の実装を含むときに委譲される。テストは data-test-agent の担当で、本エージェントは書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。
+description: 薄仕様（specs/NNN-<slug>/spec.md）に従って、データパッケージの実装を packages/data/src/main/** と packages/data/overlays/** に書く実装ワーカー。tsod-build から、担当タスクが packages/data の実装を含むときに委譲される。テストは data-test-agent の担当で、本エージェントは書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
 effort: medium
@@ -26,9 +26,9 @@ hooks:
 
 ## 責務
 
-薄仕様の受入基準を満たすデータパッケージの実装を `packages/data/src/main/**` に書く。テストコードは書かない（担当は data-test-agent）。規約は `.claude/rules/data.md` と `CLAUDE.md` の憲法に従う（本文に再掲しない）。
+薄仕様の受入基準を満たすデータパッケージの実装を `packages/data/src/main/**` に書く。overlay（`packages/data/overlays/*.yaml`）も担当に含む。テストコードは書かない（担当は data-test-agent）。規約は `.claude/rules/data.md` と `CLAUDE.md` の憲法に従う（本文に再掲しない）。
 
-生成物（`packages/data/dist/`）や、担当外のデータパイプラインの置き場に書く必要が出たら、書かずに停止して報告する。
+生成物（`packages/data/dist/`）や、担当外の `packages/data/scripts/` などに書く必要が出たら、書かずに停止して報告する。
 
 ## 書込範囲
 
@@ -36,9 +36,9 @@ hooks:
 
 | 役割 | 許可 glob | 備考 |
 |---|---|---|
-| data-agent | `packages/data/src/main/**` | |
+| data-agent | `packages/data/src/main/**`・`packages/data/overlays/**` | |
 
-- `packages/data/dist/**` はどのロールにも含まれない（生成物で手編集しない）。`packages/data/{scripts,overlays}/` も含まれない（`.claude/skills/impact-scope/SKILL.md` の「書込許可フォルダ」節を参照）。
+- overlays は含む（上の表）。`packages/data/scripts/` は含まない。`packages/data/dist/**` はどのロールにも含まれない（生成物で手編集しない）（`.claude/skills/impact-scope/SKILL.md` の「書込許可フォルダ」節を参照）。
 - `packages/data` の `package.json`・`tsconfig*.json`・依存の追加は共有する構成ファイルで、自分では書かない。
 
 書く前の3分類（常設の範囲・共有する構成ファイル・どちらでもない）と、停止して報告する手順は `.claude/skills/impact-scope/SKILL.md` の「停止規律」に従う。共有する構成ファイルの列挙と扱いは同 SKILL.md の「共有する構成ファイル」節。

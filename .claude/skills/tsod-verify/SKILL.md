@@ -11,11 +11,11 @@ effort: low
 リポジトリ直下で次を実行する（[scripts/verify.mjs](./scripts/verify.mjs)）。
 
 ```
-node .claude/skills/tsod-verify/scripts/verify.mjs [--only api|web|packages|e2e|sonar] [--e2e] [--sonar] [--allow-draft] [--dry-run]
+node .claude/skills/tsod-verify/scripts/verify.mjs [--only api|web|packages|e2e|sonar] [--e2e [--e2e-api]] [--sonar] [--allow-draft] [--dry-run]
 node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area api|web|packages [--base <ref>] [--dry-run]
 ```
 
-既定では api・web・packages を実行する。`--e2e`・`--sonar` を付けると該当ステップを追加する。`--only` を指定すると、その領域だけを実行する。`--only` に取れる値は `api`・`web`・`packages`・`e2e`・`sonar` の5つだけである。`--dry-run` は実行計画だけを表示し、コマンドは実行しない。
+既定では api・web・packages を実行する。`--e2e`・`--sonar` を付けると該当ステップを追加する。`--only` を指定すると、その領域だけを実行する。`--only` に取れる値は `api`・`web`・`packages`・`e2e`・`sonar` の5つだけである。`--dry-run` は実行計画だけを表示し、コマンドは実行しない。`--e2e-api` は、e2e の段で docker と API の起動を有効にする指定で、`--e2e` か `--only e2e` と一緒のときだけ使える。
 
 各領域の段は次のとおり（コマンドの正は `CLAUDE.md` の「Commands」節。ここはその写しで、実行計画の正は `verify.mjs` の `buildPlan`）。
 
@@ -23,15 +23,17 @@ node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area api|web|packages
 |---|---|---|
 | api | `apps/api` | `./gradlew spotlessCheck build`・`./gradlew contractTest`（CI の api ジョブと同じ） |
 | web | リポジトリ直下 | `pnpm --filter @swv/web run` の `lint:check`・`format:check`・`type-check`・`test:unit`・`build`、`pnpm contract:lint`、契約型の鮮度、`pnpm contract:docs`・`pnpm contract:swagger` |
-| packages | リポジトリ直下 | `pnpm --filter './packages/*' run` の `lint:check`・`format:check`・`type-check`・`test:unit` |
+| packages | リポジトリ直下 | `packages/solver`・`packages/data`（`@swv/solver`・`@swv/data`）の `lint:check`・`format:check`・`type-check`・`test:unit` |
 | e2e | リポジトリ直下 | 設定済みのときだけ実行する（下記） |
 | sonar | リポジトリ直下 | `bash scripts/sonar-local.sh`（全体の解析） |
+
+1つのパッケージだけを手で実行するときは、`pnpm --filter @swv/solver run <script>`・`pnpm --filter @swv/data run <script>` の形にする（許可リストと同じ形）。
 
 `--allow-draft` は、契約に `x-swv-status: draft` が残っている間の contractTest の失敗を想定内（XFAIL）として扱うための指定である。draft の回収前（api-agent の検証）だけに付ける。
 
 ## e2e（未設定の間は SKIP）
 
-`apps/web/package.json` に `test:e2e` が無い、または `apps/web/e2e/` が無いときは、e2e の段は「SKIP（未設定: apps/web に test:e2e と e2e/ が必要）」になり、コマンドを実行しない。`--e2e` を付けても `--only e2e` でも同じ。設定済みのときは、`docker compose -f docker/compose.yaml up -d --wait` で DB を起動し、`apps/api` で bootRun を起動して `/actuator/health` を待ち、`pnpm --filter @swv/web run test:e2e` を実行して、終了時に自分が起動したプロセスだけを止める。`--e2e` も `--only e2e` も付けないときは「SKIP（未指定）」を表示する。
+`apps/web/package.json` に `test:e2e` が無い、または `apps/web/e2e/` が無いときは、e2e の段は「SKIP（未設定: apps/web に test:e2e と e2e/ が必要）」になり、コマンドを実行しない。`--e2e` を付けても `--only e2e` でも同じ。設定済みのときの既定は、`pnpm --filter @swv/web run test:e2e` だけを実行する（Playwright の設定がビルドした web をプレビューで起動する。API・DB は起動しない）。`--e2e-api` を付けたときだけ、`docker compose -f docker/compose.yaml up -d --wait` で DB を起動し、`apps/api` で bootRun を起動して `/actuator/health` を待ち、test:e2e を実行して、終了時に自分が起動したプロセスだけを止める。`--e2e` も `--only e2e` も付けないときは「SKIP（未指定）」を表示する。
 
 ## 領域の Sonar（`--sonar-area`）
 
@@ -41,7 +43,7 @@ node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area api|web|packages
 - 変更したファイルの新規コードだけを見る。`--base <ref>` で、変更の比較元を指定できる。
 - 全体の解析とは別のプロジェクトキーで解析する（全体の解析結果を上書きしないため）。
 - `packages` は `packages/solver` と `packages/data` の両方を解析する。担当でないパッケージの issue は直さずに報告する。
-- `--only`・`--e2e`・`--sonar` とは併用できない。`--base` は `--sonar-area` と一緒のときだけ有効。
+- `--only`・`--e2e`・`--e2e-api`・`--sonar` とは併用できない。`--base` は `--sonar-area` と一緒のときだけ有効。
 - 出力は「未解決: issue N 件 / 未レビュー hotspot M 件」の件数行だけで、Quality Gate は表示しない。全体の解析（`--sonar`）は、対象リポジトリ直下の `bash scripts/sonar-local.sh` が出す「Quality Gate:」の行も扱う。
 - 対象リポジトリ直下の `bash scripts/sonar-local.sh` の終了コードは、0＝未解決なし（PASS）、1＝未解決あり（FAIL）、2＝実行失敗（FAIL）。
 

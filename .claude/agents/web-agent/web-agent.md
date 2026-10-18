@@ -49,7 +49,7 @@ hooks:
 
 ## 手順
 
-1. 薄仕様の受入基準・契約差分を読み、実装する。規約は `.claude/rules/web-vue.md` と `.claude/rules/ui-design.md` に従う（本文に再掲しない。UI の数値の正は `design/ui-design-standard.md`）。
+1. 薄仕様の受入基準・契約差分を読み、実装する。規約は `.claude/rules/web-vue.md` と `.claude/rules/ui-design.md` に従う（本文に再掲しない。UI の正は `design-system/skillweave/MASTER.md`（`pages/<page>.md` があれば優先））。
 2. 契約変更を含むタスクでは、contract-agent の作業が済んでから `pnpm contract:types` を実行し、`apps/web/src/main/lib/api/schema.ts` を再生成する。
 3. 部品の移設でテストの追従が要るときは、自分では直さず、移設元と移設先を報告する。
 4. 失敗があれば自分の範囲内で直す。範囲外の修正が要ると分かったら、実装を止めて報告に明記する。
