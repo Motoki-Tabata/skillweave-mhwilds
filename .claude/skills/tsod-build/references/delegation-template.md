@@ -18,7 +18,7 @@
 
 1. **書込許可フォルダ**: `.claude/skills/impact-scope/SKILL.md`「書込許可フォルダ」節のとおり。フォルダ外が必要なら書かずに停止して報告する。別名ファイルで迂回しない。
 2. **テスト要件**: 「テストは決定的にする（現在時刻・乱数・実行順・並列実行に依存しない。固定の待ち時間でなく条件で待つ。E2E のデータは spec ごとの専用領域で作る）」
-3. **停止の扱い**: 「既存テストや他領域が落ちたら、直さずに再現コマンドと出力を報告して止まる。」（`.claude/skills/impact-scope/SKILL.md`「停止規律」の1文と同じ。言い換えない）
+3. **停止の扱い**: 「既存テストや他領域が落ちたら、直さずに再現コマンドと出力を報告して止まる。api・web・solver・data は、自分の変更で自領域の既存テストの期待値が変わるときは、理由を完了報告に書いて直す。」（`.claude/skills/impact-scope/SKILL.md`「停止規律」の2文と同じ。言い換えない。後段は api・web・solver・data の委譲だけに入れる）
 4. **完了条件**: 「検証の下限を実行して実出力を貼る。担当領域の新規コードの Sonar issue 0件」（contract-agent・data-model-agent は Sonar 対象外のため、後半を外す。solver・data の役割には、`--sonar-area packages` が両パッケージを解析するので、担当でないパッケージの issue は直さずに報告する、と添える）
 5. **完了報告の書式**: `.claude/skills/impact-scope/SKILL.md`「完了報告」節のとおり。
 6. api-agent には、「draft が残っている間の contractTest の失敗は想定内（XFAIL と表示される）。回収はメインが行う」と明記する。

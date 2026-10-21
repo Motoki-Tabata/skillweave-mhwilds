@@ -12,17 +12,17 @@ effort: medium
 
 ## 開始条件
 
-handoff のゲート E-1 の記録に PR 番号が無いときだけ、`node .claude/skills/tsod-workflow/scripts/handoff.mjs check NNN D-1` を実行する。exit 0 以外なら出力を示して停止し、`/tsod-build NNN` を案内する。exit 0 なら、確認の問いを挟まずに PR 作成へ進む。
+`gh pr list --head feat/NNN-<slug> --state all` で PR の実在を確かめる。1件も無いときだけ、`node .claude/skills/tsod-workflow/scripts/handoff.mjs check NNN D-1` を実行する。exit 0 以外なら出力を示して停止し、`/tsod-build NNN` を案内する。exit 0 なら、確認の問いを挟まずに PR 作成へ進む。
 
-E-1 に PR 番号があるとき（CI 失敗の是正や手動マージの後の再起動）は、D-1 の承認の後に `handoff.md` 以外の変更が入っていて `check NNN D-1` が exit 1 になりうるので、`check` を実行せず、次の「手動マージ済みの分岐」で PR の状態を確かめる（`MERGED` でなければ、CI 待ち以降を続ける）。
+PR が1件でもあるとき（CI 失敗の是正や手動マージの後の再起動）は、D-1 の承認の後に `handoff.md` 以外の変更が入っていて `check NNN D-1` が exit 1 になりうる。E-1 の記録は drift ブランチ（マージ後）で行うため、E-1 の有無では分けない。`check NNN D-1` を飛ばし、次の「手動マージ済みの分岐」で PR の状態を確かめる（`MERGED` でなければ、CI 待ち以降を続ける）。
 
 handoff の更新（ゲート E-1・E-2 の記録・現在地・区間の終わり・そのほか）は `handoff.mjs` のサブコマンドだけで行い、Edit・sed・python・node -e で書き換えない。
 
 ## 手動マージ済みの分岐
 
-handoff のゲート E-1 の記録に PR 番号があれば、`gh pr view <番号> --json state,mergeCommit` で状態を確かめる。`MERGED` なら、PR 作成・CI 待ち・マージを飛ばし、`handoff.mjs gate NNN E-1 "手動マージ PR #<番号>"` でゲート E-1 を記録して、ドリフト検査へ進む（記録は drift ブランチで行う）。
+開始条件で見つけた PR（handoff のゲート E-1 の記録の PR 番号、または `gh pr list --head feat/NNN-<slug> --state all` の PR）があれば、`gh pr view <番号> --json state,mergeCommit` で状態を確かめる。`MERGED` なら、PR 作成・CI 待ち・マージを飛ばし、`handoff.mjs gate NNN E-1 "手動マージ PR #<番号>"` でゲート E-1 を記録して、ドリフト検査へ進む（記録は drift ブランチで行う）。
 
-PR 番号が無いのに `feat/NNN-<slug>` が main にマージ済み（`gh pr list --head feat/NNN-<slug> --state merged`）の場合も同じ扱いにする。
+E-1 に PR 番号が無くても、`feat/NNN-<slug>` が main にマージ済み（`gh pr list --head feat/NNN-<slug> --state merged`）の場合は同じ扱いにする。
 
 ## PR 本文
 

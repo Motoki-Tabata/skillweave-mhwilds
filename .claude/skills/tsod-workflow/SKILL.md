@@ -34,7 +34,7 @@ UI もテーブル変更も無い機能は、区間 A の終わりで区間 C �
 
 1. 開始時に handoff を全文読み、開始条件（前の区間のゲートの承認）を `handoff.mjs check NNN <ゲート>...` で照合する。exit 0 以外なら出力を示して停止し、handoff の「次に起動するコマンド」を案内する。
 2. 推奨モデルの案内は、セッションのモデルをそのまま継承する。継承したモデルが推奨と違うときだけ、`/model` での切替を1回提案する（強制しない）。
-3. ゲートは AskUserQuestion を1回だけ取る。承認されたら、成果物をコミットし、同じターンで承認時点の HEAD の短縮ハッシュを `handoff.mjs gate NNN <ゲート> <記録>` で handoff に記録してコミットする。gate を打った後にコミットするのは `handoff.md` だけにする（成果物を変えると、次の区間の `check` が exit 1 になる）。
+3. ゲートは AskUserQuestion を1回だけ取る。承認されたら、成果物をコミットし、同じターンで成果物をコミットした直後の HEAD の短縮ハッシュを `handoff.mjs gate NNN <ゲート> <記録>` で handoff に記録してコミットする。gate を打った後にコミットするのは `handoff.md` だけにする（成果物を変えると、次の区間の `check` が exit 1 になる）。
 4. 区間の終わりでは、handoff の「現在地」を `handoff.mjs transition NNN <移行>` で [handoff-template.md](./references/handoff-template.md) の「区間の終わりの定型」のとおりに書き、停止して次のコマンドと推奨モデルを `Opus`／`Sonnet` の表記で案内する。
 
 ## ブランチ

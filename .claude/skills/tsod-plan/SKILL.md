@@ -75,7 +75,7 @@ tasks.md を書いたらコミットする（plan.md とは別のコミット。
 node .claude/skills/tsod-spec-check/scripts/spec-check.mjs specs/NNN-<slug>/spec.md --compare-plan specs/NNN-<slug>/plan.md
 ```
 
-plan にだけ現れる常時許可外の変更と、spec にだけ現れる変更予定を明示してから、`plan.md`・`tasks.md` を提示し、AskUserQuestion を1回取る。提示では `plan.md`・`tasks.md` の本文を貼らず、パスと、決定事項の番号・タスクの ID の一覧で示す（spec-check の出力は上のとおりそのまま含める）。承認されたら、成果物をコミットし、承認時点の HEAD の短縮ハッシュで `handoff.mjs gate NNN C-1 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
+plan にだけ現れる常時許可外の変更と、spec にだけ現れる変更予定を明示してから、`plan.md`・`tasks.md` を提示し、AskUserQuestion を1回取る。提示では `plan.md`・`tasks.md` の本文を貼らず、パスと、決定事項の番号・タスクの ID の一覧で示す（spec-check の出力は上のとおりそのまま含める）。承認されたら、成果物をコミットし、成果物をコミットした直後の HEAD の短縮ハッシュで `handoff.mjs gate NNN C-1 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
 
 ## メインの直接修正
 

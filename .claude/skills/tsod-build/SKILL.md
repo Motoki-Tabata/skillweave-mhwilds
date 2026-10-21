@@ -100,7 +100,8 @@ e2e が未設定の間、e2e の段は SKIP（未設定）になり、終了コ�
    |---|---|
    | contracts | 契約 |
    | api・web・solver・data | 同名（E2E の差分は web に含まれる。E2E の観点は web の reviewer に渡す） |
-   | その他（docker・構成ファイル） | reviewer を1体起動し、spec.md と差分の全パスの分類だけを渡す |
+   | docker | reviewer を1体起動し、spec.md と差分の全パスの分類だけを渡す |
+   | その他（構成ファイル） | reviewer を1体起動し、spec.md と差分の全パスの分類だけを渡す |
 
    必要ならメインが `/code-review` に同じコミット範囲を target として渡す（補助）。
 3. 所見は区分（要修正・要判断・起票・持ち越し）付きで返る。所見1件を1行として、`handoff.mjs row NNN レビュー記録 <回> <範囲> <所見の要約> <区分> <処遇> <状態>` で記録する。処遇は是正・直接修正・ゲートで判断・起票・持ち越しのどれか（区分と処遇の対応は [handoff-template.md](../tsod-workflow/references/handoff-template.md)）。既存の行は書き換えない。是正して解消したら、同じ所見の新しい行を状態=解消で追記する。
@@ -138,7 +139,7 @@ node .claude/skills/tsod-verify/scripts/verify.mjs --e2e --sonar
 一括検証・最終検証の要約・全所見（区分と処遇付き。handoff の「レビュー記録」）・メインの直接修正の表（そのまま）・常時許可外の変更の実績を提示する。区分が要判断の所見は、ゲートの問いに含めて人間に決めてもらう。`git diff` の確認を促してから、AskUserQuestion を1回取る。承認されたら、同じターンで次の順に進める。承認後に追加の確認を挟まない。
 
 1. 未起票の教訓を処理する（`tasks/lessons.md` へ起票する、または持ち越す旨を `handoff.mjs note NNN 未起票の教訓 <文>` で書く）。起票した台帳の変更など、`handoff.md` 以外の変更をここでコミットする。
-2. その時点（承認時点）の HEAD の短縮ハッシュで `handoff.mjs gate NNN D-1 <短縮ハッシュ>` を実行する。ゲート D-1 の成果物は `handoff.md` 以外の全体なので、gate の後に `handoff.md` 以外を変えると、次の区間の `check NNN D-1` が exit 1 になる。
+2. その時点（成果物をコミットした直後）の HEAD の短縮ハッシュで `handoff.mjs gate NNN D-1 <短縮ハッシュ>` を実行する。ゲート D-1 の成果物は `handoff.md` 以外の全体なので、gate の後に `handoff.md` 以外を変えると、次の区間の `check NNN D-1` が exit 1 になる。
 3. `handoff.mjs transition NNN D→E` を実行し、handoff の変更だけを1回コミットする。
 
 ## 再開
