@@ -44,7 +44,7 @@ Claude Code の組込み Skill は、提供側の都合で起動の可否や引�
 ## `/fewer-permission-prompts`
 
 - 使う場面: 区間の外の保守で、ユーザーが実行する。
-- 扱い: 結果を `.claude/settings.json` に入れる前に、push・merge・削除を許可リストに入れない方針の範囲に収まるかを確かめる。`.claude/settings.json` は canon の管理対象なので、直接は書き換えず、canon への改修要求として `tasks/lessons.md` に起票する。
+- 扱い: 結果を `.claude/settings.json` に入れる前に、push・merge・削除を許可リストに入れない方針の範囲に収まるかを確かめる。`.claude/settings.json` は区間の中では書かず、[canon-boundary.md](./canon-boundary.md) の2経路のどちらかで直す（すぐ直さないときは `tasks/lessons.md` に起票する）。
 
 ## 区間 E
 

@@ -21,7 +21,7 @@ vue-tsc の project references（composite）はコンポーネントの型
 ## API モジュールを丸ごと `vi.mock` するテストでは、関数の追加とモックの追加をセットで行う
 そのモジュールに関数を足したら、既存モックへの追加と既定の `mockResolvedValue` を
 セットで行う（素の `vi.fn()` は undefined を返し、`.catch` 呼出しで TypeError になる）。
-契約に追加があるタスクは、web-test-agent による既存テストの追従を計画に含める。
+契約に追加があるタスクは、web-agent による既存テストの追従を計画に含める。
 
 ## テスト（Vitest・Playwright）の失敗・flake は推定で直さない
 切り分けの手順の正は `.claude/skills/tsod-build/references/triage.md`。

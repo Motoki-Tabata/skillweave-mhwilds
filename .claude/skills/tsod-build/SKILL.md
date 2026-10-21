@@ -8,14 +8,16 @@ effort: medium
 
 # 区間 D: 実装・検証・レビュー
 
-共通動作は `.claude/skills/tsod-workflow/SKILL.md`「区間コマンドの共通動作」に従う。推奨モデルは Sonnet（委譲・検証・是正の往復が主で、生成量が大きいため）。reviewer-agent だけは Opus で動く。
+共通動作は `.claude/skills/tsod-workflow/SKILL.md`「区間コマンドの共通動作」に従う。推奨モデルは Sonnet（委譲・検証・是正の往復が主で、生成量が大きいため）。
 
 ## 開始条件
 
-handoff を全文読み、ゲート C-1 が `承認済み` であることを確かめる。未承認・handoff が無いなら「開始条件を満たさない（ゲート C-1 未承認）」と提示し、`/tsod-plan NNN` を案内して停止する。ブランチは `feat/NNN-<slug>` であること。
+handoff を全文読み、`node .claude/skills/tsod-workflow/scripts/handoff.mjs check NNN C-1` を実行する。exit 0 以外（未承認・成果物がゲートの後に変わった・handoff が無い）なら出力を示し、「開始条件を満たさない」と提示して `/tsod-plan NNN` を案内して停止する。ブランチは `feat/NNN-<slug>` であること。
+
+handoff の更新（コミット範囲・委譲の記録・再開点・レビュー記録・直接修正・ゲート D-1・現在地）は `handoff.mjs` のサブコマンドだけで行い、Edit・sed・python・node -e で書き換えない。
 
 - handoff の「要確認事項」「PR 本文に必須の記載事項」「区間メモ」を読んで把握する。
-- 区間 D の開始コミット（その時点の HEAD）を、handoff の「コミット範囲」に記録する。
+- 区間 D の開始コミット（その時点の HEAD）を、`handoff.mjs set NNN コミット範囲 "区間 D の開始コミット" <ハッシュ>` で記録する。
 - handoff に「区間の再開点」があれば、「再開」節へ進む。
 
 ## 委譲
@@ -26,29 +28,25 @@ handoff を全文読み、ゲート C-1 が `承認済み` であることを確
    | 領域 | ワーカー |
    |---|---|
    | 契約 | contract-agent |
-   | api 実装 | api-agent |
-   | web 実装 | web-agent |
-   | solver 実装 | solver-agent |
-   | data 実装 | data-agent |
-   | api テスト | api-test-agent |
-   | web 単体テスト | web-test-agent |
-   | solver テスト | solver-test-agent |
-   | data テスト | data-test-agent |
+   | api（実装とテスト） | api-agent |
+   | web（実装と単体テスト） | web-agent |
+   | solver（実装とテスト） | solver-agent |
+   | data（実装とテスト） | data-agent |
    | E2E | e2e-agent |
 
-   既定の順序は、contract-agent → api-agent →（draft の回収）→ data-agent → solver-agent → web-agent → テスト役。実装役はテストを書かないので、テストは必ずテスト役に委ねる。`apps/web/src/main/lib/api/schema.ts` の再生成は web-agent の責務。既存オペレーションに status code だけを足す契約変更では、contract-agent と api-agent を続けて実行する（その間の contractTest の失敗は想定内。`.claude/rules/contracts-first.md` の該当箇条）。
+   既定の順序は、contract-agent → api-agent →（draft の回収）→ data-agent → solver-agent → web-agent → e2e-agent。api・web・solver・data のワーカーは、自分の領域の実装とテストの両方を書く。`apps/web/src/main/lib/api/schema.ts` の再生成は web-agent の責務。既存オペレーションに status code だけを足す契約変更では、contract-agent と api-agent を続けて実行する（その間の contractTest の失敗は想定内。`.claude/rules/contracts-first.md` の該当箇条）。
 3. プロンプトは [delegation-template.md](./references/delegation-template.md) の定型で作る。
 4. **並列にしてよい条件（唯一の正）**: 次をすべて満たすときだけ。満たさなければ直列にする。
    - tasks.md のタスクごとの担当領域と書込フォルダが重ならない。
    - タスク間に依存が無い（一方の出力を他方が前提にしない。同じ契約ファイルを前提にしない）。
    - 両者の検証が、同じ共有物を含まない。このプロジェクトの共有物は次の2つ。
-     - **Gradle プロジェクト `apps/api`**: 同じ build ディレクトリでの Gradle の同時実行を避けるため、`apps/api` を検証する役割どうし（api-agent と api-test-agent）は並列にしない。
+     - **Gradle プロジェクト `apps/api`**: 同じ build ディレクトリでの Gradle の同時実行を避けるため、`apps/api` を検証する役割（api-agent）は、ほかの `apps/api` を検証する起動と並列にしない。
      - **pnpm workspace**: リポジトリ直下の同じ lockfile・同じルート scripts を使い、`apps/web` が `packages/*` のソースを型検査で読む。編集中のファイルによる `format:check`・`type-check` の失敗を避けるため、pnpm workspace を検証する役割どうし（web・solver・data の各役割と e2e-agent）は並列にしない。
 
-   したがって並列にしてよいのは、`apps/api` 側の役割（api-agent・api-test-agent のどちらか1つ）と、pnpm workspace 側の役割（web・solver・data の各役割・e2e-agent のどれか1つ）の組で、上の他の条件も満たすときだけ。contract-agent は両側の前提になるので並列にしない。solver と data の役割は、互いに並列にしない（同じ `packages` の段で lint・format を検査するため）。
+   したがって並列にしてよいのは、`apps/api` 側の役割（api-agent）と、pnpm workspace 側の役割（web・solver・data の各役割・e2e-agent のどれか1つ）の組で、上の他の条件も満たすときだけ。contract-agent は両側の前提になるので並列にしない。solver と data の役割は、互いに並列にしない（同じ `packages` の段で lint・format を検査するため）。
 
    機能マップの依存の表（機能同士の依存）は、この判断の根拠にしない。並行で起動したときはバックグラウンドで起動し、完了通知を待つ。
-5. ワーカーが戻ったら、`git status` で担当外の変化が無いことを確かめ、領域ごとに1コミットを積む。
+5. ワーカーが戻ったら、`git status` で担当外の変化が無いことを確かめ、領域ごとに1コミットを積み、`handoff.mjs row NNN 委譲の記録 <領域> <ワーカー> <コミット>` で記録する。
 6. 修正のための再委譲は、担当ワーカーを**新規起動**し、`review-diff.mjs` で保存した差分ファイルのパスと修正指示だけを渡す（前回の会話を再開しない。SendMessage で再開しない）。担当は上の領域表で一意に決まる。
 
 ### ワーカーの報告を受けたとき
@@ -59,7 +57,7 @@ handoff を全文読み、ゲート C-1 が `承認済み` であることを確
 
 ### draft の回収
 
-api-agent の完了直後（data-agent・solver-agent・web-agent・テスト役への委譲の前）に、メインが `contracts/**` の `x-swv-status: draft` 行を削除し、grep で残存0件を確かめる。回収したら `node .claude/skills/tsod-verify/scripts/verify.mjs --only api`（`--allow-draft` なし）を実行して PASS を確かめる。draft の事後検出は contractTest が担う。
+api-agent の完了直後（data-agent・solver-agent・web-agent・e2e-agent への委譲の前）に、メインが `contracts/**` の `x-swv-status: draft` 行を削除し、grep で残存0件を確かめる。回収したら `node .claude/skills/tsod-verify/scripts/verify.mjs --only api`（`--allow-draft` なし）を実行して PASS を確かめる。draft の事後検出は contractTest が担う。
 
 ## 検証の下限（ワーカーが実行する検証の唯一の正）
 
@@ -69,13 +67,10 @@ api-agent の完了直後（data-agent・solver-agent・web-agent・テスト役
 |---|---|
 | contract-agent | `pnpm contract:lint` |
 | api-agent | `node .claude/skills/tsod-verify/scripts/verify.mjs --only api --allow-draft`（draft の回収前だけ。contractTest の失敗は XFAIL と表示される）と bootRun の起動確認（`/actuator/health`）、`node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area api` |
-| api-test-agent | `node .claude/skills/tsod-verify/scripts/verify.mjs --only api` と `--sonar-area api` |
-| web-agent | `node .claude/skills/tsod-verify/scripts/verify.mjs --only web` と `node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area web` |
-| web-test-agent | `pnpm --filter @swv/web run test:coverage`（Sonar と同じ計測経路。`test:unit` だけで完了にしない）と `verify.mjs --only web` と `--sonar-area web` |
+| web-agent | `pnpm --filter @swv/web run test:coverage`（Sonar と同じ計測経路。`test:unit` だけで完了にしない）と `node .claude/skills/tsod-verify/scripts/verify.mjs --only web` と `node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area web` |
 | e2e-agent | `verify.mjs --only e2e`（e2e が未設定の間は SKIP）と `pnpm --filter @swv/web run lint:check`・`pnpm --filter @swv/web run format:check` と `--sonar-area web` |
-| solver-agent・data-agent | `verify.mjs --only packages` と `--sonar-area packages` |
-| solver-test-agent | `pnpm --filter @swv/solver run test:coverage` と `verify.mjs --only packages` と `--sonar-area packages` |
-| data-test-agent | `pnpm --filter @swv/data run test:coverage` と `verify.mjs --only packages` と `--sonar-area packages` |
+| solver-agent | `pnpm --filter @swv/solver run test:coverage` と `verify.mjs --only packages` と `--sonar-area packages` |
+| data-agent | `pnpm --filter @swv/data run test:coverage` と `verify.mjs --only packages` と `--sonar-area packages` |
 | data-model-agent | Bash を持たないため下限なし（メインが区間 B で確かめる） |
 
 - Sonar の完了条件: 担当領域の新規コードに Sonar の issue が0件（`--sonar-area` の exit 0）。contract-agent・data-model-agent は Sonar の解析対象を書かないので対象外。
@@ -90,7 +85,7 @@ api-agent の完了直後（data-agent・solver-agent・web-agent・テスト役
 node .claude/skills/tsod-verify/scripts/verify.mjs --e2e
 ```
 
-e2e が未設定の間、e2e の段は SKIP（未設定）になり、終了コードに影響しない。ワーカーの完了報告は鵜呑みにせず、この1回で確かめる（キャッシュ済みの結果を見ていないかにも注意する）。メインは個々の検証コマンドを手で繰り返さない。緑になったら、その時点のコミットを「区間の再開点」として handoff に記録し、コミットする。
+e2e が未設定の間、e2e の段は SKIP（未設定）になり、終了コードに影響しない。ワーカーの完了報告は鵜呑みにせず、この1回で確かめる（キャッシュ済みの結果を見ていないかにも注意する）。メインは個々の検証コマンドを手で繰り返さない。緑になったら、その時点のコミットを `handoff.mjs set NNN 区間の再開点 "一括検証が緑になった時点のコミット" <ハッシュ>` で「区間の再開点」に記録し、コミットする。
 
 ## 失敗の切り分け
 
@@ -98,9 +93,9 @@ e2e が未設定の間、e2e の段は SKIP（未設定）になり、終了コ�
 
 ## レビュー
 
-1. `node .claude/skills/tsod-build/scripts/review-diff.mjs <開始コミット> <再開点>` で差分をファイルへ保存し、出力（パスと変更の要約。領域別のファイル数を含む）だけを見る。メインは差分の全文を読まない。
-2. reviewer-agent に、差分ファイルのパスと spec.md のパスを渡す。必要ならメインが `/code-review` に同じコミット範囲を target として渡す（補助）。
-3. 所見は handoff の「レビュー記録」に要約で記録する。
+1. `node .claude/skills/tsod-build/scripts/review-diff.mjs <開始コミット> <再開点>` で差分をファイルへ保存し、出力（全体の差分と、領域ごとの差分ファイル `<base7>-<head7>.<領域>.diff` のパス・ファイル数）だけを見る。メインは差分の全文を読まない。変更の無い領域のファイルは作られない。
+2. 変更のある領域ごとに reviewer-agent を起動する（読み取りだけなので並列にしてよい）。各起動に、その領域の差分ファイルのパス・spec.md のパス・その領域のタスクの受入基準の ID を渡す。必要ならメインが `/code-review` に同じコミット範囲を target として渡す（補助）。
+3. 所見は区分（要修正・要判断・起票・持ち越し）付きで返る。所見1件を1行として、`handoff.mjs row NNN レビュー記録 <回> <範囲> <所見の要約> <区分> <処遇> <状態>` で記録する。処遇は是正・直接修正・ゲートで判断・起票・持ち越しのどれか。
 
 ### 使えないとき
 
@@ -108,7 +103,7 @@ e2e が未設定の間、e2e の段は SKIP（未設定）になり、終了コ�
 
 ## 是正
 
-要修正の所見ごとに、担当領域のワーカーを新規起動して直させる。是正は別のコミットにする（[commit-rules.md](../tsod-workflow/references/commit-rules.md)）。メインは `verify.mjs --only <触れた領域>` を `run_in_background` で実行する。再レビューには、是正の範囲の差分ファイル（`review-diff.mjs`）と前回の所見（handoff の「レビュー記録」）だけを渡す。要修正が0件になるまで繰り返す。2巡で解消しなければ、残った指摘をユーザーに提示して判断を仰ぐ。
+要修正の所見ごとに、担当領域のワーカーを新規起動して直させる。是正は別のコミットにする（[commit-rules.md](../tsod-workflow/references/commit-rules.md)）。メインは `verify.mjs --only <触れた領域>` を `run_in_background` で実行する。再レビューには、是正の範囲の差分ファイル（`review-diff.mjs`）と前回の所見（handoff の「レビュー記録」）だけを渡す。メインが要修正を直接直したときも、同じ再レビューを行う（入力は直接修正の範囲の差分と前回の所見）。要修正が0件になるまで繰り返す。2巡で解消しなければ、残った指摘をユーザーに提示して判断を仰ぐ。
 
 ## 最終検証
 
@@ -132,11 +127,11 @@ node .claude/skills/tsod-verify/scripts/verify.mjs --e2e --sonar
 
 ## ゲート D-1
 
-一括検証・最終検証の要約・レビュー所見・メインの直接修正の表（そのまま）・常時許可外の変更の実績を提示し、`git diff` の確認を促してから、AskUserQuestion を1回取る。承認されたら、同じターンで handoff のゲート D-1 と「現在地」を更新し、未起票の教訓を処理して、1回コミットする。承認後に追加の確認を挟まない。
+一括検証・最終検証の要約・全所見（区分と処遇付き。handoff の「レビュー記録」）・メインの直接修正の表（そのまま）・常時許可外の変更の実績を提示する。区分が要判断の所見は、ゲートの問いに含めて人間に決めてもらう。`git diff` の確認を促してから、AskUserQuestion を1回取る。承認されたら、同じターンで `handoff.mjs gate NNN D-1 <直前の成果物のコミットの短縮ハッシュ>` と `handoff.mjs transition NNN D→E` を実行し、未起票の教訓を処理して、1回コミットする。承認後に追加の確認を挟まない。
 
 ## 再開
 
-是正の往復で文脈が膨らんだときは、メインが handoff の「区間の再開点」「レビュー記録」を更新してコミットし、停止して「新しいセッションで `/tsod-build NNN` を起動するとレビューから再開する」と案内する。
+是正の往復で文脈が膨らんだときは、メインが `handoff.mjs` で「区間の再開点」「レビュー記録」を更新してコミットし、停止して「新しいセッションで `/tsod-build NNN` を起動するとレビューから再開する」と案内する。
 
 起動時に handoff に再開点があれば、委譲と一括検証を飛ばし、再開点とレビュー記録から差分ファイルを作り直して、「レビュー」（または未解決の所見の「是正」）から始める。
 
@@ -150,6 +145,6 @@ node .claude/skills/tsod-verify/scripts/verify.mjs --e2e --sonar
 
 ## 区間の終わり（次のコマンドと推奨モデル）
 
-ゲート D-1 の承認の直後に、handoff の「現在地」を、「区間の終わりの定型」の D→E の行のとおり書く。このセッションでは PR 作成に進まない。次の定型の案内文を出して停止する。
+ゲート D-1 の承認の直後に、handoff の「現在地」を `handoff.mjs transition NNN D→E` で書く（上のゲート D-1 の手順で実行済み）。このセッションでは PR 作成に進まない。次の定型の案内文を出して停止する。
 
 「新しいセッションを開き、`/model sonnet` にしてから `/tsod-ship NNN-<slug>` を起動してください。」

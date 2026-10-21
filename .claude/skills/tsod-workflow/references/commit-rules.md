@@ -15,7 +15,7 @@
 | A | 「未確定事項の決定（decisions.md への移設と open-questions からの削除）」と「薄仕様（spec.md）」を別のコミットにする |
 | B | 「画面（screen-design.md）」と「テーブル（マイグレーション・design 文書）」を別のコミットにする |
 | C | 「plan.md」と「tasks.md」を別のコミットにする |
-| D | 委譲の単位（領域）ごとに1コミット。領域は `.claude/skills/tsod-build/SKILL.md` の領域表（契約・api・web・solver・data の各実装、各テスト、E2E）を指す。是正はレビューの回ごとに別のコミットにする（元の領域のコミットに混ぜない） |
+| D | 委譲の単位（領域）ごとに1コミット。領域は `.claude/skills/tsod-build/SKILL.md` の領域表（契約・api・web・solver・data・E2E）を指す。是正はレビューの回ごとに別のコミットにする（元の領域のコミットに混ぜない） |
 | E | ドリフトの是正と handoff の完了を、drift ブランチのコミットにする |
 
 ## handoff との関係

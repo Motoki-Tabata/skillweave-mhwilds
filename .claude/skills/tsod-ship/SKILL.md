@@ -12,11 +12,13 @@ effort: medium
 
 ## 開始条件
 
-handoff のゲート D-1 が `承認済み` であることを確かめる。満たさなければ停止して `/tsod-build NNN` を案内する。承認を確かめたら、確認の問いを挟まずに PR 作成へ進む。
+`node .claude/skills/tsod-workflow/scripts/handoff.mjs check NNN D-1` を実行する。exit 0 以外なら出力を示して停止し、`/tsod-build NNN` を案内する。exit 0 なら、確認の問いを挟まずに PR 作成へ進む。
+
+handoff の更新（ゲート E-1・E-2 の記録・現在地・区間の終わり・そのほか）は `handoff.mjs` のサブコマンドだけで行い、Edit・sed・python・node -e で書き換えない。
 
 ## 手動マージ済みの分岐
 
-handoff のゲート E-1 の記録に PR 番号があれば、`gh pr view <番号> --json state,mergeCommit` で状態を確かめる。`MERGED` なら、PR 作成・CI 待ち・マージを飛ばし、handoff のゲート E-1 を「承認済み（手動マージ）」と PR 番号で記録して、ドリフト検査へ進む（記録は drift ブランチで行う）。
+handoff のゲート E-1 の記録に PR 番号があれば、`gh pr view <番号> --json state,mergeCommit` で状態を確かめる。`MERGED` なら、PR 作成・CI 待ち・マージを飛ばし、`handoff.mjs gate NNN E-1 "手動マージ PR #<番号>"` でゲート E-1 を記録して、ドリフト検査へ進む（記録は drift ブランチで行う）。
 
 PR 番号が無いのに `feat/NNN-<slug>` が main にマージ済み（`gh pr list --head feat/NNN-<slug> --state merged`）の場合も同じ扱いにする。
 
@@ -36,7 +38,7 @@ node .claude/skills/tsod-ship/scripts/pr-body.mjs NNN
 bash .claude/skills/tsod-ship/scripts/pr-open.sh <本文ファイル>
 ```
 
-push と `gh pr create --base main` を行い、PR 番号を出力する。PR 番号は handoff のゲート E-1 の記録に残す（記録は drift ブランチで行う）。
+push と `gh pr create --base main` を行い、PR 番号を出力する。PR 番号は `handoff.mjs gate NNN E-1 "PR #<番号>"` でゲート E-1 の記録に残す（記録は drift ブランチで行う）。
 
 ## CI 待ち（CI 完了待ちの唯一の正）
 
@@ -79,13 +81,13 @@ bash .claude/skills/tsod-ship/scripts/pr-merge.sh <PR 番号>
 
 是正内容を提示し、AskUserQuestion を1回だけ取る:「この是正で drift PR を作り、CI が緑ならマージしてブランチを掃除してよいか」。承認後は、再確認せずに次を進める。
 
-1. 是正と handoff の完了（現在地を「区間の終わりの定型」の E→完了の行に）をコミットする。
-2. 是正内容の要約を一時ファイルに書き（drift PR の本文）、`bash .claude/skills/tsod-ship/scripts/pr-open.sh <本文ファイル>` で drift PR を作り、handoff のゲート E-2 に drift PR 番号を記録してコミット・push する（`--push-only`）。
+1. 是正と handoff の完了（`handoff.mjs transition NNN E→完了` で現在地を完了に）をコミットする。
+2. 是正内容の要約を一時ファイルに書き（drift PR の本文）、`bash .claude/skills/tsod-ship/scripts/pr-open.sh <本文ファイル>` で drift PR を作り、`handoff.mjs gate NNN E-2 "drift PR #<番号>"` でゲート E-2 に drift PR 番号を記録してコミット・push する（`--push-only`）。
 3. `bash .claude/skills/tsod-ship/scripts/ci-wait.sh <drift PR 番号>`（`run_in_background`）。失敗したら、上の CI 失敗の是正と同じ手順で直す。
 4. 緑になったら `bash .claude/skills/tsod-ship/scripts/pr-merge.sh <drift PR 番号>`。
 5. `bash .claude/skills/tsod-ship/scripts/prune-gone-branches.sh` でローカルブランチを掃除する（個別の git コマンドで消さない）。
 
-是正が無いときは、drift PR を作らずに、handoff のゲート E-2 を「承認済み（是正なし）」にし、「現在地」を完了の定型にする。ここだけは main へのコミットが要るので、ユーザーに提示して判断を仰ぐ（main への直接 push は pre-push が拒否する。仕組みは `README.md` の「main への直接 push を防ぐ」節）。
+是正が無いときは、drift PR を作らずに、`handoff.mjs gate NNN E-2 --na "是正なし"` でゲート E-2 を記録し、`handoff.mjs transition NNN E→完了` で「現在地」を完了にする。ここだけは main へのコミットが要るので、ユーザーに提示して判断を仰ぐ（main への直接 push は pre-push が拒否する。仕組みは `README.md` の「main への直接 push を防ぐ」節）。
 
 ## 書込の担当
 
@@ -98,7 +100,7 @@ push・PR 作成・マージ・ブランチ削除は、メインだけが行い�
 
 ## 終わりに
 
-handoff に残った「未起票の教訓」「要確認事項」を処理する（起票するか、次の機能へ持ち越す旨を書く）。処理したら完了を報告する。
+handoff に残った「未起票の教訓」「要確認事項」を処理する（起票するか、次の機能へ持ち越す旨を書く）。処理（持ち越す旨の記録は `handoff.mjs note NNN <節> <文>`）したら完了を報告する。
 
 ## 区間の終わり（次のコマンドと推奨モデル）
 

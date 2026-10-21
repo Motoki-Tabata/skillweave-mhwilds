@@ -11,8 +11,8 @@
       "Bash(node .claude/skills/tsod-ship/scripts/pr-body.mjs *)",
       "Bash(node .claude/skills/tsod-ship/scripts/drift-scan.mjs)",
       "Bash(node .claude/skills/tsod-ship/scripts/drift-scan.mjs *)",
-      "Bash(node .claude/skills/lessons-ledger/scripts/lessons-ledger.mjs check)",
-      "Bash(node .claude/skills/lessons-ledger/scripts/lessons-ledger.mjs check *)",
+      "Bash(node .claude/skills/tsod-workflow/scripts/handoff.mjs)",
+      "Bash(node .claude/skills/tsod-workflow/scripts/handoff.mjs *)",
       "Bash(bash .claude/skills/tsod-ship/scripts/ci-wait.sh)",
       "Bash(bash .claude/skills/tsod-ship/scripts/ci-wait.sh *)",
 

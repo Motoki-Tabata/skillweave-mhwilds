@@ -1,8 +1,8 @@
-# 教訓と canon 改修要求の永続化
+# 教訓と `.claude/**`・`CLAUDE.md` 改修要求の永続化
 
-`tasks/lessons.md` は、canon への改修要求と作業の教訓を永続化する唯一の台帳である。
+`tasks/lessons.md` は、`.claude/**`・`CLAUDE.md` への改修要求と作業の教訓を永続化する唯一の台帳である。
 
-1. **台帳は1つ**: `tasks/lessons.md` のみ。git 追跡対象とする（`.gitignore` に入れない）。反映済みの項目は canon の配置時に `lessons-ledger` が台帳から削除する（手作業で消さない。履歴は commit・PR 本文・`git log` で追う）。台帳の先頭には「# 教訓台帳」の見出しと案内文があり、項目（`## ` で始まる行）は起票のたびに末尾へ足す。
+1. **台帳は1つ**: `tasks/lessons.md` のみ。git 追跡対象とする（`.gitignore` に入れない）。項目を直したコミットの中で、直した人（対象側で直すならメイン、canon の run で直すなら run の変更）が台帳から消す。履歴は commit・PR 本文・`git log` で追う。台帳の先頭には「# 教訓台帳」の見出しと案内文があり、項目（`## ` で始まる行）は起票のたびに末尾へ足す。
 2. **即時記録**: メインは、教訓・矛盾を発見したその場で（ブランチを問わず・`feat/` 上でも）台帳に追記し、次のゲートのコミットに含める。ワーカーは台帳を書けない（許可フォルダ外）。完了報告の「教訓候補」に書かせ、メインが起票する。まとまりきらない候補は handoff の「未起票の教訓」に置き、区間の終わりまでに起票するか、持ち越す理由を書く。
 
 ## 軽量書式
@@ -37,4 +37,4 @@
 | 区間ごとの手順 | 各区間コマンド（`.claude/skills/tsod-spec/` ほか） |
 | 書込範囲・ワーカーへの委譲 | `.claude/skills/impact-scope/`・`.claude/skills/tsod-build/` |
 
-行き先の `.claude/**` は canon の管理下であり、対象側を直接編集せず、canon への要求として `tasks/lessons.md` へ書く（[canon-boundary.md](./canon-boundary.md)）。
+行き先の `.claude/**` は、区間の中では書かず `tasks/lessons.md` へ起票し、対象側で直す・canon の run で直すの2経路から選んで直す（[canon-boundary.md](./canon-boundary.md)）。

@@ -19,7 +19,7 @@
 
 | 作業 | 時期 |
 |---|---|
-| `/tsod-discover` で機能マップ（`specs/feature-map.md`）を作る | `.claude/` の配置後 |
+| `/tsod-discover` で機能マップ（`specs/feature-map.md`）を作る | いつでも |
 | PWA（vite-plugin-pwa）の方針を決める（依存の provenance 欠落。[`design/tech-stack.md`](design/tech-stack.md)「主な判断」の 3） | 別セッションで詳細を確認して決める |
 
 ### 未決事項
@@ -126,7 +126,7 @@ skillweave-mhwilds/
 ```
 
 `docs/method/` の TSOD 原典は、手法を導入したときの資料をそのまま置いたものです。**現行運用の正ではありません。**
-現行の手順の正は `.claude/skills/tsod-workflow/`（canon の配置後）、原典からの逸脱は同 `references/workflow-history.md` に記録します。
+現行の手順の正は `.claude/skills/tsod-workflow/`、原典からの逸脱は同 `references/workflow-history.md` に記録します。
 
 ---
 

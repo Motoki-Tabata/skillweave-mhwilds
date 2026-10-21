@@ -10,7 +10,7 @@
 //   2. spec の契約差分のエンドポイントが contracts/openapi.yaml から辿れ、x-swv-status: draft が残っていないか
 //   3. 当該機能の decisions.md の Q 番号が open-questions.md に残っていないか（open-questions.md が無ければ「無し」）
 //   4. CLAUDE.md「Commands」の表と verify.mjs の実行計画（buildPlan）の一致、および ci.yml の run: 行との対応
-//   5. .claude/README.md の Subagent 一覧と .claude/agents/ の実在の一致
+//   5. tsod-build/SKILL.md の領域表のワーカーと write-scopes.json の roles が、.claude/agents/<名前>/<名前>.md に実在するか（取り残しの検出）
 //   6. temp/ に、当該機能 ID の「未卒業」の予約が残っていないか
 // 突き合わせの3者（4 の対象）は、CLAUDE.md の `## Commands` 節・.github/workflows/ci.yml の run 行・verify.mjs の計画。README は読まない。
 // temp/ の卒業記録の有無は、卒業記録の書き方（完了追記または節の削除）が文面の判断を要するため、機械では 6 の予約の残存だけを見る。
@@ -362,22 +362,41 @@ export function checkCommandsConsistency({ plan, claudeMdText, ciText }) {
 
 // ---------------------------------------------------------------- 5. Subagent 一覧
 
+const AGENT_NAME_RE = /[a-z][a-z0-9]*(?:-[a-z0-9]+)*-(?:agent|investigator)/g;
+
 /**
- * .claude/README.md の Subagent 一覧と、.claude/agents/ の実在を比べる。純関数。
+ * tsod-build/SKILL.md の領域表（ヘッダが `| 領域 | ワーカー |` の表）から、ワーカー名の一覧を取り出す。純関数。
+ * 行数・領域の名前・ワーカー列の装飾（バッククォート）・1セルに複数の名前、のどれが変わっても名前を拾う。
+ * 表が見つからないとき（読めない・見出しが変わった）は null。
  */
-export function checkAgentList(readmeText, agentNames) {
-  if (readmeText === null || readmeText === undefined) {
-    return { missingInReadme: [], extraInReadme: [], readmeMissing: true };
+export function extractWorkerTable(skillText) {
+  const lines = String(skillText ?? '').split(/\r?\n/);
+  const head = lines.findIndex((l) => /^\s*\|\s*領域\s*\|\s*ワーカー\s*\|/.test(l));
+  if (head === -1) return null;
+  const names = new Set();
+  for (let i = head + 1; i < lines.length; i++) {
+    const row = lines[i].trim();
+    if (!row.startsWith('|')) break;
+    const cells = row.split('|').slice(1, -1);
+    if (cells.length < 2) continue;
+    for (const m of cells[1].matchAll(AGENT_NAME_RE)) names.add(m[0]);
   }
-  const listed = new Set();
-  for (const m of String(readmeText).matchAll(/`([a-z][a-z0-9]*(?:-[a-z0-9]+)*-(?:agent|investigator))`/g)) {
-    listed.add(m[1]);
-  }
+  return [...names];
+}
+
+/**
+ * 領域表のワーカーと write-scopes.json の roles が、.claude/agents/<名前>/<名前>.md に実在するかを調べる。純関数（取り残しの検出）。
+ * tableNames・roleNames: 名前の配列。読めなかったときは null。
+ * agentNames: .claude/agents/ に実在する名前の配列。
+ */
+export function checkAgentList(tableNames, roleNames, agentNames) {
   const actual = new Set(agentNames);
+  const missing = (names) => [...new Set(names)].filter((n) => !actual.has(n)).sort();
   return {
-    missingInReadme: [...actual].filter((n) => !listed.has(n)).sort(),
-    extraInReadme: [...listed].filter((n) => !actual.has(n)).sort(),
-    readmeMissing: false,
+    tableUnreadable: tableNames === null || tableNames === undefined,
+    rolesUnreadable: roleNames === null || roleNames === undefined,
+    missingFromTable: tableNames ? missing(tableNames) : [],
+    missingFromRoles: roleNames ? missing(roleNames) : [],
   };
 }
 
@@ -489,13 +508,15 @@ export function buildSections(results) {
   if (results.agents) {
     const a = results.agents;
     sections.push({
-      title: '5. .claude/README.md の Subagent 一覧',
-      items: a.readmeMissing
-        ? [{ ok: false, text: '.claude/README.md を読めなかった' }]
-        : [
-            { ok: a.missingInReadme.length === 0, text: a.missingInReadme.length ? `README に無い Subagent: ${a.missingInReadme.join(', ')}` : '.claude/agents/ の Subagent はすべて README に載っている' },
-            { ok: a.extraInReadme.length === 0, text: a.extraInReadme.length ? `README にあるが実在しない: ${a.extraInReadme.join(', ')}` : 'README の Subagent はすべて実在する' },
-          ],
+      title: '5. 領域表・write-scopes.json と .claude/agents/ の実在',
+      items: [
+        a.tableUnreadable
+          ? { ok: false, text: 'tsod-build/SKILL.md の領域表を読めなかった' }
+          : { ok: a.missingFromTable.length === 0, text: a.missingFromTable.length ? `領域表にあるが実在しない Subagent: ${a.missingFromTable.join(', ')}` : '領域表のワーカーはすべて .claude/agents/ に実在する' },
+        a.rolesUnreadable
+          ? { ok: false, text: 'write-scopes.json の roles を読めなかった' }
+          : { ok: a.missingFromRoles.length === 0, text: a.missingFromRoles.length ? `write-scopes.json の roles にあるが実在しない Subagent: ${a.missingFromRoles.join(', ')}` : 'write-scopes.json の roles はすべて .claude/agents/ に実在する' },
+      ],
     });
   }
   if (results.temp) {
@@ -515,6 +536,17 @@ export function buildSections(results) {
 function readIfExists(p) {
   try {
     return readFileSync(p, 'utf8');
+  } catch {
+    return null;
+  }
+}
+
+// write-scopes.json の roles のキー一覧。読めない・JSON として不正・roles が無いときは null。
+function roleNamesOf(text) {
+  if (text === null) return null;
+  try {
+    const roles = JSON.parse(text).roles;
+    return roles && typeof roles === 'object' ? Object.keys(roles) : null;
   } catch {
     return null;
   }
@@ -619,7 +651,7 @@ function main() {
       claudeMdText: readIfExists('CLAUDE.md') ?? '',
       ciText: readIfExists('.github/workflows/ci.yml') ?? '',
     }),
-    agents: checkAgentList(readIfExists('.claude/README.md'), agentNames),
+    agents: checkAgentList(extractWorkerTable(readIfExists('.claude/skills/tsod-build/SKILL.md')), roleNamesOf(readIfExists('.claude/skills/impact-scope/write-scopes.json')), agentNames),
     temp: findUnclaimedReservations(tempFiles, nnn),
   };
 

@@ -8,10 +8,11 @@
 
 - 機能: `specs/NNN-<slug>/spec.md` のパス
 - 担当タスク ID: tasks.md の該当行（領域が合うものだけ）
-- 領域: 契約／api 実装／web 実装／solver 実装／data 実装／api テスト／web 単体テスト／solver テスト／data テスト／E2E
+- 領域: 契約／api／web／solver／data／E2E（api・web・solver・data は実装とそのテストの両方）
 - 区間 D の開始コミット: handoff「コミット範囲」の値
 - 検証の下限: `.claude/skills/tsod-build/SKILL.md`「検証の下限」節の、当該ワーカーの行をそのまま入れる
-- 関連する plan.md の決定事項・handoff の要確認事項（当該タスクに関わるものだけ）
+- 読む範囲: 当該タスクに関わる受入基準の ID（spec の番号）と plan.md の決定事項の番号。ワーカーは、その番号の節だけを読む（spec.md・plan.md の全文を読まない）
+- handoff の要確認事項（当該タスクに関わるものだけ）
 
 必ず入れる定型文:
 
@@ -21,6 +22,7 @@
 4. **完了条件**: 「検証の下限を実行して実出力を貼る。担当領域の新規コードの Sonar issue 0件」（contract-agent・data-model-agent は Sonar 対象外のため、後半を外す。solver・data の役割には、`--sonar-area packages` が両パッケージを解析するので、担当でないパッケージの issue は直さずに報告する、と添える）
 5. **完了報告の書式**: `.claude/skills/impact-scope/SKILL.md`「完了報告」節のとおり。
 6. api-agent には、「draft が残っている間の contractTest の失敗は想定内（XFAIL と表示される）。回収はメインが行う」と明記する。
+7. **書き方**: 「書込ガードは、python・node のインラインや heredoc でのファイルの書き換え、書込先に変数を含む `sed -i`、許可フォルダの外を含むディレクトリ・glob を引数にしたフォーマッタを拒否する。ファイルの書き込みは Write・Edit で行い、フォーマッタは対象のファイルを指定して実行する。」
 
 ## 再委譲（修正）
 
@@ -28,7 +30,7 @@
 
 - 直す対象の差分（`review-diff.mjs` で保存した差分ファイルのパス。または `git diff <範囲>` の該当部分、ファイルのパスと行）
 - 修正指示（reviewer の所見の該当箇所、または test-investigator の原因と確度）
-- 上の定型文 1〜5（書込許可・テスト要件・停止の扱い・完了条件・完了報告の書式）と、検証の下限
+- 上の定型文 1〜5 と 7（書込許可・テスト要件・停止の扱い・完了条件・完了報告の書式・書き方）と、検証の下限
 
 ## test-investigator
 
@@ -37,3 +39,4 @@
 - 失敗したコマンド（再現コマンドそのまま）
 - 出力の保存先（ファイルのパス。全文をプロンプトに貼らない）
 - 「直さない。再現・反復・原因の特定だけを行い、`.claude/skills/tsod-build/references/triage.md` の『報告』の書式で報告する」
+- 上の定型文 7（書き方）。出力の保存先へのリダイレクトなどは、python・node のインラインや heredoc でなく、シェルの標準のリダイレクトで行う

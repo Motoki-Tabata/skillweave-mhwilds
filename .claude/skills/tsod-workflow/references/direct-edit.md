@@ -18,7 +18,8 @@
 ## 直接修正したとき
 
 - 必ずフォーマッタを通す。api は `apps/api` で `./gradlew spotlessApply`、web・solver・data はリポジトリ直下で、直したファイルを指定して prettier（`pnpm exec prettier --write <ファイル>`）を実行する。`pnpm format` は全パッケージの `src/` を書き換えるので、直したファイル以外を巻き込まないよう、ファイル指定で実行する。
-- 修正の直後、同じターンで handoff の「メインの直接修正」表に1行追記する（後でまとめて書かない）。ゲート D-1 ではこの表をそのまま提示する。
+- 修正の直後、同じターンで handoff の「メインの直接修正」表に1行追記する（後でまとめて書かない）。追記は `node .claude/skills/tsod-workflow/scripts/handoff.mjs row NNN 直接修正 <区間> <ファイル> <内容> <理由>` で行う。handoff はスクリプト（`.claude/skills/tsod-workflow/scripts/handoff.mjs`）だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート D-1 ではこの表をそのまま提示する。
+- reviewer-agent の要修正をメインが直接直したときも、是正と同じく再レビューする。入力は直接修正の範囲の差分ファイルと前回の所見で、手順の正は `.claude/skills/tsod-build/SKILL.md` の「是正」。
 
 ## メインの書込区分
 
@@ -27,9 +28,9 @@
 | (i) 成果物 | `specs/**`（handoff を含む）・`tasks/lessons.md` | 各区間の手順どおり。`tasks/lessons.md` はブランチを問わず発見時に即記録してよい |
 | (ii) 宣言駆動の例外（共有構成ファイル） | 列挙は `.claude/skills/impact-scope/SKILL.md` の「共有する構成ファイル」節 | 下の許可条件 |
 | (iii) 直接修正 | 任意のワーカー領域 | 上の「直接修正してよいもの」に限る |
-| (iv) それ以外 | 下の「常に人間の明示指示を要するもの」・canon 管理下 | 書かない |
+| (iv) それ以外 | 下の「常に人間の明示指示を要するもの」・`.claude/**`・`CLAUDE.md`（区間の中では書かない。直す経路は [canon-boundary.md](./canon-boundary.md)） | 書かない |
 
-`tasks/lessons.md` の反映済み項目の削除は、メインでなく、canon の配置時に `lessons-ledger` が行う。台帳から項目を手で消さない。
+`tasks/lessons.md` の項目の削除は、[lessons-guide.md](./lessons-guide.md) の規律（項目を直したコミットの中で台帳から消す）に従う。
 
 ### 共有構成ファイル（宣言駆動の例外）
 
@@ -51,4 +52,4 @@
 - 検査機構: `.githooks/**`・`.gitleaksignore`・`sonar-project.properties`・`docker/compose.sonar.yaml`・`scripts/**`・`.github/workflows/**`
 - リポジトリ直下の `README.md`
 
-`.claude/**` と `CLAUDE.md` は canon の管理下で、誰も書かない。変更要求は `tasks/lessons.md` に起票する（[canon-boundary.md](./canon-boundary.md)）。
+`.claude/**` と `CLAUDE.md` は、区間の中では書かない。変更要求は `tasks/lessons.md` に起票し、[canon-boundary.md](./canon-boundary.md) の経路で直す。

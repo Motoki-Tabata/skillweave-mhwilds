@@ -3,12 +3,14 @@ import path from 'node:path';
 import { test } from 'node:test';
 import {
   AREAS,
+  buildAreaOutputPath,
   buildOutputPath,
   classifyPath,
   formatAreas,
   OTHER_AREA,
   parseArgs,
   parseShortstat,
+  splitDiffByArea,
   summarizeAreas,
 } from './review-diff.mjs';
 
@@ -131,4 +133,59 @@ test('formatAreas: 1行にまとめる', () => {
     '領域別: api 1 / web 2',
   );
   assert.equal(formatAreas([]), '領域別: なし');
+});
+
+// --- 領域ごとの差分ファイル ---
+
+test('buildAreaOutputPath: 全体の差分と同じディレクトリに <base7>-<head7>.<領域>.diff を作る', () => {
+  const p = buildAreaOutputPath('0123456789abcdef', 'fedcba9876543210', 'api', '/tmp/x');
+  assert.equal(p, path.join('/tmp/x', 'tsod-review', '0123456-fedcba9.api.diff'));
+  assert.equal(path.dirname(p), path.dirname(buildOutputPath('0123456789abcdef', 'fedcba9876543210', '/tmp/x')));
+});
+
+test('buildAreaOutputPath: 「その他」も使え、領域名に区切り文字があってもパスを壊さない', () => {
+  const p = buildAreaOutputPath('0123456789abcdef', 'fedcba9876543210', OTHER_AREA, '/tmp/x');
+  assert.equal(path.basename(p), `0123456-fedcba9.${OTHER_AREA}.diff`);
+  const q = buildAreaOutputPath('a', 'b', 'x/y', '/tmp/x');
+  assert.equal(path.dirname(q), path.join('/tmp/x', 'tsod-review'));
+});
+
+const block = (p, body = '+x\n') => `diff --git a/${p} b/${p}\nindex 111..222 100644\n--- a/${p}\n+++ b/${p}\n@@ -1 +1 @@\n${body}`;
+
+test('splitDiffByArea: 差分を領域ごとに分け、AREAS の順に「その他」を最後に置く。変更の無い領域は出さない', () => {
+  const diff = block('specs/x.md') + block('apps/web/src/main/a.ts') + block('apps/api/src/main/java/A.java') + block('apps/web/src/test/a.spec.ts');
+  const res = splitDiffByArea(diff);
+  assert.deepEqual(
+    res.map((r) => [r.area, r.files]),
+    [
+      ['api', 1],
+      ['web', 2],
+      [OTHER_AREA, 1],
+    ],
+  );
+  assert.equal(res[0].text, block('apps/api/src/main/java/A.java'));
+  assert.equal(res[1].text, block('apps/web/src/main/a.ts') + block('apps/web/src/test/a.spec.ts'));
+  assert.equal(res[2].text, block('specs/x.md'));
+});
+
+test('splitDiffByArea: 差分が空なら空配列', () => {
+  assert.deepEqual(splitDiffByArea(''), []);
+  assert.deepEqual(splitDiffByArea(undefined), []);
+});
+
+test('splitDiffByArea: どの領域にも当たらないパスだけなら「その他」だけになる', () => {
+  const res = splitDiffByArea(block('package.json') + block('README.md'));
+  assert.deepEqual(
+    res.map((r) => [r.area, r.files]),
+    [[OTHER_AREA, 2]],
+  );
+});
+
+test('splitDiffByArea: リネームは新側のパスで分類する', () => {
+  const rename = 'diff --git a/README.md b/contracts/README.md\nsimilarity index 90%\nrename from README.md\nrename to contracts/README.md\n';
+  const res = splitDiffByArea(rename);
+  assert.deepEqual(
+    res.map((r) => [r.area, r.files]),
+    [['contracts', 1]],
+  );
 });

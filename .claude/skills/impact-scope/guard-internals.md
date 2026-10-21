@@ -6,7 +6,7 @@
 
 ### 配線
 
-書込を持つ12役割（`contract-agent`・`api-agent`・`web-agent`・`solver-agent`・`data-agent`・`api-test-agent`・`web-test-agent`・`solver-test-agent`・`data-test-agent`・`e2e-agent`・`data-model-agent`・`test-investigator`）の frontmatter に、`PreToolUse`（matcher `Write|Edit|NotebookEdit|Bash`）と `PostToolUse`（matcher `Bash`）を置く。どちらも [scripts/agent-write-guard.mjs](./scripts/agent-write-guard.mjs) を自分のロール名を引数にして呼ぶ。スクリプトは stdin の `hook_event_name` でイベントを判別する（無ければ PreToolUse として扱う）。`test-investigator` の許可は空配列で、リポジトリ内には Write も Bash も書けない（一時ディレクトリだけ可）。
+書込を持つ8役割（`contract-agent`・`api-agent`・`web-agent`・`solver-agent`・`data-agent`・`e2e-agent`・`data-model-agent`・`test-investigator`）の frontmatter に、`PreToolUse`（matcher `Write|Edit|NotebookEdit|Bash`）と `PostToolUse`（matcher `Bash`）を置く。どちらも [scripts/agent-write-guard.mjs](./scripts/agent-write-guard.mjs) を自分のロール名を引数にして呼ぶ。スクリプトは stdin の `hook_event_name` でイベントを判別する（無ければ PreToolUse として扱う）。`test-investigator` の許可は空配列で、リポジトリ内には Write も Bash も書けない（一時ディレクトリだけ可）。
 
 ### Write/Edit/NotebookEdit の判定順序
 
@@ -89,11 +89,11 @@ node --test .claude/skills/impact-scope/scripts/agent-write-guard.test.mjs
 「ロジックが正しい」と「hook が発火する」は別の検証である。実発火は、次の (1) で信頼状態を確かめたうえで、(2)〜(4) の発火を、対象の役割を native の `subagent_type` で起動して確かめる。
 
 1. **信頼状態の確認**: `~/.claude.json` の `projects["<リポジトリ root>"].hasTrustDialogAccepted` が `true` であることを読んで確かめる。`true` でなければ、対話セッションで起動して trust dialog を承認してから、以降を確かめる。有効なルールは `/permissions`、settings のソースは `/status` で確かめられる。`claude -p` は dialog を出さず、信頼を成立させられない。
-2. **Write の deny**: `api-test-agent` に `apps/api/src/main/java/__guard_canary.txt` への Write を指示して deny されることを確かめる。同じ `api-test-agent` に `apps/api/src/test/java/__guard_canary.txt` への Write を指示して通ることを確かめる。作ったファイルはメインが削除する。
-3. **Bash の事前 deny**: `api-test-agent` に `echo x > apps/api/src/main/java/__guard_canary.txt` を指示して deny を確かめる。
-4. **Bash の事後検出**: メインが OS の一時ディレクトリに「`apps/api/src/main/java/__guard_canary2.txt` を作るシェルスクリプト」を置き、`api-test-agent` にそのスクリプトを `sh <パス>` で実行させる。事前判定は通り、事後照合で block の通知が出ることを確かめる。作られたファイルはメインが削除する。
+2. **Write の deny**: `api-agent` に `apps/web/src/main/__guard_canary.txt` への Write を指示して deny されることを確かめる。同じ `api-agent` に `apps/api/src/test/java/__guard_canary.txt` への Write を指示して通ることを確かめる。作ったファイルはメインが削除する。
+3. **Bash の事前 deny**: `api-agent` に `echo x > apps/web/src/main/__guard_canary.txt` を指示して deny を確かめる。
+4. **Bash の事後検出**: メインが OS の一時ディレクトリに「`apps/api/src/main/java/__guard_canary2.txt` を作るシェルスクリプト」を置き、`api-agent` にそのスクリプトを `sh <パス>` で実行させる。事前判定は通り、事後照合で block の通知が出ることを確かめる。作られたファイルはメインが削除する。
 
-Write を持つ11役割（`test-investigator` 以外）で (2) を最低1回、Bash を持つ11役割（`data-model-agent` 以外）で (3) を最低1回確かめる。`test-investigator` は Write を持たないので (2) の対象外で、Bash 経由の (3) を、リポジトリ内のパスへの書込で確かめる。
+Write を持つ7役割（`test-investigator` 以外）で (2) を最低1回、Bash を持つ7役割（`data-model-agent` 以外）で (3) を最低1回確かめる。`test-investigator` は Write を持たないので (2) の対象外で、Bash 経由の (3) を、リポジトリ内のパスへの書込で確かめる。
 
 ## 既知の限界
 

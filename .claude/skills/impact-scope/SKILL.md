@@ -1,6 +1,6 @@
 ---
 name: impact-scope
-description: 「影響範囲」節（spec.md）の定義、ワーカーごとの書込許可フォルダ（正は write-scopes.json）、共有する構成ファイルの扱い、禁止コマンド、停止規律、完了報告の書式を持つ参照知識。contract-agent・api-agent・web-agent・solver-agent・data-agent・api-test-agent・web-test-agent・solver-test-agent・data-test-agent・e2e-agent・data-model-agent・reviewer-agent・test-investigator に preload される。「触る領域」の語彙、書込フォルダの外に出る変更の扱い、deny されたときの動き方を確かめたいときは、明示されなくても読む。書込ガードの仕組みと強度、テスト配置・共有部品の規約は補助資料に分けている。
+description: 「影響範囲」節（spec.md）の定義、ワーカーごとの書込許可フォルダ（正は write-scopes.json）、共有する構成ファイルの扱い、禁止コマンド、停止規律、完了報告の書式を持つ参照知識。contract-agent・api-agent・web-agent・solver-agent・data-agent・e2e-agent・data-model-agent・reviewer-agent・test-investigator に preload される。「触る領域」の語彙、書込フォルダの外に出る変更の扱い、deny されたときの動き方を確かめたいときは、明示されなくても読む。書込ガードの仕組みと強度、テスト配置・共有部品の規約は補助資料に分けている。
 user-invocable: false
 effort: medium
 ---
@@ -38,21 +38,17 @@ effort: medium
 | 役割 | 許可 glob | 備考 |
 |---|---|---|
 | contract-agent | `contracts/**` | |
-| api-agent | `apps/api/src/main/java/**`・`apps/api/src/main/resources/application*.yml` | |
-| web-agent | `apps/web/src/main/**` | `apps/web/src/main/lib/api/schema.ts` の再生成を含む |
-| api-test-agent | `apps/api/src/test/**` | |
-| web-test-agent | `apps/web/src/test/**` | |
+| api-agent | `apps/api/src/main/java/**`・`apps/api/src/main/resources/application*.yml`・`apps/api/src/test/**` | |
+| web-agent | `apps/web/src/main/**`・`apps/web/src/test/**` | `apps/web/src/main/lib/api/schema.ts` の再生成を含む |
 | e2e-agent | `apps/web/e2e/**` | |
 | data-model-agent | `apps/api/src/main/resources/db/migration/**`・`design/data-model-standard.md`・`design/attributes.yaml` | migration は予約の場所（最初のマイグレーションを足す機能で作られる） |
-| solver-agent | `packages/solver/src/main/**` | |
-| solver-test-agent | `packages/solver/src/test/**` | |
-| data-agent | `packages/data/src/main/**`・`packages/data/overlays/**` | |
-| data-test-agent | `packages/data/src/test/**` | |
+| solver-agent | `packages/solver/src/main/**`・`packages/solver/src/test/**` | |
+| data-agent | `packages/data/src/main/**`・`packages/data/src/test/**`・`packages/data/overlays/**` | |
 | test-investigator | （空配列） | リポジトリ内は書けない。一時ディレクトリだけ |
-| reviewer-agent・screen-design-agent | 表に載せない | `tools` が Read・Grep・Glob だけであることで担保 |
+| reviewer-agent | 表に載せない | `tools` が Read・Grep・Glob だけであることで担保 |
 
-- ロール間で glob は重ならない。実装役はテストを書かず、テスト役は実装を書かない。
-- `packages/data/dist/**` はどのロールにも含めない（生成物で手編集しない）。`packages/data/scripts/` もどのロールにも含めない（実在しない）。置き場が決まったら、canon への改修要求（`tasks/lessons.md`）として担当フォルダを足す。予約として先に入れないのは、置き場が未決のまま glob を固定すると、決まった置き場と食い違ったときに誤った許可が残るため。
+- ロール間で glob は重ならない。api・web・solver・data の各ワーカーは、自分の領域の実装とテストの両方を書く。
+- `packages/data/dist/**` はどのロールにも含めない（生成物で手編集しない）。`packages/data/scripts/` もどのロールにも含めない（実在しない）。置き場が決まったら、[canon-boundary.md](../tsod-workflow/references/canon-boundary.md) の2経路で担当フォルダを足す（区間の中では書かず `tasks/lessons.md` に起票する）。予約として先に入れないのは、置き場が未決のまま glob を固定すると、決まった置き場と食い違ったときに誤った許可が残るため。
 - Bash での書込も、同じ許可フォルダで判定される。ファイルの作成・編集は Write/Edit を使う。Bash で書くのは、許可フォルダ内の静的パスへのリダイレクト・`sed -i`・ファイル指定のフォーマッタ等に限る。
 - マイグレーションは data-model-agent だけが書く。区間 D で追加のマイグレーションが必要になったら、api-agent は書かずに停止して報告する。メインは、区間 B のテーブル設計へ戻るか、data-model-agent を新規起動する。
 
@@ -62,7 +58,7 @@ effort: medium
 - 扱い: spec.md「影響範囲」の「常時許可外の変更予定」に書かれ、plan.md に列挙されてゲート C-1 で承認されたものだけを、メインがワーカーへの委譲より前に書く。plan に無く実装中に必要になったら、ワーカーは書かずに停止して報告し、メインがユーザーの承認を得てから書く。
 - 常設に含めない理由: 常設にすると、要件が想定していない依存の追加や設定変更がワーカーの判断だけで通る。宣言駆動にすれば、ワーカーの「範囲外なら停止」がここで必ず発火し、メインが plan の承認範囲と照らして判断できる。
 - メインも区間の中で書かず、人間の明示指示を要するもの: 列挙の正は [direct-edit.md](../tsod-workflow/references/direct-edit.md) の「常に人間の明示指示を要するもの」節。
-- `specs/**`・`tasks/lessons.md`・handoff はメインだけが書く。`.claude/**`・`CLAUDE.md` は canon の管理下で誰も書かない（変更要求は `tasks/lessons.md` に起票）。
+- `specs/**`・`tasks/lessons.md`・handoff はメインだけが書く。`.claude/**`・`CLAUDE.md` は区間の中では書かない（直す経路は [canon-boundary.md](../tsod-workflow/references/canon-boundary.md) の2経路。変更要求は `tasks/lessons.md` に起票）。
 
 **強度と担保**
 
@@ -108,4 +104,4 @@ effort: medium
 
 ## preload 先
 
-`contract-agent`・`api-agent`・`web-agent`・`solver-agent`・`data-agent`・`api-test-agent`・`web-test-agent`・`solver-test-agent`・`data-test-agent`・`e2e-agent`・`data-model-agent`・`test-investigator`（書込ガードを配線する12体）と `reviewer-agent` が本 Skill を `skills:` で preload する。書込ツールを持たない `screen-design-agent` は preload しない。
+`contract-agent`・`api-agent`・`web-agent`・`solver-agent`・`data-agent`・`e2e-agent`・`data-model-agent`・`test-investigator`（書込ガードを配線する8体）と `reviewer-agent` が本 Skill を `skills:` で preload する。

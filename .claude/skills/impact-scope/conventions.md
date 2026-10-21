@@ -1,12 +1,12 @@
 # テストと共有部品の規約（必要時に開く補助資料）
 
-`impact-scope/SKILL.md` から分離した、ガードとは無関係な静的規約。api-test-agent・web-test-agent・solver-test-agent・data-test-agent・e2e-agent・web-agent・reviewer-agent・tsod-spec が節名で参照する。
+`impact-scope/SKILL.md` から分離した、ガードとは無関係な静的規約。api-agent・web-agent・solver-agent・data-agent・e2e-agent・reviewer-agent・tsod-spec が節名で参照する。
 
 ## テスト配置・命名規約
 
-- **api**（api-test-agent）: `apps/api/src/test/java/` に置く。テストは、検証対象の main クラスと同一パッケージに置く。例外は `contract/`・`support/`・ルート直下の `SmokeTest`・`TestcontainersConfiguration` の4種。列挙外の置き場所が必要なら、停止してユーザーの判断を仰ぐ。
-- **web 単体**（web-test-agent）: `apps/web/src/test/<main と同じ相対パス>/<名前>.spec.ts`。`*.test.ts` は使わない。import は `@/` 別名。
-- **solver・data**（solver-test-agent・data-test-agent）: `packages/<solver|data>/src/test/<main と同じ相対パス>/<名前>.spec.ts`。`*.test.ts` は使わない。
+- **api**（api-agent）: `apps/api/src/test/java/` に置く。テストは、検証対象の main クラスと同一パッケージに置く。例外は `contract/`・`support/`・ルート直下の `SmokeTest`・`TestcontainersConfiguration` の4種。列挙外の置き場所が必要なら、停止してユーザーの判断を仰ぐ。
+- **web 単体**（web-agent）: `apps/web/src/test/<main と同じ相対パス>/<名前>.spec.ts`。`*.test.ts` は使わない。import は `@/` 別名。
+- **solver・data**（solver-agent・data-agent）: `packages/<solver|data>/src/test/<main と同じ相対パス>/<名前>.spec.ts`。`*.test.ts` は使わない。
   - **solver だけの例外**（この節が正。data には適用しない）:
     1. テスト用の補助（合成データの生成器・検算の補助など）は `packages/solver/src/test/support/` に置く。
     2. 測定は `packages/solver/src/test/**/*.measure.ts` に置く。`--mode measure`（`measure` スクリプト）のときだけ実行し、CI では実行しない。
@@ -14,7 +14,7 @@
     4. main のファイルに対応しないテストは `src/test/` 直下に置いてよい。
 - **E2E**（e2e-agent）: `apps/web/e2e/<名前>.spec.ts`、補助は `apps/web/e2e/support/`。
 
-各テスト役は本節を適用し、reviewer-agent は本節との突合をチェック項目に持つ（本節を参照し、転記しない）。
+テストを書く各ワーカーは本節を適用し、reviewer-agent は本節との突合をチェック項目に持つ（本節を参照し、転記しない）。
 
 **テストは自分が使う前提を自分で作る。** 同一実行内の他のテストクラスが残した状態（起動時処理の投入結果・前のクラスが作った行）を前提にしない。クラス間の実行順は JUnit も Spring も保証せず、`@TestMethodOrder` が効くのはクラス内のメソッド順だけである。起動時処理そのものを検証したいときは、テスト内でその Runner を明示的に実行し、必要な前提（依存する行）も同じテストが用意する。「他のクラスの後片付けのせいで落ちる」テストは、既存のフレーキネスとして申し送るのではなく、その場で自己完結する形に直す。
 
