@@ -179,7 +179,7 @@ function main() {
     console.error(`git diff --shortstat に失敗しました: ${stat.stderr}`);
     process.exit(2);
   }
-  const names = git(['diff', '--name-only', `${baseHash}..${headHash}`]);
+  const names = git(['-c', 'core.quotepath=false', 'diff', '--name-only',`${baseHash}..${headHash}`]);
   if (names.status !== 0) {
     console.error(`git diff --name-only に失敗しました: ${names.stderr}`);
     process.exit(2);

@@ -1496,7 +1496,7 @@ test('構成の一致: 役割の許可 glob は、ロールどうしで重なら
 
 test('構成の一致: 代表のパスは、自分のロールの glob にだけ一致する（glob 同士の包含で重なっていない）', () => {
   for (const [role, p] of OWN_PATH_LIST) {
-    const matched =Object.entries(scopes.roles)
+    const matched = Object.entries(scopes.roles)
       .filter(([, globs]) => globs.some((g) => globToRegExp(g).test(p)))
       .map(([r]) => r);
     assert.deepEqual(matched, [role], `${p} に一致するロール`);

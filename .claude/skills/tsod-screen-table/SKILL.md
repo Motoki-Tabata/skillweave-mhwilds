@@ -32,7 +32,7 @@ handoff の更新（ゲートの記録・該当なしの記録・現在地・区
 2. メインが、標準（`design-system/skillweave/MASTER.md`。`design-system/skillweave/pages/<page>.md` があればその画面について優先）の該当節を読み、数値が許容値に収まることを確かめながら、`screen-design.md` の下書きと `/design` に渡す説明文を作る。
 3. メインが説明文をユーザーに提示し、**「ユーザー自身が `/design <説明文>` を実行して、キャンバス URL と確定内容を返す」よう依頼する。** メインもサブエージェントも `/design` を起動しない（Skill ツールで呼ばない）。`/design` はユーザーだけが起動できるため。
 4. 返った URL と確定内容を `specs/NNN-<slug>/screen-design.md` に取り込む（書くのはメイン）。キャンバス URL は同ファイルの「キャンバス URL」欄に記録する。修正が要るときは、ユーザーが Artifact 上で直す。説明文を作り直す必要があるときは、メインが標準の該当節から作り直す。
-5. 成果物と URL を提示して AskUserQuestion を1回取る（ゲート B-1）。承認されたら、`screen-design.md` をコミットし、そのコミットの短縮ハッシュで `handoff.mjs gate NNN B-1 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
+5. 成果物と URL を提示して AskUserQuestion を1回取る（ゲート B-1）。承認されたら、`screen-design.md` をコミットし、承認時点の HEAD の短縮ハッシュで `handoff.mjs gate NNN B-1 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
 
 ### 使えないとき
 
@@ -75,7 +75,7 @@ data-model-agent は Bash を持たない。書き出し後に、メインが `n
 
 ### ゲート B-2
 
-data-model-agent の完了報告・書き出された `design/data-model-standard.md`・`design/attributes.yaml`・マイグレーションの差分（`git diff`）・verify の要約を提示して、AskUserQuestion を1回取る。差し戻しなら、修正指示と差分だけを渡して data-model-agent を新規起動する。数行の定型修正はメインが直接修正する（[direct-edit.md](../tsod-workflow/references/direct-edit.md)）。承認されたら、成果物をコミットし、そのコミットの短縮ハッシュで `handoff.mjs gate NNN B-2 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
+data-model-agent の完了報告・書き出された `design/data-model-standard.md`・`design/attributes.yaml`・マイグレーションの差分（`git diff`）・verify の要約を提示して、AskUserQuestion を1回取る。差し戻しなら、修正指示と差分だけを渡して data-model-agent を新規起動する。数行の定型修正はメインが直接修正する（[direct-edit.md](../tsod-workflow/references/direct-edit.md)）。承認されたら、成果物をコミットし、承認時点の HEAD の短縮ハッシュで `handoff.mjs gate NNN B-2 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
 
 ### 生成物
 

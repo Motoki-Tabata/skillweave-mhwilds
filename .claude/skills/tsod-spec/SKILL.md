@@ -23,7 +23,7 @@ effort: high
 1. `specs/open-questions.md` から対象機能に関わる項目を Grep で特定し、該当の節だけを読む（[読み込みの規律](../tsod-workflow/references/reading-discipline.md)）。spec を書くのに必要なのに未確定の事項も洗い出す。`specs/open-questions.md` が無ければ、未解消の項目は無いものとして扱う。
 2. 該当が無ければ、`node .claude/skills/tsod-workflow/scripts/handoff.mjs gate NNN A-1 --na "対象の未確定事項なし"` でゲート A-1 を該当なしにして工程2へ進む（問いを立てない）。
 3. あれば、同じセッションでユーザーと壁打ちして決める。決定を `specs/NNN-<slug>/decisions.md` に、Q 番号と本文のまま移し、`open-questions.md` から該当項目を削除する（運用の正は `.claude/rules/specs-authoring.md`）。
-4. 決定内容を提示して AskUserQuestion を1回取る（ゲート A-1）。承認されたら、decisions.md の変更をコミットし、そのコミットの短縮ハッシュで `handoff.mjs gate NNN A-1 <短縮ハッシュ>` を実行する。移設先（Q 番号の一覧）は `handoff.mjs note NNN 区間メモ "A-1 の移設先: Q…"` で残し、handoff の変更をコミットする。
+4. 決定内容を提示して AskUserQuestion を1回取る（ゲート A-1）。承認されたら、decisions.md の変更をコミットし、承認時点の HEAD の短縮ハッシュで `handoff.mjs gate NNN A-1 <短縮ハッシュ>` を実行する。移設先（Q 番号の一覧）は `handoff.mjs note NNN 区間メモ "A-1 の移設先: Q…"` で残し、handoff の変更をコミットする。
 
 ## 工程2: 薄仕様（ゲート A-2）
 
@@ -88,7 +88,7 @@ effort: high
 
 ### ゲート A-2
 
-生成した `spec.md`・spec-check の判定表・自己評価した2条件を提示し、AskUserQuestion を1回取る。承認されたら、spec.md をコミットし、そのコミットの短縮ハッシュで `handoff.mjs gate NNN A-2 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
+生成した `spec.md`・spec-check の判定表・自己評価した2条件を提示し、AskUserQuestion を1回取る。承認されたら、spec.md をコミットし、承認時点の HEAD の短縮ハッシュで `handoff.mjs gate NNN A-2 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
 
 ## メインの直接修正・コミット
 

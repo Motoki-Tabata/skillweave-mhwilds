@@ -350,7 +350,7 @@ export function artifactMatcher(gate, specDir) {
     case 'B-1':
       return (p) => p === f('screen-design.md');
     case 'B-2':
-      return (p) => p === 'design/data-model-standard.md' || p === 'design/attributes.yaml' || p.startsWith('db/migration/');
+      return (p) => p === 'design/data-model-standard.md' || p === 'design/attributes.yaml' || p.startsWith('db/migration/') || p.startsWith('apps/api/src/main/resources/db/migration/');
     case 'C-1':
       return (p) => p === f('plan.md') || p === f('tasks.md');
     case 'D-1':

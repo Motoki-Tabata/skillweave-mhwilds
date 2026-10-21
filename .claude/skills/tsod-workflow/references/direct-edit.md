@@ -18,7 +18,7 @@
 ## 直接修正したとき
 
 - 必ずフォーマッタを通す。api は `apps/api` で `./gradlew spotlessApply`、web・solver・data はリポジトリ直下で、直したファイルを指定して prettier（`pnpm exec prettier --write <ファイル>`）を実行する。`pnpm format` は全パッケージの `src/` を書き換えるので、直したファイル以外を巻き込まないよう、ファイル指定で実行する。
-- 修正の直後、同じターンで handoff の「メインの直接修正」表に1行追記する（後でまとめて書かない）。追記は `node .claude/skills/tsod-workflow/scripts/handoff.mjs row NNN 直接修正 <区間> <ファイル> <内容> <理由>` で行う。handoff はスクリプト（`.claude/skills/tsod-workflow/scripts/handoff.mjs`）だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート D-1 ではこの表をそのまま提示する。
+- 修正の直後、同じターンで handoff の「メインの直接修正」表に1行追記する（後でまとめて書かない）。追記は `node .claude/skills/tsod-workflow/scripts/handoff.mjs row NNN メインの直接修正 <区間> <ファイル> <内容> <理由>` で行う。handoff はスクリプト（`.claude/skills/tsod-workflow/scripts/handoff.mjs`）だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート D-1 ではこの表をそのまま提示する。
 - reviewer-agent の要修正をメインが直接直したときも、是正と同じく再レビューする。入力は直接修正の範囲の差分ファイルと前回の所見で、手順の正は `.claude/skills/tsod-build/SKILL.md` の「是正」。
 
 ## メインの書込区分

@@ -407,6 +407,11 @@ test('extractWorkerTable: 領域表のワーカー名だけを取る（装飾・
   assert.equal(extractWorkerTable(null), null);
 });
 
+test('extractWorkerTable: 見出しだけあって名前が0件の表は null（読めなかった）', () => {
+  assert.equal(extractWorkerTable('| 領域 | ワーカー |\n|---|---|\n'), null);
+  assert.equal(extractWorkerTable('| 領域 | ワーカー |\n|---|---|\n| api | 担当なし |\n'), null);
+});
+
 test('実物の tsod-build/SKILL.md: 領域表からワーカー名が1件以上取れる（素通りでない）', () => {
   const names = extractWorkerTable(readFileSync(path.join(REPO_ROOT, '.claude/skills/tsod-build/SKILL.md'), 'utf8'));
   assert.ok(names !== null && names.length > 0, '領域表からワーカー名が取れない');

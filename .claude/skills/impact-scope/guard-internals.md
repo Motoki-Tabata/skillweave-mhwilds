@@ -91,7 +91,7 @@ node --test .claude/skills/impact-scope/scripts/agent-write-guard.test.mjs
 1. **信頼状態の確認**: `~/.claude.json` の `projects["<リポジトリ root>"].hasTrustDialogAccepted` が `true` であることを読んで確かめる。`true` でなければ、対話セッションで起動して trust dialog を承認してから、以降を確かめる。有効なルールは `/permissions`、settings のソースは `/status` で確かめられる。`claude -p` は dialog を出さず、信頼を成立させられない。
 2. **Write の deny**: `api-agent` に `apps/web/src/main/__guard_canary.txt` への Write を指示して deny されることを確かめる。同じ `api-agent` に `apps/api/src/test/java/__guard_canary.txt` への Write を指示して通ることを確かめる。作ったファイルはメインが削除する。
 3. **Bash の事前 deny**: `api-agent` に `echo x > apps/web/src/main/__guard_canary.txt` を指示して deny を確かめる。
-4. **Bash の事後検出**: メインが OS の一時ディレクトリに「`apps/api/src/main/java/__guard_canary2.txt` を作るシェルスクリプト」を置き、`api-agent` にそのスクリプトを `sh <パス>` で実行させる。事前判定は通り、事後照合で block の通知が出ることを確かめる。作られたファイルはメインが削除する。
+4. **Bash の事後検出**: メインが OS の一時ディレクトリに「`apps/web/src/main/__guard_canary2.txt` を作るシェルスクリプト」を置き、`api-agent` にそのスクリプトを `sh <パス>` で実行させる。事前判定は通り、事後照合で block の通知が出ることを確かめる。作られたファイルはメインが削除する。
 
 Write を持つ7役割（`test-investigator` 以外）で (2) を最低1回、Bash を持つ7役割（`data-model-agent` 以外）で (3) を最低1回確かめる。`test-investigator` は Write を持たないので (2) の対象外で、Bash 経由の (3) を、リポジトリ内のパスへの書込で確かめる。
 

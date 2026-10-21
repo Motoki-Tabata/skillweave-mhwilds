@@ -202,7 +202,9 @@ test('artifactMatcher: ゲートごとの成果物', () => {
   assert.equal(artifactMatcher('A-2', dir)('specs/001-demo/spec.md'), true);
   assert.equal(artifactMatcher('A-2', dir)('specs/001-demo/plan.md'), false);
   assert.equal(artifactMatcher('B-1', dir)('specs/001-demo/screen-design.md'), true);
+  assert.equal(artifactMatcher('B-2', dir)('apps/api/src/main/resources/db/migration/V1__x.sql'), true);
   assert.equal(artifactMatcher('B-2', dir)('db/migration/V1__x.sql'), true);
+  assert.equal(artifactMatcher('B-2', dir)('apps/api/src/main/resources/application.yml'), false);
   assert.equal(artifactMatcher('B-2', dir)('design/attributes.yaml'), true);
   assert.equal(artifactMatcher('C-1', dir)('specs/001-demo/tasks.md'), true);
   assert.equal(artifactMatcher('D-1', dir)('apps/web/src/main/a.ts'), true);
@@ -386,6 +388,18 @@ test('check: ハッシュの後に成果物が変わると exit 1（コミット
   });
 });
 
+test('check: B-2 はアプリ側の migration（apps/api/src/main/resources/db/migration/）の変更で exit 1', () => {
+  withRepo((dir) => {
+    const hash = git(dir, 'rev-parse', '--short=7', 'HEAD');
+    assert.equal(run(dir, 'gate', '001', 'B-2', hash).status, 0);
+    assert.equal(run(dir, 'check', '001', 'B-2').status, 0);
+    write(dir, 'apps/api/src/main/resources/db/migration/V1__x.sql', 'select 1;\n');
+    const r = run(dir, 'check', '001', 'B-2');
+    assert.equal(r.status, 1);
+    assert.match(r.out, /V1__x\.sql/);
+  });
+});
+
 test('check: C-1 は tasks.md のチェックボックスだけの変更なら通り、本文の変更では exit 1', () => {
   withRepo((dir) => {
     const hash = git(dir, 'rev-parse', '--short=7', 'HEAD');
@@ -449,6 +463,19 @@ test('set / transition / row / note: 該当の箇所だけを書き換える', (
     after = read(dir, HANDOFF_PATH);
     assert.equal(after.split('\n').length, before.split('\n').length + 1);
     assert.match(after, /^- 再開位置は T3$/m);
+  });
+});
+
+test('row: メインの直接修正の表（4列）に1行足せる', () => {
+  withRepo((dir) => {
+    const section = '\n## メインの直接修正\n| 区間 | ファイル | 内容（1行） | 理由 |\n|---|---|---|---|\n<!-- 直接修正の直後に1行追記する -->\n';
+    writeFileSync(path.join(dir, HANDOFF_PATH), `${read(dir, HANDOFF_PATH)}${section}`);
+    const before = read(dir, HANDOFF_PATH);
+    const r = run(dir, 'row', '001', 'メインの直接修正', 'D', 'apps/api/A.java', '1行直した', '型の食い違い');
+    assert.equal(r.status, 0, r.err);
+    const after = read(dir, HANDOFF_PATH);
+    assert.equal(after.split('\n').length, before.split('\n').length + 1);
+    assert.match(after, /^\| D \| apps\/api\/A\.java \| 1行直した \| 型の食い違い \|$/m);
   });
 });
 

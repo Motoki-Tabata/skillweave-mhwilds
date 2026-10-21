@@ -381,7 +381,8 @@ export function extractWorkerTable(skillText) {
     if (cells.length < 2) continue;
     for (const m of cells[1].matchAll(AGENT_NAME_RE)) names.add(m[0]);
   }
-  return [...names];
+  // 見出しだけあって名前が0件の表は、読めなかった（null）として扱う。
+  return names.size === 0 ? null : [...names];
 }
 
 /**
