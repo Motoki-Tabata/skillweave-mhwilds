@@ -15,6 +15,7 @@ import {
   DRIFT_PLAN_ARGS,
   extractCiTokens,
   extractEndpoints,
+  extractWorkerTable,
   findUnclaimedReservations,
   formatChecklist,
   mentionedCriteria,
@@ -386,12 +387,62 @@ test('実物の ci.yml に未記載のコマンドを足すと、指摘が出る
 
 // ---- 5. Subagent 一覧
 
-test('checkAgentList: README に無い Subagent・実在しない記載を検出する（違反の注入）', () => {
-  const readme = '| `api-agent` | x |\n| `ghost-agent` | y |\n';
-  const r = checkAgentList(readme, ['api-agent', 'test-investigator']);
-  assert.deepEqual(r.missingInReadme, ['test-investigator']);
-  assert.deepEqual(r.extraInReadme, ['ghost-agent']);
-  assert.equal(checkAgentList(null, []).readmeMissing, true);
+const WORKER_TABLE = [
+  '2. 領域ごとに委譲する。',
+  '',
+  '   | 領域 | ワーカー |',
+  '   |---|---|',
+  '   | 契約 | contract-agent |',
+  '   | api | `api-agent` |',
+  '   | E2E | e2e-agent |',
+  '',
+  '   | 領域 | 検証の下限 |',
+  '   |---|---|',
+  '   | api | other-agent |',
+].join('\n');
+
+test('extractWorkerTable: 領域表のワーカー名だけを取る（装飾・インデント・別の表に左右されない）', () => {
+  assert.deepEqual(extractWorkerTable(WORKER_TABLE), ['contract-agent', 'api-agent', 'e2e-agent']);
+  assert.equal(extractWorkerTable('表なし'), null);
+  assert.equal(extractWorkerTable(null), null);
+});
+
+test('extractWorkerTable: 見出しだけあって名前が0件の表は null（読めなかった）', () => {
+  assert.equal(extractWorkerTable('| 領域 | ワーカー |\n|---|---|\n'), null);
+  assert.equal(extractWorkerTable('| 領域 | ワーカー |\n|---|---|\n| api | 担当なし |\n'), null);
+});
+
+test('実物の tsod-build/SKILL.md: 領域表からワーカー名が1件以上取れる（素通りでない）', () => {
+  const names = extractWorkerTable(readFileSync(path.join(REPO_ROOT, '.claude/skills/tsod-build/SKILL.md'), 'utf8'));
+  assert.ok(names !== null && names.length > 0, '領域表からワーカー名が取れない');
+  assert.ok(names.includes('contract-agent'));
+});
+
+test('checkAgentList: 領域表・roles にあるが実在しない Subagent を検出する（違反の注入）', () => {
+  const actual = ['api-agent', 'contract-agent', 'test-investigator'];
+  const ok = checkAgentList(['api-agent', 'contract-agent'], ['api-agent', 'test-investigator'], actual);
+  assert.deepEqual(ok, { tableUnreadable: false, rolesUnreadable: false, missingFromTable: [], missingFromRoles: [] });
+
+  const r = checkAgentList(['api-agent', 'phantom-agent'], ['contract-agent', 'ghost-agent'], actual);
+  assert.deepEqual(r.missingFromTable, ['phantom-agent']);
+  assert.deepEqual(r.missingFromRoles, ['ghost-agent']);
+});
+
+test('checkAgentList: 照合元を読めないとき（null）は「読めなかった」を出す', () => {
+  const r = checkAgentList(null, null, ['api-agent']);
+  assert.equal(r.tableUnreadable, true);
+  assert.equal(r.rolesUnreadable, true);
+  const items = buildSections({ agents: r })[0].items;
+  assert.ok(items.every((it) => !it.ok));
+  assert.match(items[0].text, /領域表を読めなかった/);
+  assert.match(items[1].text, /roles を読めなかった/);
+});
+
+test('buildSections: 実在しない Subagent は指摘になり、すべて実在すれば ok', () => {
+  const bad = buildSections({ agents: checkAgentList(['ghost-agent'], [], []) })[0].items;
+  assert.equal(bad[0].ok, false);
+  assert.match(bad[0].text, /ghost-agent/);
+  assert.equal(bad[1].ok, true);
 });
 
 // ---- 6. temp/

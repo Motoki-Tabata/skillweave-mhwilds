@@ -5,9 +5,10 @@
 // 使い方（リポジトリ root で実行）:
 //   node .claude/skills/tsod-build/scripts/review-diff.mjs <base> [<head>=HEAD]
 //
-// 保存先: ${TMPDIR:-/tmp}/tsod-review/<base 先頭7桁>-<head 先頭7桁>.diff
+// 保存先: ${TMPDIR:-/tmp}/tsod-review/<base 先頭7桁>-<head 先頭7桁>.diff（全体）
+//         同じディレクトリの <base 先頭7桁>-<head 先頭7桁>.<領域>.diff（領域ごと。変更の無い領域は書かない）
 // 終了コード: 0 成功／2 引数誤り・git の失敗。
-// Node ESM・依存ゼロ。純関数（引数解析・パスの組み立て・要約の解析・領域の分類）を export する。
+// Node ESM・依存ゼロ。純関数（引数解析・パスの組み立て・要約の解析・領域の分類・差分の領域ごとの分割）を export する。
 
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -108,6 +109,39 @@ export function formatAreas(summary) {
   return `領域別: ${summary.map((s) => `${s.area} ${s.count}`).join(' / ')}`;
 }
 
+/**
+ * 領域ごとの差分ファイルの保存先を組み立てる。純関数。
+ * 全体の差分ファイルと同じディレクトリで、`<base7>-<head7>.<領域>.diff`。
+ */
+export function buildAreaOutputPath(base, head, area, tmpDir = process.env.TMPDIR || os.tmpdir()) {
+  const safeArea = String(area).replace(/[\\/]/g, '_');
+  return path.join(tmpDir, 'tsod-review', `${shortId(base)}-${shortId(head)}.${safeArea}.diff`);
+}
+
+/**
+ * `git diff` の全文を、ファイルごとのブロック（`diff --git` から次の `diff --git` の手前まで）に分け、
+ * 領域ごとにまとめる。純関数。領域の分類はブロックの新側のパス（b/...）で行う。
+ * 表示順は AREAS の順で、最後が「その他」。変更の無い領域は含めない。
+ * @returns {{area: string, files: number, text: string}[]}
+ */
+export function splitDiffByArea(diffText) {
+  const blocks = String(diffText ?? '')
+    .split(/^(?=diff --git )/m)
+    .filter((b) => b.startsWith('diff --git '));
+  const byArea = new Map();
+  for (const block of blocks) {
+    const header = block.split('\n', 1)[0];
+    const idx = header.lastIndexOf(' b/');
+    const filePath = idx >= 0 ? header.slice(idx + 3) : header.replace(/^diff --git a\//, '');
+    const area = classifyPath(filePath);
+    const cur = byArea.get(area) ?? { area, files: 0, text: '' };
+    cur.files += 1;
+    cur.text += block;
+    byArea.set(area, cur);
+  }
+  return [...AREAS.map(([area]) => area), OTHER_AREA].filter((a) => byArea.has(a)).map((a) => byArea.get(a));
+}
+
 function git(args) {
   return spawnSync('git', args, { encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 });
 }
@@ -134,7 +168,8 @@ function main() {
   }
   const [baseHash, headHash] = resolved;
 
-  const diff = git(['diff', `${baseHash}..${headHash}`]);
+  // core.quotepath=false: 非 ASCII のパスをクォートさせず、ブロックの見出しから領域を分類できるようにする。
+  const diff = git(['-c', 'core.quotepath=false', 'diff', `${baseHash}..${headHash}`]);
   if (diff.status !== 0) {
     console.error(`git diff に失敗しました: ${diff.stderr}`);
     process.exit(2);
@@ -144,7 +179,7 @@ function main() {
     console.error(`git diff --shortstat に失敗しました: ${stat.stderr}`);
     process.exit(2);
   }
-  const names = git(['diff', '--name-only', `${baseHash}..${headHash}`]);
+  const names = git(['-c', 'core.quotepath=false', 'diff', '--name-only', `${baseHash}..${headHash}`]);
   if (names.status !== 0) {
     console.error(`git diff --name-only に失敗しました: ${names.stderr}`);
     process.exit(2);
@@ -153,12 +188,20 @@ function main() {
   const out = buildOutputPath(baseHash, headHash);
   mkdirSync(path.dirname(out), { recursive: true });
   writeFileSync(out, diff.stdout);
+  const areaFiles = splitDiffByArea(diff.stdout).map((a) => {
+    const p = buildAreaOutputPath(baseHash, headHash, a.area);
+    writeFileSync(p, a.text);
+    return { area: a.area, files: a.files, path: p };
+  });
 
   const counts = parseShortstat(stat.stdout);
   console.log(`差分ファイル: ${out}`);
   console.log(`範囲: ${baseHash.slice(0, 7)}..${headHash.slice(0, 7)}`);
   console.log(`変更ファイル数: ${counts.files} / 追加 ${counts.insertions} 行 / 削除 ${counts.deletions} 行`);
   console.log(formatAreas(summarizeAreas(names.stdout.split('\n').filter(Boolean))));
+  for (const a of areaFiles) {
+    console.log(`領域の差分ファイル（${a.area}・${a.files} ファイル）: ${a.path}`);
+  }
   process.exit(0);
 }
 

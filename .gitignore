@@ -63,14 +63,6 @@ docker/volumes/
 *.tmp
 *.bak
 
-# ===== canon 配置時の退避ディレクトリ =====
-# claude-code-canon の deploy.js が配置直前の管理ファイルを退避する先。
-# 中身は配置直前のコミットそのもので git 履歴に既にあるため追跡しない
-# （ロールバックは `git checkout <配置前のコミット> -- CLAUDE.md .claude/ .mcp.json` で足りる）。
-# 新しいカスタマイズ一式の動作確認後に、ユーザーが任意のタイミングで削除してよい。
-# 末尾一致の `*.bak` ではディレクトリ名 `.claude-canon.bak.<ts>/` に当たらないため別途列挙する。
-.claude-canon.bak.*/
-
 # ===== ローカル SonarQube (scripts/sonar-local.sh) =====
 # 認証情報・指摘一覧・スキャナ作業領域。ローカル専用で共有しない。
 .sonar-local/

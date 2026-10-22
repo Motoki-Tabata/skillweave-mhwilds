@@ -16,7 +16,7 @@
 | 技術スタックの選定・版 | `design/tech-stack.md` |
 | UI の設計標準 | `design-system/skillweave/MASTER.md` |
 | 横断業務ルール | `design/` 直下の新設文書（新設した場合は、下の配線不変条件により `.claude/rules/` への配線が1本必要になる） |
-| 用語・要件概要（どの機能にも属さない節） | `design/` 直下の用語集・要件概要の文書。初回の卒業のときに drift ブランチで新設する。新設したら、`.claude/rules/` への配線を canon への要求として `tasks/lessons.md` に起票する（[lessons-guide.md](../../tsod-workflow/references/lessons-guide.md)） |
+| 用語・要件概要（どの機能にも属さない節） | `design/` 直下の用語集・要件概要の文書。初回の卒業のときに drift ブランチで新設する。新設したら、`.claude/rules/` への配線は区間 E の中では書かず、`tasks/lessons.md` に起票し、[canon-boundary.md](../../tsod-workflow/references/canon-boundary.md) の2経路で直す（[lessons-guide.md](../../tsod-workflow/references/lessons-guide.md)） |
 | 開発手法の外部資料（例: TSOD の原典） | `docs/method/`（改変しない・参照のみの資料はここへ移設する） |
 
 ## `design/` 直下文書の配線不変条件のスコープ
@@ -29,7 +29,7 @@
 
 ## 参照の付け替え
 
-一次資料の実体を移設する場合、管理ファイル側の参照の書き換えは、実体の移設と同一の作業単位で行う（順序を誤ると参照切れになる）。非管理ファイル側の参照（ルート `README.md` 等。`README.md` は設計方針の一次資料として `temp/initial-design.md` を指している）の付け替えも、同一 PR で行う（[canon-boundary.md](../../tsod-workflow/references/canon-boundary.md) の「非管理側だけ先に直さない」規律の対）。
+一次資料の実体を移設する場合、管理ファイル側の参照の書き換えは、実体の移設と同一の作業単位で行う（順序を誤ると参照切れになる）。非管理ファイル側の参照（ルート `README.md` 等。`README.md` は設計方針の一次資料として `temp/initial-design.md` を指している）の付け替えも、同一 PR で行う（[canon-boundary.md](../../tsod-workflow/references/canon-boundary.md) の「片方だけを直して満足しない」規律の対）。
 
 ## 未卒業の回収
 

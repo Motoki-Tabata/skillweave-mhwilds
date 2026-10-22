@@ -23,29 +23,29 @@ const REPO_ROOT = path.resolve(__dirname, '../../../..');
 const scopes = loadScopes(SCOPES_PATH);
 const ALL_ROLES = Object.keys(scopes.roles);
 
-// テスト役の5役割（領域ごとに分かれている）と実装役の4役割。
-const TEST_SCOPES = {
-  'api-test-agent': 'apps/api/src/test/java/x/XTest.java',
-  'web-test-agent': 'apps/web/src/test/x.spec.ts',
-  'solver-test-agent': 'packages/solver/src/test/x.spec.ts',
-  'data-test-agent': 'packages/data/src/test/x.spec.ts',
-  'e2e-agent': 'apps/web/e2e/x.spec.ts',
-};
+// 実装とテストの両方を持つ4役割（api・web・solver・data）。IMPL_SCOPES は main、TEST_SCOPES は同じ役割が書けるテストのパス。
 const IMPL_SCOPES = {
   'api-agent': 'apps/api/src/main/java/x/X.java',
   'web-agent': 'apps/web/src/main/a.ts',
   'solver-agent': 'packages/solver/src/main/a.ts',
   'data-agent': 'packages/data/src/main/a.ts',
 };
-const TEST_ROLES = Object.keys(TEST_SCOPES);
+const TEST_SCOPES = {
+  'api-agent': 'apps/api/src/test/java/x/XTest.java',
+  'web-agent': 'apps/web/src/test/x.spec.ts',
+  'solver-agent': 'packages/solver/src/test/x.spec.ts',
+  'data-agent': 'packages/data/src/test/x.spec.ts',
+};
 const IMPL_ROLES = Object.keys(IMPL_SCOPES);
 // 各ロールが書ける代表のパス（test-investigator は書けない）。
 const OWN_PATHS = {
   ...IMPL_SCOPES,
-  ...TEST_SCOPES,
+  'e2e-agent': 'apps/web/e2e/x.spec.ts',
   'contract-agent': 'contracts/paths/x.yaml',
   'data-model-agent': 'apps/api/src/main/resources/db/migration/V9__x.sql',
 };
+// 役割と書けるパスの組（main・test の両方を含む）。
+const OWN_PATH_LIST = [...Object.entries(OWN_PATHS), ...Object.entries(TEST_SCOPES)];
 
 function fixtureRoot() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'guard-fixture-'));
@@ -76,9 +76,9 @@ test('api-agent: main/java 配下と application*.yml は allow', () => {
   assert.equal(writeDecision('api-agent', 'apps/api/src/main/resources/application-local.yml').decision, 'allow');
 });
 
-test('api-agent: src/test・ビルド設定・migration は deny', () => {
+test('api-agent: src/test は allow、ビルド設定・migration は deny', () => {
+  assert.equal(writeDecision('api-agent', 'apps/api/src/test/java/x/XTest.java').decision, 'allow');
   for (const p of [
-    'apps/api/src/test/java/x/XTest.java',
     'apps/api/build.gradle.kts',
     'apps/api/src/main/resources/db/migration/V9__x.sql',
   ]) {
@@ -86,51 +86,46 @@ test('api-agent: src/test・ビルド設定・migration は deny', () => {
   }
 });
 
-test('web-agent: schema.ts は allow、package.json・src/test は deny', () => {
+test('web-agent: schema.ts と src/test は allow、package.json は deny', () => {
   assert.equal(writeDecision('web-agent', 'apps/web/src/main/lib/api/schema.ts').decision, 'allow');
+  assert.equal(writeDecision('web-agent', 'apps/web/src/test/x.spec.ts').decision, 'allow');
   assert.equal(writeDecision('web-agent', 'apps/web/package.json').decision, 'deny');
-  assert.equal(writeDecision('web-agent', 'apps/web/src/test/x.spec.ts').decision, 'deny');
+  assert.equal(writeDecision('web-agent', 'apps/web/e2e/x.spec.ts').decision, 'deny');
 });
 
-test('各ロール: 自分の領域のフォルダは allow', () => {
-  for (const [role, p] of Object.entries(OWN_PATHS)) {
+test('各ロール: 自分の領域のフォルダは allow（api・web・solver・data は main と test の両方）', () => {
+  for (const [role, p] of OWN_PATH_LIST) {
     assert.equal(writeDecision(role, p).decision, 'allow', `${role} / ${p}`);
   }
 });
 
-test('各ロール: ほかのロールの領域は deny（solver と data の相互・実装とテストの相互を含む）', () => {
+test('各ロール: ほかのロールの領域は deny（solver と data の相互・e2e との相互を含む）', () => {
   for (const [role] of Object.entries(OWN_PATHS)) {
-    for (const [other, p] of Object.entries(OWN_PATHS)) {
+    for (const [other, p] of OWN_PATH_LIST) {
       if (other === role) continue;
       assert.equal(writeDecision(role, p).decision, 'deny', `${role} が ${other} の領域 ${p} に書けてはならない`);
     }
   }
 });
 
-test('solver 系は packages/data/** へ、data 系は packages/solver/** へ書けない', () => {
-  for (const role of ['solver-agent', 'solver-test-agent']) {
-    for (const p of ['packages/data/src/main/a.ts', 'packages/data/src/test/a.spec.ts']) {
-      assert.equal(writeDecision(role, p).decision, 'deny', `${role} / ${p}`);
-    }
+test('solver-agent は packages/data/** へ、data-agent は packages/solver/** へ書けない（main・test とも）', () => {
+  for (const p of ['packages/data/src/main/a.ts', 'packages/data/src/test/a.spec.ts']) {
+    assert.equal(writeDecision('solver-agent', p).decision, 'deny', `solver-agent / ${p}`);
   }
-  for (const role of ['data-agent', 'data-test-agent']) {
-    for (const p of ['packages/solver/src/main/a.ts', 'packages/solver/src/test/a.spec.ts']) {
-      assert.equal(writeDecision(role, p).decision, 'deny', `${role} / ${p}`);
-    }
+  for (const p of ['packages/solver/src/main/a.ts', 'packages/solver/src/test/a.spec.ts']) {
+    assert.equal(writeDecision('data-agent', p).decision, 'deny', `data-agent / ${p}`);
   }
 });
 
-test('テスト役は実装フォルダへ、実装役はテストフォルダへ書けない', () => {
-  assert.equal(writeDecision('solver-test-agent', 'packages/solver/src/main/a.ts').decision, 'deny');
-  assert.equal(writeDecision('data-test-agent', 'packages/data/src/main/a.ts').decision, 'deny');
-  for (const role of TEST_ROLES) {
-    for (const p of Object.values(IMPL_SCOPES)) {
-      assert.equal(writeDecision(role, p).decision, 'deny', `${role} / ${p}`);
-    }
-  }
+test('実装とテストの役割は、自分の領域の main と test に書け、別領域の main・test には書けない', () => {
   for (const role of IMPL_ROLES) {
-    for (const p of Object.values(TEST_SCOPES)) {
-      assert.equal(writeDecision(role, p).decision, 'deny', `${role} / ${p}`);
+    assert.equal(writeDecision(role, IMPL_SCOPES[role]).decision, 'allow', `${role} / main`);
+    assert.equal(writeDecision(role, TEST_SCOPES[role]).decision, 'allow', `${role} / test`);
+    for (const other of IMPL_ROLES) {
+      if (other === role) continue;
+      for (const p of [IMPL_SCOPES[other], TEST_SCOPES[other]]) {
+        assert.equal(writeDecision(role, p).decision, 'deny', `${role} が ${p} に書けてはならない`);
+      }
     }
   }
 });
@@ -400,50 +395,50 @@ test('Bash: data-agent の overlays への書込は data-agent だけ allow、sc
 test('Bash: tee の書込先で判定する（web-agent allow）', () => {
   assertBashRoles('tee apps/web/src/main/a.ts', { allow: ['web-agent'], deny: others('web-agent') });
   assertBashRoles('tee packages/solver/src/test/a.spec.ts', {
-    allow: ['solver-test-agent'],
-    deny: others('solver-test-agent'),
+    allow: ['solver-agent'],
+    deny: others('solver-agent'),
   });
 });
 
-test('Bash: cp の最後の引数が書込先（api-test-agent allow・ほかは deny）', () => {
-  assertBashRoles('cp a apps/api/src/test/java/X.java', { allow: ['api-test-agent'], deny: others('api-test-agent') });
+test('Bash: cp の最後の引数が書込先（api-agent の test 配下は allow・ほかは deny）', () => {
+  assertBashRoles('cp a apps/api/src/test/java/X.java', { allow: ['api-agent'], deny: others('api-agent') });
 });
 
-test('Bash: cd apps/web && pnpm exec prettier --write（web-agent allow・テスト役 deny）', () => {
+test('Bash: cd apps/web && pnpm exec prettier --write（web-agent allow・ほかは deny）', () => {
   assertBashRoles('cd apps/web && pnpm exec prettier --write src/main/a.vue', {
     allow: ['web-agent'],
-    deny: TEST_ROLES,
+    deny: others('web-agent'),
   });
 });
 
-test('Bash: テスト役が自分の領域のファイルを prettier で整形するのは allow', () => {
+test('Bash: 実装とテストの役割が自分の領域のテストファイルを prettier で整形するのは allow', () => {
   assertBashRoles('cd apps/web && pnpm exec prettier --write src/test/a.spec.ts', {
-    allow: ['web-test-agent'],
-    deny: ['web-agent', 'e2e-agent', 'api-test-agent'],
+    allow: ['web-agent'],
+    deny: ['e2e-agent', 'api-agent'],
   });
   assertBashRoles('cd packages/data && pnpm exec prettier --write src/test/a.spec.ts', {
-    allow: ['data-test-agent'],
-    deny: ['data-agent', 'solver-test-agent'],
+    allow: ['data-agent'],
+    deny: ['solver-agent', 'web-agent'],
   });
 });
 
 test('Bash: gradlew spotlessApply は apps/api/src/ への暗黙の書込（重なるロールだけ通す）', () => {
   assertBashRoles('./gradlew spotlessApply', {
     // data-model-agent の migration フォルダも apps/api/src/ の内側なので重なる（実際の変化は事後照合に委ねる）。
-    allow: ['api-agent', 'api-test-agent', 'data-model-agent'],
-    deny: ['web-agent', 'contract-agent', 'web-test-agent', 'e2e-agent', 'solver-agent', 'solver-test-agent', 'data-agent', 'data-test-agent', 'test-investigator'],
+    allow: ['api-agent', 'data-model-agent'],
+    deny: ['web-agent', 'contract-agent', 'e2e-agent', 'solver-agent', 'data-agent', 'test-investigator'],
   });
 });
 
 test('Bash: spotlessApply に -PspotlessIdeHook があればそのファイルだけが書込先', () => {
-  const cmd = `./gradlew spotlessApply -PspotlessIdeHook=${path.join(SB.root, 'apps/api/src/test/java/X.java')}`;
-  assertBashRoles(cmd, { allow: ['api-test-agent'], deny: ['api-agent'] });
+  const cmd = `./gradlew spotlessApply -PspotlessIdeHook=${path.join(SB.root, 'apps/api/src/main/resources/db/migration/V9__x.sql')}`;
+  assertBashRoles(cmd, { allow: ['data-model-agent'], deny: ['api-agent'] });
 });
 
 test('Bash: pnpm format は各パッケージの src/ への暗黙の書込（部分重複は通す）', () => {
   assertBashRoles('pnpm format', {
-    allow: ['web-agent', 'web-test-agent', 'solver-agent', 'solver-test-agent', 'data-agent', 'data-test-agent'],
-    deny: ['api-agent', 'api-test-agent', 'contract-agent', 'data-model-agent', 'e2e-agent', 'test-investigator'],
+    allow: ['web-agent', 'solver-agent', 'data-agent'],
+    deny: ['api-agent', 'contract-agent', 'data-model-agent', 'e2e-agent', 'test-investigator'],
   });
   assertBashRoles('pnpm -r run format', {
     allow: ['web-agent', 'solver-agent', 'data-agent'],
@@ -453,20 +448,20 @@ test('Bash: pnpm format は各パッケージの src/ への暗黙の書込（�
 
 test('Bash: pnpm --filter <selector> run format は selector が指すパッケージの src/ だけが書込先', () => {
   assertBashRoles('pnpm --filter @swv/data run format', {
-    allow: ['data-agent', 'data-test-agent'],
-    deny: ['web-agent', 'web-test-agent', 'solver-agent', 'solver-test-agent', 'api-agent', 'e2e-agent', 'contract-agent'],
+    allow: ['data-agent'],
+    deny: ['web-agent', 'solver-agent', 'api-agent', 'e2e-agent', 'contract-agent'],
   });
   assertBashRoles('pnpm --filter @swv/solver run format', {
-    allow: ['solver-agent', 'solver-test-agent'],
-    deny: ['data-agent', 'data-test-agent', 'web-agent'],
+    allow: ['solver-agent'],
+    deny: ['data-agent', 'web-agent'],
   });
   assertBashRoles('pnpm --filter @swv/web run format', {
-    allow: ['web-agent', 'web-test-agent'],
+    allow: ['web-agent'],
     deny: ['solver-agent', 'data-agent', 'e2e-agent'],
   });
   assertBashRoles("pnpm --filter './packages/*' run format", {
-    allow: ['solver-agent', 'solver-test-agent', 'data-agent', 'data-test-agent'],
-    deny: ['web-agent', 'web-test-agent', 'api-agent', 'e2e-agent'],
+    allow: ['solver-agent', 'data-agent'],
+    deny: ['web-agent', 'api-agent', 'e2e-agent'],
   });
 });
 
@@ -479,14 +474,14 @@ test('Bash: 解決できない selector は全パッケージとみなす（担�
 
 test('Bash: pnpm の cwd がパッケージ内なら、そのパッケージだけが対象', () => {
   assertBashRoles('cd packages/data && pnpm run format', {
-    allow: ['data-agent', 'data-test-agent'],
-    deny: ['solver-agent', 'solver-test-agent', 'web-agent'],
+    allow: ['data-agent'],
+    deny: ['solver-agent', 'web-agent'],
   });
 });
 
 test('Bash: pnpm lint はパッケージ全体への暗黙の書込（selector で絞れる）', () => {
   assertBashRoles('pnpm --filter @swv/data run lint', {
-    allow: ['data-agent', 'data-test-agent'],
+    allow: ['data-agent'],
     deny: ['solver-agent', 'web-agent', 'api-agent'],
   });
 });
@@ -541,8 +536,8 @@ test('Bash: 書込先を特定できない deny 理由は Write/Edit を案内�
   assert.ok(r.reason.includes('Write/Edit'), r.reason);
 });
 
-test('Bash: git restore はパスが書込先（api-agent allow・テスト役 deny）', () => {
-  assertBashRoles('git restore apps/api/src/main/java/X.java', { allow: ['api-agent'], deny: TEST_ROLES });
+test('Bash: git restore はパスが書込先（api-agent allow・ほかの領域の役割は deny）', () => {
+  assertBashRoles('git restore apps/api/src/main/java/X.java', { allow: ['api-agent'], deny: others('api-agent') });
 });
 
 test('Bash: 変数を含む書込先は全ロール deny', () => {
@@ -554,7 +549,7 @@ test('Bash: bash -c の文字列を再帰的に解析する（contract-agent all
 });
 
 test('Bash: chmod・chown の先頭引数（モード・所有者）は書込先に含めない', () => {
-  assertBashRoles('chmod 755 apps/api/src/main/java/X.java', { allow: ['api-agent'], deny: TEST_ROLES });
+  assertBashRoles('chmod 755 apps/api/src/main/java/X.java', { allow: ['api-agent'], deny: others('api-agent') });
   assertBashRoles('chown user:grp apps/api/src/main/java/X.java', { allow: ['api-agent'] });
 });
 
@@ -627,16 +622,12 @@ test('Bash（違反の注入）: インタプリタの heredoc に書込 API が
 test('Bash（違反の注入）: 各役割は許可外へ書く Bash を deny される', () => {
   const outside = {
     'contract-agent': 'apps/api/src/main/java/X.java',
-    'api-agent': 'apps/api/src/test/java/X.java',
-    'web-agent': 'apps/web/src/test/x.spec.ts',
-    'api-test-agent': 'apps/api/src/main/java/X.java',
-    'web-test-agent': 'apps/web/src/main/a.ts',
+    'api-agent': 'apps/web/src/main/a.ts',
+    'web-agent': 'apps/api/src/test/java/X.java',
     'e2e-agent': 'apps/web/src/test/x.spec.ts',
     'data-model-agent': 'design/tech-stack.md',
-    'solver-agent': 'packages/data/src/main/a.ts',
-    'solver-test-agent': 'packages/solver/src/main/a.ts',
+    'solver-agent': 'packages/data/src/test/a.spec.ts',
     'data-agent': 'packages/solver/src/main/a.ts',
-    'data-test-agent': 'packages/data/src/main/a.ts',
     'test-investigator': 'apps/api/src/test/java/X.java',
   };
   assert.deepEqual(Object.keys(outside).sort(), ALL_ROLES.slice().sort());
@@ -689,19 +680,19 @@ test('Bash パス正規化: root 外の一時ディレクトリは allow', () =>
 
 test('Bash パス正規化: root 配下の絶対パスは許可フォルダ内なら allow・外なら deny', () => {
   assertBashRoles(`echo x > ${path.join(SB.root, 'apps/api/src/main/java/X.java')}`, { allow: ['api-agent'] });
-  assertBashRoles(`echo x > ${path.join(SB.root, 'apps/api/src/test/java/X.java')}`, { deny: ['api-agent'] });
+  assertBashRoles(`echo x > ${path.join(SB.root, 'apps/api/build.gradle.kts')}`, { deny: ['api-agent'] });
 });
 
 test('Bash パス正規化: 静的な cd を追跡する', () => {
   assertBashRoles('cd apps/api && echo x > src/main/java/X.java', { allow: ['api-agent'] });
-  assertBashRoles('cd apps/api && echo x > src/test/java/X.java', { deny: ['api-agent'] });
+  assertBashRoles('cd apps/api && echo x > build.gradle.kts', { deny: ['api-agent'] });
 });
 
 test('Bash パス正規化: stdin の cwd を相対パスの基準にする', () => {
   const cwd = path.join(SB.root, 'apps/api');
   const ok = bashDecide('echo x > src/main/java/X.java', 'api-agent', { cwd });
   assert.equal(ok.decision, 'allow', ok.reason);
-  const ng = bashDecide('echo x > src/test/java/X.java', 'api-agent', { cwd });
+  const ng = bashDecide('echo x > build.gradle.kts', 'api-agent', { cwd });
   assert.equal(ng.decision, 'deny');
 });
 
@@ -1287,7 +1278,7 @@ test('CLI: PreToolUse の Bash が解析不能なら deny', () => {
 
 test('CLI: PreToolUse の Bash が xargs sh -c の読み取りだけなら allow（空出力）', () => {
   const root = fixtureRoot();
-  const res = runCli('web-test-agent', {
+  const res = runCli('web-agent', {
     hook_event_name: 'PreToolUse',
     tool_name: 'Bash',
     tool_input: { command: "ls apps/web/src/test | xargs -I{} sh -c 'grep -c it {}'" },
@@ -1476,22 +1467,18 @@ function readAgents(agentsDir) {
   return result;
 }
 
-test('構成の一致: write-scopes.json のロールは、書込を許す12役割（実装・テスト・契約・データモデル・調査）である', () => {
+test('構成の一致: write-scopes.json のロールは、書込を許す8役割（実装とテスト・E2E・契約・データモデル・調査）である', () => {
   assert.deepEqual(
     Object.keys(scopes.roles).sort(),
     [
       'api-agent',
-      'api-test-agent',
       'contract-agent',
       'data-agent',
       'data-model-agent',
-      'data-test-agent',
       'e2e-agent',
       'solver-agent',
-      'solver-test-agent',
       'test-investigator',
       'web-agent',
-      'web-test-agent',
     ],
   );
   assert.deepEqual(scopes.roles['test-investigator'], []);
@@ -1508,7 +1495,7 @@ test('構成の一致: 役割の許可 glob は、ロールどうしで重なら
 });
 
 test('構成の一致: 代表のパスは、自分のロールの glob にだけ一致する（glob 同士の包含で重なっていない）', () => {
-  for (const [role, p] of Object.entries(OWN_PATHS)) {
+  for (const [role, p] of OWN_PATH_LIST) {
     const matched = Object.entries(scopes.roles)
       .filter(([, globs]) => globs.some((g) => globToRegExp(g).test(p)))
       .map(([r]) => r);
@@ -1606,7 +1593,7 @@ test('構成の一致: 書込ツールを持たないエージェントにガー
   const agentsDir = agentsDirOrNull();
   if (!agentsDir) return;
   const agentFiles = readAgents(agentsDir);
-  for (const name of ['reviewer-agent', 'screen-design-agent']) {
+  for (const name of ['reviewer-agent']) {
     if (!agentFiles.has(name)) continue;
     const fm = frontmatterOf(agentFiles.get(name));
     assert.ok(!fm.includes('agent-write-guard.mjs'), `${name} にガードの配線がある`);

@@ -22,4 +22,4 @@
 
 ## 起票
 
-棚卸しの手順や基準が実態と合わなくなったら、`design/tech-stack.md` の該当節を直す。この文書（`.claude/**`）の変更要求は、`tasks/lessons.md` に起票する（[lessons-guide.md](./lessons-guide.md)）。
+棚卸しの手順や基準が実態と合わなくなったら、`design/tech-stack.md` の該当節を直す。この文書（`.claude/**`）の変更は、[canon-boundary.md](./canon-boundary.md) の2経路のどちらかで直す（すぐ直さないときは `tasks/lessons.md` に起票する。[lessons-guide.md](./lessons-guide.md)）。

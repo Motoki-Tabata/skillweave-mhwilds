@@ -16,13 +16,14 @@ effort: high
 
 - `feat/NNN-<slug>` へ checkout する（無ければ `git checkout -b feat/NNN-<slug>`）。
 - `specs/NNN-<slug>/handoff.md` が無ければ [handoff-template.md](../tsod-workflow/references/handoff-template.md) から作る。存在すれば全文を読み、最初の未承認ゲートから再開する。「現在地」の区間が B 以降なら、ここで停止して handoff の「次に起動するコマンド」を案内する。
+- handoff の更新（ゲートの記録・現在地・区間メモなど）は `node .claude/skills/tsod-workflow/scripts/handoff.mjs` のサブコマンドだけで行い、Edit・sed・python・node -e で書き換えない。区間 A には前の区間のゲートが無いので、`check` は実行しない。
 
 ## 工程1: 未確定事項の決定（ゲート A-1）
 
 1. `specs/open-questions.md` から対象機能に関わる項目を Grep で特定し、該当の節だけを読む（[読み込みの規律](../tsod-workflow/references/reading-discipline.md)）。spec を書くのに必要なのに未確定の事項も洗い出す。`specs/open-questions.md` が無ければ、未解消の項目は無いものとして扱う。
-2. 該当が無ければ、handoff のゲート A-1 の記録を `なし` にして工程2へ進む（問いを立てない）。
+2. 該当が無ければ、`node .claude/skills/tsod-workflow/scripts/handoff.mjs gate NNN A-1 --na "対象の未確定事項なし"` でゲート A-1 を該当なしにして工程2へ進む（問いを立てない）。
 3. あれば、同じセッションでユーザーと壁打ちして決める。決定を `specs/NNN-<slug>/decisions.md` に、Q 番号と本文のまま移し、`open-questions.md` から該当項目を削除する（運用の正は `.claude/rules/specs-authoring.md`）。
-4. 決定内容を提示して AskUserQuestion を1回取る（ゲート A-1）。承認されたら、handoff に移設先（Q 番号の一覧）を記録してコミットする。
+4. 決定内容を提示して AskUserQuestion を1回取る（ゲート A-1）。承認されたら、decisions.md の変更をコミットし、成果物をコミットした直後の HEAD の短縮ハッシュで `handoff.mjs gate NNN A-1 <短縮ハッシュ>` を実行する。移設先（Q 番号の一覧）は `handoff.mjs note NNN 区間メモ "A-1 の移設先: Q…"` で残し、handoff の変更をコミットする。
 
 ## 工程2: 薄仕様（ゲート A-2）
 
@@ -87,7 +88,7 @@ effort: high
 
 ### ゲート A-2
 
-生成した `spec.md`・spec-check の判定表・自己評価した2条件を提示し、AskUserQuestion を1回取る。承認されたら handoff に記録してコミットする。
+生成した `spec.md`・spec-check の判定表・自己評価した2条件を提示し、AskUserQuestion を1回取る。承認されたら、spec.md をコミットし、成果物をコミットした直後の HEAD の短縮ハッシュで `handoff.mjs gate NNN A-2 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
 
 ## メインの直接修正・コミット
 
@@ -96,10 +97,10 @@ effort: high
 
 ## 区間の終わり（次のコマンドと推奨モデル）
 
-ゲート A-2 の承認の直後に、handoff の「現在地」を「区間の終わりの定型」のとおり書く。「未起票の教訓」を起票するか、持ち越す理由を書いてコミットする。
+ゲート A-2 の承認の直後に、handoff の「現在地」を `handoff.mjs transition NNN A→B`（UI もテーブル変更も無いときは `A→C`）で書く。「未起票の教訓」を起票するか、持ち越す理由を書いてコミットする。
 
 - 画面かテーブルの変更がある（`触る領域:` に `web` を含む、または新しい永続化がある）: 区間 B。`/tsod-screen-table NNN`（推奨モデル: Opus）。
-- UI もテーブル変更も無い: handoff のゲート B-1・B-2 を `該当なし（UI・テーブル変更なし）` にして、区間 C。`/tsod-plan NNN`（推奨モデル: Opus）。
+- UI もテーブル変更も無い: `handoff.mjs gate NNN B-1 --na "UI・テーブル変更なし"` と `handoff.mjs gate NNN B-2 --na "UI・テーブル変更なし"` でゲート B-1・B-2 を該当なしにして、区間 C。`/tsod-plan NNN`（推奨モデル: Opus）。
 
 このセッションでは次の区間に進まない。次の定型の案内文を出して停止する。
 

@@ -12,7 +12,9 @@ effort: high
 
 ## 開始条件
 
-`specs/NNN-<slug>/handoff.md` を全文読み、ゲート A-2 が `承認済み` であること、現在地が区間 B であることを確かめる。満たさなければ停止して `/tsod-spec NNN` を案内する。ブランチは `feat/NNN-<slug>` であること。
+`specs/NNN-<slug>/handoff.md` を全文読み、現在地が区間 B であることを確かめる。続けて `node .claude/skills/tsod-workflow/scripts/handoff.mjs check NNN A-2` を実行し、exit 0 以外なら出力を示して停止し、`/tsod-spec NNN` を案内する。ブランチは `feat/NNN-<slug>` であること。
+
+handoff の更新（ゲートの記録・該当なしの記録・現在地・区間メモなど）は `handoff.mjs` のサブコマンドだけで行い、Edit・sed・python・node -e で書き換えない。
 
 ## 画面設計（UI を持つ機能だけ。ゲート B-1）
 
@@ -21,19 +23,20 @@ effort: high
 `spec.md` の `## 影響範囲` の `触る領域:` 行を見る。
 
 1. `web` を含む → UI あり。この節を実行する。
-2. `web` を含まない → UI 無しとして、handoff のゲート B-1 を `該当なし（UI 無し）` にしてテーブル設計へ進む。
+2. `web` を含まない → UI 無しとして、`handoff.mjs gate NNN B-1 --na "UI 無し"` でゲート B-1 を該当なしにしてテーブル設計へ進む。
 3. `触る領域:` 行が無い・解析できない → 黙ってスキップせず、スキップの可否をユーザーに1問だけ確認する。
 
 ### 手順
 
-1. **screen-design-agent** を native の `subagent_type` で起動する。`screen-design.md` の下書きと、`/design` に渡す説明文の案を受け取る。委譲プロンプトには、薄仕様のパス（`specs/NNN-<slug>/spec.md`）・機能 ID・UI 判定の結果・関連する既存画面（`apps/web/src/main/**` の該当ディレクトリの目安）を入れる。標準（`design-system/skillweave/MASTER.md`。`design-system/skillweave/pages/<page>.md` があればその画面について優先）の全文を読むのは screen-design-agent で、メインは報告の「標準との突合結果」で数値が許容値に収まることを確かめ、疑義のある項目だけ該当節を読む。
-2. メインが説明文を組み立ててユーザーに提示し、**「ユーザー自身が `/design <説明文>` を実行して、キャンバス URL と確定内容を返す」よう依頼する。** メインもサブエージェントも `/design` を起動しない（Skill ツールで呼ばない）。`/design` はユーザーだけが起動できるため。
-3. 返った URL と確定内容を `specs/NNN-<slug>/screen-design.md` に取り込む（書くのはメイン）。キャンバス URL は同ファイルの「キャンバス URL」欄に記録する。修正が要るときは、ユーザーが Artifact 上で直す。説明文を作り直す必要があるときは、screen-design-agent を新規起動する（前回の会話を再開しない）。
-4. 成果物と URL を提示して AskUserQuestion を1回取る（ゲート B-1）。承認されたら handoff に記録してコミットする。
+1. メインが、薄仕様（`specs/NNN-<slug>/spec.md`）・UI 判定の結果・関連する既存画面（`apps/web/src/main/**` の該当ディレクトリの目安）を読む。
+2. メインが、標準（`design-system/skillweave/MASTER.md`。`design-system/skillweave/pages/<page>.md` があればその画面について優先）の該当節を読み、数値が許容値に収まることを確かめながら、`screen-design.md` の下書きと `/design` に渡す説明文を作る。
+3. メインが説明文をユーザーに提示し、**「ユーザー自身が `/design <説明文>` を実行して、キャンバス URL と確定内容を返す」よう依頼する。** メインもサブエージェントも `/design` を起動しない（Skill ツールで呼ばない）。`/design` はユーザーだけが起動できるため。
+4. 返った URL と確定内容を `specs/NNN-<slug>/screen-design.md` に取り込む（書くのはメイン）。キャンバス URL は同ファイルの「キャンバス URL」欄に記録する。修正が要るときは、ユーザーが Artifact 上で直す。説明文を作り直す必要があるときは、メインが標準の該当節から作り直す。
+5. 成果物と URL を提示して AskUserQuestion を1回取る（ゲート B-1）。承認されたら、`screen-design.md` をコミットし、成果物をコミットした直後の HEAD の短縮ハッシュで `handoff.mjs gate NNN B-1 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
 
 ### 使えないとき
 
-`/design` の前提（Claude Code のバージョン・プラン・ログイン方式・組織の設定など。前提の列挙の正は [builtin-skills.md](../tsod-workflow/references/builtin-skills.md)）を満たさない、または起動できない（挙動が変わった）ときは、`/design` を再試行せず、**キャンバス無しで進める**。screen-design-agent の下書きをもとに、`specs/NNN-<slug>/screen-design.md`（`design-system/skillweave/MASTER.md`（`pages/<page>.md` があればその画面について優先）に従う画面構成・部品・状態・項目定義）を正として、ユーザーと文章で確定する。その旨を handoff の「区間メモ」に1行残す。
+`/design` の前提（Claude Code のバージョン・プラン・ログイン方式・組織の設定など。前提の列挙の正は [builtin-skills.md](../tsod-workflow/references/builtin-skills.md)）を満たさない、または起動できない（挙動が変わった）ときは、`/design` を再試行せず、**キャンバス無しで進める**。メインの下書きをもとに、`specs/NNN-<slug>/screen-design.md`（`design-system/skillweave/MASTER.md`（`pages/<page>.md` があればその画面について優先）に従う画面構成・部品・状態・項目定義）を正として、ユーザーと文章で確定する。その旨を `handoff.mjs note NNN 区間メモ <文>` で1行残す。
 
 ### 出力: `specs/NNN-<slug>/screen-design.md`（これが正）
 
@@ -54,7 +57,7 @@ effort: high
 マイグレーションの置き場（`apps/api/src/main/resources/db/migration/`）は、予約の場所で、最初のマイグレーションを足す機能で作られる（置き場の扱いは `.claude/rules/data-model.md`）。
 
 1. `spec.md`（UI があれば `screen-design.md` も）から、テーブル変更の要否を判断する。
-2. 変更が要らないと判断したら、根拠（契約差分・受入基準のどれにも新しい永続化が無い等）を添えて「テーブル変更なしでよいか」を1問で確認する。合意されたら handoff のゲート B-2 を `該当なし（テーブル変更なし）` にして、区間の終わりへ進む。
+2. 変更が要らないと判断したら、根拠（契約差分・受入基準のどれにも新しい永続化が無い等）を添えて「テーブル変更なしでよいか」を1問で確認する。合意されたら `handoff.mjs gate NNN B-2 --na "テーブル変更なし"` でゲート B-2 を該当なしにして、区間の終わりへ進む。
 3. 変更が要るなら、次を1問の合意として提示する（修正のやり取りが続いても同じ問いの続き）。
    1. `spec.md`（と `screen-design.md`）を読み、必要最小のテーブル／カラムの案を作る。
    2. `design/data-model-standard.md`（命名規則・型・監査カラムの正）と `design/attributes.yaml`（既存属性辞書）を読み、既存の命名規約・属性との整合を確かめる。全文は転記しない。
@@ -72,7 +75,7 @@ data-model-agent は Bash を持たない。書き出し後に、メインが `n
 
 ### ゲート B-2
 
-data-model-agent の完了報告・書き出された `design/data-model-standard.md`・`design/attributes.yaml`・マイグレーションの差分（`git diff`）・verify の要約を提示して、AskUserQuestion を1回取る。差し戻しなら、修正指示と差分だけを渡して data-model-agent を新規起動する。数行の定型修正はメインが直接修正する（[direct-edit.md](../tsod-workflow/references/direct-edit.md)）。承認されたら handoff に記録してコミットする。
+data-model-agent の完了報告・書き出された `design/data-model-standard.md`・`design/attributes.yaml`・マイグレーションの差分（`git diff`）・verify の要約を提示して、AskUserQuestion を1回取る。差し戻しなら、修正指示と差分だけを渡して data-model-agent を新規起動する。数行の定型修正はメインが直接修正する（[direct-edit.md](../tsod-workflow/references/direct-edit.md)）。承認されたら、成果物をコミットし、成果物をコミットした直後の HEAD の短縮ハッシュで `handoff.mjs gate NNN B-2 <短縮ハッシュ>` を実行して、handoff の変更をコミットする。
 
 ### 生成物
 
@@ -85,7 +88,7 @@ data-model-agent の完了報告・書き出された `design/data-model-standar
 
 ## 区間の終わり（次のコマンドと推奨モデル）
 
-ゲート B-1・B-2 のどちらも承認済み（または該当なし）になったら、handoff の「現在地」を、「区間の終わりの定型」の B→C の行のとおり書く。「未起票の教訓」を起票するか、持ち越す理由を書いてコミットする。
+ゲート B-1・B-2 のどちらも承認済み（または該当なし）になったら、handoff の「現在地」を `handoff.mjs transition NNN B→C` で書く。「未起票の教訓」を起票するか、持ち越す理由を書いてコミットする。
 
 このセッションでは次の区間に進まない。次の定型の案内文を出して停止する。
 

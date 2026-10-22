@@ -3,20 +3,24 @@
   "version": 1,
   "roles": {
     "contract-agent": ["contracts/**"],
-    "api-agent": ["apps/api/src/main/java/**", "apps/api/src/main/resources/application*.yml"],
-    "web-agent": ["apps/web/src/main/**"],
-    "api-test-agent": ["apps/api/src/test/**"],
-    "web-test-agent": ["apps/web/src/test/**"],
+    "api-agent": [
+      "apps/api/src/main/java/**",
+      "apps/api/src/main/resources/application*.yml",
+      "apps/api/src/test/**"
+    ],
+    "web-agent": ["apps/web/src/main/**", "apps/web/src/test/**"],
     "e2e-agent": ["apps/web/e2e/**"],
     "data-model-agent": [
       "apps/api/src/main/resources/db/migration/**",
       "design/data-model-standard.md",
       "design/attributes.yaml"
     ],
-    "solver-agent": ["packages/solver/src/main/**"],
-    "solver-test-agent": ["packages/solver/src/test/**"],
-    "data-agent": ["packages/data/src/main/**", "packages/data/overlays/**"],
-    "data-test-agent": ["packages/data/src/test/**"],
+    "solver-agent": ["packages/solver/src/main/**", "packages/solver/src/test/**"],
+    "data-agent": [
+      "packages/data/src/main/**",
+      "packages/data/overlays/**",
+      "packages/data/src/test/**"
+    ],
     "test-investigator": []
   }
 }

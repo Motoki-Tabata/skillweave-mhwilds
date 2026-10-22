@@ -10,10 +10,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // fixture の許可表は、役割名・パス・領域語とも swv のものだけで書く。
 const SCOPES = {
   roles: {
-    'api-agent': ['apps/api/src/main/java/**', 'apps/api/src/main/resources/application*.yml'],
-    'web-agent': ['apps/web/src/main/**'],
-    'api-test-agent': ['apps/api/src/test/**'],
-    'web-test-agent': ['apps/web/src/test/**'],
+    'api-agent': [
+      'apps/api/src/main/java/**',
+      'apps/api/src/main/resources/application*.yml',
+      'apps/api/src/test/**',
+    ],
+    'web-agent': ['apps/web/src/main/**', 'apps/web/src/test/**'],
     'e2e-agent': ['apps/web/e2e/**'],
     'contract-agent': ['contracts/**'],
     'data-model-agent': [
@@ -21,10 +23,8 @@ const SCOPES = {
       'design/data-model-standard.md',
       'design/attributes.yaml',
     ],
-    'solver-agent': ['packages/solver/src/main/**'],
-    'solver-test-agent': ['packages/solver/src/test/**'],
-    'data-agent': ['packages/data/src/main/**'],
-    'data-test-agent': ['packages/data/src/test/**'],
+    'solver-agent': ['packages/solver/src/main/**', 'packages/solver/src/test/**'],
+    'data-agent': ['packages/data/src/main/**', 'packages/data/src/test/**'],
   },
 };
 

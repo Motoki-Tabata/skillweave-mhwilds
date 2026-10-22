@@ -1,6 +1,6 @@
 ---
 name: e2e-agent
-description: 薄仕様（specs/NNN-<slug>/spec.md）の受入基準ごとに E2E テスト（Playwright）を apps/web/e2e/** に書くテストワーカー。tsod-build から、web-agent の実装の後に、画面を持つ機能で委譲される。単体テストは web-test-agent・api-test-agent の担当。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。
+description: 薄仕様（specs/NNN-<slug>/spec.md）の受入基準ごとに E2E テスト（Playwright）を apps/web/e2e/** に書くテストワーカー。tsod-build から、web-agent の実装の後に、画面を持つ機能で委譲される。単体テストは web-agent・api-agent の担当。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
 effort: medium
