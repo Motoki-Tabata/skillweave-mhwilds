@@ -8,7 +8,7 @@
 # --- プラグイン ---
 spring-boot = "4.1.1"
 spring-dependency-management = "1.1.7"
-spotless = "8.10.3"
+spotless = "8.10.4"
 
 # --- 言語・ツールチェーン ---
 java = "25"
