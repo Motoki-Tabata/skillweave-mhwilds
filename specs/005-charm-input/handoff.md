@@ -2,10 +2,10 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: A
-- 次に起動するコマンド: `/tsod-spec 005-charm-input`
+- 区間: B
+- 次に起動するコマンド: `/tsod-screen-table 005-charm-input`
 - 推奨モデル: Opus
-- ブランチ: `feat/005-charm-input`
+- ブランチ: `feat/005-charm-input`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
@@ -24,7 +24,7 @@
 | ゲート | 対象 | 状態 | 承認日時・記録 |
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-23 / 5b44538 |
-| A-2 | 薄仕様 spec.md | 未 | |
+| A-2 | 薄仕様 spec.md | 承認済み | 2026-10-23 / 866254f |
 | B-1 | 画面設計 screen-design.md | 未 | |
 | B-2 | テーブル設計（design/・migration） | 未 | |
 | C-1 | plan.md・tasks.md | 未 | |
@@ -66,9 +66,13 @@
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
+- なし（区間 A で起票すべき教訓は出なかった）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
+- 区間 C: IndexedDB の単体テストの方法を決める。jsdom には IndexedDB が無い。fake-indexeddb の追加は依存の追加で spec の常時許可外に無いため、保存層を差し替えられる形にして実際の IndexedDB は e2e で確かめる案を優先する
+- 区間 C: 護石の候補が多いとき（数十件）の検索時間を 3 秒の基準（004 decisions.md Q20）に照らして見積もる
+- 区間 B: IndexedDB に保存する護石の形（010 charm-save のサーバー側と同じ。design/data-model-standard.md「所有者と監査カラム」）と、Q28 で PC 向けのブレークポイントを見直さないまま護石の画面を置くこと
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
