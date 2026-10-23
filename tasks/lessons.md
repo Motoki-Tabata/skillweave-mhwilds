@@ -34,3 +34,8 @@
 - 種別: 規律昇華
 - 何が起きたか: 実装中にワーカーが付けた受入基準の ID が、spec の確定後の順とずれ、レビューで 8 つの spec ファイルのコメントが要修正になった。spec.md に ID が明記されていないため、数え方が人によって違う。
 - 提案: `.claude/skills/tsod-spec/` で受入基準に ID（`AC-1` など）を書くか、`.claude/skills/tsod-build/references/delegation-template.md` に「受入基準の ID は spec の箇条書きの順（1 始まり）で数える。委譲の前にメインが番号付きの一覧を渡す」を足す。
+
+## 2026-10-24 触る領域の web がテスト用フィクスチャの追従だけのときも、区間 B へ進む規則になっている（機能006・区間A）
+- 種別: 規律昇華
+- 何が起きたか: 006 は画面もテーブルも変えないが、`MasterBundle` に項目が増えるため `apps/web/src/test/support/fixtures.ts` の追従が要る。常時許可外に書くと spec-check が「web-agent の常時許可フォルダ内」として NG にするため、`触る領域:` に `web` を足した。`tsod-spec/SKILL.md`「区間の終わり」は `web` を含めば区間 B としているため、ユーザーの承認を取って B-1・B-2 を該当なしにし、A→C に進めた（specs/006-damage-model/spec.md「スコープ外」に注記）。
+- 提案: `.claude/skills/tsod-spec/SKILL.md`「区間の終わり」の区間 B の条件を、「画面の変更がある（`apps/web/src/main/**` の画面・部品を変える）、または新しい永続化がある」に直し、テストの追従だけの `web` では区間 C へ進めるようにする。
