@@ -59,6 +59,24 @@
 ## レビュー記録
 | 回 | 範囲 | 所見の要約 | 区分 | 処遇 | 状態 |
 |---|---|---|---|---|---|
+| 1 | b9bb9fb..d4f8fe1 | web: レア度5のラベルが radio に結び付かない（CharmForm.vue。id が charm-rarity-first） | 要修正 | 是正 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: スキル入力欄が md:text-sm なし・shadow-xs 残り（CharmSkillRow.vue。MASTER 違反） | 要修正 | 是正 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: 削除確認の見出しが text-lg（CharmDeleteDialog.vue。Type Scale 外） | 要修正 | 是正 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: テストの受入基準 ID コメントが多数ずれている／e2e の名乗りも不正確 | 要修正 | 是正 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: 受入基準 11 の「護石なしでも検索できる」を検索の実行で確かめるテストが無い | 要修正 | 是正 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: 護石の読込中に検索すると護石が黙って落ちる（stores/search.ts） | 要判断 | ゲートで判断 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: e2e の pickSkillByReading が .last() に頼る（候補一覧が DOM に残る） | 要判断 | ゲートで判断 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: CharmMatchResult の警告帯が ResultAlert を使わず自前（MASTER 混色 18% と実装 15% のずれ） | 要判断 | ゲートで判断 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: ui/ 生成物（alert-dialog 等）と MASTER の乖離（オーバーレイ・影・角丸） | 起票 | 起票 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: font-semibold（600）が MASTER のウェイト外 | 起票 | 起票 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: conventions.md に src/test/support/ の記述が無い | 起票 | 起票 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: 300ms のスケルトン遅延タイマーが3箇所に複製 | 起票 | 起票 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: lib/charms/eligible.ts に対応する eligible.spec.ts が無い | 起票 | 起票 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | web: CharmCard の補助文が狭い／aria-describedby がエラー要素なしでも付く | 持ち越し | 持ち越し | 解消 |
+| 1 | b9bb9fb..d4f8fe1 | data: dist.spec・generate.spec の describe 見出しに 002 と 005 の番号が混在 | 持ち越し | 持ち越し | 解消 |
+| 1 | b9bb9fb..d4f8fe1 | data: fixtures.ts の READINGS_YAML と READINGS が二重（溜打強化の読みも要確認） | 持ち越し | 持ち越し | 解消 |
+| 1 | b9bb9fb..d4f8fe1 | 構成: sonar 抑止 e4・e5 を計画の常時許可外に事前に挙げる運用を lessons に起票 | 起票 | 起票 | 要修正 |
+| 1 | b9bb9fb..d4f8fe1 | 構成: 抑止がファイル単位／MASTER.md の role=status と output の書き分け／tech-stack.md の旧版記述 | 持ち越し | 持ち越し | 解消 |
 <!-- 区間 D。所見1件につき1行。所見は要約で書く（差分や所見の全文を貼らない）。区分: reviewer-agent の区分（要修正 / 要判断 / 起票 / 持ち越し）。処遇: 是正 / 直接修正 / ゲートで判断 / 起票 / 持ち越し のどれか。状態: 要修正 / 是正済み / 解消。既存の行は書き換えず、是正後は同じ所見の新しい行を状態=解消で追記する。
 区分と処遇の対応: 要修正 → 是正または直接修正 / 要判断 → ゲートで判断 / 起票 → 起票 / 持ち越し → 持ち越し -->
 
