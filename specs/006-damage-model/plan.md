@@ -84,7 +84,7 @@
 - D20: `packages/data/dist/` は data-agent の実装の後に書く（T2。D9）。`design/tech-stack.md` は測定の後に書く（T6。測定ハーネスができるまで書けないため）。新しい節「HiGHS の expectedDamage の測定（006 damage-model）」に、条件・環境・版・ケースごとの時間・最大と合否を記録する。3 秒を超えたら、対策を `specs/open-questions.md` に新しい Q として起票し、記録から参照する（T7。Q36）。
 
 ## 常時許可外の変更
-- `design/master-data.md`（発動条件の ID 規則・overlay の `conditions`・`effects` の書式と検証規則・効果の数値の出典を足す。担当: メイン。時期: T0。理由: Q39・D1〜D5）
+- `design/master-data.md`（発動条件の ID 規則・overlay の conditions と effects の書式と検証規則・効果の数値の出典を足す。担当: メイン。時期: T0。理由: Q39・D1〜D5）
 - `design/tech-stack.md`（expectedDamage の測定の結果を新しい節に記録する。担当: メイン。時期: T6。理由: 受入基準 12・Q36）
 - `packages/data/dist/master-2026.10.4.json`（生成物。生成のコマンドで書く。担当: メイン。時期: T2。理由: D9）
 - `packages/data/dist/master-2026.10.4.ja.json`（同上の ja の辞書。担当: メイン。時期: T2。理由: D9）
