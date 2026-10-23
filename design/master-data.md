@@ -46,6 +46,9 @@ MHDB 自身の `id` は取り込み直しで変わりうるので使わず、gam
 | 装飾品 | `dc:<gameId>` | `dc:-2144349312` |
 | 武器 | `wp:<武器種>:<gameId>`（gameId は武器種内でのみ一意） | `wp:charge-blade:22` |
 | 生産護石 | `ch:<gameId>:<ランク>` | `ch:-2084662144:1` |
+| 発動条件 | `cd:<slug>`（slug は `^[a-z][a-z0-9_]*$`） | `cd:weak_point` |
+
+発動条件はゲームの gameId を持たない手書きの定義なので、slug で名付ける。きっかけの en の表現の snake_case にする（例: `cd:weak_point`・`cd:wound`）。各スキルの「スキル発動中」「効果発動時」は、そのスキルの en の名前の snake_case にする（例: `cd:challenger`）。
 
 ## 5. 変換の規則
 
@@ -59,7 +62,7 @@ MHDB 自身の `id` は取り込み直しで変わりうるので使わず、gam
 
 ## 6. overlay の書式と検証
 
-overlay の最上位のキーは `replace`・`appraisedCharm`・`readings` だけ。
+overlay の最上位のキーは `replace`・`appraisedCharm`・`readings`・`conditions`・`effects` だけ。
 
 ```yaml
 replace:
@@ -74,6 +77,17 @@ appraisedCharm:             # 任意。全ファイルを通じて高々1回
 readings:                   # 任意。スキル ID → 読み。全ファイルを通じて同じ ID は1回だけ書ける
   sk:850626240: こうげき
   sk:-1689391744: たいじゅつ
+conditions:                 # 任意。発動条件の定義。全ファイルを通じて同じ ID は1回だけ書ける
+  - id: cd:weak_point
+    name: { ja: 有効部位への攻撃, en: Attacking a weak point }
+effects:                    # 任意。スキル ID → レベルごとの効果。全ファイルを通じて同じスキルは1回だけ書ける
+  sk:-397570464:            # 要素の数 = スキルの最大レベル（index 0 = Lv1）
+    - - { stat: affinity_add, value: 5, conditionId: cd:weak_point }
+      - { stat: affinity_add, value: 3, conditionId: cd:wound }
+    - …
+  sk:422666624:             # 効果の無いレベルは空の配列
+    - []
+    - - { stat: attack_mul, value: 1.05, conditionId: cd:adrenaline_rush }
 ```
 
 存在しない ID・存在しない項目・未知のキー・同じ `id` と `field` の重複・YAML の構文エラーは、ファイル名と行番号を示して生成を失敗させる。
@@ -85,6 +99,14 @@ readings:                   # 任意。スキル ID → 読み。全ファイル
 - 同じ ID の重複。
 - 文字列でない値。
 
+`effects` の値は、スキルの `effectsByLevel` をまるごと置き換える。`replace` で `effectsByLevel` を置き換えることは禁止する（定義の経路を1つにするため）。1つのレベルの中の効果の並びは overlay の並びのまま出力する。次は、ファイル名と行・桁を示して生成を失敗させる。
+
+- `effects`: 存在しないスキル ID・スキル（`sk:`）以外の ID・同じスキルの重複・レベルの数が最大レベルと違う・`replace` での `effectsByLevel` の置き換え。
+- 効果: `stat` が `attack_add`・`attack_mul`・`affinity_add`・`crit_mul` 以外（`element_*` は未確定事項 Q40 が決まるまで受け付けない）・`value` が有限の数でない・`attack_add` と `affinity_add` が整数でない・`attack_mul` が 0 以下・`crit_mul` が 1.25 未満・`conditionId` が `conditions` に無い・未知のキー。`conditionId` が無い効果は常に有効。
+- `conditions`: ID の形式が §4 に合わない・ID の重複・`name` の `ja`・`en` のどちらかが無いか空の文字列・どの効果からも参照されない条件・未知のキー。
+
+条件の名前は ja・en の辞書の項目（`{ name }`）に出す。
+
 出力の前に、次を検証する。
 
 - ID の重複がない。
@@ -93,8 +115,10 @@ readings:                   # 任意。スキル ID → 読み。全ファイル
 - スロット Lv が 1〜4（型は4まで許す。現行のゲームは3まで）。
 - シリーズ／グループスキルの発動部位数が昇順で重複せず、整数である。
 - 同じスキルを持つ防具セットの間で、発動部位数とレベルが一致する。
-- 辞書に全 ID の ja と en の名前がある。
+- 辞書に全 ID（発動条件の ID を含む）の ja と en の名前がある。
 - ja の辞書のすべてのスキル（武器・防具・シリーズ・グループ）が `reading` を持ち、その文字種が上の規則に合う（規則名 `dictionary-reading`）。en の辞書とスキル以外の項目には `reading` が無い。MHDB の更新でスキルが増えたときは、読みを足すまで生成が失敗する。
+- 効果（規則名 `skill-effects`）: すべてのスキルの `effectsByLevel` の長さが 0 か最大レベルで、`stat` と値の規則が上の overlay の規則と同じで、`conditionId` が `conditions` にある。
+- 発動条件（規則名 `conditions`）: ID の形式が §4 に合い、重複がない。
 - 抽選テーブル（`appraisedCharm`。規則名 `appraised-charm`）: `groups` の `group` の名前が重複しない。`patterns[].skillGroups` の要素が null か `groups` にある名前で、長さが 3 以下。`slotPatterns` の要素（スロットの並び）の長さが 3 以下。`groups[].skills` が武器スキル・防具スキルだけ。鑑定護石のレア度の範囲（5〜8）は検証しない。
 
 MHDB の誤りで防具セットの間の定義が食い違うときは、overlay が `thresholds` を置き換えることで解消する（検証は、解消していない不一致を違反にする）。
@@ -102,6 +126,7 @@ MHDB の誤りで防具セットの間の定義が食い違うときは、overla
 ## 7. 出力
 
 - `dist/master-<版>.json`・`master-<版>.ja.json`・`master-<版>.en.json`。ja・en 以外の言語は出さない。
+- `MasterBundle.conditions`（`{ id }` の配列）は `id` の昇順に出す。
 - ja の辞書のスキルの項目だけが、任意の `reading`（`readings` の値）を持つ。en の辞書とスキル以外の項目には出さない。`@swv/data` のエントリの `DictionaryEntry` は `reading?: string` を持つ。
 - キーは再帰的に昇順、インデント2・末尾に改行1つ。配列は各集合を `id` の昇順、`skills` を `skillId` の昇順、`thresholds` を `pieces` の昇順にする。文字列の比較はコードユニット順で行い、実行環境のロケールに依存させない。
 - 出力しようとする版のファイルが既にあり中身が異なるときは、版を上げるよう示して失敗し、既存のファイルを上書きしない。
@@ -113,6 +138,7 @@ MHDB の誤りで防具セットの間の定義が食い違うときは、overla
 
 - ゲーム内の説明文をそのまま表示し、数値を補完する。説明文は MHDB のスキルランクごとの説明（ja・en）を辞書に格納する（`levelDescriptions`。index 0 が Lv1）。
 - 数値の補完は `effectsByLevel` から UI で生成する（例: 説明文の後ろに「攻撃力+9／会心率+5%」）。補完文は辞書に保存せず、計算で出す。
+- 効果の数値（`effects.yaml`）の出典は、ゲーム内の説明文（ja の `levelDescriptions`）とする。攻略サイトは取り込まない。説明文に攻撃力・会心率・会心倍率の数値が明記され、`attack_add`・`attack_mul`・`affinity_add`・`crit_mul`（条件付きを含む）で表せるスキルをすべて埋める。属性・状態異常・オトモ・防御力に効く部分と、数値の無い部分は書かない。条件は、説明文が書くきっかけで決める。最終確認はオーナー。
 - カプコンのガイドラインは公式素材の「そのまま使用」をガイドラインの対象外としている。説明文の掲載は、この点を認識したうえでの判断である。アイコン・画像は使わない。
 
 ## 9. ゲーム仕様の確認結果（2026-10-02 時点。最終確認はオーナー）
