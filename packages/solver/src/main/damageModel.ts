@@ -344,7 +344,7 @@ function addCritMultiplier(
     ...new Set(
       targets.flatMap((t) => t.levels.map((l) => l.crit)).filter((v) => v > BASE_CRIT_MULTIPLIER),
     ),
-  ].toSorted((x, y) => x - y)
+  ].sort((x, y) => x - y)
   const candidates = values.map((value) => ({ value, col: b.addBinary() }))
   b.addRow(
     1,
