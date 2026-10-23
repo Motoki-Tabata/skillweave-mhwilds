@@ -129,6 +129,22 @@ export function makeInput(): MhdbInput {
   }
 }
 
+/** makeInput() の4スキルの読み（overlay の readings の YAML） */
+export const READINGS_YAML = `readings:
+  sk:100: こうげき
+  sk:101: ぶきすきる
+  sk:200: しりーず
+  sk:201: ぐるーぷ
+`
+
+/** makeInput() の4スキルの読み */
+export const READINGS: Record<string, string> = {
+  'sk:100': 'こうげき',
+  'sk:101': 'ぶきすきる',
+  'sk:200': 'しりーず',
+  'sk:201': 'ぐるーぷ',
+}
+
 /** os.tmpdir() 配下に一時ディレクトリを作り、各テストの後に削除する */
 export function useTempDirs(): () => Promise<string> {
   const dirs: string[] = []

@@ -145,6 +145,8 @@ export interface DictionaryEntry {
   description?: string
   /** index 0 = Lv1。スキルだけが持つ */
   levelDescriptions?: string[]
+  /** スキルの検索に使う読み（ひらがなと「ー」）。ja の辞書のスキルだけが持つ */
+  reading?: string
 }
 
 export interface MasterDictionary {

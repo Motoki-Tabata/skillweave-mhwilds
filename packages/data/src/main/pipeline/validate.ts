@@ -17,6 +17,7 @@ export interface ValidateInput {
 const ARMOR_RANKS: ReadonlySet<string> = new Set(['low', 'high', 'master'])
 const MIN_SLOT_LEVEL = 1
 const MAX_SLOT_LEVEL = 4
+const MAX_CHARM_ENTRIES = 3
 
 function checkDuplicates(bundle: MasterBundle, out: Violation[]): void {
   const sets: [string, { id: string }[]][] = [
@@ -141,6 +142,84 @@ function checkDictionaries(input: ValidateInput, ids: string[], out: Violation[]
   }
 }
 
+/** 読みに使える文字: ひらがな（U+3041〜U+3096）と長音符「ー」だけ。空は不可 */
+const READING_PATTERN = /^[ぁ-ゖー]+$/u
+
+function checkReadings(input: ValidateInput, out: Violation[]): void {
+  const skillIds = new Set<string>(input.bundle.skills.map((skill) => skill.id))
+  for (const id of skillIds) {
+    const reading = input.dictionaries.ja.entries[id]?.reading
+    if (reading === undefined) {
+      out.push({ rule: 'dictionary-reading', message: `${id}: 辞書（ja）に読みがありません` })
+    } else if (typeof reading !== 'string' || !READING_PATTERN.test(reading)) {
+      out.push({
+        rule: 'dictionary-reading',
+        message: `${id}: 読み ${JSON.stringify(reading)} がひらがなと「ー」だけの文字列ではありません`,
+      })
+    }
+  }
+  for (const locale of ['ja', 'en'] as const) {
+    for (const [id, entry] of Object.entries(input.dictionaries[locale].entries)) {
+      if (entry.reading !== undefined && !(locale === 'ja' && skillIds.has(id))) {
+        out.push({
+          rule: 'dictionary-reading',
+          message: `${id}: 辞書（${locale}）に読みがあります（ja のスキルだけが持てます）`,
+        })
+      }
+    }
+  }
+}
+
+function checkAppraisedCharm(bundle: MasterBundle, out: Violation[]): void {
+  const { groups, patterns } = bundle.appraisedCharm
+  const kinds = new Map(bundle.skills.map((skill) => [skill.id as string, skill.kind]))
+  const names = new Set<string>()
+  groups.forEach((group, index) => {
+    const owner = `appraisedCharm.groups[${index}]`
+    if (names.has(group.group)) {
+      out.push({
+        rule: 'appraised-charm',
+        message: `${owner}: グループ名 ${group.group} が重複しています`,
+      })
+    }
+    names.add(group.group)
+    for (const { skillId } of group.skills) {
+      const kind = kinds.get(skillId)
+      if (kind !== undefined && kind !== 'weapon' && kind !== 'armor') {
+        out.push({
+          rule: 'appraised-charm',
+          message: `${owner}: ${skillId} は武器スキル・防具スキルではありません（${kind}）`,
+        })
+      }
+    }
+  })
+  patterns.forEach((pattern, index) => {
+    const owner = `appraisedCharm.patterns[${index}]`
+    if (pattern.skillGroups.length > MAX_CHARM_ENTRIES) {
+      out.push({
+        rule: 'appraised-charm',
+        message: `${owner}: skillGroups の長さ ${pattern.skillGroups.length} が ${MAX_CHARM_ENTRIES} を超えています`,
+      })
+    }
+    for (const name of pattern.skillGroups) {
+      if (name !== null && !names.has(name)) {
+        out.push({
+          rule: 'appraised-charm',
+          message: `${owner}: skillGroups の ${String(name)} が groups にありません`,
+        })
+      }
+    }
+    for (const slots of pattern.slotPatterns) {
+      if (slots.length > MAX_CHARM_ENTRIES) {
+        out.push({
+          rule: 'appraised-charm',
+          message: `${owner}: スロットの並びの長さ ${slots.length} が ${MAX_CHARM_ENTRIES} を超えています`,
+        })
+      }
+    }
+  })
+}
+
 /** 出力の `MasterBundle` と辞書を検証する。違反は全件を返す（0件なら空配列） */
 export function validate(input: ValidateInput): Violation[] {
   const { bundle } = input
@@ -212,6 +291,8 @@ export function validate(input: ValidateInput): Violation[] {
     ...bundle.charms,
   ].map((entry) => entry.id as string)
   checkDictionaries(input, ids, out)
+  checkReadings(input, out)
+  checkAppraisedCharm(bundle, out)
   return out
 }
 

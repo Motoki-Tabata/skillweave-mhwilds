@@ -1,8 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { LineCounter, isMap, isSeq, parseDocument } from 'yaml'
+import { LineCounter, isMap, isScalar, isSeq, parseDocument } from 'yaml'
 import type { Node, YAMLMap } from 'yaml'
-import type { MasterBundle } from '../index.ts'
+import type { MasterBundle, MasterDictionary } from '../index.ts'
 import type { SetBonusMismatch } from './convert.ts'
 import { compareCodeUnits } from './sort.ts'
 
@@ -19,7 +19,13 @@ export interface OverlayError {
 }
 
 export type OverlayResult =
-  | { ok: true; bundle: MasterBundle; mismatches: SetBonusMismatch[] }
+  | {
+      ok: true
+      bundle: MasterBundle
+      mismatches: SetBonusMismatch[]
+      /** スキル ID → 読み。`applyReadings` で ja の辞書に重ねる */
+      readings: Record<string, string>
+    }
   | { ok: false; errors: OverlayError[] }
 
 type Collection = Exclude<keyof MasterBundle, 'version' | 'source' | 'appraisedCharm'>
@@ -63,8 +69,17 @@ function keyName(key: unknown): string {
   return typeof value === 'string' ? value : JSON.stringify(value)
 }
 
+interface ReadingEntry {
+  file: string
+  line: number
+  col: number
+  id: string
+  value: string
+}
+
 interface Parsed {
   replacements: Replacement[]
+  readings: ReadingEntry[]
   appraisedCharm?: {
     file: string
     line: number
@@ -94,7 +109,7 @@ function parseFile(file: OverlayFile, errors: OverlayError[], parsed: Parsed): v
   const root = doc.contents
   if (root === null) return // 空のファイル
   if (!isMap(root)) {
-    fail(root, '最上位はキーと値の組（replace・appraisedCharm）でなければなりません')
+    fail(root, '最上位はキーと値の組（replace・appraisedCharm・readings）でなければなりません')
     return
   }
   for (const pair of root.items) {
@@ -103,8 +118,13 @@ function parseFile(file: OverlayFile, errors: OverlayError[], parsed: Parsed): v
       parseReplace(pair.value as Node | null, file.name, at, fail, parsed)
     } else if (key === 'appraisedCharm') {
       parseAppraisedCharm(pair.value as Node | null, file.name, at, fail, parsed)
+    } else if (key === 'readings') {
+      parseReadings(pair.value as Node | null, file.name, at, fail, parsed)
     } else {
-      fail(pair.key as Node, `未知のキー ${key} です（replace・appraisedCharm だけを許します）`)
+      fail(
+        pair.key as Node,
+        `未知のキー ${key} です（replace・appraisedCharm・readings だけを許します）`,
+      )
     }
   }
 }
@@ -136,6 +156,23 @@ function parseReplace(node: Node | null, file: string, at: At, fail: Fail, parse
     const valueNode = item.get('value', true) as { toJSON?: () => unknown } | null
     const value = valueNode && typeof valueNode.toJSON === 'function' ? valueNode.toJSON() : null
     parsed.replacements.push({ file, ...at(item), id, field, value })
+  }
+}
+
+function parseReadings(node: Node | null, file: string, at: At, fail: Fail, parsed: Parsed): void {
+  if (!isMap(node)) {
+    fail(node, 'readings はスキル ID と読みの組でなければなりません')
+    return
+  }
+  for (const pair of node.items) {
+    const keyNode = pair.key as Node
+    const valueNode = pair.value as Node | null
+    const id = keyName(keyNode)
+    if (!isScalar(valueNode) || typeof valueNode.value !== 'string') {
+      fail(valueNode ?? keyNode, `readings の ${id} の値は文字列でなければなりません`)
+      continue
+    }
+    parsed.readings.push({ file, ...at(keyNode), id, value: valueNode.value })
   }
 }
 
@@ -180,7 +217,7 @@ export function applyOverlays(
   baseMismatches: SetBonusMismatch[],
 ): OverlayResult {
   const errors: OverlayError[] = []
-  const parsed: Parsed = { replacements: [] }
+  const parsed: Parsed = { replacements: [], readings: [] }
   const sorted = [...files].sort((a, b) => compareCodeUnits(a.name, b.name))
   for (const file of sorted) parseFile(file, errors, parsed)
 
@@ -218,9 +255,60 @@ export function applyOverlays(
     }
   }
 
+  const readings = collectReadings(parsed.readings, bundle, errors)
+
   if (errors.length > 0) return { ok: false, errors }
   if (parsed.appraisedCharm) bundle.appraisedCharm = parsed.appraisedCharm.value
-  return { ok: true, bundle, mismatches }
+  return { ok: true, bundle, mismatches, readings }
+}
+
+/** 読みの ID を検査して、スキル ID → 読みの組にする */
+function collectReadings(
+  entries: ReadingEntry[],
+  bundle: MasterBundle,
+  errors: OverlayError[],
+): Record<string, string> {
+  const skillIds = new Set<string>(bundle.skills.map((skill) => skill.id))
+  const known = new Set<string>(
+    Object.values(COLLECTIONS).flatMap((name) =>
+      (bundle[name] as unknown as { id: string }[]).map((entry) => entry.id),
+    ),
+  )
+  const readings: Record<string, string> = {}
+  const seen = new Map<string, ReadingEntry>()
+  for (const entry of entries) {
+    const { file, line, col, id } = entry
+    const fail = (message: string): void => {
+      errors.push({ file, line, col, message })
+    }
+    const previous = seen.get(id)
+    if (previous) {
+      fail(
+        `readings の ${id} が複数の箇所にあります（先の定義: ${previous.file}:${previous.line}）`,
+      )
+    } else if (skillIds.has(id)) {
+      seen.set(id, entry)
+      readings[id] = entry.value
+    } else if (known.has(id)) {
+      fail(`readings の ${id} はスキル（sk:）ではありません`)
+    } else {
+      fail(`readings の ID ${id} が存在しません`)
+    }
+  }
+  return readings
+}
+
+/** 読みを、ja の辞書のスキルの項目に重ねる（元の辞書は変えない） */
+export function applyReadings(
+  dictionary: MasterDictionary,
+  readings: Record<string, string>,
+): MasterDictionary {
+  const entries = { ...dictionary.entries }
+  for (const [id, reading] of Object.entries(readings)) {
+    const entry = entries[id]
+    if (entry) entries[id] = { ...entry, reading }
+  }
+  return { ...dictionary, entries }
 }
 
 export function formatOverlayError(error: OverlayError): string {

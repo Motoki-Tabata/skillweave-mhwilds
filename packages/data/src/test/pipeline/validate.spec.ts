@@ -2,10 +2,23 @@ import { describe, expect, it } from 'vitest'
 import type { MasterBundle } from '../../main/index.ts'
 import { convert } from '../../main/pipeline/convert.ts'
 import { formatViolation, validate, type Violation } from '../../main/pipeline/validate.ts'
-import { CONFIG, makeInput } from '../support/fixtures.ts'
+import { CONFIG, READINGS, makeInput } from '../support/fixtures.ts'
+import { applyReadings } from '../../main/pipeline/overlay.ts'
+
+/** 変換の結果に、フィクスチャの読みを ja の辞書へ重ねたもの */
+function load(input = makeInput()) {
+  const converted = convert(input, CONFIG)
+  return {
+    ...converted,
+    dictionaries: {
+      ja: applyReadings(converted.dictionaries.ja, READINGS),
+      en: converted.dictionaries.en,
+    },
+  }
+}
 
 function check(edit?: (bundle: MasterBundle) => void): Violation[] {
-  const { bundle, dictionaries, mismatches } = convert(makeInput(), CONFIG)
+  const { bundle, dictionaries, mismatches } = load()
   edit?.(bundle)
   return validate({ bundle, dictionaries, mismatches })
 }
@@ -126,7 +139,7 @@ describe('検証（受入基準 8）', () => {
     const input = makeInput()
     const second = input.armors[1]
     if (second?.set_bonus) second.set_bonus.ranks = [{ pieces: 3, skill_level: 1 }]
-    const { bundle, dictionaries, mismatches } = convert(input, CONFIG)
+    const { bundle, dictionaries, mismatches } = load(input)
     const violations = validate({ bundle, dictionaries, mismatches })
     expect(rules(violations)).toEqual(['set-bonus-mismatch'])
     expect(violations[0]?.message).toContain('sb:200')
@@ -135,8 +148,9 @@ describe('検証（受入基準 8）', () => {
   })
 
   it('辞書に全 ID の ja と en の名前が無いときを検出する', () => {
-    const { bundle, dictionaries, mismatches } = convert(makeInput(), CONFIG)
-    delete dictionaries.ja.entries['sk:100']
+    const { bundle, dictionaries, mismatches } = load()
+    // 項目ごと消すと読みの欠落（dictionary-reading）も出るので、名前だけを空にする
+    dictionaries.ja.entries['sk:100']!.name = ''
     dictionaries.en.entries['dc:1'] = { name: '' }
     const violations = validate({ bundle, dictionaries, mismatches })
     expect(rules(violations)).toEqual(['dictionary-name', 'dictionary-name'])
@@ -155,7 +169,134 @@ describe('検証（受入基準 8）', () => {
   })
 
   it('mismatches を省くと不一致を検査しない（dist の検証）', () => {
-    const { bundle, dictionaries } = convert(makeInput(), CONFIG)
+    const { bundle, dictionaries } = load()
     expect(validate({ bundle, dictionaries })).toEqual([])
+  })
+})
+
+describe('読みの検証（受入基準 13・plan D2）', () => {
+  const readingRules = (
+    edit: (d: ReturnType<typeof load>['dictionaries']) => void,
+  ): Violation[] => {
+    const { bundle, dictionaries } = load()
+    edit(dictionaries)
+    return validate({ bundle, dictionaries })
+  }
+
+  it('ja のスキルに読みが無いと dictionary-reading の違反にする', () => {
+    const violations = readingRules((d) => {
+      delete d.ja.entries['sk:100']!.reading
+    })
+    expect(rules(violations)).toEqual(['dictionary-reading'])
+    expect(violations[0]?.message).toContain('sk:100')
+  })
+
+  it.each([
+    ['空文字列', ''],
+    ['漢字', '攻撃'],
+    ['カタカナ', 'コウゲキ'],
+    ['記号（・）', 'こう・げき'],
+    ['英字', 'ko'],
+    ['空白', 'こう げき'],
+    ['文字列でない', 5],
+  ])('読みが文字種に合わない（%s）と違反にする', (_label, reading) => {
+    const violations = readingRules((d) => {
+      d.ja.entries['sk:101']!.reading = reading as never
+    })
+    expect(rules(violations)).toEqual(['dictionary-reading'])
+    expect(violations[0]?.message).toContain('sk:101')
+  })
+
+  it('長音符「ー」とひらがなの両端（ぁ・ゖ）は許す', () => {
+    const violations = readingRules((d) => {
+      d.ja.entries['sk:101']!.reading = 'ぁゖー'
+    })
+    expect(violations).toEqual([])
+  })
+
+  it('en の辞書と、スキル以外の項目に読みがあると違反にする', () => {
+    const violations = readingRules((d) => {
+      d.en.entries['sk:100']!.reading = 'こうげき'
+      d.ja.entries['dc:1']!.reading = 'たま'
+    })
+    expect(rules(violations)).toEqual(['dictionary-reading', 'dictionary-reading'])
+    const text = violations.map(formatViolation).join('\n')
+    expect(text).toContain('辞書（en）')
+    expect(text).toContain('dc:1')
+  })
+})
+
+describe('抽選テーブルの検証（受入基準 12・plan D3）', () => {
+  const group = (name: string, skillId = 'sk:100') => ({
+    group: name,
+    skills: [{ skillId: skillId as never, level: 1 }],
+  })
+  const pattern = (
+    skillGroups: (string | null)[],
+    slotPatterns: MasterBundle['appraisedCharm']['patterns'][number]['slotPatterns'] = [],
+  ) => ({
+    rarity: 8,
+    skillGroups,
+    slotPatterns,
+  })
+  const slot = { target: 'armor', level: 1 } as const
+
+  it('正しいテーブルは違反が0件', () => {
+    expect(
+      check((b) => {
+        b.appraisedCharm.groups = [group('A'), group('B', 'sk:101')]
+        b.appraisedCharm.patterns = [pattern(['A', 'B', null], [[slot, slot, slot], []])]
+      }),
+    ).toEqual([])
+  })
+
+  it('グループ名の重複を検出する', () => {
+    const violations = check((b) => {
+      b.appraisedCharm.groups = [group('A'), group('A')]
+    })
+    expect(rules(violations)).toEqual(['appraised-charm'])
+    expect(violations[0]?.message).toContain('重複')
+  })
+
+  it('skillGroups の要素が null でも groups にある名前でもないときを検出する', () => {
+    const violations = check((b) => {
+      b.appraisedCharm.groups = [group('A')]
+      b.appraisedCharm.patterns = [pattern(['A', 'Z'])]
+    })
+    expect(rules(violations)).toEqual(['appraised-charm'])
+    expect(violations[0]?.message).toContain('Z')
+  })
+
+  it('skillGroups の長さが 3 を超えるときを検出する', () => {
+    const violations = check((b) => {
+      b.appraisedCharm.groups = [group('A')]
+      b.appraisedCharm.patterns = [pattern(['A', 'A', 'A', null])]
+    })
+    expect(rules(violations)).toEqual(['appraised-charm'])
+    expect(violations[0]?.message).toContain('skillGroups')
+  })
+
+  it('スロットの並びの長さが 3 を超えるときを検出する', () => {
+    const violations = check((b) => {
+      b.appraisedCharm.patterns = [pattern([], [[slot, slot, slot, slot]])]
+    })
+    expect(rules(violations)).toEqual(['appraised-charm'])
+    expect(violations[0]?.message).toContain('スロット')
+  })
+
+  it('groups の skills に武器スキル・防具スキル以外があるときを検出する', () => {
+    const violations = check((b) => {
+      b.appraisedCharm.groups = [group('A', 'sk:200'), group('B', 'sk:201')]
+    })
+    expect(rules(violations)).toEqual(['appraised-charm', 'appraised-charm'])
+    expect(violations[0]?.message).toContain('sk:200')
+  })
+
+  it('レア度の範囲（5〜8）は検証しない', () => {
+    expect(
+      check((b) => {
+        b.appraisedCharm.patterns = [{ ...pattern([]), rarity: 1 }]
+      }),
+    ).toEqual([])
   })
 })

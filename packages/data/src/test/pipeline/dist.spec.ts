@@ -32,13 +32,23 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
     expect([ja.version, en.version]).toEqual([MASTER_VERSION, MASTER_VERSION])
   })
 
-  it('全防具に rank があり、版が 2026.10.2 である（12）', async () => {
+  it('全防具に rank があり、版が 2026.10.3 である（12）', async () => {
     const bundle = await readJson<MasterBundle>(BUNDLE)
-    expect(bundle.version).toBe('2026.10.2')
+    expect(bundle.version).toBe('2026.10.3')
     expect(bundle.armors.length).toBeGreaterThan(0)
     for (const armor of bundle.armors) {
       expect(['low', 'high', 'master'], armor.id).toContain(armor.rank)
     }
+  })
+
+  it('ja の辞書のすべてのスキルに読みがあり、en に読みが無い（受入基準 13）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const ja = await readJson<MasterDictionary>(JA)
+    const en = await readJson<MasterDictionary>(EN)
+    for (const skill of bundle.skills) {
+      expect(ja.entries[skill.id]?.reading, skill.id).toMatch(/^[ぁ-ゖー]+$/u)
+    }
+    expect(Object.values(en.entries).filter((e) => e.reading !== undefined)).toEqual([])
   })
 
   it('検証の関数で違反が0件（14）', async () => {
