@@ -1,5 +1,5 @@
 import highsLoader, { type Highs } from 'highs'
-import type { ConditionId, MasterBundle } from '@swv/data'
+import type { MasterBundle } from '@swv/data'
 import { beforeAll, describe, expect, it } from 'vitest'
 import type { SolverRequest, SolverResponse } from '../main/request'
 import { DAMAGE_EPSILON } from '../main/solveBuilds'
@@ -79,6 +79,23 @@ function skills(withEffects: boolean) {
         [{ conditionId: C2, stat: 'crit_mul', value: 1.3 }],
       ]) as never,
     ),
+    // 条件なしの attack_mul（条件ありの MUL と連鎖する）
+    masterSkill(
+      'MUL2',
+      'armor',
+      2,
+      eff([[{ stat: 'attack_mul', value: 1.03 }], [{ stat: 'attack_mul', value: 1.06 }]]) as never,
+    ),
+    // CM と異なる倍率の候補を持つ会心倍率（候補 g を共有する）
+    masterSkill(
+      'CM2',
+      'weapon',
+      2,
+      eff([
+        [{ conditionId: C1, stat: 'crit_mul', value: 1.3 }],
+        [{ conditionId: C1, stat: 'crit_mul', value: 1.5 }],
+      ]) as never,
+    ),
     masterSkill(
       'SS',
       'series',
@@ -104,6 +121,7 @@ function smallMaster(withEffects = true): MasterBundle {
     weapons: [
       weapon(BASE_WEAPON_ID, { attack: 100, affinity: 0, slots: [slot(2, 'weapon')] }),
       weapon('w-neg', { attack: 120, affinity: -30, slots: [slot(1, 'weapon')] }),
+      weapon('w-set', { attack: 90, slots: [slot(1, 'weapon')], setBonusIds: [SET_ID] }),
     ],
     armors: plainArmors({
       head: [
@@ -128,6 +146,8 @@ function smallMaster(withEffects = true): MasterBundle {
       decoration('dAFF', 'armor', 2, [skill('AFF')]),
       decoration('dCM', 'weapon', 1, [skill('CM')]),
       decoration('dMUL', 'weapon', 2, [skill('MUL')]),
+      decoration('dMUL2', 'armor', 2, [skill('MUL2')]),
+      decoration('dCM2', 'weapon', 1, [skill('CM2')]),
     ],
   })
 }
@@ -175,6 +195,13 @@ const SCENARIOS: Scenario[] = [
   {
     name: '会心率が −100 を下回る個体差のある武器（−115。装飾品で範囲内にも入る）',
     overrides: () => ({ weapon: customWeapon(-115), activeConditionIds: ALL }),
+  },
+  {
+    name: 'シリーズスキルを持つ武器（w-set。武器の1部位分が段に数えられる）',
+    overrides: (m) => ({
+      weapon: { kind: 'master', weaponId: m.weapons[2]?.id ?? weaponId('') },
+      activeConditionIds: ALL,
+    }),
   },
   {
     name: '必須スキルの下限が高い（Q2）',
@@ -258,7 +285,8 @@ describe('[AC9] 必須スキルに無いスキルの装飾品', () => {
     const result = await solveVerified(highs, master, request)
     for (const b of result.builds) {
       for (const d of b.decorations) {
-        expect(/^d(MUL|CM)/.test(d.decorationId)).toBe(false)
+        // 条件付き（MUL・CM・CM2）は無効。条件なしの MUL2 は有効なので付けてよい
+        expect(/^d(MUL|CM|CM2)$/.test(d.decorationId)).toBe(false)
       }
     }
   })
@@ -361,5 +389,3 @@ describe('[AC8] 期待値の ILP の端の条件', () => {
     expect(result.builds[0]?.score).toBe(100)
   })
 })
-
-export type { ConditionId }

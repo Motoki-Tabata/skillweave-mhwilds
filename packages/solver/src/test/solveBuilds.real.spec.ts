@@ -66,7 +66,7 @@ describe('実データ（現行のマスター）で解く', () => {
   })
 })
 
-describe('[006 AC12] 実データで expectedDamage を解く（条件をすべて有効にする）', () => {
+describe('[006 AC11] 実データで expectedDamage を解く（条件をすべて有効にする）', () => {
   it('固定の必須スキルの組で、全構成を独立の期待値で検算し、score が降順に並ぶ', async () => {
     const request = makeRequest(master, {
       weapon: { kind: 'master', weaponId: master.weapons[0]?.id ?? weaponId('') },
