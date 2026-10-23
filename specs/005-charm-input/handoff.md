@@ -28,7 +28,7 @@
 | B-1 | 画面設計 screen-design.md | 承認済み | 2026-10-23 / beaeacb |
 | B-2 | テーブル設計（design/・migration） | 該当なし（テーブル変更なし） | 2026-10-23 |
 | C-1 | plan.md・tasks.md | 承認済み | 2026-10-23 / 6ee89f8 |
-| D-1 | 実装受入 | 承認済み | 2026-10-23 / 1ee2d9d |
+| D-1 | 実装受入 | 承認済み | 2026-10-23 / 640c9fb |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
@@ -111,6 +111,7 @@
 - T4: オーナーが読みの下書きを承認し、抽選テーブルは入れない（appraisedCharm は空）と決めた。T5: packages/data/dist を 2026.10.3 に再生成し旧版 3 ファイルを削除した。design/tech-stack.md に旧版 2026.10.2 の記述が残る（区間 E のドリフト走査で確認）
 - T7: ユーザー承認のうえ sonar-project.properties に multicriteria e4（CharmSkillRow.vue）・e5（CharmForm.vue）を追記した。Reka UI の SelectTrigger への Web:InputWithoutLabelCheck の誤検知で、既存の e3 と同じ扱い（計画の常時許可外の変更に無かった追加。区間 D で承認）
 - D-1: ユーザー判断 — 要判断 A（読込中の検索）は読込の完了を待って送るよう是正、B（e2e の .last()）と C（警告帯の ResultAlert 化）は現状を許容。読みの下書きで sk:353114912「溜打強化」(りゅうだきょうか) は「ためうち」の可能性あり（確信は低く、オーナー承認済み）。持ち越し: 待ち経路が進行中の前の solve を止めない・fixtures の読みの二重定義・describe 見出しの 002/005 番号混在・MASTER.md の role=status と output・tech-stack.md の旧版記述
+- 区間 D: apps/api/gradlew.bat の行末を .gitattributes の text eol=crlf に合わせて正規化した（blob を LF に、内容は同じ。005 の前から作業ツリーに残っていた変更が checkout で消えず、check D-1 を塞いだため。ユーザー承認）。ゲート D-1 はこのコミットで取り直した
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
