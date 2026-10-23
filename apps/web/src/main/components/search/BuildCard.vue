@@ -14,6 +14,7 @@ const search = useSearchStore()
 // 検索の後に武器の選択を変えても、結果は検索したときの武器で表示する
 const view = computed(() =>
   toBuildView(props.build, {
+    charm: () => undefined, // T7 で検索の状態（送信した時点の候補）に結線する
     armor: (id) => master.armorById.get(id),
     weapon: search.summary === null ? undefined : master.weaponById.get(search.summary.weaponId),
     skillKind: (skillId) => master.skillById.get(skillId)?.kind,

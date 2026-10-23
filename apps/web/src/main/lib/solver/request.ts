@@ -1,5 +1,5 @@
 import type { ArmorId, ArmorRank, MasterBundle, SkillLevel, WeaponId } from '@swv/data'
-import type { Objective, SolverRequest } from '@swv/solver'
+import type { Objective, SolverCharm, SolverRequest } from '@swv/solver'
 import type { ObjectiveChoice } from '@/constants/labels'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
 
@@ -10,6 +10,8 @@ export interface SearchConditions {
   objective: ObjectiveChoice
   maxResults: number
   ranks: ArmorRank[]
+  /** 護石の候補（構造上の制約を満たすもの。空なら護石なしで解く） */
+  charms: SolverCharm[]
 }
 
 export function toObjective(choice: ObjectiveChoice): Objective {
@@ -28,7 +30,7 @@ export function excludedArmorIds(bundle: MasterBundle, ranks: ArmorRank[]): Armo
   return bundle.armors.filter((armor) => !ranks.includes(armor.rank)).map((armor) => armor.id)
 }
 
-/** 検索条件をソルバーの要求に変換する。護石は候補にしない（004）。 */
+/** 検索条件をソルバーの要求に変換する。 */
 export function buildSolverRequest(
   bundle: MasterBundle,
   conditions: SearchConditions,
@@ -36,7 +38,7 @@ export function buildSolverRequest(
   return {
     masterVersion: bundle.version,
     weapon: { kind: 'master', weaponId: conditions.weaponId },
-    charms: [],
+    charms: conditions.charms,
     required: conditions.required.map((skill) => ({ ...skill })),
     excludedArmorIds: excludedArmorIds(bundle, conditions.ranks),
     objective: toObjective(conditions.objective),

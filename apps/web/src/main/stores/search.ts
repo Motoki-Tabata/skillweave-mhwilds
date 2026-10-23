@@ -19,6 +19,8 @@ export interface SearchSummary {
   objectiveLabel: string
   maxResults: number
   allRanksSelected: boolean
+  /** 送信した時点の護石の候補の件数 */
+  charmCount: number
 }
 
 export const CANCELLED_TOAST_MESSAGE = '検索をキャンセルしました。'
@@ -50,6 +52,7 @@ export const useSearchStore = defineStore('search', () => {
       objectiveLabel: objectiveLabel(conditions.objective),
       maxResults: conditions.maxResults,
       allRanksSelected: conditions.ranks.length === master.availableRanks.length,
+      charmCount: 0,
     }
   }
 
@@ -70,6 +73,7 @@ export const useSearchStore = defineStore('search', () => {
       objective: conditions.objective,
       maxResults: conditions.maxResults,
       ranks: conditions.ranks,
+      charms: [], // T7 で護石のストアの候補に結線する
     })
     // 前の検索の結果と進捗はすぐに消す
     clearResult()
