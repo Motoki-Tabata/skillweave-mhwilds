@@ -40,3 +40,13 @@
 - 種別: 規律昇華
 - 何が起きたか: 006 は画面もテーブルも変えないが、`MasterBundle` に項目が増えるため `apps/web/src/test/support/fixtures.ts` の追従が要る。常時許可外に書くと spec-check が「web-agent の常時許可フォルダ内」として NG にするため、`触る領域:` に `web` を足した。`tsod-spec/SKILL.md`「区間の終わり」は `web` を含めば区間 B としているため、ユーザーの承認を取って B-1・B-2 を該当なしにし、A→C に進めた（specs/006-damage-model/spec.md「スコープ外」に注記）。
 - 提案: `.claude/skills/tsod-spec/SKILL.md`「区間の終わり」の区間 B の条件を、「画面の変更がある（`apps/web/src/main/**` の画面・部品を変える）、または新しい永続化がある」に直し、テストの追従だけの `web` では区間 C へ進めるようにする。
+
+## 2026-10-24 領域モードの Sonar（--sonar-area）が 0 件でも、全体解析で issue が出る（機能006・区間D）
+- 種別: 規律昇華
+- 何が起きたか: data-agent の `--sonar-area packages` は issue 0 件で完了と報告したが、最終検証の全体解析（`verify.mjs --e2e --sonar`）で `packages/data/src/main/pipeline/overlay.ts` の `typescript:S3776`（認知的複雑度 17）が 1 件出て Quality Gate が ERROR になり、data-agent を再起動して直した。
+- 提案: `.claude/skills/tsod-build/SKILL.md`「検証の下限」の Sonar の完了条件に、「領域モードは変更したファイルの一部しか解析しないことがあり、0 件でも全体解析で出る。関数を分けたときは認知的複雑度 15 以下を自分で見積もる」を足す。
+
+## 2026-10-24 plan・設計文書に書く具体例は、規則を機械的に当てはめた実データの値で書く（機能006・区間C・D）
+- 種別: 規律昇華
+- 何が起きたか: plan D1・D3 と `design/master-data.md` の発動条件 ID の例（`cd:challenger`・`cd:adrenaline_rush`）を、規則「スキルの en 名の snake_case」を当てはめずに書いた。実データでは挑戦者は `cd:agitator`、火事場力は `cd:heroics` で、data-agent の報告で食い違いが分かった。
+- 提案: `.claude/skills/tsod-plan/SKILL.md` に、「ID の命名規則を決めるときは、実データの代表 2〜3 件に規則を当てはめた結果を例に書く」を足す。

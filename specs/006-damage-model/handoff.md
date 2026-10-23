@@ -68,6 +68,7 @@
 | 1 | b15dcfb..c6926b2 | [solver] NEGATIVE_SLOPE の定数の重複・合計レベル式の重複・非整数などの素の Error・SetBonus 無しの黙った脱落 | 持ち越し | 持ち越し | 解消 |
 | 2 | c6926b2..c9a75f7 | [solver] 総当たりの網羅（attack_mul 連鎖・複数 crit_mul・武器 setBonusIds）を足した。枝を壊すと落ちることを確認 | 要修正 | 是正 | 解消 |
 | 2 | c6926b2..c9a75f7 | [solver] 不要な export type ConditionId と describe の AC 番号を直した | 要修正 | 是正 | 解消 |
+| 3 | c9a75f7..c9cf36c | [data] 全体の Sonar で overlay.ts の認知的複雑度 17（S3776）。領域モードでは出なかった | 要修正 | 是正 | 解消 |
 <!-- 区間 D。所見1件につき1行。所見は要約で書く（差分や所見の全文を貼らない）。区分: reviewer-agent の区分（要修正 / 要判断 / 起票 / 持ち越し）。処遇: 是正 / 直接修正 / ゲートで判断 / 起票 / 持ち越し のどれか。状態: 要修正 / 是正済み / 解消。既存の行は書き換えず、是正後は同じ所見の新しい行を状態=解消で追記する。
 区分と処遇の対応: 要修正 → 是正または直接修正 / 要判断 → ゲートで判断 / 起票 → 起票 / 持ち越し → 持ち越し -->
 
@@ -75,6 +76,7 @@
 | 区間 | ファイル | 内容（1行） | 理由 |
 |---|---|---|---|
 | D | packages/solver/src/main/damageModel.ts | toSorted を sort に直す（新しい配列リテラルなので結果は同じ） | apps/web の型検査の lib に toSorted が無く web の type-check・build・e2e の webServer が落ちたため |
+| D | design/master-data.md | §4 の例 cd:challenger を実在の cd:agitator に直す | T0 で自分が書いた例が実データの ID（挑戦者の en 名は Agitator）と食い違っていたため |
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
