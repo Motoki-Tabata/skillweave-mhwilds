@@ -9,15 +9,15 @@ packages:
 # 複数パッケージで共有する開発ツールの版はここで一元管理し、各 package.json からは
 # `catalog:` で参照する（版の食い違いを防ぐため）。版の選定理由は design/tech-stack.md。
 catalog:
-  '@types/node': 24.19.1
-  '@vitest/coverage-v8': 5.0.3
+  '@types/node': 24.19.2
+  '@vitest/coverage-v8': 5.0.5
   eslint: 10.12.0
-  eslint-plugin-oxlint: 1.87.0
-  oxlint: 1.87.0
-  prettier: 3.9.9
+  eslint-plugin-oxlint: 1.88.0
+  oxlint: 1.88.0
+  prettier: 3.9.10
   typescript: 6.0.3
-  typescript-eslint: 8.71.1
-  vitest: 5.0.3
+  typescript-eslint: 8.71.2
+  vitest: 5.0.5
 
 # ワーム型マルウェアによる npm サプライチェーン汚染対策（2026年に複数件発生:
 # Shai-Hulud, Mini Shai-Hulud, axios侵害等）として、以下を有効化する。
