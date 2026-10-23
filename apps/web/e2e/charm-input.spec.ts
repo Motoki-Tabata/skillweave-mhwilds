@@ -49,7 +49,7 @@ test.describe('005 charm-input', () => {
     }
     await page.getByRole('button', { name: '登録', exact: true }).click()
 
-    await expect(page.getByText('護石を登録しました。')).toBeVisible()
+    await expect(page.getByText('護石を登録しました。', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: '登録済みの護石（1）' })).toBeVisible()
     // 一覧の行（スキルのチップも listitem なので、レア度を含む外側の行を取る）
     const item = page.getByRole('listitem').filter({ hasText: 'レア8' }).first()
@@ -110,7 +110,7 @@ test.describe('005 charm-input', () => {
       'aria-invalid',
       'true',
     )
-    await expect(page.getByText('護石を登録しました。')).toHaveCount(0)
+    await expect(page.getByText('護石を登録しました。', { exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: '登録済みの護石（0）' })).toBeVisible()
   })
 })
