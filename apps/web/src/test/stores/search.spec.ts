@@ -5,7 +5,7 @@ import { CANCELLED_TOAST_MESSAGE } from '@/stores/search'
 import { useToastStore } from '@/stores/toast'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
 import { FakeWorker, armorId, makeBuild, sk, wp } from '../support/fixtures'
-import { loadStores, restoreStubs, stubBackend } from '../support/mount'
+import { flushPromises, loadStores, restoreStubs, stubBackend } from '../support/mount'
 import { createMemoryCharmRepository } from '../support/charmRepository'
 import { charmId, storedCharm } from '../support/charms'
 
@@ -18,6 +18,7 @@ describe('search ストア', () => {
 
   async function setup() {
     const stores = await loadStores()
+    await stores.charms.ensureLoaded()
     stores.conditions.selectWeapon(wp('great-sword:1'))
     return { ...stores, worker: FakeWorker.last }
   }
@@ -70,6 +71,38 @@ describe('search ストア', () => {
       search.submit()
       expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
       expect(search.summary?.charmCount).toBe(0)
+    })
+
+    // 受入基準 8（読込の完了を待ってから送る）
+    it('護石の読込の前に検索しても、読込の完了を待ち、読み込んだ護石を渡して件数を一致させる', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      expect(charms.status).toBe('loading')
+      expect(search.submit()).toBe(true)
+      expect(search.status).toBe('searching')
+      expect(worker.messages('solve')).toHaveLength(0)
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(worker.messages('solve')).toHaveLength(1)
+      expect(worker.messages('solve')[0]).toMatchObject({
+        request: { charms: [{ id: charmId(1), rarity: 8 }] },
+      })
+      expect(search.summary?.charmCount).toBe(1)
+    })
+
+    it('読込を待っている間にキャンセルすると、読込の後も送らず Q0 に戻る', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      search.submit()
+      search.cancel()
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(worker.messages('solve')).toHaveLength(0)
+      expect(search.status).toBe('idle')
     })
 
     // 受入基準 11（護石なしの検索は引き続き使える）
