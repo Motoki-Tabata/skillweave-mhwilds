@@ -18,6 +18,7 @@
 ## 2026-10-23 plan の「常時許可外の変更」の行にパス以外のバッククォートがあると、突合から黙って漏れる（機能005・区間C）
 - 種別: 規律昇華
 - 何が起きたか: plan.md の `design/master-data.md` の行で、括弧の説明の中の語（`readings`・`reading`）にもバッククォートを付けた。`spec-check.mjs --compare-plan` は、バッククォートの中身を数えて「1行1パス」でない行を突合の対象から外すため、書式のエラーを出さずに「spec のみ」と判定した（238981d。6ee89f8 で直した）。`.claude/rules/ui-design.md` を理由に書いた `components/ui/` の行も、同じ理由で突合から漏れていた。
+- 再発: 006 の区間 C でも、`design/master-data.md` の行の説明に `conditions`・`effects` のバッククォートを付けて「spec のみ」と判定された（b53ea9d。4280c0a で直した）。手順に書かれていない限り繰り返すので、優先して直す。
 - 提案: `.claude/skills/tsod-plan/SKILL.md`「plan.md」節の「常時許可外の変更」の箇条に、「1行のバッククォートはパスの1つだけにし、説明の中の識別子・パスには付けない」を足す。あわせて `spec-check.mjs` の `comparePlan` が、1行1パスでない plan の行を「判定不能」として表に出すように直す。
 
 ## 2026-10-23 Select を使う新規 .vue があるのに、sonar-project.properties の抑止が plan の常時許可外に挙がらなかった（機能005・区間D）
