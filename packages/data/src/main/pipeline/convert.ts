@@ -318,6 +318,7 @@ export function convert(input: MhdbInput, config: ConvertConfig): ConvertResult 
     decorations: buildDecorations(input),
     weapons: buildWeapons(input, skillKinds, errors),
     charms: buildCharms(input),
+    conditions: [],
     appraisedCharm: { patterns: [], groups: [] },
   }
   if (errors.length > 0) {

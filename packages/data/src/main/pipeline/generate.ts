@@ -5,7 +5,13 @@ import { fetchMhdb } from './fetch.ts'
 import { formatList } from './format.ts'
 import type { FetchFn } from './fetch.ts'
 import { diffOutput, outputContents, writeOutput } from './output.ts'
-import { applyOverlays, applyReadings, formatOverlayError, readOverlayFiles } from './overlay.ts'
+import {
+  applyConditionNames,
+  applyOverlays,
+  applyReadings,
+  formatOverlayError,
+  readOverlayFiles,
+} from './overlay.ts'
 import { serializeBundle, serializeDictionary } from './serialize.ts'
 import { formatViolation, validate } from './validate.ts'
 
@@ -49,8 +55,11 @@ export async function run(options: RunOptions): Promise<void> {
   }
 
   const dictionaries = {
-    ja: applyReadings(converted.dictionaries.ja, overlayResult.readings),
-    en: converted.dictionaries.en,
+    ja: applyConditionNames(
+      applyReadings(converted.dictionaries.ja, overlayResult.readings),
+      overlayResult.conditionNames,
+    ),
+    en: applyConditionNames(converted.dictionaries.en, overlayResult.conditionNames),
   }
   const violations = validate({
     bundle: overlayResult.bundle,

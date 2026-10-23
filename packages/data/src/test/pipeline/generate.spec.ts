@@ -1,6 +1,7 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import type { MasterBundle, MasterDictionary } from '../../main/index.ts'
 import { MASTER_VERSION, MHDB_COMMIT, MHDB_REPOSITORY } from '../../main/pipeline/config.ts'
 import type { FetchFn } from '../../main/pipeline/fetch.ts'
 import { run } from '../../main/pipeline/generate.ts'
@@ -127,6 +128,41 @@ describe('生成の入口（受入基準 1・2・10）', () => {
     await expect(
       run({ check: false, fetchFn: fakeFetch([], input), packageDir: dir, log: quiet }),
     ).rejects.toThrow('ar:10:head: レア度 9 のランクが対応表にありません')
+    await expect(readdir(join(dir, 'dist'))).rejects.toThrow()
+  })
+
+  it('効果と発動条件を dist/ に出し、条件の名前を ja・en の辞書に出す（006 受入基準 1）', async () => {
+    const dir = await packageDir()
+    await writeFile(
+      join(dir, 'overlays', 'effects.yaml'),
+      'conditions:\n  - { id: cd:a, name: { ja: 条件あ, en: Condition A } }\n' +
+        'effects:\n  sk:101:\n    - - { stat: attack_add, value: 2, conditionId: cd:a }\n',
+    )
+    await generate(dir, false)
+    const read = async <T>(suffix: string): Promise<T> =>
+      JSON.parse(
+        await readFile(join(dir, 'dist', `master-${MASTER_VERSION}${suffix}`), 'utf8'),
+      ) as T
+    const bundle = await read<MasterBundle>('.json')
+    expect(bundle.conditions).toEqual([{ id: 'cd:a' }])
+    expect(bundle.skills.find((s) => s.id === 'sk:101')?.effectsByLevel).toEqual([
+      [{ conditionId: 'cd:a', stat: 'attack_add', value: 2 }],
+    ])
+    expect((await read<MasterDictionary>('.ja.json')).entries['cd:a']).toEqual({ name: '条件あ' })
+    expect((await read<MasterDictionary>('.en.json')).entries['cd:a']).toEqual({
+      name: 'Condition A',
+    })
+  })
+
+  it('効果か発動条件が不正なら、ファイル名と行を示して失敗し、出力を書かない（006 受入基準 2）', async () => {
+    const dir = await packageDir()
+    await writeFile(
+      join(dir, 'overlays', 'effects.yaml'),
+      'effects:\n  sk:101:\n    - - { stat: attack_add, value: .inf }\n',
+    )
+    await expect(generate(dir, false)).rejects.toThrow(
+      /オーバーレイのエラー（1件）[\s\S]*effects\.yaml:3:9: .*value Infinity/,
+    )
     await expect(readdir(join(dir, 'dist'))).rejects.toThrow()
   })
 

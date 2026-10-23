@@ -16,7 +16,7 @@ export type DecorationId = Brand<string, 'DecorationId'> // 例: "dc:-2144349312
 export type WeaponId = Brand<string, 'WeaponId'> // 例: "wp:charge-blade:22"（gameIdは武器種内でのみ一意）
 export type CharmId = Brand<string, 'CharmId'> // 生産護石。例: "ch:-2084662144:1"（gameId＋ランク）
 export type SetBonusId = Brand<string, 'SetBonusId'> // 例: "sb:-1432692352"（シリーズ／グループスキルのgameId）
-export type ConditionId = Brand<string, 'ConditionId'> // 例: "cond.monster_enraged"
+export type ConditionId = Brand<string, 'ConditionId'> // 例: "cd:weak_point"（slug は ^[a-z][a-z0-9_]*$。きっかけの en の表現の snake_case）
 
 export type ArmorRank = 'low' | 'high' | 'master'
 export type ArmorPart = 'head' | 'chest' | 'arms' | 'waist' | 'legs'
@@ -50,6 +50,11 @@ export interface Effect {
   value: number
   /** 発動条件。未指定なら常時。条件の有無はユーザーがトグルで決める */
   conditionId?: ConditionId
+}
+
+/** 発動条件。名前は ja・en の辞書の `{ name }` に持つ */
+export interface MasterCondition {
+  id: ConditionId
 }
 
 export interface MasterSkill {
@@ -133,6 +138,8 @@ export interface MasterBundle {
   decorations: MasterDecoration[]
   weapons: MasterWeapon[]
   charms: MasterCharm[]
+  /** 発動条件の一覧（id の昇順） */
+  conditions: MasterCondition[]
   appraisedCharm: {
     patterns: AppraisedCharmPattern[]
     groups: CharmSkillGroup[]
