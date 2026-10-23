@@ -15,3 +15,5 @@ export type {
 export { solveBuilds } from './solveBuilds'
 export { createWorkerHandler } from './worker'
 export type { WorkerDeps, WorkerInbound, WorkerOutbound } from './worker'
+export { evaluateDamage } from './damage'
+export type { ActiveSkill, DamageBase, DamageStats } from './damage'

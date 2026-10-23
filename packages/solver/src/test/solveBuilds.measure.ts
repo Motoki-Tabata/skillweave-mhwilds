@@ -16,6 +16,7 @@ const REPEATS = 3
 const THRESHOLD_MS = 3000
 const TIMEOUT_MS = 60_000
 const MAX_RESULTS = 30
+const DAMAGE_MAX_RESULTS = 10
 
 /** 実データ（master-2026.10.1）から固定で選んだスキル。名前は 2026.10.1 の辞書 */
 const SK = {
@@ -37,6 +38,8 @@ interface Case {
   label: string
   required: Pair[]
   expected: 'optimal' | 'infeasible'
+  /** 目的関数。省略は 003 の defense（maxResults 30）。expectedDamage は条件をすべて有効にして maxResults 10（機能 006 D17） */
+  metric?: 'expectedDamage'
 }
 
 // どのケースもシリーズ／グループスキル（火竜の力・鱗張りの技法）を含む。
@@ -119,8 +122,16 @@ const CASES: Case[] = [
   },
 ]
 
+/** 006 D17: 003 と同じ必須スキルの組を expectedDamage で解く。ラベルの接頭辞で 003 のケースと区別する（-t で絞るため） */
+const DAMAGE_CASES: Case[] = CASES.map((c) => ({
+  ...c,
+  label: `expectedDamage ${c.label}`,
+  metric: 'expectedDamage',
+}))
+
 interface Measurement {
   label: string
+  metric: string
   run: number
   totalMs: number
   solveMs: number[]
@@ -192,11 +203,13 @@ function plainWeaponId() {
 async function measureCase(testCase: Case) {
   for (let run = 1; run <= REPEATS; run++) {
     const stats: SolveStats = { solveMs: [], nodes: [], lpIterations: [] }
+    const isDamage = testCase.metric === 'expectedDamage'
     const request = makeRequest(master, {
       weapon: { kind: 'master', weaponId: plainWeaponId() },
       required: testCase.required.map(([id, level]) => skill(id, level)),
-      objective: { kind: 'maximize', metric: 'defense' },
-      maxResults: MAX_RESULTS,
+      objective: { kind: 'maximize', metric: isDamage ? 'expectedDamage' : 'defense' },
+      ...(isDamage && { activeConditionIds: master.conditions.map((c) => c.id) }),
+      maxResults: isDamage ? DAMAGE_MAX_RESULTS : MAX_RESULTS,
       timeoutMs: TIMEOUT_MS,
     })
     const start = performance.now()
@@ -207,6 +220,7 @@ async function measureCase(testCase: Case) {
     const totalMs = performance.now() - start
     measurements.push({
       label: testCase.label,
+      metric: isDamage ? 'expectedDamage' : 'defense',
       run,
       totalMs,
       ...stats,
@@ -222,7 +236,14 @@ async function measureCase(testCase: Case) {
 const fmt = (ms: number) => ms.toFixed(1)
 
 function report() {
-  const maxTotal = Math.max(...measurements.map((m) => m.totalMs))
+  const maxLine = (metric: string) => {
+    const totals = measurements.filter((m) => m.metric === metric).map((m) => m.totalMs)
+    if (totals.length === 0) return []
+    const max = Math.max(...totals)
+    return [
+      `max total ms over ${metric} cases and runs: ${fmt(max)} (threshold ${THRESHOLD_MS} ms): ${max <= THRESHOLD_MS ? 'PASS' : 'FAIL'}`,
+    ]
+  }
   const rows = measurements.map((m) => ({
     case: m.label,
     run: m.run,
@@ -239,7 +260,8 @@ function report() {
     `HiGHS version: ${highs.version.string} (${highs.version.gitHash})`,
     `master version: ${master.version} (armors=${master.armors.length} decorations=${master.decorations.length} skills=${master.skills.length} setBonuses=${master.setBonuses.length} weapons=${master.weapons.length})`,
     `environment: node ${process.version}, ${process.platform} ${process.arch}, ${os.cpus()[0]?.model ?? 'unknown cpu'} x${os.cpus().length}`,
-    `max total ms over all cases and runs: ${fmt(maxTotal)} (threshold ${THRESHOLD_MS} ms): ${maxTotal <= THRESHOLD_MS ? 'PASS' : 'FAIL'}`,
+    ...maxLine('defense'),
+    ...maxLine('expectedDamage'),
   ]
   console.log(lines.join('\n'))
   console.table(rows)
@@ -262,7 +284,7 @@ describe('solveBuilds の測定（実データ）', () => {
     if (measurements.length > 0) report()
   })
 
-  it.each(CASES)('$label', async (testCase) => {
+  it.each([...CASES, ...DAMAGE_CASES])('$label', async (testCase) => {
     await measureCase(testCase)
   })
 })

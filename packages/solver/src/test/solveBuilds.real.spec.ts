@@ -1,6 +1,7 @@
 import highsLoader, { type Highs } from 'highs'
 import type { MasterBundle, SkillId } from '@swv/data'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { DAMAGE_EPSILON } from '../main/solveBuilds'
 import { makeRequest, skill, weaponId } from './support/builders'
 import { solveVerified } from './support/harness'
 import { loadRealMaster } from './support/realMaster'
@@ -63,4 +64,23 @@ describe('実データ（現行のマスター）で解く', () => {
     expect(result.status).toBe('optimal')
     expect(result.builds.length).toBeGreaterThan(0)
   })
+})
+
+describe('[006 AC12] 実データで expectedDamage を解く（条件をすべて有効にする）', () => {
+  it('固定の必須スキルの組で、全構成を独立の期待値で検算し、score が降順に並ぶ', async () => {
+    const request = makeRequest(master, {
+      weapon: { kind: 'master', weaponId: master.weapons[0]?.id ?? weaponId('') },
+      required: required([SKILL.fire, 1], [SKILL.taijutsu, 3]),
+      activeConditionIds: master.conditions.map((c) => c.id),
+      objective: { kind: 'maximize', metric: 'expectedDamage' },
+      maxResults: 2,
+    })
+    const result = await solveVerified(highs, master, request)
+    expect(result.status).toBe('optimal')
+    expect(result.builds.length).toBeGreaterThan(0)
+    const scores = result.builds.map((b) => b.score ?? Number.NaN)
+    for (let i = 1; i < scores.length; i++) {
+      expect(scores[i] ?? 0).toBeLessThanOrEqual((scores[i - 1] ?? 0) + DAMAGE_EPSILON)
+    }
+  }, 60_000)
 })
