@@ -190,8 +190,8 @@
 
 ## 常時許可外の変更
 - `design-system/skillweave/MASTER.md`（ナビの行・テーマの切り替え・照合の結果と状態のラベル・「武器用」「防具用」の用語を足す。担当: メイン。時期: T1。理由: D20・screen-design.md 6）
-- `design/master-data.md`（overlay の `readings` の書式、読みと抽選テーブルの検証、ja の辞書の `reading` を足す。担当: メイン。時期: T1。理由: D21）
-- `apps/web/src/main/components/ui/`（shadcn-vue の CLI で combobox・alert-dialog をコピーし、アイコンの import を @lucide/vue に書き換える。担当: メイン。時期: T2。理由: D15・`.claude/rules/ui-design.md`）
+- `design/master-data.md`（overlay の readings の書式、読みと抽選テーブルの検証、ja の辞書の reading を足す。担当: メイン。時期: T1。理由: D21）
+- `apps/web/src/main/components/ui/`（shadcn-vue の CLI で combobox・alert-dialog をコピーし、アイコンの import を @lucide/vue に書き換える。担当: メイン。時期: T2。理由: D15・.claude/rules/ui-design.md）
 - `packages/data/dist/master-2026.10.3.json`（生成物。生成のコマンドで書く。担当: メイン。時期: T5。理由: D4）
 - `packages/data/dist/master-2026.10.3.ja.json`（同上の ja の辞書。担当: メイン。時期: T5。理由: D4）
 - `packages/data/dist/master-2026.10.3.en.json`（同上の en の辞書。担当: メイン。時期: T5。理由: D4）
