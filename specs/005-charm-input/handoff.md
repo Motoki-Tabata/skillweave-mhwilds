@@ -69,6 +69,7 @@
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
 - T2: shadcn-vue@2.8.2 の CLI は、tsconfig.json に paths を一時的に足さないと失敗し、依存に cn を足して import も "cn" にした。依存の変更は戻し、import は既存の部品と同じ '@/lib/utils' に直した（apps/web/src/main/components/ui/combobox・alert-dialog）。既存の button の上書きを避けるため button を退避して復元した
 - T4: オーナーが読みの下書きを承認し、抽選テーブルは入れない（appraisedCharm は空）と決めた。T5: packages/data/dist を 2026.10.3 に再生成し旧版 3 ファイルを削除した。design/tech-stack.md に旧版 2026.10.2 の記述が残る（区間 E のドリフト走査で確認）
+- T7: ユーザー承認のうえ sonar-project.properties に multicriteria e4（CharmSkillRow.vue）・e5（CharmForm.vue）を追記した。Reka UI の SelectTrigger への Web:InputWithoutLabelCheck の誤検知で、既存の e3 と同じ扱い（計画の常時許可外の変更に無かった追加。区間 D で承認）
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
