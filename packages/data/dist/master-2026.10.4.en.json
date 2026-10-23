@@ -2856,6 +2856,69 @@
       "description": "Guardian Arkveld waistgear.\r\nThe chains writhe subtly, eager\r\nto ensnare prey.",
       "name": "G. Arkveld Coil β"
     },
+    "cd:adrenaline_rush": {
+      "name": "Adrenaline Rush active"
+    },
+    "cd:agitator": {
+      "name": "Agitator active"
+    },
+    "cd:ambush": {
+      "name": "Ambush active"
+    },
+    "cd:antivirus": {
+      "name": "Antivirus active"
+    },
+    "cd:bubbleblight": {
+      "name": "Bubbleblight"
+    },
+    "cd:counterstrike": {
+      "name": "Counterstrike active"
+    },
+    "cd:critical_draw": {
+      "name": "Critical Draw active"
+    },
+    "cd:doshagumas_might": {
+      "name": "Doshaguma's Might active"
+    },
+    "cd:ebony_odogarons_power": {
+      "name": "Ebony Odogaron's Power active"
+    },
+    "cd:foray": {
+      "name": "Attacking a poisoned or paralyzed large monster"
+    },
+    "cd:heroics": {
+      "name": "Heroics active"
+    },
+    "cd:latent_power": {
+      "name": "Latent Power active"
+    },
+    "cd:maximum_might": {
+      "name": "Maximum Might active"
+    },
+    "cd:offensive_guard": {
+      "name": "Offensive Guard active"
+    },
+    "cd:peak_performance": {
+      "name": "Peak Performance active"
+    },
+    "cd:punishing_draw": {
+      "name": "Attacking with Punishing Draw"
+    },
+    "cd:resentment": {
+      "name": "Resentment active"
+    },
+    "cd:weak_point": {
+      "name": "Attacking a weak point"
+    },
+    "cd:wet": {
+      "name": "Wet"
+    },
+    "cd:wound": {
+      "name": "Attacking a wound"
+    },
+    "cd:xu_wus_vigor": {
+      "name": "Xu Wu's Vigor active"
+    },
     "ch:-1137475456:1": {
       "description": "A charm that grants the Earplugs\r\nskill.",
       "name": "Earplugs Charm I"
@@ -11386,5 +11449,5 @@
     }
   },
   "locale": "en",
-  "version": "2026.10.3"
+  "version": "2026.10.4"
 }

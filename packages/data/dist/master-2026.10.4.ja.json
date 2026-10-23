@@ -2856,6 +2856,69 @@
       "description": "護竜アルシュベルドの腰防具。\r\n腰の鎖は常に脈動し、獲物を\r\n求めて、かすかにうごめく。",
       "name": "護鎖刃竜コイルβ"
     },
+    "cd:adrenaline_rush": {
+      "name": "巧撃の発動中"
+    },
+    "cd:agitator": {
+      "name": "挑戦者の発動中"
+    },
+    "cd:ambush": {
+      "name": "急襲の発動中"
+    },
+    "cd:antivirus": {
+      "name": "狂竜症の克服状態"
+    },
+    "cd:bubbleblight": {
+      "name": "泡状態"
+    },
+    "cd:counterstrike": {
+      "name": "逆襲の発動中"
+    },
+    "cd:critical_draw": {
+      "name": "抜刀術【技】の発動中"
+    },
+    "cd:doshagumas_might": {
+      "name": "闢獣の力の発動中"
+    },
+    "cd:ebony_odogarons_power": {
+      "name": "兇爪竜の力の発動中"
+    },
+    "cd:foray": {
+      "name": "毒・麻痺状態の大型モンスターへの攻撃"
+    },
+    "cd:heroics": {
+      "name": "火事場力の発動中"
+    },
+    "cd:latent_power": {
+      "name": "力の解放の発動中"
+    },
+    "cd:maximum_might": {
+      "name": "渾身の発動中"
+    },
+    "cd:offensive_guard": {
+      "name": "攻めの守勢の発動中"
+    },
+    "cd:peak_performance": {
+      "name": "フルチャージの発動中"
+    },
+    "cd:punishing_draw": {
+      "name": "武器出し攻撃"
+    },
+    "cd:resentment": {
+      "name": "逆恨みの発動中"
+    },
+    "cd:weak_point": {
+      "name": "有効部位への攻撃"
+    },
+    "cd:wet": {
+      "name": "水に濡れている状態"
+    },
+    "cd:wound": {
+      "name": "傷口への攻撃"
+    },
+    "cd:xu_wus_vigor": {
+      "name": "暗器蛸の力の発動中"
+    },
     "ch:-1137475456:1": {
       "description": "装備することで耳栓スキルが\r\n発動するお守り。",
       "name": "耳栓の護石Ⅰ"
@@ -11565,5 +11628,5 @@
     }
   },
   "locale": "ja",
-  "version": "2026.10.3"
+  "version": "2026.10.4"
 }
