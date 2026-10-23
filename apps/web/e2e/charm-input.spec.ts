@@ -35,7 +35,7 @@ async function openCharms(page: Page): Promise<void> {
 }
 
 test.describe('005 charm-input', () => {
-  test('受入基準 1, 2, 3, 5, 9: 護石を登録し、再読み込み後も残り、検索の構成カードに護石が出る（(c) 読みでの検索を含む）', async ({
+  test('受入基準 15（1, 2, 3, 4, 8, 9）: 護石を登録し、再読み込み後も残り、検索の構成カードに護石が出る（(c) 読みでの検索を含む）', async ({
     page,
   }) => {
     await openCharms(page)
@@ -87,7 +87,7 @@ test.describe('005 charm-input', () => {
     await expect(charm).toContainText('防具用 Lv3・防具用 Lv3・防具用 Lv3')
   })
 
-  test('受入基準 15: 同じスキルを2つ入れて登録すると保存されず、後の行の直下にエラーが出る', async ({
+  test('受入基準 15（5）: 同じスキルを2つ入れて登録すると保存されず、後の行の直下にエラーが出る', async ({
     page,
   }) => {
     await openCharms(page)
