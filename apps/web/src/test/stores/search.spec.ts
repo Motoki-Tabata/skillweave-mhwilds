@@ -92,6 +92,81 @@ describe('search ストア', () => {
       expect(search.summary?.charmCount).toBe(1)
     })
 
+    // 受入基準 8（待ち中の再送信は二重に送らない）
+    it('読込を待っている間に再び検索しても、solve は 1 回だけ送られる', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      expect(search.submit()).toBe(true)
+      expect(search.submit()).toBe(true)
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(worker.messages('solve')).toHaveLength(1)
+    })
+
+    // 受入基準 11（読込中に始めて、読込が失敗しても護石なしで解く）
+    it('読込中に始めた検索は、読込が failed で終わっても charms 空で送り、件数は 0', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      repository.failWith('list', 'unknown')
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      expect(charms.status).toBe('loading')
+      search.submit()
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(charms.status).toBe('failed')
+      expect(worker.messages('solve')).toHaveLength(1)
+      expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    it('読込中に始めた検索は、読込が unavailable で終わっても charms 空で送り、件数は 0', async () => {
+      const { search, charms, conditions } = await loadStores()
+      charms.setRepositoryOpener(async () => {
+        throw Object.assign(new Error('x'), { name: 'SecurityError' })
+      })
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      const loaded = charms.ensureLoaded()
+      expect(charms.status).toBe('loading')
+      search.submit()
+      await loaded
+      await flushPromises()
+      expect(charms.status).toBe('unavailable')
+      expect(worker.messages('solve')).toHaveLength(1)
+      expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    // 受入基準 8（待っている間に条件を変えても、送信時の条件で送る）
+    it('読込を待っている間に条件を変えても、送る要求と要約は送信時の条件のまま', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      conditions.toggleSkill(sk('a1'))
+      conditions.setMaxResults(4)
+      const worker = FakeWorker.last
+      search.submit()
+      conditions.toggleSkill(sk('a1'))
+      conditions.toggleSkill(sk('a2'))
+      conditions.setObjective('defense')
+      conditions.setMaxResults(9)
+      await charms.ensureLoaded()
+      await flushPromises()
+      const sent = worker.messages('solve')[0] as unknown as { request: Record<string, unknown> }
+      expect(sent.request).toMatchObject({
+        weapon: { kind: 'master', weaponId: wp('great-sword:1') },
+        objective: { kind: 'feasible' },
+        maxResults: 4,
+      })
+      expect(JSON.stringify(sent.request)).toContain(sk('a1'))
+      expect(JSON.stringify(sent.request)).not.toContain(sk('a2'))
+      expect(search.summary).toMatchObject({ maxResults: 4, requiredCount: 1 })
+    })
+
+    // 受入基準 8（待ち中のキャンセル）
     it('読込を待っている間にキャンセルすると、読込の後も送らず Q0 に戻る', async () => {
       const repository = createMemoryCharmRepository([storedCharm(1, good)])
       const { search, charms, conditions } = await loadStores(repository)

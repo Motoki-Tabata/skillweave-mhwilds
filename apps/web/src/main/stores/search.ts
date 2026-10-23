@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import type { WeaponId } from '@swv/data'
 import type { SolverCharm, SolverResponse } from '@swv/solver'
 import { objectiveLabel } from '@/constants/labels'
-import { buildSolverRequest } from '@/lib/solver/request'
+import { buildSolverRequest, type SearchConditions } from '@/lib/solver/request'
 import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
@@ -52,14 +52,17 @@ export const useSearchStore = defineStore('search', () => {
     errorMessage.value = ''
   }
 
-  function summarize(weaponId: WeaponId, charmCount: number): SearchSummary {
+  /** 送信した時点の条件の写し（護石の候補を除く）。待っている間に条件を編集しても変わらない。 */
+  type Submitted = Omit<SearchConditions, 'charms'> & { bundle: NonNullable<typeof master.bundle> }
+
+  function summarize(submitted: Submitted, charmCount: number): SearchSummary {
     return {
-      weaponId,
-      weaponName: master.nameOf(weaponId),
-      requiredCount: conditions.required.length,
-      objectiveLabel: objectiveLabel(conditions.objective),
-      maxResults: conditions.maxResults,
-      allRanksSelected: conditions.ranks.length === master.availableRanks.length,
+      weaponId: submitted.weaponId,
+      weaponName: master.nameOf(submitted.weaponId),
+      requiredCount: submitted.required.length,
+      objectiveLabel: objectiveLabel(submitted.objective),
+      maxResults: submitted.maxResults,
+      allRanksSelected: submitted.ranks.length === master.availableRanks.length,
       charmCount,
     }
   }
@@ -75,39 +78,44 @@ export const useSearchStore = defineStore('search', () => {
       conditions.showWeaponError()
       return false
     }
+    // 進行中の護石の読込待ちがあれば無効にする（二重送信と古い waiting の残りを防ぐ）
+    waiting = false
+    waitToken += 1
+    const submitted: Submitted = {
+      bundle,
+      weaponId,
+      required: conditions.required.map((skill) => ({ ...skill })),
+      objective: conditions.objective,
+      maxResults: conditions.maxResults,
+      ranks: [...conditions.ranks],
+    }
     // 前の検索の結果と進捗はすぐに消す
     clearResult()
     status.value = 'searching'
     runCount.value += 1
     if (charmsStore.status !== 'loading') {
-      dispatch(bundle, weaponId)
+      dispatch(submitted)
       return true
     }
     // 護石の読込の前に送ると登録済みの護石が落ちるので、読込の完了を待ってから送る
     waiting = true
-    const token = ++waitToken
+    const token = waitToken
     void charmsStore.ensureLoaded().then(() => {
       if (token !== waitToken) return
       waiting = false
-      dispatch(bundle, weaponId)
+      dispatch(submitted)
     })
     return true
   }
 
-  function dispatch(bundle: NonNullable<typeof master.bundle>, weaponId: WeaponId): void {
+  function dispatch(submitted: Submitted): void {
     // ストアの候補は読み込み後に差し替わるので、送信の時点の写しを取る
     const charms = charmsStore.candidates.map((charm) => structuredClone(toRaw(charm)))
-    const request = buildSolverRequest(bundle, {
-      weaponId,
-      required: conditions.required,
-      objective: conditions.objective,
-      maxResults: conditions.maxResults,
-      ranks: conditions.ranks,
-      charms,
-    })
+    const { bundle, ...rest } = submitted
+    const request = buildSolverRequest(bundle, { ...rest, charms })
     // 送信した時点の候補を持つ（検索の後に護石を編集・削除しても、表示中の結果は変えない）
     submittedCharms.value = new Map(charms.map((charm) => [charm.id, charm]))
-    summary.value = summarize(weaponId, charms.length)
+    summary.value = summarize(submitted, charms.length)
     master.solve(request, {
       onProgress: (count) => {
         found.value = count
