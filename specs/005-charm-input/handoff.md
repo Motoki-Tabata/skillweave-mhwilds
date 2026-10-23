@@ -110,11 +110,13 @@
 - T2: shadcn-vue@2.8.2 の CLI は、tsconfig.json に paths を一時的に足さないと失敗し、依存に cn を足して import も "cn" にした。依存の変更は戻し、import は既存の部品と同じ '@/lib/utils' に直した（apps/web/src/main/components/ui/combobox・alert-dialog）。既存の button の上書きを避けるため button を退避して復元した
 - T4: オーナーが読みの下書きを承認し、抽選テーブルは入れない（appraisedCharm は空）と決めた。T5: packages/data/dist を 2026.10.3 に再生成し旧版 3 ファイルを削除した。design/tech-stack.md に旧版 2026.10.2 の記述が残る（区間 E のドリフト走査で確認）
 - T7: ユーザー承認のうえ sonar-project.properties に multicriteria e4（CharmSkillRow.vue）・e5（CharmForm.vue）を追記した。Reka UI の SelectTrigger への Web:InputWithoutLabelCheck の誤検知で、既存の e3 と同じ扱い（計画の常時許可外の変更に無かった追加。区間 D で承認）
+- D-1: ユーザー判断 — 要判断 A（読込中の検索）は読込の完了を待って送るよう是正、B（e2e の .last()）と C（警告帯の ResultAlert 化）は現状を許容。読みの下書きで sk:353114912「溜打強化」(りゅうだきょうか) は「ためうち」の可能性あり（確信は低く、オーナー承認済み）。持ち越し: 待ち経路が進行中の前の solve を止めない・fixtures の読みの二重定義・describe 見出しの 002/005 番号混在・MASTER.md の role=status と output・tech-stack.md の旧版記述
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で起票すべき教訓は出なかった）
 - 区間 C: plan の常時許可外の行のバッククォートの教訓を tasks/lessons.md に起票済み（ほかの候補なし）
+- 区間 D: 教訓は tasks/lessons.md に3件起票済み（Sonar 抑止の事前申告・shadcn CLI の落とし穴・受入基準 ID の数え方）。ほかに持ち越す候補なし
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
