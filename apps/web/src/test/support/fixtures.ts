@@ -133,6 +133,7 @@ export function makeBundle(options: BundleOptions = {}): MasterBundle {
     weapons: makeWeapons(options.extraGreatSwords ?? 0),
     charms: [],
     appraisedCharm: { patterns: [], groups: [] },
+    conditions: [],
   }
 }
 
