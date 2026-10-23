@@ -111,7 +111,7 @@ function onLevel(value: unknown): void {
             placeholder="スキルを検索"
             :aria-invalid="error !== null"
             :aria-describedby="error === null ? undefined : errorId"
-            class="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive h-11 w-full min-w-0 truncate rounded-md border px-3 text-base shadow-xs outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50"
+            class="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive h-11 w-full min-w-0 truncate rounded-md border px-3 text-base md:text-sm outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50"
             @blur="onBlur"
           />
         </ComboboxAnchor>

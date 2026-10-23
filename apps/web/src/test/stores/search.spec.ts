@@ -9,7 +9,7 @@ import { loadStores, restoreStubs, stubBackend } from '../support/mount'
 import { createMemoryCharmRepository } from '../support/charmRepository'
 import { charmId, storedCharm } from '../support/charms'
 
-// 受入基準 6・7・8（検索の状態 Q0〜Q7）
+// 受入基準 8（検索の状態 Q0〜Q7）
 describe('search ストア', () => {
   const response: SolverResponse = { status: 'optimal', builds: [makeBuild()], elapsedMs: 5 }
 
@@ -33,7 +33,7 @@ describe('search ストア', () => {
     expect(search.status).toBe('idle')
   })
 
-  // 受入基準 2・8（送信した時点の候補を渡し、要約に件数を持つ）
+  // 受入基準 8（送信した時点の候補を渡し、要約に件数を持つ）
   describe('護石の候補', () => {
     const good: CharmPayload = {
       rarity: 8,
@@ -69,6 +69,35 @@ describe('search ストア', () => {
       const { search, worker } = await setup()
       search.submit()
       expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    // 受入基準 11（護石なしの検索は引き続き使える）
+    it('護石を端末に保存できない（unavailable）ときも、charms 空で検索を送り、件数は 0', async () => {
+      const { search, charms, conditions, worker } = await loadStores().then((s) => ({
+        ...s,
+        worker: FakeWorker.last,
+      }))
+      charms.setRepositoryOpener(async () => {
+        throw Object.assign(new Error('x'), { name: 'SecurityError' })
+      })
+      await charms.ensureLoaded()
+      expect(charms.status).toBe('unavailable')
+      conditions.selectWeapon(wp('great-sword:1'))
+      expect(search.submit()).toBe(true)
+      expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    it('護石の一覧を読めない（failed）ときも、charms 空で検索を送り、件数は 0', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      repository.failWith('list', 'unknown')
+      await charms.ensureLoaded()
+      expect(charms.status).toBe('failed')
+      conditions.selectWeapon(wp('great-sword:1'))
+      expect(search.submit()).toBe(true)
+      expect(FakeWorker.last.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
       expect(search.summary?.charmCount).toBe(0)
     })
 

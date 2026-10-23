@@ -295,15 +295,12 @@ function onEnter(event: KeyboardEvent): void {
             @update:model-value="setRarity"
           >
             <Label
-              v-for="(value, i) in CHARM_RARITIES"
+              v-for="value in CHARM_RARITIES"
               :key="value"
               :for="`charm-rarity-${value}`"
               class="has-[[data-state=checked]]:border-foreground flex min-h-11 items-center justify-center gap-2 rounded-md border px-2 text-base tabular-nums"
             >
-              <RadioGroupItem
-                :id="i === 0 ? 'charm-rarity-first' : `charm-rarity-${value}`"
-                :value="String(value)"
-              />
+              <RadioGroupItem :id="`charm-rarity-${value}`" :value="String(value)" />
               {{ value }}
             </Label>
           </RadioGroup>

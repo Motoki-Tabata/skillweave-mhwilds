@@ -22,7 +22,7 @@ const emit = defineEmits<{
   <AlertDialog :open="open" @update:open="(value: boolean) => emit('update:open', value)">
     <AlertDialogContent @close-auto-focus="(event: Event) => emit('closeAutoFocus', event)">
       <AlertDialogHeader>
-        <AlertDialogTitle>護石を削除しますか？</AlertDialogTitle>
+        <AlertDialogTitle class="text-base">護石を削除しますか？</AlertDialogTitle>
         <AlertDialogDescription>{{ summary }}。削除すると元に戻せません。</AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>

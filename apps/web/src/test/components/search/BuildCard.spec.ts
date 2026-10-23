@@ -15,7 +15,7 @@ import {
 } from '../../support/mount'
 import type { Mounted } from '../../support/mount'
 
-// 受入基準 8（構成カードの表示項目）
+// 受入基準 9（構成カードの表示項目）
 describe('BuildCard', () => {
   let mounted: Mounted | null = null
 
@@ -119,7 +119,7 @@ describe('BuildCard', () => {
     expect(textOf(section('空きスロット', card()))).toContain('空きスロットなし')
   })
 
-  // 受入基準 8・10（護石の節・護石のスロットの Lv・検索後の編集に影響されない）
+  // 受入基準 9（護石の節・護石のスロットの Lv・検索後の編集に影響されない）、8（要約の護石の件数）
   describe('護石', () => {
     const payload: CharmPayload = {
       rarity: 8,

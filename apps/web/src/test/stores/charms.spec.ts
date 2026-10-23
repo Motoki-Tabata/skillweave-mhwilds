@@ -73,7 +73,7 @@ describe('charms ストア', () => {
     expect(useToastStore(pinia).items[0].message).toBe('護石を削除しました。')
   })
 
-  // 受入基準 10（書き込みの失敗）
+  // 受入基準 11（書き込みの失敗）
   it('書き込みに失敗したら、一覧を変えず、原因つきの destructive のトーストを出す', async () => {
     const repo = createMemoryCharmRepository([storedCharm(1, passing)])
     const { charms, pinia } = await loadStores(repo)
@@ -135,7 +135,7 @@ describe('charms ストア', () => {
     expect(opened).toBe(1)
   })
 
-  // 受入基準 6・7・9（照合の結果）、8（候補と検索対象外）
+  // 受入基準 6・7（照合の結果）、8・10（候補と検索対象外）
   it('各護石の照合の結果を、現行のマスターで求める', async () => {
     const repo = createMemoryCharmRepository([
       storedCharm(1, passing),

@@ -21,7 +21,7 @@ const good: CharmPayload = {
 }
 const overLevel: CharmPayload = { ...good, skills: [{ skillId: sk('a1'), level: 9 }] }
 
-// 受入基準 2・10（S1 の「護石」カードの4つの状態と S2 へのリンク）
+// 受入基準 8・10・11（S1 の「護石」カードの4つの状態と S2 へのリンク）
 describe('CharmCard（S1 の護石カード）', () => {
   let mounted: Mounted | null = null
 

@@ -13,7 +13,7 @@ import {
 } from '../../support/mount'
 import type { Mounted } from '../../support/mount'
 
-// 受入基準 4（必須スキルの追加・削除・種類ごとのまとまり）
+// 受入基準 2（必須スキルのダイアログ。追加・削除・種類ごとのまとまりは 004 の振る舞い）
 describe('SkillDialog（D2）', () => {
   let mounted: Mounted | null = null
 
@@ -99,7 +99,7 @@ describe('SkillDialog（D2）', () => {
     expect(tabs()).toHaveLength(4)
   })
 
-  // 受入基準 9（D2: 読みでの検索）
+  // 受入基準 2（D2: 読みでの検索）
   it('読み（ひらがな・カタカナ・半角）でも一致する。読みが無いスキルは名前だけで照らす', async () => {
     await open()
     await setQuery('こうげき')

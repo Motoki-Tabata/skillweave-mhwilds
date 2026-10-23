@@ -103,6 +103,18 @@ describe('CharmsView（S2・D3）', () => {
 
   // 受入基準 1（入力して登録）・3（端末に保存し、再読み込みの後も残る）
   describe('登録', () => {
+    // 受入基準 1（レア度の各選択肢がラベルで名前を持つ）
+    it('レア度の各選択肢は、ラベルの数字をアクセシブルネームに持つ', async () => {
+      await ready()
+      for (const value of [5, 6, 7, 8]) {
+        const item = radio(value)
+        expect(item.id).toBe(`charm-rarity-${value}`)
+        expect(document.querySelector(`label[for="${item.id}"]`)?.textContent?.trim()).toBe(
+          String(value),
+        )
+      }
+    })
+
     it(
       'レア度・スキル・レベル・スロットを入力して登録すると、端末に保存し一覧に出す',
       async () => {
@@ -384,7 +396,7 @@ describe('CharmsView（S2・D3）', () => {
     )
   })
 
-  // 受入基準 4（一覧）・8（候補になる件数）・9（検索対象外）
+  // 受入基準 4（一覧）・8（候補になる件数）・10（検索対象外）
   describe('一覧', () => {
     const repo = () =>
       createMemoryCharmRepository([
@@ -535,7 +547,7 @@ describe('CharmsView（S2・D3）', () => {
     )
   })
 
-  // 受入基準 10（保存できない・書き込みの失敗）
+  // 受入基準 11（保存できない・書き込みの失敗）
   describe('状態', () => {
     it('端末に保存できないときは、原因と次の行動を消えない表示で出し、フォームを無効にする', async () => {
       stubBackend({ bundle: makeTableBundle() })
