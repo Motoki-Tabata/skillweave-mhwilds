@@ -53,6 +53,7 @@
 | web（T6） | web-agent | 157c9ed |
 | web（T7。Sonar 2 件は抑止の承認待ち） | web-agent | 44a5c29 |
 | web（T8） | web-agent | ce1c68b |
+| E2E | e2e-agent | 6ce5ff6 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
