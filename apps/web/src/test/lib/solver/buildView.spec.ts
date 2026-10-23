@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { SolvedBuild } from '@swv/solver'
+import type { SolvedBuild, Uuid } from '@swv/solver'
 import { NO_ARMOR_LABEL, toBuildView } from '@/lib/solver/buildView'
 import type { BuildLookup } from '@/lib/solver/buildView'
 import { NAMES, SKILLS, armorId, dc, makeBuild, makeBundle, sk, wp } from '../../support/fixtures'
@@ -9,6 +9,7 @@ describe('toBuildView', () => {
   const bundle = makeBundle()
   const weapon = bundle.weapons.find((w) => w.id === wp('great-sword:1'))
   const lookup: BuildLookup = {
+    charm: () => undefined,
     armor: (id) => bundle.armors.find((a) => a.id === id),
     weapon,
     skillKind: (id) => SKILLS.find((s) => s.id === id)?.kind,
@@ -93,6 +94,71 @@ describe('toBuildView', () => {
     expect(view.freeSlots).toEqual([
       { ownerLabel: '武器', slotLevel: 3 },
       { ownerLabel: '武器', slotLevel: 1 },
+    ])
+  })
+})
+
+// 受入基準 9（構成の護石の節と護石のスロットの Lv）
+describe('toBuildView の護石', () => {
+  const bundle = makeBundle()
+  const charm = {
+    id: '018f0000-0000-7000-8000-000000000001' as Uuid,
+    rarity: 8,
+    skills: [
+      { skillId: sk('a1'), level: 2 },
+      { skillId: sk('w1'), level: 1 },
+    ],
+    slots: [
+      { target: 'weapon' as const, level: 1 as const },
+      { target: 'armor' as const, level: 3 as const },
+    ],
+  }
+  const lookup: BuildLookup = {
+    charm: (id) => (id === charm.id ? charm : undefined),
+    armor: (id) => bundle.armors.find((a) => a.id === id),
+    weapon: undefined,
+    skillKind: (id) => SKILLS.find((s) => s.id === id)?.kind,
+    nameOf: (id) => NAMES[id] ?? id,
+  }
+  const withCharm = (build: SolvedBuild): SolvedBuild => ({ ...build, charmId: charm.id })
+
+  it('護石を使わない構成の charm は null', () => {
+    expect(toBuildView(makeBuild(), lookup).charm).toBeNull()
+  })
+
+  it('使った護石のレア度・スキル（並び順）・スロットを出す', () => {
+    expect(toBuildView(withCharm(makeBuild()), lookup).charm).toEqual({
+      rarity: 8,
+      skills: [
+        { name: NAMES[sk('a1')], level: 2 },
+        { name: NAMES[sk('w1')], level: 1 },
+      ],
+      slots: [
+        { targetLabel: '武器用', level: 1 },
+        { targetLabel: '防具用', level: 3 },
+      ],
+    })
+  })
+
+  it('候補に無い護石の ID なら charm は null', () => {
+    const build = { ...makeBuild(), charmId: 'x' as Uuid }
+    expect(toBuildView(build, lookup).charm).toBeNull()
+  })
+
+  it('護石のスロットに付けた装飾品と空きスロットの Lv は護石の slots から引く', () => {
+    const build: SolvedBuild = {
+      ...withCharm(makeBuild()),
+      decorations: [{ slot: { owner: 'charm', index: 1 }, decorationId: dc('1') }],
+      freeSlots: [
+        { owner: 'charm', index: 0 },
+        { owner: 'charm', index: 5 },
+      ],
+    }
+    const view = toBuildView(build, lookup)
+    expect(view.decorations).toEqual([{ ownerLabel: '護石', slotLevel: 3, name: NAMES[dc('1')] }])
+    expect(view.freeSlots).toEqual([
+      { ownerLabel: '護石', slotLevel: 1 },
+      { ownerLabel: '護石', slotLevel: null },
     ])
   })
 })

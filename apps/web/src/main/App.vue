@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
+import AppNav from '@/components/common/AppNav.vue'
 import AppToaster from '@/components/common/AppToaster.vue'
 import CreditBar from '@/components/common/CreditBar.vue'
 </script>
@@ -8,6 +9,7 @@ import CreditBar from '@/components/common/CreditBar.vue'
 <template>
   <div class="flex min-h-screen flex-col">
     <AppHeader />
+    <AppNav />
     <!-- 下端に固定したクレジットのバー（高さ 32px）に隠れないよう、下に余白を取る -->
     <main class="flex-1 pb-14">
       <RouterView />

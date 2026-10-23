@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { MASTER_VERSION, MHDB_COMMIT, MHDB_REPOSITORY } from '../../main/pipeline/config.ts'
 import type { FetchFn } from '../../main/pipeline/fetch.ts'
 import { run } from '../../main/pipeline/generate.ts'
-import { makeInput, useTempDirs } from '../support/fixtures.ts'
+import { READINGS_YAML, makeInput, useTempDirs } from '../support/fixtures.ts'
 
 const makeTempDir = useTempDirs()
 const quiet = (): void => undefined
@@ -29,8 +29,12 @@ function fakeFetch(calls: string[] = [], input = makeInput()): FetchFn {
   }
 }
 
+/** 全スキルの読みを書いた overlay を持つパッケージのディレクトリ */
 async function packageDir(): Promise<string> {
-  return `${await makeTempDir()}/`
+  const dir = `${await makeTempDir()}/`
+  await mkdir(join(dir, 'overlays'))
+  await writeFile(join(dir, 'overlays', 'readings.yaml'), READINGS_YAML)
+  return dir
 }
 
 const generate = (dir: string, check: boolean, calls: string[] = []): Promise<void> =>
@@ -63,6 +67,29 @@ describe('生成の入口（受入基準 1・2・10）', () => {
     expect(bundle.source.commit).toBe(MHDB_COMMIT)
   })
 
+  it('読みは ja の辞書のスキルにだけ出て、en には出ない（受入基準 13）', async () => {
+    const dir = await packageDir()
+    await generate(dir, false)
+    const read = async (locale: string) =>
+      JSON.parse(
+        await readFile(join(dir, 'dist', `master-${MASTER_VERSION}.${locale}.json`), 'utf8'),
+      ) as {
+        entries: Record<string, { reading?: string }>
+      }
+    const ja = await read('ja')
+    const en = await read('en')
+    expect(ja.entries['sk:100']?.reading).toBe('こうげき')
+    expect(ja.entries['dc:1']?.reading).toBeUndefined()
+    expect(Object.values(en.entries).some((e) => e.reading !== undefined)).toBe(false)
+  })
+
+  it('スキルの読みが足りないと、出力を書かずに失敗する（受入基準 13）', async () => {
+    const dir = await packageDir()
+    await writeFile(join(dir, 'overlays', 'readings.yaml'), 'readings:\n  sk:100: こうげき\n')
+    await expect(generate(dir, false)).rejects.toThrow(/dictionary-reading[\s\S]*sk:101/)
+    await expect(readdir(join(dir, 'dist'))).rejects.toThrow()
+  })
+
   it('2回目はキャッシュを使ってネットワークに接続せず、同じ内容になる', async () => {
     const dir = await packageDir()
     await generate(dir, false)
@@ -86,7 +113,6 @@ describe('生成の入口（受入基準 1・2・10）', () => {
 
   it('オーバーレイのエラーは出力を書かずに失敗する', async () => {
     const dir = await packageDir()
-    await mkdir(join(dir, 'overlays'))
     await writeFile(join(dir, 'overlays', 'bad.yaml'), 'unknown: 1\n')
     await expect(generate(dir, false)).rejects.toThrow(
       /オーバーレイのエラー（1件）[\s\S]*bad\.yaml:1:1/,
@@ -106,7 +132,6 @@ describe('生成の入口（受入基準 1・2・10）', () => {
 
   it('検証の違反は全件を示し、出力を書かずに失敗する', async () => {
     const dir = await packageDir()
-    await mkdir(join(dir, 'overlays'))
     await writeFile(
       join(dir, 'overlays', 'a.yaml'),
       'replace:\n  - id: sb:200\n    field: thresholds\n    value:\n      - { pieces: 4, level: 1 }\n      - { pieces: 2, level: 1 }\n',

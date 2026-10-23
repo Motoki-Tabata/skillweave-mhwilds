@@ -11,4 +11,12 @@ describe('toast ストア', () => {
     toast.dismiss(toast.items[0].id)
     expect(toast.items.map((i) => i.message)).toEqual(['b'])
   })
+
+  // 受入基準 11（書き込みの失敗は destructive で出す。D17）
+  it('tone は既定が default で、destructive を指定できる', () => {
+    const toast = useToastStore(newPinia())
+    toast.push('a')
+    toast.push('b', 'destructive')
+    expect(toast.items.map((i) => i.tone)).toEqual(['default', 'destructive'])
+  })
 })

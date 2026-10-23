@@ -5,7 +5,10 @@ import type { Pinia } from 'pinia'
 import { vi } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import App from '@/App.vue'
-import SearchView from '@/views/SearchView.vue'
+import { installTitleHook, routes } from '@/router'
+import { createMemoryCharmRepository } from './charmRepository'
+import type { CharmRepository } from '@/lib/charms/storage'
+import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
 import { useSearchStore } from '@/stores/search'
@@ -45,32 +48,51 @@ export function newPinia(): Pinia {
   return pinia
 }
 
+/** 護石の保存先を差し替える。既定はメモリ上の実装（IndexedDB は jsdom に無い）。 */
+function installRepository(pinia: Pinia, given?: CharmRepository): CharmRepository {
+  const repository = given ?? createMemoryCharmRepository()
+  useCharmsStore(pinia).setRepositoryOpener(async () => repository)
+  return repository
+}
+
 function newRouter() {
-  return createRouter({
-    history: createMemoryHistory(),
-    routes: [{ path: '/', component: SearchView }],
-  })
+  const router = createRouter({ history: createMemoryHistory(), routes })
+  installTitleHook(router)
+  return router
+}
+
+export interface MountOptions {
+  /** 初期のパス。既定は `/` */
+  path?: string
+  /** 護石の保存先。既定は空のメモリ上の実装 */
+  charmRepository?: CharmRepository
 }
 
 export interface Mounted {
   wrapper: VueWrapper
   pinia: Pinia
+  charms: ReturnType<typeof useCharmsStore>
+  /** 既定のとき（メモリ上の実装）だけ、保存の中身を見られる */
+  repository: CharmRepository
   master: ReturnType<typeof useMasterStore>
   conditions: ReturnType<typeof useConditionsStore>
   search: ReturnType<typeof useSearchStore>
 }
 
 /** アプリ全体（App.vue + SearchView）をマウントする。読み込みは終わらせない。 */
-export async function mountApp(): Promise<Mounted> {
+export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
   const pinia = newPinia()
+  const repository = installRepository(pinia, options.charmRepository)
   const router = newRouter()
-  await router.push('/')
+  await router.push(options.path ?? '/')
   await router.isReady()
   const wrapper = mount(App, { global: { plugins: [pinia, router] }, attachTo: document.body })
   await flushPromises()
   return {
     wrapper,
     pinia,
+    charms: useCharmsStore(pinia),
+    repository,
     master: useMasterStore(pinia),
     conditions: useConditionsStore(pinia),
     search: useSearchStore(pinia),
@@ -78,8 +100,8 @@ export async function mountApp(): Promise<Mounted> {
 }
 
 /** 読み込みが終わった（P3）アプリ。 */
-export async function mountReadyApp(): Promise<Mounted> {
-  const mounted = await mountApp()
+export async function mountReadyApp(options: MountOptions = {}): Promise<Mounted> {
+  const mounted = await mountApp(options)
   await vi.waitFor(() => {
     if (mounted.master.status !== 'ready') throw new Error('not ready')
   })
@@ -88,11 +110,21 @@ export async function mountReadyApp(): Promise<Mounted> {
 }
 
 /** ストアだけを読み込む（コンポーネントは別にマウントする）。 */
-export async function loadStores(): Promise<Omit<Mounted, 'wrapper'>> {
+export async function loadStores(
+  charmRepository?: CharmRepository,
+): Promise<Omit<Mounted, 'wrapper'>> {
   const pinia = newPinia()
+  const repository = installRepository(pinia, charmRepository)
   const master = useMasterStore(pinia)
   await master.load()
-  return { pinia, master, conditions: useConditionsStore(pinia), search: useSearchStore(pinia) }
+  return {
+    pinia,
+    repository,
+    master,
+    charms: useCharmsStore(pinia),
+    conditions: useConditionsStore(pinia),
+    search: useSearchStore(pinia),
+  }
 }
 
 export { flushPromises }

@@ -16,7 +16,7 @@ interface RawMaster {
 }
 
 interface Dictionary {
-  entries: Record<string, { name: string }>
+  entries: Record<string, { name: string; reading?: string }>
 }
 
 export interface MasterInfo {
@@ -27,7 +27,12 @@ export interface MasterInfo {
   maxLevelOf: (skillId: string) => number
   /** スキルを持たず、シリーズ／グループスキルも持たない、マスターの先頭の武器の ID */
   plainWeaponId: string
+  /** 護石に入れる防具スキルのうち、名前に漢字を含み、読み（ひらがな）があり、名前が一意のもの */
+  kanjiArmorSkill: () => { id: string; name: string; reading: string; maxLevel: number }
 }
+
+const HAN = /\p{Script=Han}/u
+const HIRAGANA = /^[ぁ-ゖー]+$/u
 
 export function loadMasterInfo(): MasterInfo {
   const files = readdirSync(DIST_DIR).filter((f) => MASTER_FILE.test(f) && !DICTIONARY_FILE.test(f))
@@ -43,7 +48,21 @@ export function loadMasterInfo(): MasterInfo {
   const plain = master.weapons.find((w) => w.skills.length === 0 && w.setBonusIds.length === 0)
   if (plain === undefined) throw new Error('スキルを持たないマスターの武器が無い')
 
+  const kanjiArmorSkill: MasterInfo['kanjiArmorSkill'] = () => {
+    const names = Object.values(dictionary.entries).map((e) => e.name)
+    for (const skill of master.skills) {
+      const entry = dictionary.entries[skill.id]
+      if (skill.kind !== 'armor' || entry?.reading === undefined) continue
+      const unique = names.filter((n) => n.includes(entry.name)).length === 1
+      if (unique && HAN.test(entry.name) && HIRAGANA.test(entry.reading)) {
+        return { id: skill.id, name: entry.name, reading: entry.reading, maxLevel: skill.maxLevel }
+      }
+    }
+    throw new Error('条件に合う防具スキルが辞書に無い')
+  }
+
   return {
+    kanjiArmorSkill,
     version: master.version,
     nameOf: (id) => {
       const entry = dictionary.entries[id]

@@ -5,7 +5,7 @@ import { fetchMhdb } from './fetch.ts'
 import { formatList } from './format.ts'
 import type { FetchFn } from './fetch.ts'
 import { diffOutput, outputContents, writeOutput } from './output.ts'
-import { applyOverlays, formatOverlayError, readOverlayFiles } from './overlay.ts'
+import { applyOverlays, applyReadings, formatOverlayError, readOverlayFiles } from './overlay.ts'
 import { serializeBundle, serializeDictionary } from './serialize.ts'
 import { formatViolation, validate } from './validate.ts'
 
@@ -48,9 +48,13 @@ export async function run(options: RunOptions): Promise<void> {
     throw new Error(formatList(`オーバーレイのエラー（${lines.length}件）`, lines))
   }
 
+  const dictionaries = {
+    ja: applyReadings(converted.dictionaries.ja, overlayResult.readings),
+    en: converted.dictionaries.en,
+  }
   const violations = validate({
     bundle: overlayResult.bundle,
-    dictionaries: converted.dictionaries,
+    dictionaries,
     mismatches: overlayResult.mismatches,
   })
   if (violations.length > 0) {
@@ -61,8 +65,8 @@ export async function run(options: RunOptions): Promise<void> {
 
   const contents = outputContents(MASTER_VERSION, {
     bundle: serializeBundle(overlayResult.bundle),
-    ja: serializeDictionary(converted.dictionaries.ja),
-    en: serializeDictionary(converted.dictionaries.en),
+    ja: serializeDictionary(dictionaries.ja),
+    en: serializeDictionary(dictionaries.en),
   })
   const distDir = `${packageDir}dist`
 

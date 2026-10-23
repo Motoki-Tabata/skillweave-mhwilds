@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { Uuid } from '@swv/solver'
 import type { SearchConditions } from '@/lib/solver/request'
 import { buildSolverRequest, excludedArmorIds, toObjective } from '@/lib/solver/request'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
@@ -16,6 +17,7 @@ describe('buildSolverRequest', () => {
     objective: 'feasible',
     maxResults: 7,
     ranks: ['high'],
+    charms: [],
   }
 
   it('版・武器・必須スキル・件数・timeoutMs を渡し、護石の候補は空にする', () => {
@@ -57,5 +59,33 @@ describe('buildSolverRequest', () => {
       kind: 'maximize',
       metric: 'defense',
     })
+  })
+})
+
+// 受入基準 8（護石の候補を SolverRequest に渡す）
+describe('buildSolverRequest の護石', () => {
+  const bundle = makeBundle()
+  const conditions: SearchConditions = {
+    weaponId: wp('great-sword:1'),
+    required: [],
+    objective: 'feasible',
+    maxResults: 5,
+    ranks: ['high'],
+    charms: [
+      {
+        id: '018f0000-0000-7000-8000-000000000001' as Uuid,
+        rarity: 8,
+        skills: [{ skillId: sk('a1'), level: 2 }],
+        slots: [{ target: 'weapon', level: 1 }],
+      },
+    ],
+  }
+
+  it('護石の候補をそのまま charms に渡す', () => {
+    expect(buildSolverRequest(bundle, conditions).charms).toEqual(conditions.charms)
+  })
+
+  it('護石が1つも無ければ charms は空（護石なしで解く）', () => {
+    expect(buildSolverRequest(bundle, { ...conditions, charms: [] }).charms).toEqual([])
   })
 })

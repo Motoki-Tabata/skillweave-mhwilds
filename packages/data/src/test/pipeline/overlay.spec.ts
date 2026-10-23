@@ -5,6 +5,7 @@ import { convert } from '../../main/pipeline/convert.ts'
 import {
   applyOverlays,
   formatOverlayError,
+  applyReadings,
   readOverlayFiles,
   type OverlayFile,
 } from '../../main/pipeline/overlay.ts'
@@ -90,6 +91,17 @@ describe('オーバーレイの適用（受入基準 6）', () => {
     expect(result.ok).toBe(true)
   })
 
+  it('readings を読み、ja の辞書のスキルにだけ重ねる（受入基準 13）', () => {
+    const result = apply(file('a.yaml', 'readings:\n  sk:100: こうげき\n'))
+    if (!result.ok) throw new Error('失敗')
+    expect(result.readings).toEqual({ 'sk:100': 'こうげき' })
+    const { dictionaries } = base()
+    const ja = applyReadings(dictionaries.ja, result.readings)
+    expect(ja.entries['sk:100']?.reading).toBe('こうげき')
+    expect(ja.entries['sk:101']?.reading).toBeUndefined()
+    expect(dictionaries.ja.entries['sk:100']?.reading).toBeUndefined() // 元は変えない
+  })
+
   it('ファイル名の昇順で読む（ディレクトリの読み込み）', async () => {
     const dir = await makeTempDir()
     await writeFile(join(dir, 'b.yaml'), 'b')
@@ -154,6 +166,28 @@ describe('オーバーレイの失敗（受入基準 7・plan 決定事項 12）
     expect(messages).toHaveLength(2)
     expect(messages[0]).toMatch(/^x\.yaml:2:3: .*other/)
     expect(messages[1]).toMatch(/^x\.yaml:3:/)
+  })
+
+  it('readings の存在しない ID・スキル以外の ID・文字列でない値は位置つきで失敗する（受入基準 13）', () => {
+    expect(errorsOf(file('x.yaml', 'readings:\n  sk:999: ああ\n'))).toEqual([
+      expect.stringMatching(/^x\.yaml:2:3: .*sk:999.*存在しません/),
+    ])
+    expect(errorsOf(file('x.yaml', 'readings:\n  sb:200: ああ\n'))).toEqual([
+      expect.stringMatching(/^x\.yaml:2:3: .*sb:200.*スキル/),
+    ])
+    expect(errorsOf(file('x.yaml', 'readings:\n  sk:100: 5\n'))).toEqual([
+      expect.stringMatching(/^x\.yaml:2:11: .*文字列/),
+    ])
+    expect(errorsOf(file('x.yaml', 'readings:\n  sk:100: [a]\n'))[0]).toMatch(/^x\.yaml:2:11: /)
+    expect(errorsOf(file('x.yaml', 'readings: 1\n'))[0]).toMatch(/^x\.yaml:1:11: /)
+  })
+
+  it('readings の同じ ID の重複は失敗する（同一ファイル内・ファイルをまたぐ）', () => {
+    const [within] = errorsOf(file('x.yaml', 'readings:\n  sk:100: ああ\n  sk:100: いい\n'))
+    expect(within).toMatch(/^x\.yaml:3:3: /)
+    const entry = 'readings:\n  sk:100: ああ\n'
+    const [across] = errorsOf(file('a.yaml', entry), file('b.yaml', entry))
+    expect(across).toMatch(/^b\.yaml:2:3: .*sk:100.*複数.*a\.yaml:2/)
   })
 
   it('失敗が1件でもあれば結果に bundle を返さない', () => {

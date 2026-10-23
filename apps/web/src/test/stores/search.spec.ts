@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { SolverResponse } from '@swv/solver'
+import type { CharmPayload } from '@/lib/charms/types'
 import { CANCELLED_TOAST_MESSAGE } from '@/stores/search'
 import { useToastStore } from '@/stores/toast'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
 import { FakeWorker, armorId, makeBuild, sk, wp } from '../support/fixtures'
-import { loadStores, restoreStubs, stubBackend } from '../support/mount'
+import { flushPromises, loadStores, restoreStubs, stubBackend } from '../support/mount'
+import { createMemoryCharmRepository } from '../support/charmRepository'
+import { charmId, storedCharm } from '../support/charms'
 
-// 受入基準 6・7・8（検索の状態 Q0〜Q7）
+// 受入基準 8（検索の状態 Q0〜Q7）
 describe('search ストア', () => {
   const response: SolverResponse = { status: 'optimal', builds: [makeBuild()], elapsedMs: 5 }
 
@@ -15,6 +18,7 @@ describe('search ストア', () => {
 
   async function setup() {
     const stores = await loadStores()
+    await stores.charms.ensureLoaded()
     stores.conditions.selectWeapon(wp('great-sword:1'))
     return { ...stores, worker: FakeWorker.last }
   }
@@ -28,6 +32,191 @@ describe('search ストア', () => {
     expect(conditions.weaponErrorShown).toBe(true)
     expect(worker.messages('solve')).toHaveLength(0)
     expect(search.status).toBe('idle')
+  })
+
+  // 受入基準 8（送信した時点の候補を渡し、要約に件数を持つ）
+  describe('護石の候補', () => {
+    const good: CharmPayload = {
+      rarity: 8,
+      skills: [{ skillId: sk('a1'), level: 2 }],
+      slots: [{ target: 'weapon', level: 1 }],
+    }
+    const overLevel = { ...good, skills: [{ skillId: sk('a1'), level: 9 }] }
+
+    async function withCharms() {
+      const repository = createMemoryCharmRepository([
+        storedCharm(1, good),
+        storedCharm(2, overLevel),
+      ])
+      const stores = await loadStores(repository)
+      await stores.charms.ensureLoaded()
+      stores.conditions.selectWeapon(wp('great-sword:1'))
+      return { ...stores, worker: FakeWorker.last }
+    }
+
+    it('構造上の制約を満たす護石を SolverRequest.charms に渡し、要約に件数を持つ', async () => {
+      const { search, worker } = await withCharms()
+      search.submit()
+      const sent = worker.messages('solve')[0]
+      expect(sent).toMatchObject({
+        request: {
+          charms: [{ id: charmId(1), rarity: 8, skills: good.skills, slots: good.slots }],
+        },
+      })
+      expect(search.summary?.charmCount).toBe(1)
+    })
+
+    it('護石が1つも無ければ charms は空で、件数は 0', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    // 受入基準 8（読込の完了を待ってから送る）
+    it('護石の読込の前に検索しても、読込の完了を待ち、読み込んだ護石を渡して件数を一致させる', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      expect(charms.status).toBe('loading')
+      expect(search.submit()).toBe(true)
+      expect(search.status).toBe('searching')
+      expect(worker.messages('solve')).toHaveLength(0)
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(worker.messages('solve')).toHaveLength(1)
+      expect(worker.messages('solve')[0]).toMatchObject({
+        request: { charms: [{ id: charmId(1), rarity: 8 }] },
+      })
+      expect(search.summary?.charmCount).toBe(1)
+    })
+
+    // 受入基準 8（待ち中の再送信は二重に送らない）
+    it('読込を待っている間に再び検索しても、solve は 1 回だけ送られる', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      expect(search.submit()).toBe(true)
+      expect(search.submit()).toBe(true)
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(worker.messages('solve')).toHaveLength(1)
+    })
+
+    // 受入基準 11（読込中に始めて、読込が失敗しても護石なしで解く）
+    it('読込中に始めた検索は、読込が failed で終わっても charms 空で送り、件数は 0', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      repository.failWith('list', 'unknown')
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      expect(charms.status).toBe('loading')
+      search.submit()
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(charms.status).toBe('failed')
+      expect(worker.messages('solve')).toHaveLength(1)
+      expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    it('読込中に始めた検索は、読込が unavailable で終わっても charms 空で送り、件数は 0', async () => {
+      const { search, charms, conditions } = await loadStores()
+      charms.setRepositoryOpener(async () => {
+        throw Object.assign(new Error('x'), { name: 'SecurityError' })
+      })
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      const loaded = charms.ensureLoaded()
+      expect(charms.status).toBe('loading')
+      search.submit()
+      await loaded
+      await flushPromises()
+      expect(charms.status).toBe('unavailable')
+      expect(worker.messages('solve')).toHaveLength(1)
+      expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    // 受入基準 8（待っている間に条件を変えても、送信時の条件で送る）
+    it('読込を待っている間に条件を変えても、送る要求と要約は送信時の条件のまま', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      conditions.toggleSkill(sk('a1'))
+      conditions.setMaxResults(4)
+      const worker = FakeWorker.last
+      search.submit()
+      conditions.toggleSkill(sk('a1'))
+      conditions.toggleSkill(sk('a2'))
+      conditions.setObjective('defense')
+      conditions.setMaxResults(9)
+      await charms.ensureLoaded()
+      await flushPromises()
+      const sent = worker.messages('solve')[0] as unknown as { request: Record<string, unknown> }
+      expect(sent.request).toMatchObject({
+        weapon: { kind: 'master', weaponId: wp('great-sword:1') },
+        objective: { kind: 'feasible' },
+        maxResults: 4,
+      })
+      expect(JSON.stringify(sent.request)).toContain(sk('a1'))
+      expect(JSON.stringify(sent.request)).not.toContain(sk('a2'))
+      expect(search.summary).toMatchObject({ maxResults: 4, requiredCount: 1 })
+    })
+
+    // 受入基準 8（待ち中のキャンセル）
+    it('読込を待っている間にキャンセルすると、読込の後も送らず Q0 に戻る', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      const worker = FakeWorker.last
+      search.submit()
+      search.cancel()
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(worker.messages('solve')).toHaveLength(0)
+      expect(search.status).toBe('idle')
+    })
+
+    // 受入基準 11（護石なしの検索は引き続き使える）
+    it('護石を端末に保存できない（unavailable）ときも、charms 空で検索を送り、件数は 0', async () => {
+      const { search, charms, conditions, worker } = await loadStores().then((s) => ({
+        ...s,
+        worker: FakeWorker.last,
+      }))
+      charms.setRepositoryOpener(async () => {
+        throw Object.assign(new Error('x'), { name: 'SecurityError' })
+      })
+      await charms.ensureLoaded()
+      expect(charms.status).toBe('unavailable')
+      conditions.selectWeapon(wp('great-sword:1'))
+      expect(search.submit()).toBe(true)
+      expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    it('護石の一覧を読めない（failed）ときも、charms 空で検索を送り、件数は 0', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      const { search, charms, conditions } = await loadStores(repository)
+      repository.failWith('list', 'unknown')
+      await charms.ensureLoaded()
+      expect(charms.status).toBe('failed')
+      conditions.selectWeapon(wp('great-sword:1'))
+      expect(search.submit()).toBe(true)
+      expect(FakeWorker.last.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    it('検索の後に護石を削除しても、送信した時点の候補を ID で引ける', async () => {
+      const { search, charms } = await withCharms()
+      search.submit()
+      await charms.remove(charmId(1))
+      expect(charms.candidateCount).toBe(0)
+      expect(search.submittedCharms.get(charmId(1))?.rarity).toBe(8)
+      expect(search.summary?.charmCount).toBe(1)
+    })
   })
 
   it('ランクが0個なら検索しない', async () => {

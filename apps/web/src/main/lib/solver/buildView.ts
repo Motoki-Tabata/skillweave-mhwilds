@@ -1,9 +1,12 @@
 import type { ArmorPart, MasterArmor, MasterWeapon, SkillKind } from '@swv/data'
-import type { SlotRef, SolvedBuild } from '@swv/solver'
+import type { SlotRef, SolvedBuild, SolverCharm } from '@swv/solver'
+import { SLOT_TARGET_LABELS } from '@/constants/charms'
 import { ARMOR_PARTS, SKILL_KINDS, SLOT_OWNER_LABELS } from '@/constants/labels'
 
 /** 構成を表示用の行に直すために、マスターと辞書を引く関数。 */
 export interface BuildLookup {
+  /** 護石を ID で引く。送信した時点の候補から引き、検索の後の編集・削除に影響されない */
+  charm: (id: string) => SolverCharm | undefined
   armor: (id: string) => MasterArmor | undefined
   weapon: MasterWeapon | undefined
   skillKind: (skillId: string) => SkillKind | undefined
@@ -48,11 +51,44 @@ export interface BuildView {
   decorations: DecorationRow[]
   skillGroups: SkillGroupView[]
   freeSlots: FreeSlotChip[]
+  /** 構成が護石を使っていないとき（または候補に無いとき）は null */
+  charm: CharmView | null
 }
 
-/** スロットの Lv。持ち主の防具・武器がマスターに無いときは null。 */
+export interface CharmSlotView {
+  targetLabel: string
+  level: number
+}
+
+export interface CharmView {
+  rarity: number
+  skills: SkillChip[]
+  slots: CharmSlotView[]
+}
+
+function charmView(build: SolvedBuild, lookup: BuildLookup): CharmView | null {
+  if (build.charmId === null) return null
+  const charm = lookup.charm(build.charmId)
+  if (charm === undefined) return null
+  return {
+    rarity: charm.rarity,
+    skills: charm.skills.map((skill) => ({
+      name: lookup.nameOf(skill.skillId),
+      level: skill.level,
+    })),
+    slots: charm.slots.map((slot) => ({
+      targetLabel: SLOT_TARGET_LABELS[slot.target],
+      level: slot.level,
+    })),
+  }
+}
+
+/** スロットの Lv。持ち主の護石・防具・武器がマスターに無いときは null。 */
 function slotLevelOf(build: SolvedBuild, ref: SlotRef, lookup: BuildLookup): number | null {
-  if (ref.owner === 'charm') return null
+  if (ref.owner === 'charm') {
+    if (build.charmId === null) return null
+    return lookup.charm(build.charmId)?.slots[ref.index]?.level ?? null
+  }
   if (ref.owner === 'weapon') return lookup.weapon?.slots[ref.index]?.level ?? null
   const armorId = build.armor[ref.owner]
   if (armorId === null) return null
@@ -93,6 +129,7 @@ export function toBuildView(build: SolvedBuild, lookup: BuildLookup): BuildView 
       name: lookup.nameOf(decorationId),
     })),
     skillGroups: skillGroups(build, lookup),
+    charm: charmView(build, lookup),
     freeSlots: build.freeSlots.map((slot) => ({
       ownerLabel: SLOT_OWNER_LABELS[slot.owner],
       slotLevel: slotLevelOf(build, slot, lookup),

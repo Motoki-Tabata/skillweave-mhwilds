@@ -7,7 +7,7 @@ import { DialogClose } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SKILL_KINDS, skillKindLabel } from '@/constants/labels'
-import { matchesQuery } from '@/lib/text'
+import { matchesSkillQuery } from '@/lib/text'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
 
@@ -37,7 +37,11 @@ const searching = computed(() => query.value.trim() !== '')
 /** 検索語があるときは、すべての種類から部分一致で絞り込む（種類の順、種類の中は名前順）。 */
 const searchResults = computed<MasterSkill[]>(() =>
   SKILL_KINDS.flatMap((kind) => master.skillsByKind.get(kind.id) ?? []).filter((skill) =>
-    matchesQuery(master.nameOf(skill.id), query.value),
+    matchesSkillQuery(
+      master.nameOf(skill.id),
+      master.dictionary?.entries[skill.id]?.reading,
+      query.value,
+    ),
   ),
 )
 

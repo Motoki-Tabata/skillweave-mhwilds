@@ -13,7 +13,7 @@ import {
 } from '../../support/mount'
 import type { Mounted } from '../../support/mount'
 
-// 受入基準 4（必須スキルの追加・削除・種類ごとのまとまり）
+// 受入基準 2（必須スキルのダイアログ。追加・削除・種類ごとのまとまりは 004 の振る舞い）
 describe('SkillDialog（D2）', () => {
   let mounted: Mounted | null = null
 
@@ -97,6 +97,24 @@ describe('SkillDialog（D2）', () => {
     expect(skillNames()).toEqual(['火竜の力', '不屈の極み'])
     await setQuery('')
     expect(tabs()).toHaveLength(4)
+  })
+
+  // 受入基準 2（D2: 読みでの検索）
+  it('読み（ひらがな・カタカナ・半角）でも一致する。読みが無いスキルは名前だけで照らす', async () => {
+    await open()
+    await setQuery('こうげき')
+    expect(skillNames()).toEqual(['攻撃'])
+    await setQuery('コウゲキ')
+    expect(skillNames()).toEqual(['攻撃'])
+    await setQuery('ｺｳｹﾞｷ')
+    expect(skillNames()).toEqual(['攻撃'])
+    await setQuery('がーど')
+    expect(skillNames()).toEqual(['ガード'])
+    // 「火竜の力」は読みが無いので、読みの語では出ない。名前では出る
+    await setQuery('かりゅう')
+    expect(skillNames()).toEqual([])
+    await setQuery('火竜')
+    expect(skillNames()).toEqual(['火竜の力'])
   })
 
   it('検索結果が0件のときは案内を出す', async () => {

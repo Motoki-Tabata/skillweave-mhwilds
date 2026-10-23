@@ -1,9 +1,10 @@
-import { ref } from 'vue'
+import { ref, shallowRef, toRaw } from 'vue'
 import { defineStore } from 'pinia'
 import type { WeaponId } from '@swv/data'
-import type { SolverResponse } from '@swv/solver'
+import type { SolverCharm, SolverResponse } from '@swv/solver'
 import { objectiveLabel } from '@/constants/labels'
-import { buildSolverRequest } from '@/lib/solver/request'
+import { buildSolverRequest, type SearchConditions } from '@/lib/solver/request'
+import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
 import { useToastStore } from '@/stores/toast'
@@ -19,6 +20,8 @@ export interface SearchSummary {
   objectiveLabel: string
   maxResults: number
   allRanksSelected: boolean
+  /** 送信した時点の護石の候補の件数 */
+  charmCount: number
 }
 
 export const CANCELLED_TOAST_MESSAGE = '検索をキャンセルしました。'
@@ -27,14 +30,21 @@ export const useSearchStore = defineStore('search', () => {
   const master = useMasterStore()
   const conditions = useConditionsStore()
   const toast = useToastStore()
+  const charmsStore = useCharmsStore()
 
   const status = ref<SearchStatus>('idle')
   const found = ref(0)
   const response = ref<SolverResponse | null>(null)
   const errorMessage = ref('')
   const summary = ref<SearchSummary | null>(null)
+  /** 送信した時点の護石の候補（ID で引く）。構成の表示はここから護石を引く */
+  const submittedCharms = shallowRef<ReadonlyMap<string, SolverCharm>>(new Map())
   // 検索を始めるたびに増やす（結果パネルの見出しへフォーカスを移す合図）
   const runCount = ref(0)
+
+  // 護石の読込を待っている間の印と、取り消しで待ちを無効にするための番号
+  let waiting = false
+  let waitToken = 0
 
   function clearResult(): void {
     found.value = 0
@@ -42,14 +52,18 @@ export const useSearchStore = defineStore('search', () => {
     errorMessage.value = ''
   }
 
-  function summarize(weaponId: WeaponId): SearchSummary {
+  /** 送信した時点の条件の写し（護石の候補を除く）。待っている間に条件を編集しても変わらない。 */
+  type Submitted = Omit<SearchConditions, 'charms'> & { bundle: NonNullable<typeof master.bundle> }
+
+  function summarize(submitted: Submitted, charmCount: number): SearchSummary {
     return {
-      weaponId,
-      weaponName: master.nameOf(weaponId),
-      requiredCount: conditions.required.length,
-      objectiveLabel: objectiveLabel(conditions.objective),
-      maxResults: conditions.maxResults,
-      allRanksSelected: conditions.ranks.length === master.availableRanks.length,
+      weaponId: submitted.weaponId,
+      weaponName: master.nameOf(submitted.weaponId),
+      requiredCount: submitted.required.length,
+      objectiveLabel: objectiveLabel(submitted.objective),
+      maxResults: submitted.maxResults,
+      allRanksSelected: submitted.ranks.length === master.availableRanks.length,
+      charmCount,
     }
   }
 
@@ -64,18 +78,44 @@ export const useSearchStore = defineStore('search', () => {
       conditions.showWeaponError()
       return false
     }
-    const request = buildSolverRequest(bundle, {
+    // 進行中の護石の読込待ちがあれば無効にする（二重送信と古い waiting の残りを防ぐ）
+    waiting = false
+    waitToken += 1
+    const submitted: Submitted = {
+      bundle,
       weaponId,
-      required: conditions.required,
+      required: conditions.required.map((skill) => ({ ...skill })),
       objective: conditions.objective,
       maxResults: conditions.maxResults,
-      ranks: conditions.ranks,
-    })
+      ranks: [...conditions.ranks],
+    }
     // 前の検索の結果と進捗はすぐに消す
     clearResult()
-    summary.value = summarize(weaponId)
     status.value = 'searching'
     runCount.value += 1
+    if (charmsStore.status !== 'loading') {
+      dispatch(submitted)
+      return true
+    }
+    // 護石の読込の前に送ると登録済みの護石が落ちるので、読込の完了を待ってから送る
+    waiting = true
+    const token = waitToken
+    void charmsStore.ensureLoaded().then(() => {
+      if (token !== waitToken) return
+      waiting = false
+      dispatch(submitted)
+    })
+    return true
+  }
+
+  function dispatch(submitted: Submitted): void {
+    // ストアの候補は読み込み後に差し替わるので、送信の時点の写しを取る
+    const charms = charmsStore.candidates.map((charm) => structuredClone(toRaw(charm)))
+    const { bundle, ...rest } = submitted
+    const request = buildSolverRequest(bundle, { ...rest, charms })
+    // 送信した時点の候補を持つ（検索の後に護石を編集・削除しても、表示中の結果は変えない）
+    submittedCharms.value = new Map(charms.map((charm) => [charm.id, charm]))
+    summary.value = summarize(submitted, charms.length)
     master.solve(request, {
       onProgress: (count) => {
         found.value = count
@@ -90,17 +130,32 @@ export const useSearchStore = defineStore('search', () => {
         status.value = 'error'
       },
     })
-    return true
   }
 
   /** 検索中の検索を取り消し、Q0 に戻す。 */
   function cancel(): void {
     if (status.value !== 'searching') return
-    master.cancelSolve()
+    if (waiting) {
+      // 護石の読込を待っていて、まだ送っていない
+      waiting = false
+      waitToken += 1
+    } else {
+      master.cancelSolve()
+    }
     clearResult()
     status.value = 'idle'
     toast.push(CANCELLED_TOAST_MESSAGE)
   }
 
-  return { status, found, response, errorMessage, summary, runCount, submit, cancel }
+  return {
+    status,
+    found,
+    response,
+    errorMessage,
+    summary,
+    submittedCharms,
+    runCount,
+    submit,
+    cancel,
+  }
 })

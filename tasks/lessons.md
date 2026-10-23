@@ -4,3 +4,33 @@
 書式と行き先の正は `.claude/skills/tsod-workflow/references/lessons-guide.md` です。
 項目を直したコミットの中で、直した人が台帳から消します。
 
+
+## 2026-10-23 /design はユーザーが起動した後、同じセッションのメインがキャンバスを作る（機能005・区間B）
+- 種別: 矛盾是正
+- 何が起きたか: `tsod-screen-table/SKILL.md` の画面設計の手順3は「ユーザー自身が `/design` を実行して、キャンバス URL と確定内容を返す」とする。実際は、ユーザーが入力欄で `/design <説明文>` を打つと、メインに Artifact の quickstart と Design タイプからの作成を指示する形で展開され、メインがアートボードを書いて URL を得た。説明文をメッセージに貼り付けただけでは起動しなかった（005 の screen-design.md・キャンバス MZbLw8W1YMAuthDWDwiUHD）。
+- 提案: `.claude/skills/tsod-screen-table/SKILL.md`「画面設計」手順3〜4を、「ユーザーが入力欄で `/design` を打って起動する（貼り付けでは起動しない）。展開された指示に従い、メインが同じセッションでキャンバスを作り、URL を screen-design.md に記録する」に直す。builtin-skills.md の前提の列挙も合わせて確かめる。
+
+## 2026-10-23 区間 B の途中で薄仕様を改訂するときの手順が無い（機能005・区間B）
+- 種別: 規律昇華
+- 何が起きたか: 画面設計の質問で、スキルを読みで検索する要件が出て、A-2 承認済みの spec.md の受入基準を変える必要が生じた。区間を戻す手順が無いため、同じセッションで spec.md・decisions.md（Q34）を直してコミットし（e215141）、AskUserQuestion で A-2 を取り直して `handoff.mjs gate 005 A-2 e215141` で上書きし、区間メモに残した。
+- 提案: `.claude/skills/tsod-workflow/SKILL.md` に「後の区間で薄仕様の変更が要るとき」の節を足し、上の手順（spec-check の再実行・決定記録・A-2 の取り直し・区間メモ）を正にするか、`/tsod-spec` へ戻すかを決めて書く。
+
+## 2026-10-23 plan の「常時許可外の変更」の行にパス以外のバッククォートがあると、突合から黙って漏れる（機能005・区間C）
+- 種別: 規律昇華
+- 何が起きたか: plan.md の `design/master-data.md` の行で、括弧の説明の中の語（`readings`・`reading`）にもバッククォートを付けた。`spec-check.mjs --compare-plan` は、バッククォートの中身を数えて「1行1パス」でない行を突合の対象から外すため、書式のエラーを出さずに「spec のみ」と判定した（238981d。6ee89f8 で直した）。`.claude/rules/ui-design.md` を理由に書いた `components/ui/` の行も、同じ理由で突合から漏れていた。
+- 提案: `.claude/skills/tsod-plan/SKILL.md`「plan.md」節の「常時許可外の変更」の箇条に、「1行のバッククォートはパスの1つだけにし、説明の中の識別子・パスには付けない」を足す。あわせて `spec-check.mjs` の `comparePlan` が、1行1パスでない plan の行を「判定不能」として表に出すように直す。
+
+## 2026-10-23 Select を使う新規 .vue があるのに、sonar-project.properties の抑止が plan の常時許可外に挙がらなかった（機能005・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 004 の e3 と同じ `Web:InputWithoutLabelCheck`（Reka UI の SelectTrigger への誤検知）が、005 の `CharmSkillRow.vue`・`CharmForm.vue` に出た。plan と spec の常時許可外に `sonar-project.properties` が無く、区間 D の途中でユーザーに承認を取って e4・e5 を足した（0babc4d）。既知の事象は `.claude/rules/web-vue.md`「Sonar で繰り返し出たルールの避け方（web）」に載っている。
+- 提案: `.claude/skills/tsod-plan/SKILL.md` の「常時許可外の変更」の節に、「Select／SelectTrigger を使う新規 .vue を含む機能は、`sonar-project.properties` の multicriteria 追記を常時許可外に挙げる」を足す。
+
+## 2026-10-23 shadcn-vue の CLI が依存を足して node_modules を壊し、web-agent の paths 前提も落とし穴になった（機能005・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `shadcn-vue@2.8.2 add` は、`tsconfig.json` に `paths` を一時的に足さないと失敗した。成功しても `package.json` に `cn` を足して `pnpm install` を走らせ、部品の import を `"cn"` にした。lockfile を戻した後も node_modules が lockfile と食い違い、data-agent の検証が `vitest` のリンク切れで一つも走らなかった（`pnpm install --frozen-lockfile` で復旧）。既存の `button` の上書き確認で止まるため、button を退避して復元した。
+- 提案: `.claude/rules/web-vue.md`「ビルド設定とテストの落とし穴」に、CLI の実行手順（paths の一時追加・`cn` の依存を戻して import を `@/lib/utils` に直す・既存部品の退避・実行後の `pnpm install --frozen-lockfile` と `prettier --write`）を足す。`.claude/skills/tsod-build/SKILL.md` の「委譲」の前に、`pnpm install --frozen-lockfile` で依存を確かめる一行を足すことも検討する。
+
+## 2026-10-23 受入基準の ID は spec の箇条書きの順で数える（機能005・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 実装中にワーカーが付けた受入基準の ID が、spec の確定後の順とずれ、レビューで 8 つの spec ファイルのコメントが要修正になった。spec.md に ID が明記されていないため、数え方が人によって違う。
+- 提案: `.claude/skills/tsod-spec/` で受入基準に ID（`AC-1` など）を書くか、`.claude/skills/tsod-build/references/delegation-template.md` に「受入基準の ID は spec の箇条書きの順（1 始まり）で数える。委譲の前にメインが番号付きの一覧を渡す」を足す。
