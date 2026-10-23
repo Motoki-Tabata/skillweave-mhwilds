@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import CharmCard from '@/components/search/CharmCard.vue'
 import ConditionsCard from '@/components/search/ConditionsCard.vue'
 import RequiredSkillsCard from '@/components/search/RequiredSkillsCard.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
@@ -116,6 +117,7 @@ function returnFocusToWeapon(event: Event): void {
         >
           <WeaponCard ref="weaponCard" @open="weaponDialogOpen = true" />
           <RequiredSkillsCard @open="skillDialogOpen = true" />
+          <CharmCard />
           <ConditionsCard ref="conditionsCard" />
           <SearchActions />
         </form>

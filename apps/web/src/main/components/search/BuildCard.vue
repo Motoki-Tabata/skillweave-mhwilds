@@ -14,7 +14,7 @@ const search = useSearchStore()
 // 検索の後に武器の選択を変えても、結果は検索したときの武器で表示する
 const view = computed(() =>
   toBuildView(props.build, {
-    charm: () => undefined, // T7 で検索の状態（送信した時点の候補）に結線する
+    charm: (id) => search.submittedCharms.get(id),
     armor: (id) => master.armorById.get(id),
     weapon: search.summary === null ? undefined : master.weaponById.get(search.summary.weaponId),
     skillKind: (skillId) => master.skillById.get(skillId)?.kind,
@@ -64,6 +64,44 @@ function levelLabel(level: number | null): string {
               </tr>
             </tfoot>
           </table>
+        </section>
+
+        <section
+          v-if="view.charm !== null || search.summary?.charmCount"
+          class="flex flex-col gap-1"
+        >
+          <h4 class="text-sm font-bold">護石</h4>
+          <p v-if="view.charm === null" class="text-sm">護石なし</p>
+          <dl v-else class="flex flex-col gap-1 text-sm">
+            <div class="flex items-start gap-2">
+              <dt class="w-14 shrink-0 pt-0.5 text-xs">レア度</dt>
+              <dd class="font-num tabular-nums">{{ view.charm.rarity }}</dd>
+            </div>
+            <div class="flex items-start gap-2">
+              <dt class="w-14 shrink-0 pt-0.5 text-xs">スキル</dt>
+              <dd class="min-w-0 flex-1">
+                <p v-if="view.charm.skills.length === 0">スキルなし</p>
+                <ul v-else class="flex flex-wrap gap-1">
+                  <li
+                    v-for="chip in view.charm.skills"
+                    :key="chip.name"
+                    class="rounded-md border px-2 py-0.5 text-xs break-words"
+                  >
+                    {{ chip.name }} <span class="font-num tabular-nums">Lv{{ chip.level }}</span>
+                  </li>
+                </ul>
+              </dd>
+            </div>
+            <div class="flex items-start gap-2">
+              <dt class="w-14 shrink-0 pt-0.5 text-xs">スロット</dt>
+              <dd class="min-w-0 flex-1 break-words">
+                <template v-if="view.charm.slots.length === 0">スロットなし</template>
+                <template v-else>
+                  {{ view.charm.slots.map((s) => `${s.targetLabel} Lv${s.level}`).join('・') }}
+                </template>
+              </dd>
+            </div>
+          </dl>
         </section>
 
         <section class="flex flex-col gap-1">

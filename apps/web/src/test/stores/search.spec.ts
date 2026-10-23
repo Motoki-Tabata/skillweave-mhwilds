@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { SolverResponse } from '@swv/solver'
+import type { CharmPayload } from '@/lib/charms/types'
 import { CANCELLED_TOAST_MESSAGE } from '@/stores/search'
 import { useToastStore } from '@/stores/toast'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
 import { FakeWorker, armorId, makeBuild, sk, wp } from '../support/fixtures'
 import { loadStores, restoreStubs, stubBackend } from '../support/mount'
+import { createMemoryCharmRepository } from '../support/charmRepository'
+import { charmId, storedCharm } from '../support/charms'
 
 // 受入基準 6・7・8（検索の状態 Q0〜Q7）
 describe('search ストア', () => {
@@ -28,6 +31,55 @@ describe('search ストア', () => {
     expect(conditions.weaponErrorShown).toBe(true)
     expect(worker.messages('solve')).toHaveLength(0)
     expect(search.status).toBe('idle')
+  })
+
+  // 受入基準 2・8（送信した時点の候補を渡し、要約に件数を持つ）
+  describe('護石の候補', () => {
+    const good: CharmPayload = {
+      rarity: 8,
+      skills: [{ skillId: sk('a1'), level: 2 }],
+      slots: [{ target: 'weapon', level: 1 }],
+    }
+    const overLevel = { ...good, skills: [{ skillId: sk('a1'), level: 9 }] }
+
+    async function withCharms() {
+      const repository = createMemoryCharmRepository([
+        storedCharm(1, good),
+        storedCharm(2, overLevel),
+      ])
+      const stores = await loadStores(repository)
+      await stores.charms.ensureLoaded()
+      stores.conditions.selectWeapon(wp('great-sword:1'))
+      return { ...stores, worker: FakeWorker.last }
+    }
+
+    it('構造上の制約を満たす護石を SolverRequest.charms に渡し、要約に件数を持つ', async () => {
+      const { search, worker } = await withCharms()
+      search.submit()
+      const sent = worker.messages('solve')[0]
+      expect(sent).toMatchObject({
+        request: {
+          charms: [{ id: charmId(1), rarity: 8, skills: good.skills, slots: good.slots }],
+        },
+      })
+      expect(search.summary?.charmCount).toBe(1)
+    })
+
+    it('護石が1つも無ければ charms は空で、件数は 0', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      expect(worker.messages('solve')[0]).toMatchObject({ request: { charms: [] } })
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    it('検索の後に護石を削除しても、送信した時点の候補を ID で引ける', async () => {
+      const { search, charms } = await withCharms()
+      search.submit()
+      await charms.remove(charmId(1))
+      expect(charms.candidateCount).toBe(0)
+      expect(search.submittedCharms.get(charmId(1))?.rarity).toBe(8)
+      expect(search.summary?.charmCount).toBe(1)
+    })
   })
 
   it('ランクが0個なら検索しない', async () => {

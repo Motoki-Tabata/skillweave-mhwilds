@@ -1,9 +1,10 @@
-import { ref } from 'vue'
+import { ref, shallowRef, toRaw } from 'vue'
 import { defineStore } from 'pinia'
 import type { WeaponId } from '@swv/data'
-import type { SolverResponse } from '@swv/solver'
+import type { SolverCharm, SolverResponse } from '@swv/solver'
 import { objectiveLabel } from '@/constants/labels'
 import { buildSolverRequest } from '@/lib/solver/request'
+import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
 import { useToastStore } from '@/stores/toast'
@@ -29,12 +30,15 @@ export const useSearchStore = defineStore('search', () => {
   const master = useMasterStore()
   const conditions = useConditionsStore()
   const toast = useToastStore()
+  const charmsStore = useCharmsStore()
 
   const status = ref<SearchStatus>('idle')
   const found = ref(0)
   const response = ref<SolverResponse | null>(null)
   const errorMessage = ref('')
   const summary = ref<SearchSummary | null>(null)
+  /** 送信した時点の護石の候補（ID で引く）。構成の表示はここから護石を引く */
+  const submittedCharms = shallowRef<ReadonlyMap<string, SolverCharm>>(new Map())
   // 検索を始めるたびに増やす（結果パネルの見出しへフォーカスを移す合図）
   const runCount = ref(0)
 
@@ -44,7 +48,7 @@ export const useSearchStore = defineStore('search', () => {
     errorMessage.value = ''
   }
 
-  function summarize(weaponId: WeaponId): SearchSummary {
+  function summarize(weaponId: WeaponId, charmCount: number): SearchSummary {
     return {
       weaponId,
       weaponName: master.nameOf(weaponId),
@@ -52,7 +56,7 @@ export const useSearchStore = defineStore('search', () => {
       objectiveLabel: objectiveLabel(conditions.objective),
       maxResults: conditions.maxResults,
       allRanksSelected: conditions.ranks.length === master.availableRanks.length,
-      charmCount: 0,
+      charmCount,
     }
   }
 
@@ -67,17 +71,21 @@ export const useSearchStore = defineStore('search', () => {
       conditions.showWeaponError()
       return false
     }
+    // ストアの候補は読み込み後に差し替わるので、送信の時点の写しを取る
+    const charms = charmsStore.candidates.map((charm) => structuredClone(toRaw(charm)))
     const request = buildSolverRequest(bundle, {
       weaponId,
       required: conditions.required,
       objective: conditions.objective,
       maxResults: conditions.maxResults,
       ranks: conditions.ranks,
-      charms: [], // T7 で護石のストアの候補に結線する
+      charms,
     })
     // 前の検索の結果と進捗はすぐに消す
     clearResult()
-    summary.value = summarize(weaponId)
+    // 送信した時点の候補を持つ（検索の後に護石を編集・削除しても、表示中の結果は変えない）
+    submittedCharms.value = new Map(charms.map((charm) => [charm.id, charm]))
+    summary.value = summarize(weaponId, charms.length)
     status.value = 'searching'
     runCount.value += 1
     master.solve(request, {
@@ -106,5 +114,15 @@ export const useSearchStore = defineStore('search', () => {
     toast.push(CANCELLED_TOAST_MESSAGE)
   }
 
-  return { status, found, response, errorMessage, summary, runCount, submit, cancel }
+  return {
+    status,
+    found,
+    response,
+    errorMessage,
+    summary,
+    submittedCharms,
+    runCount,
+    submit,
+    cancel,
+  }
 })
