@@ -14,3 +14,8 @@
 - 種別: 規律昇華
 - 何が起きたか: 画面設計の質問で、スキルを読みで検索する要件が出て、A-2 承認済みの spec.md の受入基準を変える必要が生じた。区間を戻す手順が無いため、同じセッションで spec.md・decisions.md（Q34）を直してコミットし（e215141）、AskUserQuestion で A-2 を取り直して `handoff.mjs gate 005 A-2 e215141` で上書きし、区間メモに残した。
 - 提案: `.claude/skills/tsod-workflow/SKILL.md` に「後の区間で薄仕様の変更が要るとき」の節を足し、上の手順（spec-check の再実行・決定記録・A-2 の取り直し・区間メモ）を正にするか、`/tsod-spec` へ戻すかを決めて書く。
+
+## 2026-10-23 plan の「常時許可外の変更」の行にパス以外のバッククォートがあると、突合から黙って漏れる（機能005・区間C）
+- 種別: 規律昇華
+- 何が起きたか: plan.md の `design/master-data.md` の行で、括弧の説明の中の語（`readings`・`reading`）にもバッククォートを付けた。`spec-check.mjs --compare-plan` は、バッククォートの中身を数えて「1行1パス」でない行を突合の対象から外すため、書式のエラーを出さずに「spec のみ」と判定した（238981d。6ee89f8 で直した）。`.claude/rules/ui-design.md` を理由に書いた `components/ui/` の行も、同じ理由で突合から漏れていた。
+- 提案: `.claude/skills/tsod-plan/SKILL.md`「plan.md」節の「常時許可外の変更」の箇条に、「1行のバッククォートはパスの1つだけにし、説明の中の識別子・パスには付けない」を足す。あわせて `spec-check.mjs` の `comparePlan` が、1行1パスでない plan の行を「判定不能」として表に出すように直す。
