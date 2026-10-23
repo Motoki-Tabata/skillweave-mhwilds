@@ -150,9 +150,16 @@ export const NAMES: Record<string, string> = {
   [dc('1')]: '攻撃珠【２】',
 }
 
+/** スキルの読み（ひらがなと「ー」）。 */
+export const READINGS: Record<string, string> = {
+  [sk('w1')]: 'ごうじん',
+  [sk('a1')]: 'こうげき',
+  [sk('a2')]: 'がーど',
+}
+
 export function makeDictionary(options: BundleOptions = {}): MasterDictionary {
   const entries: MasterDictionary['entries'] = {}
-  for (const [id, name] of Object.entries(NAMES)) entries[id] = { name }
+  for (const [id, name] of Object.entries(NAMES)) entries[id] = { name, reading: READINGS[id] }
   for (const rank of options.ranks ?? ['low', 'high']) {
     for (const part of PARTS) {
       entries[armorId(rank, part)] = { name: `${RANK_LABEL[rank]}の${PART_LABEL[part]}` }
@@ -275,4 +282,38 @@ export function createFetchStub(options: FetchStubOptions = {}) {
       json: async () => (isDictionary ? dictionary : bundle),
     } as Response
   }
+}
+
+const slotOf = (target: Slot['target'], level: Slot['level']): Slot => ({ target, level })
+
+/**
+ * テスト用の抽選テーブル（実データではない）を持つマスター。レア8 に2つのパターンがあり、レア7 は無い。
+ * - P1: スキル1 = A（攻撃 Lv1・2、剛刃 Lv1）、スキル2 = B（ガード Lv1）、スロット [武器用 Lv1] か [武器用 Lv1・防具用 Lv2]
+ * - P2: スキル1 = C（剛刃 Lv3）、スロットなし
+ */
+export function makeTableBundle(): MasterBundle {
+  const bundle = makeBundle()
+  bundle.appraisedCharm = {
+    groups: [
+      {
+        group: 'A',
+        skills: [
+          { skillId: sk('a1'), level: 1 },
+          { skillId: sk('a1'), level: 2 },
+          { skillId: sk('w1'), level: 1 },
+        ],
+      },
+      { group: 'B', skills: [{ skillId: sk('a2'), level: 1 }] },
+      { group: 'C', skills: [{ skillId: sk('w1'), level: 3 }] },
+    ],
+    patterns: [
+      {
+        rarity: 8,
+        skillGroups: ['A', 'B', null],
+        slotPatterns: [[slotOf('weapon', 1)], [slotOf('weapon', 1), slotOf('armor', 2)]],
+      },
+      { rarity: 8, skillGroups: ['C', null, null], slotPatterns: [[]] },
+    ],
+  }
+  return bundle
 }
