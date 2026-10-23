@@ -63,6 +63,7 @@
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- T2: shadcn-vue@2.8.2 の CLI は、tsconfig.json に paths を一時的に足さないと失敗し、依存に cn を足して import も "cn" にした。依存の変更は戻し、import は既存の部品と同じ '@/lib/utils' に直した（apps/web/src/main/components/ui/combobox・alert-dialog）。既存の button の上書きを避けるため button を退避して復元した
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
