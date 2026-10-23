@@ -191,7 +191,7 @@ Attribute／Entity／Column の三層と `attributes.yaml` を SSoT とする運
 5. **`schema_version`**: jsonb を持つテーブルにだけ付ける。
 6. **タイムゾーン**: §3.2 のとおり UTC。
 
-### 6.3 attributes.yaml の最初のエントリ候補（機能005で確定）
+### 6.3 attributes.yaml の最初のエントリ候補（機能010 charm-save で確定。機能005 はテーブルを持たず端末内 IndexedDB のみ）
 
 護石ID、所有者ID（`user_id`）、護石内容（`payload jsonb`）、スキーマ版（`schema_version`）、行バージョン（`version`）、
 作成日時、更新日時、削除日時。

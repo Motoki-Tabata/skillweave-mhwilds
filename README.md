@@ -13,7 +13,7 @@
 
 ## 現在の状態
 
-開発ハーネス（モノレポの雛形・CI・`main` の保護・契約ファースト運用・設計標準）を整備した段階です。機能は 001（solver-spike。HiGHS WASM の性能測定）・002（master-data-pipeline。MHDB からのマスターデータ生成）・003（solver-engine。`solveBuilds` と Worker のメッセージ型）・004（solver-ui。ログインなしで武器と必須スキルを指定して検索する最初の画面と e2e。ブラウザの Worker での測定は合格で、最大 1422.0 ms）が実装済みで、API はまだありません。
+開発ハーネス（モノレポの雛形・CI・`main` の保護・契約ファースト運用・設計標準）を整備した段階です。機能は 001（solver-spike。HiGHS WASM の性能測定）・002（master-data-pipeline。MHDB からのマスターデータ生成）・003（solver-engine。`solveBuilds` と Worker のメッセージ型）・004（solver-ui。ログインなしで武器と必須スキルを指定して検索する最初の画面と e2e。ブラウザの Worker での測定は合格で、最大 1422.0 ms）・005（charm-input。鑑定護石を手入力して端末内の IndexedDB に保存し、検索の候補に使う。スキルの読みとダーク／ライトのテーマ切り替えを含む）が実装済みで、API はまだありません。
 
 ### 残作業（ハーネス）
 
