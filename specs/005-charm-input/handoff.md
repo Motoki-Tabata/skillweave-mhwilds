@@ -27,7 +27,7 @@
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-10-23 / e215141 |
 | B-1 | 画面設計 screen-design.md | 承認済み | 2026-10-23 / beaeacb |
 | B-2 | テーブル設計（design/・migration） | 該当なし（テーブル変更なし） | 2026-10-23 |
-| C-1 | plan.md・tasks.md | 未 | |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-10-23 / 6ee89f8 |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
