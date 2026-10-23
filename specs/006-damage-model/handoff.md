@@ -2,10 +2,10 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: A
-- 次に起動するコマンド: `/tsod-spec 006-damage-model`
+- 区間: C
+- 次に起動するコマンド: `/tsod-plan 006-damage-model`
 - 推奨モデル: Opus
-- ブランチ: `feat/006-damage-model`
+- ブランチ: `feat/006-damage-model`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
@@ -24,9 +24,9 @@
 | ゲート | 対象 | 状態 | 承認日時・記録 |
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-24 / 32be339 |
-| A-2 | 薄仕様 spec.md | 未 | |
-| B-1 | 画面設計 screen-design.md | 未 | |
-| B-2 | テーブル設計（design/・migration） | 未 | |
+| A-2 | 薄仕様 spec.md | 承認済み | 2026-10-24 / 7dd69cc |
+| B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし（web はテスト用フィクスチャの追従のみ。ユーザー承認）） | 2026-10-24 |
+| B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-10-24 |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
@@ -66,6 +66,7 @@
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
+- なし（触る領域の web と区間 B の条件は tasks/lessons.md に起票済み）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
@@ -73,3 +74,5 @@
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q35, Q36, Q37, Q38, Q39（open-questions からの移設なし。属性は Q40 として open-questions.md に申し送り）
+- 触る領域の web は apps/web/src/test/support/fixtures.ts の追従だけ（MasterBundle に発動条件の一覧が増えるため）。画面は 007 で変える
+- 区間 C の最大の論点: expectedDamage の厳密な最大化の定式化（攻撃力×会心補正の積の線形化。attack_mul を持つスキルが複数あり、会心率の丸めと負会心の折れ点がある）と、期待値に効くスキルの装飾品を候補に足すこと（現状の model.ts は必須スキルの装飾品だけを候補にする）
