@@ -369,6 +369,42 @@ function parseAppraisedCharm(
   parsed.appraisedCharm = { file, ...at(node), value }
 }
 
+/** replace を 1 件適用する。適用できたら true、失敗は errors に積んで false */
+function applyReplacement(
+  replacement: Replacement,
+  bundle: MasterBundle,
+  seen: Map<string, Replacement>,
+  errors: OverlayError[],
+): boolean {
+  const { file, line, col, id, field, value } = replacement
+  const fail = (message: string): false => {
+    errors.push({ file, line, col, message })
+    return false
+  }
+  const collection = COLLECTIONS[id.split(':')[0] ?? '']
+  const entries = collection ? (bundle[collection] as unknown as { id: string }[]) : undefined
+  const target = entries?.find((entryItem) => entryItem.id === id)
+  if (!target) return fail(`ID ${id} が存在しません`)
+  if (field === 'effectsByLevel') {
+    return fail(
+      `${id} の effectsByLevel は replace で置き換えられません（effects で定義してください）`,
+    )
+  }
+  if (field === 'id' || !Object.hasOwn(target, field)) {
+    return fail(`項目 ${field} が ${id} に存在しないか、置き換えられない項目です`)
+  }
+  const pairKey = `${id}\u0000${field}`
+  const previous = seen.get(pairKey)
+  if (previous) {
+    return fail(
+      `${id} の ${field} が複数の箇所にあります（先の定義: ${previous.file}:${previous.line}）`,
+    )
+  }
+  seen.set(pairKey, replacement)
+  ;(target as unknown as Record<string, unknown>)[field] = value
+  return true
+}
+
 /** オーバーレイを変換の結果に重ねる。失敗は、ファイル名と行・桁を示す */
 export function applyOverlays(
   files: OverlayFile[],
@@ -384,36 +420,12 @@ export function applyOverlays(
   let mismatches = baseMismatches
   const seen = new Map<string, Replacement>()
   for (const replacement of parsed.replacements) {
-    const { file, line, col, id, field, value } = replacement
-    const fail = (message: string): void => {
-      errors.push({ file, line, col, message })
-    }
-    const collection = COLLECTIONS[id.split(':')[0] ?? '']
-    const entries = collection ? (bundle[collection] as unknown as { id: string }[]) : undefined
-    const target = entries?.find((entryItem) => entryItem.id === id)
-    if (!target) {
-      fail(`ID ${id} が存在しません`)
-      continue
-    }
-    if (field === 'effectsByLevel') {
-      fail(`${id} の effectsByLevel は replace で置き換えられません（effects で定義してください）`)
-      continue
-    }
-    if (field === 'id' || !Object.hasOwn(target, field)) {
-      fail(`項目 ${field} が ${id} に存在しないか、置き換えられない項目です`)
-      continue
-    }
-    const pairKey = `${id}\u0000${field}`
-    const previous = seen.get(pairKey)
-    if (previous) {
-      fail(
-        `${id} の ${field} が複数の箇所にあります（先の定義: ${previous.file}:${previous.line}）`,
-      )
-      continue
-    }
-    seen.set(pairKey, replacement)
-    ;(target as unknown as Record<string, unknown>)[field] = value
-    if (id.startsWith('sb:') && field === 'thresholds') {
+    const { id, field } = replacement
+    if (
+      applyReplacement(replacement, bundle, seen, errors) &&
+      id.startsWith('sb:') &&
+      field === 'thresholds'
+    ) {
       mismatches = mismatches.filter((mismatch) => mismatch.id !== id)
     }
   }
