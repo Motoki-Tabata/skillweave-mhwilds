@@ -330,6 +330,29 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 - 対策の案と判断は Q41 に置く。
 - 限界: 護石あり・装飾品の所持数の制限・件数 30 のときは未測定。ブラウザの Worker 上の時間は未測定（004 の測定と同じ経路では測っていない）。
 
+## HiGHS の expectedDamage の再測定（019 damage-solve-perf・2026-10-24）
+
+**結論: 1件目までの時間の基準で合格。合計時間の最大は 37739.4 ms で 3 秒を超えるため、基準を「1件目が求まるまでの時間の最大が 3 秒以下」に読み替えた（`specs/019-damage-solve-perf/decisions.md` Q41）。1件目までの最大は 2609.6 ms。** 合格は、進捗の通知（`SolveOptions.onProgress` の第2引数・Worker の `progress` の `build`）で構成が1件ずつ呼び出し側へ届くことが前提で、画面の逐次表示は 007 で行う。1件目の余裕は約 0.4 秒と小さい。
+
+- 条件: 006 と同じ（実データ・発動条件はすべて有効・マスターの先頭の武器・護石なし・`maxResults` 10・`timeoutMs` 60 秒・必須スキル 3／6／10 個 × 解あり／解なしの 6 ケース・各 3 回・Node）。
+- 時間の範囲: 合計時間は検索1回の全体。1件目までの時間は、開始から最初の `onProgress` の呼び出しまで。どちらも HiGHS の初期化を含めない。
+- 採った方式（plan D11。`blend_multi_objectives` の `false` と空き Lv の重みを補助の目的にする点は実装で足した）: HiGHS の `presolve` を `off`、`mip_allow_restart` を `false`、`blend_multi_objectives` を `false` にし、`Model.passLinearObjectives` で期待値 θ（優先度 10）と空き Lv の重み（優先度 5）を補助の目的として渡して、1件につき1回の求解にした（006 は 2 段で 20 回）。厳密さ（期待値の最大から順、同点は防具用、次に武器用の空き Lv の合計）は変えていない。支配される候補の除外は採っていない。
+- 測定環境: 006 と同じ（Node v24.22.1・linux x64（WSL2）・AMD Ryzen 7 5700X。HiGHS は npm `highs` 1.15.3、同梱の本体は `1.15.1 (04024d7)`。マスターの版は `2026.10.4`）。
+- 実行: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose --silent=false -t "expectedDamage" src/test/solveBuilds.measure.ts`（CI では実行しない）。
+
+| ケース | 結果 | 求解の回数 | 合計時間（3 回, ms） | 1件目まで（3 回, ms） | 1回の求解の最大（ms） |
+|---|---|---|---|---|---|
+| k=3 解あり | 10 件 | 10 | 37739.4 / 37458.5 / 37466.4 | 2609.6 / 2392.2 / 2403.4 | 5234.6 |
+| k=6 解あり | 10 件 | 10 | 23361.3 / 23334.8 / 23319.2 | 1885.4 / 1877.8 / 1879.8 | 3290.7 |
+| k=10 解あり | 10 件 | 10 | 26490.9 / 26517.6 / 26472.6 | 2577.5 / 2588.7 / 2583.1 | 3583.5 |
+| k=3 解なし | 解なし | 1 | 19.8 / 27.5 / 21.3 | なし | 11.0 |
+| k=6 解なし | 解なし | 1 | 19.7 / 25.2 / 18.5 | なし | 10.9 |
+| k=10 解なし | 解なし | 1 | 21.3 / 19.7 / 18.6 | なし | 11.4 |
+
+- 全ケース・全回の最大: 合計時間 **37739.4 ms**（3 秒に対し FAIL）、1件目までの時間 **2609.6 ms**（3 秒に対し PASS）。006（54974.3 ms）からの合計時間の短縮は約 31%。
+- 試作（T2）では `blend_multi_objectives` を設定せず、合計 19 秒・1件目 1.1 秒だった。本実装は優先度を効かせるため `blend_multi_objectives` を `false` にし、空き Lv の重みも補助の目的にした。試作より遅いのは、これらの違いによると考えられる（切り分けの測定はしていない）。
+- 限界: 006 と同じ（護石あり・所持数の制限・件数 30・ブラウザの Worker 上の時間は未測定）。
+
 ---
 
 ## CI
@@ -369,26 +392,3 @@ API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm worksp
 - [`design/data-model-standard.md`](data-model-standard.md)
 - [`design-system/skillweave/MASTER.md`](../design-system/skillweave/MASTER.md)
 - [`temp/initial-design.md`](../temp/initial-design.md) — 設計方針の一次資料（§3 が本書の出典）
-
-## HiGHS の expectedDamage の再測定（019 damage-solve-perf・2026-10-24）
-
-**結論: 1件目までの時間の基準で合格。合計時間の最大は 37739.4 ms で 3 秒を超えるため、基準を「1件目が求まるまでの時間の最大が 3 秒以下」に読み替えた（`specs/019-damage-solve-perf/decisions.md` Q41）。1件目までの最大は 2609.6 ms。** 合格は、進捗の通知（`SolveOptions.onProgress` の第2引数・Worker の `progress` の `build`）で構成が1件ずつ呼び出し側へ届くことが前提で、画面の逐次表示は 007 で行う。1件目の余裕は約 0.4 秒と小さい。
-
-- 条件: 006 と同じ（実データ・発動条件はすべて有効・マスターの先頭の武器・護石なし・`maxResults` 10・`timeoutMs` 60 秒・必須スキル 3／6／10 個 × 解あり／解なしの 6 ケース・各 3 回・Node）。
-- 時間の範囲: 合計時間は検索1回の全体。1件目までの時間は、開始から最初の `onProgress` の呼び出しまで。どちらも HiGHS の初期化を含めない。
-- 採った方式（plan D11）: HiGHS の `presolve` を `off`、`mip_allow_restart` を `false`、`blend_multi_objectives` を `false` にし、`Model.passLinearObjectives` で期待値 θ（優先度 10）と空き Lv の重み（優先度 5）を補助の目的として渡して、1件につき1回の求解にした（006 は 2 段で 20 回）。厳密さ（期待値の最大から順、同点は防具用、次に武器用の空き Lv の合計）は変えていない。支配される候補の除外は採っていない。
-- 測定環境: 006 と同じ（Node v24.22.1・linux x64（WSL2）・AMD Ryzen 7 5700X。HiGHS は npm `highs` 1.15.3、同梱の本体は `1.15.1 (04024d7)`。マスターの版は `2026.10.4`）。
-- 実行: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose --silent=false -t "expectedDamage" src/test/solveBuilds.measure.ts`（CI では実行しない）。
-
-| ケース | 結果 | 求解の回数 | 合計時間（3 回, ms） | 1件目まで（3 回, ms） | 1回の求解の最大（ms） |
-|---|---|---|---|---|---|
-| k=3 解あり | 10 件 | 10 | 37739.4 / 37458.5 / 37466.4 | 2609.6 / 2392.2 / 2403.4 | 5234.6 |
-| k=6 解あり | 10 件 | 10 | 23361.3 / 23334.8 / 23319.2 | 1885.4 / 1877.8 / 1879.8 | 3290.7 |
-| k=10 解あり | 10 件 | 10 | 26490.9 / 26517.6 / 26472.6 | 2577.5 / 2588.7 / 2583.1 | 3583.5 |
-| k=3 解なし | 解なし | 1 | 19.8 / 27.5 / 21.3 | なし | 11.0 |
-| k=6 解なし | 解なし | 1 | 19.7 / 25.2 / 18.5 | なし | 10.9 |
-| k=10 解なし | 解なし | 1 | 21.3 / 19.7 / 18.6 | なし | 11.4 |
-
-- 全ケース・全回の最大: 合計時間 **37739.4 ms**（3 秒に対し FAIL）、1件目までの時間 **2609.6 ms**（3 秒に対し PASS）。006（54974.3 ms）からの合計時間の短縮は約 31%。
-- 試作（T2）では `blend_multi_objectives` を設定せず、合計 19 秒・1件目 1.1 秒だった。本実装は優先度を効かせるため `blend_multi_objectives` を `false` にし、空き Lv の重みも補助の目的にしたので、試作より遅い。
-- 限界: 006 と同じ（護石あり・所持数の制限・件数 30・ブラウザの Worker 上の時間は未測定）。
