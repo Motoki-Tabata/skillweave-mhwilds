@@ -134,6 +134,8 @@ interface Measurement {
   metric: string
   run: number
   totalMs: number
+  /** 開始から最初の onProgress（1 件目の構成）までの時間。構成が 1 件も無いとき（解なし・時間切れ）は undefined */
+  firstMs: number | undefined
   solveMs: number[]
   /** run() ごとの分枝限定のノード数（取れないときは 0） */
   nodes: number[]
@@ -212,10 +214,14 @@ async function measureCase(testCase: Case) {
       maxResults: isDamage ? DAMAGE_MAX_RESULTS : MAX_RESULTS,
       timeoutMs: TIMEOUT_MS,
     })
+    let firstMs: number | undefined
     const start = performance.now()
     const result = await solveBuilds(instrument(highs, stats), master, request, {
       now: () => performance.now(),
       yieldControl: () => new Promise<void>((resolve) => setImmediate(resolve)),
+      onProgress: () => {
+        firstMs ??= performance.now() - start
+      },
     })
     const totalMs = performance.now() - start
     measurements.push({
@@ -223,6 +229,7 @@ async function measureCase(testCase: Case) {
       metric: isDamage ? 'expectedDamage' : 'defense',
       run,
       totalMs,
+      firstMs,
       ...stats,
       builds: result.builds.length,
       status: result.status,
@@ -235,13 +242,40 @@ async function measureCase(testCase: Case) {
 
 const fmt = (ms: number) => ms.toFixed(1)
 
+/**
+ * 1 件目までの時間。構成が 1 件も無い回（解なし）は、結果が分かるまでの時間として合計時間を使う
+ * （最大が過小にならないように）。
+ */
+const firstOrTotal = (m: Measurement) => m.firstMs ?? m.totalMs
+
+const passFail = (ms: number) => (ms <= THRESHOLD_MS ? 'PASS' : 'FAIL')
+
+/** 機能 019 D8: 合計時間の最大が基準以下なら合格。超えたときは 1 件目までの時間の最大が基準以下なら合格 */
+function damageLines(): string[] {
+  const damage = measurements.filter((m) => m.metric === 'expectedDamage')
+  if (damage.length === 0) return []
+  const maxTotal = Math.max(...damage.map((m) => m.totalMs))
+  const maxFirst = Math.max(...damage.map(firstOrTotal))
+  const lines = [
+    `max total ms over expectedDamage cases and runs: ${fmt(maxTotal)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxTotal)}`,
+    `max first-build ms over expectedDamage cases and runs: ${fmt(maxFirst)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxFirst)}`,
+  ]
+  const verdict =
+    maxTotal <= THRESHOLD_MS
+      ? 'PASS (total)'
+      : maxFirst <= THRESHOLD_MS
+        ? 'PASS (first build only; onProgress must deliver builds one by one)'
+        : 'FAIL (even the first build exceeds the threshold)'
+  return [...lines, `expectedDamage verdict: ${verdict}`]
+}
+
 function report() {
   const maxLine = (metric: string) => {
     const totals = measurements.filter((m) => m.metric === metric).map((m) => m.totalMs)
     if (totals.length === 0) return []
     const max = Math.max(...totals)
     return [
-      `max total ms over ${metric} cases and runs: ${fmt(max)} (threshold ${THRESHOLD_MS} ms): ${max <= THRESHOLD_MS ? 'PASS' : 'FAIL'}`,
+      `max total ms over ${metric} cases and runs: ${fmt(max)} (threshold ${THRESHOLD_MS} ms): ${passFail(max)}`,
     ]
   }
   const rows = measurements.map((m) => ({
@@ -251,6 +285,7 @@ function report() {
     builds: m.builds,
     solves: m.solveMs.length,
     'total ms': fmt(m.totalMs),
+    'first ms': m.firstMs === undefined ? '-' : fmt(m.firstMs),
     'solve max ms': fmt(Math.max(0, ...m.solveMs)),
     'solve mean ms': fmt(m.solveMs.reduce((s, v) => s + v, 0) / Math.max(1, m.solveMs.length)),
     'nodes max': Math.max(0, ...m.nodes),
@@ -261,7 +296,7 @@ function report() {
     `master version: ${master.version} (armors=${master.armors.length} decorations=${master.decorations.length} skills=${master.skills.length} setBonuses=${master.setBonuses.length} weapons=${master.weapons.length})`,
     `environment: node ${process.version}, ${process.platform} ${process.arch}, ${os.cpus()[0]?.model ?? 'unknown cpu'} x${os.cpus().length}`,
     ...maxLine('defense'),
-    ...maxLine('expectedDamage'),
+    ...damageLines(),
   ]
   console.log(lines.join('\n'))
   console.table(rows)

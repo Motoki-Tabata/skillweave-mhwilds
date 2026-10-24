@@ -207,7 +207,12 @@ describe('SearchView', () => {
     it('Q1: 進捗のメッセージのたびに件数と進捗バーを更新する', async () => {
       const m = await ready()
       await startSearch(m)
-      m.worker.emit({ type: 'progress', requestId: m.worker.lastSolveId, found: 4 })
+      m.worker.emit({
+        type: 'progress',
+        requestId: m.worker.lastSolveId,
+        found: 4,
+        build: makeBuild(),
+      })
       await flushPromises()
       expect(body()).toContain('見つけた構成: 4 件')
       expect(document.querySelector('[role="progressbar"]')!.getAttribute('aria-valuenow')).toBe(
@@ -355,7 +360,7 @@ describe('SearchView', () => {
       expect(body()).not.toContain('構成 1')
       expect(body()).toContain('見つけた構成: 0 件')
       m.worker.emit({ type: 'result', requestId: firstId, response: found })
-      m.worker.emit({ type: 'progress', requestId: firstId, found: 9 })
+      m.worker.emit({ type: 'progress', requestId: firstId, found: 9, build: makeBuild() })
       await flushPromises()
       expect(body()).not.toContain('構成 1')
       expect(body()).toContain('見つけた構成: 0 件')
@@ -365,7 +370,7 @@ describe('SearchView', () => {
       const m = await ready()
       await startSearch(m)
       const id = m.worker.lastSolveId
-      m.worker.emit({ type: 'progress', requestId: id, found: 5 })
+      m.worker.emit({ type: 'progress', requestId: id, found: 5, build: makeBuild() })
       await flushPromises()
       const cancel = Array.from(document.querySelectorAll('button')).find(
         (b) => textOf(b) === 'キャンセル',
@@ -376,7 +381,7 @@ describe('SearchView', () => {
       expect(body()).toContain('検索をキャンセルしました。')
       expect(m.worker.sent.at(-1)).toEqual({ type: 'cancel', requestId: id })
       m.worker.emit({ type: 'result', requestId: id, response: found })
-      m.worker.emit({ type: 'progress', requestId: id, found: 6 })
+      m.worker.emit({ type: 'progress', requestId: id, found: 6, build: makeBuild() })
       await flushPromises()
       expect(body()).not.toContain('構成 1')
       expect(body()).not.toContain('見つけた構成')

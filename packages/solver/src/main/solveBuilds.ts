@@ -105,8 +105,10 @@ function runModel(highs: Highs, model: Model): 'optimal' | 'timeout' | 'infeasib
 }
 
 /**
- * expectedDamage: 1 件ごとに 2 段で解く（D14）。
- * 1 段目は θ だけを目的にして期待値 E1 を求め、2 段目は θ ≥ E1 − ε の下で空き Lv の重みを目的にする。
+ * expectedDamage: 1 件を 1 回の求解で解く（019 D11）。
+ * モデル本体の目的は空き Lv の重み、θ は優先度の高い補助の目的（weight 負 = 最大化、許容差 ε）。
+ * HiGHS は優先度の高い θ を先に最適化し、同点（ε 以内）の中で空き Lv の重みを最適化する。
+ * 解なしは例外にせず、見つけた分で終える（1 件も無ければ呼び出し側が infeasible にする）。
  */
 async function enumerateDamage(
   ctx: EnumerateContext,
@@ -116,45 +118,49 @@ async function enumerateDamage(
 ): Promise<Enumerated> {
   const { highs, request, options } = ctx
   const builds: SolvedBuild[] = []
-  const all = { kind: 'range', from: 0, to: ilp.numCols - 1 } as const
-  let rowCount = ilp.rows.length
   model.options.set('mip_abs_gap', 0)
+  // 根ノードの処理が時間の大半を占めるため切る（019 Q41）
+  model.options.set('presolve', 'off')
+  model.options.set('mip_allow_restart', false)
+  // 既定（true）では補助の目的を重みで 1 つに混ぜ、優先度が効かない。辞書式の順にするため切る
+  model.options.set('blend_multi_objectives', false)
+  model.passLinearObjectives([
+    {
+      weight: -1,
+      offset: 0,
+      coefficients: damage.stage1Cost,
+      absoluteTolerance: DAMAGE_EPSILON,
+      relativeTolerance: 0,
+      priority: 10,
+    },
+    // 本体の目的（colCost）は補助の目的の後には最適化されないため、同点の順（空き Lv の重み）も補助で足す
+    {
+      weight: -1,
+      offset: 0,
+      coefficients: ilp.colCost,
+      absoluteTolerance: 0,
+      relativeTolerance: 0,
+      priority: 5,
+    },
+  ])
 
   while (builds.length < request.maxResults) {
     if (!(await readyToSolve(ctx, model))) return { builds, timedOut: true }
-    model.changeColsCost(all, damage.stage1Cost)
-    const first = runModel(highs, model)
-    if (first === 'timeout') return { builds, timedOut: true }
-    if (first === 'infeasible') break
-    const e1 = toBuild(ctx, readSelection(ilp, model.getSolution().colValue)).score ?? 0
-
-    // 2 段目: θ ≥ E1 − ε を足して、空き Lv の重みで解く（打ち切ったらこの件は返さない）
-    model.addRow(e1 - DAMAGE_EPSILON, highs.infinity, {
-      indices: [damage.thetaCol],
-      values: [1],
-    })
-    rowCount++
-    model.changeColsCost(all, ilp.colCost)
-    if (!(await readyToSolve(ctx, model))) return { builds, timedOut: true }
-    const second = runModel(highs, model)
-    if (second === 'timeout') return { builds, timedOut: true }
-    if (second === 'infeasible') {
-      throw new Error('期待値の下限の行を足した 2 段目が解なしになった（1 段目の解は満たすはず）')
-    }
+    const result = runModel(highs, model)
+    if (result === 'timeout') return { builds, timedOut: true }
+    if (result === 'infeasible') break
     const selection = readSelection(ilp, model.getSolution().colValue)
-    builds.push(toBuild(ctx, selection))
-    options.onProgress?.(builds.length)
+    const build = toBuild(ctx, selection)
+    builds.push(build)
+    options.onProgress?.(builds.length, build)
 
-    // 足した行を外し、防具と護石の組を除く行を足す
-    model.deleteRows({ kind: 'range', from: rowCount - 1, to: rowCount - 1 })
-    rowCount--
+    // 防具と護石の組を除く行を足す
     const { chosen } = selection
     if (chosen.length === 0) break
     model.addRow(-highs.infinity, chosen.length - 1, {
       indices: chosen,
       values: chosen.map(() => 1),
     })
-    rowCount++
   }
   return { builds, timedOut: false }
 }
@@ -166,8 +172,9 @@ async function enumerate(ctx: EnumerateContext, ilp: IlpModel): Promise<Enumerat
   if (ilp.numCols === 0) {
     // 変数が無い（全部位が null 固定で護石の候補も空）。他の組は無いので 1 件で終える
     const empty = readSelection(ilp, [])
-    options.onProgress?.(1)
-    return { builds: [toBuild(ctx, empty)], timedOut: false }
+    const build = toBuild(ctx, empty)
+    options.onProgress?.(1, build)
+    return { builds: [build], timedOut: false }
   }
 
   return highs.withModel(async (model): Promise<Enumerated> => {
@@ -183,8 +190,9 @@ async function enumerate(ctx: EnumerateContext, ilp: IlpModel): Promise<Enumerat
       if (result === 'timeout') return { builds, timedOut: true }
       if (result === 'infeasible') break
       const selection = readSelection(ilp, model.getSolution().colValue)
-      builds.push(toBuild(ctx, selection))
-      options.onProgress?.(builds.length)
+      const build = toBuild(ctx, selection)
+      builds.push(build)
+      options.onProgress?.(builds.length, build)
       const { chosen } = selection
       if (chosen.length === 0) break
       // 防具と護石の組を除く: 選んだ変数の和 <= 個数 - 1

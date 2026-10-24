@@ -277,7 +277,7 @@ describe('search ストア', () => {
   it('進捗で件数を更新し、結果で完了（Q2〜Q5）にする', async () => {
     const { search, worker } = await setup()
     search.submit()
-    worker.emit({ type: 'progress', requestId: worker.lastSolveId, found: 2 })
+    worker.emit({ type: 'progress', requestId: worker.lastSolveId, found: 2, build: makeBuild() })
     expect(search.found).toBe(2)
     worker.emit({ type: 'result', requestId: worker.lastSolveId, response })
     expect(search.status).toBe('done')
@@ -305,7 +305,7 @@ describe('search ストア', () => {
     const { search, worker } = await setup()
     search.submit()
     const firstId = worker.lastSolveId
-    worker.emit({ type: 'progress', requestId: firstId, found: 4 })
+    worker.emit({ type: 'progress', requestId: firstId, found: 4, build: makeBuild() })
     worker.emit({ type: 'result', requestId: firstId, response })
     expect(search.response).not.toBeNull()
     search.submit()
@@ -314,7 +314,7 @@ describe('search ストア', () => {
     expect(search.response).toBeNull()
     expect(search.runCount).toBe(2)
     // 前の検索の遅れた応答
-    worker.emit({ type: 'progress', requestId: firstId, found: 7 })
+    worker.emit({ type: 'progress', requestId: firstId, found: 7, build: makeBuild() })
     worker.emit({ type: 'result', requestId: firstId, response })
     expect(search.found).toBe(0)
     expect(search.response).toBeNull()
@@ -326,9 +326,9 @@ describe('search ストア', () => {
     search.submit()
     const firstId = worker.lastSolveId
     search.submit()
-    worker.emit({ type: 'progress', requestId: firstId, found: 8 })
+    worker.emit({ type: 'progress', requestId: firstId, found: 8, build: makeBuild() })
     expect(search.found).toBe(0)
-    worker.emit({ type: 'progress', requestId: worker.lastSolveId, found: 1 })
+    worker.emit({ type: 'progress', requestId: worker.lastSolveId, found: 1, build: makeBuild() })
     expect(search.found).toBe(1)
   })
 
@@ -336,14 +336,14 @@ describe('search ストア', () => {
     const { search, worker, pinia } = await setup()
     search.submit()
     const id = worker.lastSolveId
-    worker.emit({ type: 'progress', requestId: id, found: 3 })
+    worker.emit({ type: 'progress', requestId: id, found: 3, build: makeBuild() })
     search.cancel()
     expect(search.status).toBe('idle')
     expect(search.found).toBe(0)
     expect(search.response).toBeNull()
     expect(worker.sent.at(-1)).toEqual({ type: 'cancel', requestId: id })
     expect(useToastStore(pinia).items.map((i) => i.message)).toEqual([CANCELLED_TOAST_MESSAGE])
-    worker.emit({ type: 'progress', requestId: id, found: 5 })
+    worker.emit({ type: 'progress', requestId: id, found: 5, build: makeBuild() })
     worker.emit({ type: 'result', requestId: id, response })
     expect(search.status).toBe('idle')
     expect(search.found).toBe(0)

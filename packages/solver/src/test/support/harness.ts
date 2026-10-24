@@ -50,8 +50,11 @@ export async function solveVerified(
   highs: Highs,
   master: MasterBundle,
   request: SolverRequest,
+  expectedStatus?: SolverResponse['status'],
 ): Promise<SolverResponse> {
   const response = await solve(highs, master, request)
+  // 時間切れ（timeout）で検算の対象が欠けたまま合格しないよう、検算の前に状態を確かめる
+  if (expectedStatus !== undefined) expect(response.status).toBe(expectedStatus)
   for (const build of response.builds) {
     expect(verifyBuild(master, request, build)).toEqual([])
   }
