@@ -50,3 +50,13 @@
 - 種別: 規律昇華
 - 何が起きたか: plan D1・D3 と `design/master-data.md` の発動条件 ID の例（`cd:challenger`・`cd:adrenaline_rush`）を、規則「スキルの en 名の snake_case」を当てはめずに書いた。実データでは挑戦者は `cd:agitator`、火事場力は `cd:heroics` で、data-agent の報告で食い違いが分かった。
 - 提案: `.claude/skills/tsod-plan/SKILL.md` に、「ID の命名規則を決めるときは、実データの代表 2〜3 件に規則を当てはめた結果を例に書く」を足す。
+
+## 2026-10-24 HiGHS の passLinearObjectives は blend_multi_objectives を false にしないと優先度が効かない（機能019・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 試作（`a-both+e2`）は `blend_multi_objectives` を既定の true のまま測り、合計 19 秒・1件目 1.1 秒と見積もった。本実装は、優先度を効かせるために false にし、空き Lv の重みも補助の目的に足したところ、1件目 2.6 秒（余裕 0.4 秒）になった。補助の目的を足すと本体の `colCost` は最適化されず、006 の同点の順のテストが落ちた（solver-agent の報告。`specs/019-damage-solve-perf/plan.md` D11）。
+- 提案: `.claude/rules/solver.md` に、「複数目的は `blend_multi_objectives` を false にし、辞書式にしたい目的はすべて `passLinearObjectives` の補助の目的として優先度つきで渡す。方式の試作は、本実装で確定する設定と目的の形で測り、同点の順のテストも通す」を足す。
+
+## 2026-10-24 `*.measure.ts` を複数置くと、ファイルを指定しない `--mode measure` は全部走る（機能019・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 試作の `damagePrototype.measure.ts` を足すと、`vitest run --mode measure -t "expectedDamage"` が `solveBuilds.measure.ts` と同時に走る。vitest の `-t` は、空白と `=` を含む名前（`k=3 解あり`）に合わせにくく、試作は環境変数（`PROTO_CONFIGS` など）で絞った。
+- 提案: `.claude/rules/solver.md` に、「測定は `--mode measure` の末尾にファイルを指定して実行する。describe 名の語で分けるだけにしない。ケースを絞るときは環境変数で絞る」を足す。
