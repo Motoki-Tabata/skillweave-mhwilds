@@ -2,10 +2,10 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: A
-- 次に起動するコマンド: `/tsod-spec 007-damage-ui`
+- 区間: B
+- 次に起動するコマンド: `/tsod-screen-table 007-damage-ui`
 - 推奨モデル: Opus
-- ブランチ: `feat/007-damage-ui`
+- ブランチ: `feat/007-damage-ui`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
@@ -24,7 +24,7 @@
 | ゲート | 対象 | 状態 | 承認日時・記録 |
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-24 / 6bc989c |
-| A-2 | 薄仕様 spec.md | 未 | |
+| A-2 | 薄仕様 spec.md | 承認済み | 2026-10-24 / 844c6d2 |
 | B-1 | 画面設計 screen-design.md | 未 | |
 | B-2 | テーブル設計（design/・migration） | 未 | |
 | C-1 | plan.md・tasks.md | 未 | |
@@ -66,9 +66,12 @@
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
+- なし（区間 A で起票すべき教訓は出なかった）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
+- 区間 B: 検索画面（SearchView.vue）のレイアウトを変える（カードを足すなど）と決めたら、open-questions.md Q28 の仮（ブレークポイントの決定と MASTER.md の Layout の修正）に当たるので、扱いをそこで決める。ResultAlert.vue を触るなら Q27 も同様
+- 区間 D の前: Q41 の対策の機能を /tsod-discover で機能マップに追加し、マージ済みであること（decisions.md Q42）。spec.md の「依存する機能ID」の仮の行をその ID に直す
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
