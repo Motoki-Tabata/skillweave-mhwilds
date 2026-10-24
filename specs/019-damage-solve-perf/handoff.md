@@ -2,10 +2,10 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: A
-- 次に起動するコマンド: `/tsod-spec 019-damage-solve-perf`
+- 区間: C
+- 次に起動するコマンド: `/tsod-plan 019-damage-solve-perf`
 - 推奨モデル: Opus
-- ブランチ: `feat/019-damage-solve-perf`
+- ブランチ: `feat/019-damage-solve-perf`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
@@ -24,9 +24,9 @@
 | ゲート | 対象 | 状態 | 承認日時・記録 |
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-24 / a636909 |
-| A-2 | 薄仕様 spec.md | 未 | |
-| B-1 | 画面設計 screen-design.md | 未 | |
-| B-2 | テーブル設計（design/・migration） | 未 | |
+| A-2 | 薄仕様 spec.md | 承認済み | 2026-10-24 / fe67375 |
+| B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | 2026-10-24 |
+| B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-10-24 |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
@@ -73,3 +73,4 @@
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q41
+- 区間 C は、求解の方式の試作と実データでの測定を最初のタスクに置く（3 秒に届く方式は未確認。切り分けの結果は decisions.md Q41 の判断材料）
