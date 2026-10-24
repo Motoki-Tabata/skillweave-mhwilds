@@ -50,6 +50,7 @@
 |---|---|---|
 | solver | solver-agent | 2334548 |
 | solver | solver-agent | 66fb097 |
+| web | web-agent | 8aeb4a6 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
