@@ -82,12 +82,15 @@
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- メインの直接修正の表（handoff の「メインの直接修正」をそのまま転記）。常時許可外の変更の実績: design/tech-stack.md（expectedDamage の再測定の節。plan の承認済み）。solver の progress メッセージの型変更（build 必須）に伴う web のテスト 3 ファイルの追従（ゲート D-1 で承認）。AC5 は「1 回の求解が解なしのとき例外にせず見つけた分を返す」に読み替え（ゲート D-1 で承認）。台帳 tasks/lessons.md に 2 件起票。
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
+- なし（候補 3 件のうち、blend_multi_objectives と measure ファイルの指定は tasks/lessons.md に起票済み。vitest の -t は後者に含めた）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
+- 007 で、ブラウザの Worker 上の 1 件目までの時間（Node では最大 2.6 秒・余裕 0.4 秒）を再確認する。web クライアントの onProgress が build を捨てている点（apps/web/src/main/lib/solver/client.ts）も 007 で扱う。
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
