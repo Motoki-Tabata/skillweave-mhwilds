@@ -305,6 +305,31 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ---
 
+## HiGHS の expectedDamage の測定（006 damage-model・2026-10-24）
+
+**結論: 不合格。合計時間の最大が 54974.3 ms で、基準の 3 秒を超えた。** 対策は `specs/open-questions.md` の Q41 に起票した。
+
+- 条件: Node で `solveBuilds` を直接呼ぶ（`packages/solver/src/test/solveBuilds.measure.ts` の `expectedDamage` のケース）。実データ（`packages/data/dist/master-2026.10.4.json`）。目的は `expectedDamage`、発動条件はマスターのすべてを有効にする、武器はマスターの先頭の武器、護石なし、`maxResults` 10、`timeoutMs` 60 秒。必須スキルは 003 と同じ 3／6／10 個 × 解あり／解なしの 6 ケース。各ケースを 3 回。
+- 時間の範囲: 検索1回の合計時間（1件ごとの 2 段の求解を含む。HiGHS の初期化は含めない）。
+- 合格基準: 全ケース・全回の合計時間の最大が 3 秒以下（001・003・004 と同じ）。
+- 測定環境: Node v24.22.1・linux x64（WSL2）・AMD Ryzen 7 5700X（12 論理コア）。HiGHS は npm `highs` 1.15.3（同梱の本体は `1.15.1 (04024d7)`）。マスターの版は `2026.10.4`（防具 714・装飾品 361・スキル 179・シリーズ／グループ 42・武器 1188）。
+- 実行: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose --silent=false -t "expectedDamage"`（CI では実行しない。`--silent=false` を付けないと出力が見えない）。
+
+| ケース | 結果 | 求解の回数 | 合計時間（3 回, ms） | 1回の求解の最大（ms） |
+|---|---|---|---|---|
+| k=3 解あり | 10 件 | 20 | 54974.3 / 54749.4 / 54623.1 | 4627.1 |
+| k=6 解あり | 10 件 | 20 | 26979.1 / 27048.1 / 26990.0 | 2389.9 |
+| k=10 解あり | 10 件 | 20 | 27587.8 / 27579.5 / 27591.4 | 2535.8 |
+| k=3 解なし | 解なし | 1 | 35.7 / 32.4 / 32.5 | 23.6 |
+| k=6 解なし | 解なし | 1 | 36.1 / 37.4 / 33.5 | 27.0 |
+| k=10 解なし | 解なし | 1 | 41.2 / 39.8 / 40.1 | 33.1 |
+
+- 全ケース・全回の最大: **54974.3 ms**（k=3 解あり・1 回目）。解ありのケースは 10 件 × 2 段 = 20 回の求解が要り、1回が 0.4〜4.6 秒かかる。解なしのケースは 1 回の求解で終わり、基準内。
+- 対策の案と判断は Q41 に置く。
+- 限界: 護石あり・装飾品の所持数の制限・件数 30 のときは未測定。ブラウザの Worker 上の時間は未測定（004 の測定と同じ経路では測っていない）。
+
+---
+
 ## CI
 
 `.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。

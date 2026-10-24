@@ -1,6 +1,8 @@
 import type { ArmorPart, MasterArmor, MasterBundle, SetBonusId, SkillId, Slot } from '@swv/data'
 import type { SlotOwner, SolvedBuild, SolverRequest } from '../../main/request'
+import { DAMAGE_EPSILON } from '../../main/solveBuilds'
 import { PARTS } from './builders'
+import { referenceDamage } from './damageReference'
 
 interface Equipped {
   weapon: {
@@ -198,16 +200,56 @@ function checkSkills(
     const actual = levelOf(master, build, equipped, req.skillId)
     if (actual < req.level) problems.push(`${req.skillId} は ${actual} で下限 ${req.level} 未満`)
   }
-  // 外すと必須スキルが下限を割る装飾品だけを付けている（余分な装飾品は空きスロットを減らす）
+  // 外すと必須スキルが下限を割る装飾品（expectedDamage では、期待値が ε を超えて下がる装飾品も）だけを付けている
+  // （余分な装飾品は空きスロットを減らす）
+  const full = recountExpected(master, request, build, equipped)
   build.decorations.forEach((d, i) => {
     const stillOk = request.required.every(
       (req) => levelOf(master, build, equipped, req.skillId, i) >= req.level,
     )
-    if (stillOk) problems.push(`装飾品 ${d.decorationId} は外しても必須スキルを満たす（不要）`)
+    const losesDamage =
+      isExpectedDamage(request) &&
+      full - recountExpected(master, request, build, equipped, i) > DAMAGE_EPSILON
+    if (stillOk && !losesDamage) {
+      problems.push(`装飾品 ${d.decorationId} は外しても必須スキルと期待値を保つ（不要）`)
+    }
   })
 }
 
+function isExpectedDamage(request: SolverRequest): boolean {
+  return request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
+}
+
+/** 装備から数え直した発動スキルのレベルで、参照実装の期待値を計算する。skipDecorationAt の装飾品を除ける */
+function recountExpected(
+  master: MasterBundle,
+  request: SolverRequest,
+  build: SolvedBuild,
+  equipped: Equipped,
+  skipDecorationAt?: number,
+): number {
+  const raw = ordinaryLevels(master, build, equipped, skipDecorationAt)
+  const levels = new Map<SkillId, number>()
+  for (const s of master.skills) {
+    levels.set(
+      s.id,
+      isSetSkill(master, s.id)
+        ? setSkillLevel(master, equipped, s.id)
+        : Math.min(raw.get(s.id) ?? 0, s.maxLevel),
+    )
+  }
+  const w = request.weapon
+  const found = w.kind === 'custom' ? w : master.weapons.find((m) => m.id === w.weaponId)
+  return referenceDamage(
+    master,
+    { attack: found?.attack ?? 0, affinity: found?.affinity ?? 0 },
+    levels,
+    request.activeConditionIds ?? [],
+  )
+}
+
 function checkObjective(
+  master: MasterBundle,
   request: SolverRequest,
   build: SolvedBuild,
   equipped: Equipped,
@@ -241,6 +283,11 @@ function checkObjective(
     }
     if (build.score !== levels.armor)
       problems.push(`score ${build.score} が防具用の空き Lv ${levels.armor} と違う`)
+  } else {
+    const expected = recountExpected(master, request, build, equipped)
+    if (build.score === undefined || Math.abs(build.score - expected) > 1e-9) {
+      problems.push(`score ${build.score} が数え直した期待値 ${expected} と違う`)
+    }
   }
 }
 
@@ -258,7 +305,7 @@ export function verifyBuild(
   const equipped = checkEquipment(master, request, build, problems)
   checkPlacement(master, build, equipped, problems)
   checkSkills(master, request, build, equipped, problems)
-  checkObjective(request, build, equipped, problems)
+  checkObjective(master, request, build, equipped, problems)
   return problems
 }
 

@@ -129,7 +129,7 @@ export function assembleBuild(
   if (objective.kind === 'maximize' && objective.metric === 'freeSlots') {
     build.freeSlotLevels = { armor: freeLevel('armor'), weapon: freeLevel('weapon') }
     build.score = build.freeSlotLevels.armor
-  } else if (objective.kind === 'maximize') {
+  } else if (objective.kind === 'maximize' && objective.metric === 'defense') {
     build.score = PARTS.reduce((sum, part) => sum + (selection.armor[part]?.defense ?? 0), 0)
   }
   return build

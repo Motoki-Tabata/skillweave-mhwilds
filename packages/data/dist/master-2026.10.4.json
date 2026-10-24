@@ -20271,6 +20271,71 @@
       "slots": []
     }
   ],
+  "conditions": [
+    {
+      "id": "cd:adrenaline_rush"
+    },
+    {
+      "id": "cd:agitator"
+    },
+    {
+      "id": "cd:ambush"
+    },
+    {
+      "id": "cd:antivirus"
+    },
+    {
+      "id": "cd:bubbleblight"
+    },
+    {
+      "id": "cd:counterstrike"
+    },
+    {
+      "id": "cd:critical_draw"
+    },
+    {
+      "id": "cd:doshagumas_might"
+    },
+    {
+      "id": "cd:ebony_odogarons_power"
+    },
+    {
+      "id": "cd:foray"
+    },
+    {
+      "id": "cd:heroics"
+    },
+    {
+      "id": "cd:latent_power"
+    },
+    {
+      "id": "cd:maximum_might"
+    },
+    {
+      "id": "cd:offensive_guard"
+    },
+    {
+      "id": "cd:peak_performance"
+    },
+    {
+      "id": "cd:punishing_draw"
+    },
+    {
+      "id": "cd:resentment"
+    },
+    {
+      "id": "cd:weak_point"
+    },
+    {
+      "id": "cd:wet"
+    },
+    {
+      "id": "cd:wound"
+    },
+    {
+      "id": "cd:xu_wus_vigor"
+    }
+  ],
   "decorations": [
     {
       "id": "dc:-1003144960",
@@ -25502,7 +25567,22 @@
       "maxLevel": 2
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:xu_wus_vigor",
+            "stat": "attack_add",
+            "value": 15
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:xu_wus_vigor",
+            "stat": "attack_add",
+            "value": 30
+          }
+        ]
+      ],
       "id": "sk:-1468066176",
       "kind": "series",
       "maxLevel": 2
@@ -25526,7 +25606,38 @@
       "maxLevel": 2
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "stat": "crit_mul",
+            "value": 1.28
+          }
+        ],
+        [
+          {
+            "stat": "crit_mul",
+            "value": 1.31
+          }
+        ],
+        [
+          {
+            "stat": "crit_mul",
+            "value": 1.34
+          }
+        ],
+        [
+          {
+            "stat": "crit_mul",
+            "value": 1.37
+          }
+        ],
+        [
+          {
+            "stat": "crit_mul",
+            "value": 1.4
+          }
+        ]
+      ],
       "id": "sk:-1607763456",
       "kind": "weapon",
       "maxLevel": 5
@@ -25550,7 +25661,29 @@
       "maxLevel": 1
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:antivirus",
+            "stat": "affinity_add",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:antivirus",
+            "stat": "affinity_add",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:antivirus",
+            "stat": "affinity_add",
+            "value": 10
+          }
+        ]
+      ],
       "id": "sk:-1662120192",
       "kind": "armor",
       "maxLevel": 3
@@ -25598,7 +25731,29 @@
       "maxLevel": 3
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:ambush",
+            "stat": "attack_mul",
+            "value": 1.05
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:ambush",
+            "stat": "attack_mul",
+            "value": 1.1
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:ambush",
+            "stat": "attack_mul",
+            "value": 1.15
+          }
+        ]
+      ],
       "id": "sk:-171796848",
       "kind": "armor",
       "maxLevel": 3
@@ -25616,7 +25771,29 @@
       "maxLevel": 1
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:offensive_guard",
+            "stat": "attack_mul",
+            "value": 1.05
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:offensive_guard",
+            "stat": "attack_mul",
+            "value": 1.1
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:offensive_guard",
+            "stat": "attack_mul",
+            "value": 1.15
+          }
+        ]
+      ],
       "id": "sk:-181127504",
       "kind": "weapon",
       "maxLevel": 3
@@ -25640,7 +25817,29 @@
       "maxLevel": 3
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:punishing_draw",
+            "stat": "attack_add",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:punishing_draw",
+            "stat": "attack_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:punishing_draw",
+            "stat": "attack_add",
+            "value": 7
+          }
+        ]
+      ],
       "id": "sk:-1946345856",
       "kind": "weapon",
       "maxLevel": 3
@@ -25676,7 +25875,38 @@
       "maxLevel": 1
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "stat": "affinity_add",
+            "value": 4
+          }
+        ],
+        [
+          {
+            "stat": "affinity_add",
+            "value": 8
+          }
+        ],
+        [
+          {
+            "stat": "affinity_add",
+            "value": 12
+          }
+        ],
+        [
+          {
+            "stat": "affinity_add",
+            "value": 16
+          }
+        ],
+        [
+          {
+            "stat": "affinity_add",
+            "value": 20
+          }
+        ]
+      ],
       "id": "sk:-2096489472",
       "kind": "weapon",
       "maxLevel": 5
@@ -25730,7 +25960,68 @@
       "maxLevel": 2
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:weak_point",
+            "stat": "affinity_add",
+            "value": 5
+          },
+          {
+            "conditionId": "cd:wound",
+            "stat": "affinity_add",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:weak_point",
+            "stat": "affinity_add",
+            "value": 10
+          },
+          {
+            "conditionId": "cd:wound",
+            "stat": "affinity_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:weak_point",
+            "stat": "affinity_add",
+            "value": 15
+          },
+          {
+            "conditionId": "cd:wound",
+            "stat": "affinity_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:weak_point",
+            "stat": "affinity_add",
+            "value": 20
+          },
+          {
+            "conditionId": "cd:wound",
+            "stat": "affinity_add",
+            "value": 15
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:weak_point",
+            "stat": "affinity_add",
+            "value": 30
+          },
+          {
+            "conditionId": "cd:wound",
+            "stat": "affinity_add",
+            "value": 20
+          }
+        ]
+      ],
       "id": "sk:-397570464",
       "kind": "armor",
       "maxLevel": 5
@@ -25802,7 +26093,22 @@
       "maxLevel": 3
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:doshagumas_might",
+            "stat": "attack_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:doshagumas_might",
+            "stat": "attack_add",
+            "value": 25
+          }
+        ]
+      ],
       "id": "sk:-62248528",
       "kind": "series",
       "maxLevel": 2
@@ -25844,7 +26150,44 @@
       "maxLevel": 3
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:wet",
+            "stat": "affinity_add",
+            "value": 3
+          },
+          {
+            "conditionId": "cd:bubbleblight",
+            "stat": "affinity_add",
+            "value": 7
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:wet",
+            "stat": "affinity_add",
+            "value": 6
+          },
+          {
+            "conditionId": "cd:bubbleblight",
+            "stat": "affinity_add",
+            "value": 14
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:wet",
+            "stat": "affinity_add",
+            "value": 9
+          },
+          {
+            "conditionId": "cd:bubbleblight",
+            "stat": "affinity_add",
+            "value": 21
+          }
+        ]
+      ],
       "id": "sk:-847539392",
       "kind": "weapon",
       "maxLevel": 3
@@ -25886,7 +26229,46 @@
       "maxLevel": 2
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "stat": "attack_add",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "stat": "attack_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "stat": "attack_add",
+            "value": 7
+          }
+        ],
+        [
+          {
+            "stat": "attack_mul",
+            "value": 1.02
+          },
+          {
+            "stat": "attack_add",
+            "value": 8
+          }
+        ],
+        [
+          {
+            "stat": "attack_mul",
+            "value": 1.04
+          },
+          {
+            "stat": "attack_add",
+            "value": 9
+          }
+        ]
+      ],
       "id": "sk:1",
       "kind": "weapon",
       "maxLevel": 5
@@ -25928,7 +26310,43 @@
       "maxLevel": 2
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:adrenaline_rush",
+            "stat": "attack_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:adrenaline_rush",
+            "stat": "attack_add",
+            "value": 15
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:adrenaline_rush",
+            "stat": "attack_add",
+            "value": 20
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:adrenaline_rush",
+            "stat": "attack_add",
+            "value": 25
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:adrenaline_rush",
+            "stat": "attack_add",
+            "value": 30
+          }
+        ]
+      ],
       "id": "sk:1174975744",
       "kind": "armor",
       "maxLevel": 5
@@ -25952,7 +26370,43 @@
       "maxLevel": 3
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:resentment",
+            "stat": "attack_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:resentment",
+            "stat": "attack_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:resentment",
+            "stat": "attack_add",
+            "value": 15
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:resentment",
+            "stat": "attack_add",
+            "value": 20
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:resentment",
+            "stat": "attack_add",
+            "value": 25
+          }
+        ]
+      ],
       "id": "sk:1359821952",
       "kind": "armor",
       "maxLevel": 5
@@ -26102,7 +26556,43 @@
       "maxLevel": 3
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:latent_power",
+            "stat": "affinity_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:latent_power",
+            "stat": "affinity_add",
+            "value": 20
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:latent_power",
+            "stat": "affinity_add",
+            "value": 30
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:latent_power",
+            "stat": "affinity_add",
+            "value": 40
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:latent_power",
+            "stat": "affinity_add",
+            "value": 50
+          }
+        ]
+      ],
       "id": "sk:1763191040",
       "kind": "armor",
       "maxLevel": 5
@@ -26120,7 +26610,68 @@
       "maxLevel": 1
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:agitator",
+            "stat": "attack_add",
+            "value": 4
+          },
+          {
+            "conditionId": "cd:agitator",
+            "stat": "affinity_add",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:agitator",
+            "stat": "attack_add",
+            "value": 8
+          },
+          {
+            "conditionId": "cd:agitator",
+            "stat": "affinity_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:agitator",
+            "stat": "attack_add",
+            "value": 12
+          },
+          {
+            "conditionId": "cd:agitator",
+            "stat": "affinity_add",
+            "value": 7
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:agitator",
+            "stat": "attack_add",
+            "value": 16
+          },
+          {
+            "conditionId": "cd:agitator",
+            "stat": "affinity_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:agitator",
+            "stat": "attack_add",
+            "value": 20
+          },
+          {
+            "conditionId": "cd:agitator",
+            "stat": "affinity_add",
+            "value": 15
+          }
+        ]
+      ],
       "id": "sk:1865909632",
       "kind": "armor",
       "maxLevel": 5
@@ -26186,7 +26737,43 @@
       "maxLevel": 2
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:peak_performance",
+            "stat": "attack_add",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:peak_performance",
+            "stat": "attack_add",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:peak_performance",
+            "stat": "attack_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:peak_performance",
+            "stat": "attack_add",
+            "value": 15
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:peak_performance",
+            "stat": "attack_add",
+            "value": 20
+          }
+        ]
+      ],
       "id": "sk:2106877312",
       "kind": "armor",
       "maxLevel": 5
@@ -26222,13 +26809,91 @@
       "maxLevel": 1
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:foray",
+            "stat": "attack_add",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:foray",
+            "stat": "attack_add",
+            "value": 8
+          },
+          {
+            "conditionId": "cd:foray",
+            "stat": "affinity_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:foray",
+            "stat": "attack_add",
+            "value": 10
+          },
+          {
+            "conditionId": "cd:foray",
+            "stat": "affinity_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:foray",
+            "stat": "attack_add",
+            "value": 12
+          },
+          {
+            "conditionId": "cd:foray",
+            "stat": "affinity_add",
+            "value": 15
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:foray",
+            "stat": "attack_add",
+            "value": 15
+          },
+          {
+            "conditionId": "cd:foray",
+            "stat": "affinity_add",
+            "value": 20
+          }
+        ]
+      ],
       "id": "sk:27684744",
       "kind": "armor",
       "maxLevel": 5
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:counterstrike",
+            "stat": "attack_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:counterstrike",
+            "stat": "attack_add",
+            "value": 15
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:counterstrike",
+            "stat": "attack_add",
+            "value": 25
+          }
+        ]
+      ],
       "id": "sk:280489184",
       "kind": "armor",
       "maxLevel": 3
@@ -26324,7 +26989,37 @@
       "maxLevel": 1
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [],
+        [
+          {
+            "conditionId": "cd:heroics",
+            "stat": "attack_mul",
+            "value": 1.05
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:heroics",
+            "stat": "attack_mul",
+            "value": 1.05
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:heroics",
+            "stat": "attack_mul",
+            "value": 1.1
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:heroics",
+            "stat": "attack_mul",
+            "value": 1.3
+          }
+        ]
+      ],
       "id": "sk:422666624",
       "kind": "armor",
       "maxLevel": 5
@@ -26408,7 +27103,29 @@
       "maxLevel": 3
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:maximum_might",
+            "stat": "affinity_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:maximum_might",
+            "stat": "affinity_add",
+            "value": 20
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:maximum_might",
+            "stat": "affinity_add",
+            "value": 30
+          }
+        ]
+      ],
       "id": "sk:632127488",
       "kind": "armor",
       "maxLevel": 3
@@ -26432,7 +27149,29 @@
       "maxLevel": 3
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:critical_draw",
+            "stat": "affinity_add",
+            "value": 50
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:critical_draw",
+            "stat": "affinity_add",
+            "value": 75
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:critical_draw",
+            "stat": "affinity_add",
+            "value": 100
+          }
+        ]
+      ],
       "id": "sk:686533440",
       "kind": "weapon",
       "maxLevel": 3
@@ -26522,7 +27261,22 @@
       "maxLevel": 1
     },
     {
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:ebony_odogarons_power",
+            "stat": "attack_add",
+            "value": 8
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:ebony_odogarons_power",
+            "stat": "attack_add",
+            "value": 18
+          }
+        ]
+      ],
       "id": "sk:918165056",
       "kind": "series",
       "maxLevel": 2
@@ -26538,7 +27292,7 @@
     "commit": "c50a1eb892f4a1ad9bb35c147801658804be2cc2",
     "repository": "LartTyler/mhdb-wilds-data"
   },
-  "version": "2026.10.3",
+  "version": "2026.10.4",
   "weapons": [
     {
       "affinity": 0,

@@ -7,26 +7,31 @@ import type {
   SlotLevel,
   SlotTarget,
 } from '@swv/data'
+import { damageTargets, extendWithDamage, type DamageColumns } from './damageModel'
 import type { SolverCharm, SolverRequest } from './request'
+import { sparseRow, type Row } from './rows'
 import { findSetBonus, isSetSkill, piecesForLevel, skillLevelOf } from './skills'
 import { PARTS, type ResolvedWeapon } from './validate'
+
+export type { Row } from './rows'
 
 const LEVELS: readonly SlotLevel[] = [1, 2, 3, 4]
 const TARGETS: readonly SlotTarget[] = ['weapon', 'armor']
 
-export interface Row {
-  lower: number
-  upper: number
-  indices: number[]
-  values: number[]
-}
-
-/** 列の並び: 防具 x、護石 y（ここまで 0/1）、装飾品 n、配置 z（ここから非負整数） */
+/**
+ * 列の並び: 防具 x、護石 y（ここまで 0/1）、装飾品 n、配置 z（ここから非負整数）。
+ * expectedDamage のときだけ、その後ろに期待値の列（damageModel.ts）が続く。
+ */
 export interface IlpModel {
   numCols: number
   numBinary: number
   colCost: number[]
+  colLower: number[]
   colUpper: number[]
+  /** 列ごとの整数性（期待値の列だけ連続変数がある） */
+  colInteger: boolean[]
+  /** expectedDamage のときだけ持つ */
+  damage?: DamageColumns
   rows: Row[]
   armorCols: { part: ArmorPart; armor: MasterArmor; col: number }[]
   charmCols: { charm: SolverCharm; col: number }[]
@@ -44,7 +49,6 @@ export interface Selection {
 
 type Slots = readonly { target: SlotTarget; level: number }[]
 type PartCandidates = { part: ArmorPart; armors: MasterArmor[] }[]
-type Coefs = [number, number][]
 
 /** 配置の列 z: 種別 target・Lv d の装飾品を Lv s のスロットへ付ける個数（d <= s） */
 interface PlacementCol {
@@ -74,17 +78,6 @@ function exactCount(slots: Slots, target: SlotTarget, level: number): number {
   return slots.filter((s) => s.target === target && s.level === level).length
 }
 
-/** 係数が 0 でない列だけを集めた行を作る */
-function sparseRow(lower: number, upper: number, coefs: Coefs): Row {
-  const nonZero = coefs.filter(([, v]) => v !== 0)
-  return {
-    lower,
-    upper,
-    indices: nonZero.map(([c]) => c),
-    values: nonZero.map(([, v]) => v),
-  }
-}
-
 function isCandidate(
   armor: MasterArmor,
   part: ArmorPart,
@@ -111,14 +104,23 @@ function candidateArmors(master: MasterBundle, request: SolverRequest): PartCand
   return result
 }
 
-/** 必須スキルを 1 つでも持つ装飾品だけを変数にする（持たない装飾品は選ばれても空きを減らすだけ） */
-function candidateDecorations(master: MasterBundle, request: SolverRequest): MasterDecoration[] {
+/**
+ * 必須スキルを 1 つでも持つ装飾品だけを変数にする（持たない装飾品は選ばれても空きを減らすだけ）。
+ * extra は期待値に寄与する通常のスキル（expectedDamage のときだけ非空）。それを持つ装飾品も変数にする。
+ */
+function candidateDecorations(
+  master: MasterBundle,
+  request: SolverRequest,
+  extra: ReadonlySet<SkillId>,
+): MasterDecoration[] {
   const ordinary = new Set(
     request.required
       .filter((r) => !isSetSkill(master.skills.find((s) => s.id === r.skillId)))
       .map((r) => r.skillId),
   )
-  return master.decorations.filter((d) => d.skills.some((s) => ordinary.has(s.skillId)))
+  return master.decorations.filter((d) =>
+    d.skills.some((s) => ordinary.has(s.skillId) || extra.has(s.skillId)),
+  )
 }
 
 function assignColumns(
@@ -315,19 +317,26 @@ export function buildModel(
 ): IlpModel | null {
   const parts = candidateArmors(master, request)
   if (parts.some((p) => p.armors.length === 0)) return null
-  const cols = assignColumns(parts, request.charms, candidateDecorations(master, request))
+  const isDamage =
+    request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
+  const targets = isDamage ? damageTargets(master, request) : []
+  const extra = new Set(targets.filter((t) => t.bonus === undefined).map((t) => t.skill.id))
+  const cols = assignColumns(parts, request.charms, candidateDecorations(master, request, extra))
   const skills = skillRows(master, request, weapon, cols, infinity)
   if (skills === null) return null
-  return {
+  const base: IlpModel = {
     numCols: cols.numCols,
     numBinary: cols.numBinary,
     colCost: objectiveCosts(request, weapon, parts, cols),
+    colLower: Array.from({ length: cols.numCols }, () => 0),
     colUpper: Array.from({ length: cols.numCols }, (_, i) => (i < cols.numBinary ? 1 : infinity)),
+    colInteger: Array.from({ length: cols.numCols }, () => true),
     rows: [...selectionRows(parts, cols), ...skills, ...placementRows(weapon, cols, infinity)],
     armorCols: cols.armorCols,
     charmCols: cols.charmCols,
     decoCols: cols.decoCols,
   }
+  return isDamage ? extendWithDamage(base, targets, weapon, infinity) : base
 }
 
 /** 解の値（colValue）から防具・護石・装飾品の個数を読み出す */

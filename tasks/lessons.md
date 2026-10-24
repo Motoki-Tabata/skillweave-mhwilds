@@ -18,6 +18,7 @@
 ## 2026-10-23 plan の「常時許可外の変更」の行にパス以外のバッククォートがあると、突合から黙って漏れる（機能005・区間C）
 - 種別: 規律昇華
 - 何が起きたか: plan.md の `design/master-data.md` の行で、括弧の説明の中の語（`readings`・`reading`）にもバッククォートを付けた。`spec-check.mjs --compare-plan` は、バッククォートの中身を数えて「1行1パス」でない行を突合の対象から外すため、書式のエラーを出さずに「spec のみ」と判定した（238981d。6ee89f8 で直した）。`.claude/rules/ui-design.md` を理由に書いた `components/ui/` の行も、同じ理由で突合から漏れていた。
+- 再発: 006 の区間 C でも、`design/master-data.md` の行の説明に `conditions`・`effects` のバッククォートを付けて「spec のみ」と判定された（b53ea9d。4280c0a で直した）。手順に書かれていない限り繰り返すので、優先して直す。
 - 提案: `.claude/skills/tsod-plan/SKILL.md`「plan.md」節の「常時許可外の変更」の箇条に、「1行のバッククォートはパスの1つだけにし、説明の中の識別子・パスには付けない」を足す。あわせて `spec-check.mjs` の `comparePlan` が、1行1パスでない plan の行を「判定不能」として表に出すように直す。
 
 ## 2026-10-23 Select を使う新規 .vue があるのに、sonar-project.properties の抑止が plan の常時許可外に挙がらなかった（機能005・区間D）
@@ -34,3 +35,18 @@
 - 種別: 規律昇華
 - 何が起きたか: 実装中にワーカーが付けた受入基準の ID が、spec の確定後の順とずれ、レビューで 8 つの spec ファイルのコメントが要修正になった。spec.md に ID が明記されていないため、数え方が人によって違う。
 - 提案: `.claude/skills/tsod-spec/` で受入基準に ID（`AC-1` など）を書くか、`.claude/skills/tsod-build/references/delegation-template.md` に「受入基準の ID は spec の箇条書きの順（1 始まり）で数える。委譲の前にメインが番号付きの一覧を渡す」を足す。
+
+## 2026-10-24 触る領域の web がテスト用フィクスチャの追従だけのときも、区間 B へ進む規則になっている（機能006・区間A）
+- 種別: 規律昇華
+- 何が起きたか: 006 は画面もテーブルも変えないが、`MasterBundle` に項目が増えるため `apps/web/src/test/support/fixtures.ts` の追従が要る。常時許可外に書くと spec-check が「web-agent の常時許可フォルダ内」として NG にするため、`触る領域:` に `web` を足した。`tsod-spec/SKILL.md`「区間の終わり」は `web` を含めば区間 B としているため、ユーザーの承認を取って B-1・B-2 を該当なしにし、A→C に進めた（specs/006-damage-model/spec.md「スコープ外」に注記）。
+- 提案: `.claude/skills/tsod-spec/SKILL.md`「区間の終わり」の区間 B の条件を、「画面の変更がある（`apps/web/src/main/**` の画面・部品を変える）、または新しい永続化がある」に直し、テストの追従だけの `web` では区間 C へ進めるようにする。
+
+## 2026-10-24 領域モードの Sonar（--sonar-area）が 0 件でも、全体解析で issue が出る（機能006・区間D）
+- 種別: 規律昇華
+- 何が起きたか: data-agent の `--sonar-area packages` は issue 0 件で完了と報告したが、最終検証の全体解析（`verify.mjs --e2e --sonar`）で `packages/data/src/main/pipeline/overlay.ts` の `typescript:S3776`（認知的複雑度 17）が 1 件出て Quality Gate が ERROR になり、data-agent を再起動して直した。
+- 提案: `.claude/skills/tsod-build/SKILL.md`「検証の下限」の Sonar の完了条件に、「領域モードは変更したファイルの一部しか解析しないことがあり、0 件でも全体解析で出る。関数を分けたときは認知的複雑度 15 以下を自分で見積もる」を足す。
+
+## 2026-10-24 plan・設計文書に書く具体例は、規則を機械的に当てはめた実データの値で書く（機能006・区間C・D）
+- 種別: 規律昇華
+- 何が起きたか: plan D1・D3 と `design/master-data.md` の発動条件 ID の例（`cd:challenger`・`cd:adrenaline_rush`）を、規則「スキルの en 名の snake_case」を当てはめずに書いた。実データでは挑戦者は `cd:agitator`、火事場力は `cd:heroics` で、data-agent の報告で食い違いが分かった。
+- 提案: `.claude/skills/tsod-plan/SKILL.md` に、「ID の命名規則を決めるときは、実データの代表 2〜3 件に規則を当てはめた結果を例に書く」を足す。

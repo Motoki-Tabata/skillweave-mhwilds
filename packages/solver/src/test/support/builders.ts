@@ -1,5 +1,8 @@
 import type {
   ArmorId,
+  ConditionId,
+  Effect,
+  MasterCondition,
   ArmorPart,
   ArmorRank,
   DecorationId,
@@ -32,9 +35,16 @@ export const decorationId = (id: string) => id as DecorationId
 export const setBonusId = (id: string) => id as SetBonusId
 export const uuid = (id: string) => id as Uuid
 
-export function masterSkill(id: string, kind: SkillKind = 'armor', maxLevel = 3): MasterSkill {
-  return { id: id as SkillId, kind, maxLevel, effectsByLevel: [] }
+export function masterSkill(
+  id: string,
+  kind: SkillKind = 'armor',
+  maxLevel = 3,
+  effectsByLevel: Effect[][] = [],
+): MasterSkill {
+  return { id: id as SkillId, kind, maxLevel, effectsByLevel }
 }
+
+export const conditionId = (id: string) => id as ConditionId
 
 /** シリーズ／グループスキルの段。SetBonus の id は `sb:<スキル ID>` */
 export function setBonus(skillId: string, thresholds: SetBonus['thresholds']): SetBonus {
@@ -75,13 +85,19 @@ export function decoration(
 
 export function weapon(
   id: string,
-  opts: { slots?: Slot[]; skills?: SkillLevel[]; setBonusIds?: string[] } = {},
+  opts: {
+    slots?: Slot[]
+    skills?: SkillLevel[]
+    setBonusIds?: string[]
+    attack?: number
+    affinity?: number
+  } = {},
 ): MasterWeapon {
   return {
     id: weaponId(id),
     weaponType: 'bow',
-    attack: 100,
-    affinity: 0,
+    attack: opts.attack ?? 100,
+    affinity: opts.affinity ?? 0,
     slots: opts.slots ?? [],
     skills: opts.skills ?? [],
     setBonusIds: (opts.setBonusIds ?? []).map(setBonusId),
@@ -111,6 +127,7 @@ export interface MasterParts {
   armors?: MasterArmor[]
   decorations?: MasterDecoration[]
   weapons?: MasterWeapon[]
+  conditions?: MasterCondition[]
 }
 
 /** 手作りの MasterBundle。武器は既定で何も持たない `w0` を1本入れる */
@@ -124,6 +141,7 @@ export function buildMaster(parts: MasterParts = {}): MasterBundle {
     decorations: parts.decorations ?? [],
     weapons: parts.weapons ?? [weapon(BASE_WEAPON_ID)],
     charms: [],
+    conditions: parts.conditions ?? [],
     appraisedCharm: { patterns: [], groups: [] },
   }
 }

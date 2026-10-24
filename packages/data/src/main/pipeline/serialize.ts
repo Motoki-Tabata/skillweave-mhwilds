@@ -47,6 +47,7 @@ export function serializeBundle(bundle: MasterBundle): string {
       setBonusIds: [...weapon.setBonusIds].sort(compareCodeUnits),
     })),
     charms: byId(bundle.charms).map((charm) => ({ ...charm, skills: bySkillId(charm.skills) })),
+    conditions: byId(bundle.conditions),
   }
   return toText(sorted)
 }

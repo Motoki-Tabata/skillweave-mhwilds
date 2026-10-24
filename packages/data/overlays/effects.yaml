@@ -1,0 +1,176 @@
+# 火力計算用の発動条件とスキルの効果（006）。
+# 数値の出典は、ゲーム内の説明文（ja の levelDescriptions）。最終確認はオーナー。
+# 条件はきっかけで決める。「スキル発動中」「効果発動時」などは、そのスキルの en の名前の snake_case。
+# 属性・状態異常・オトモ・防御力に効く部分と、数値の無い部分は書かない。
+
+conditions:
+  - id: cd:adrenaline_rush
+    name: { ja: 巧撃の発動中, en: Adrenaline Rush active }
+  - id: cd:agitator
+    name: { ja: 挑戦者の発動中, en: Agitator active }
+  - id: cd:ambush
+    name: { ja: 急襲の発動中, en: Ambush active }
+  - id: cd:antivirus
+    name: { ja: 狂竜症の克服状態, en: Antivirus active }
+  - id: cd:bubbleblight
+    name: { ja: 泡状態, en: Bubbleblight }
+  - id: cd:counterstrike
+    name: { ja: 逆襲の発動中, en: Counterstrike active }
+  - id: cd:critical_draw
+    name: { ja: 抜刀術【技】の発動中, en: Critical Draw active }
+  - id: cd:doshagumas_might
+    name: { ja: 闢獣の力の発動中, en: Doshaguma's Might active }
+  - id: cd:ebony_odogarons_power
+    name: { ja: 兇爪竜の力の発動中, en: Ebony Odogaron's Power active }
+  - id: cd:foray
+    name: { ja: 毒・麻痺状態の大型モンスターへの攻撃, en: Attacking a poisoned or paralyzed large monster }
+  - id: cd:heroics
+    name: { ja: 火事場力の発動中, en: Heroics active }
+  - id: cd:latent_power
+    name: { ja: 力の解放の発動中, en: Latent Power active }
+  - id: cd:maximum_might
+    name: { ja: 渾身の発動中, en: Maximum Might active }
+  - id: cd:offensive_guard
+    name: { ja: 攻めの守勢の発動中, en: Offensive Guard active }
+  - id: cd:peak_performance
+    name: { ja: フルチャージの発動中, en: Peak Performance active }
+  - id: cd:punishing_draw
+    name: { ja: 武器出し攻撃, en: Attacking with Punishing Draw }
+  - id: cd:resentment
+    name: { ja: 逆恨みの発動中, en: Resentment active }
+  - id: cd:weak_point
+    name: { ja: 有効部位への攻撃, en: Attacking a weak point }
+  - id: cd:wet
+    name: { ja: 水に濡れている状態, en: Wet }
+  - id: cd:wound
+    name: { ja: 傷口への攻撃, en: Attacking a wound }
+  - id: cd:xu_wus_vigor
+    name: { ja: 暗器蛸の力の発動中, en: Xu Wu's Vigor active }
+
+effects:
+  sk:-1468066176: # 暗器蛸の力
+    - - { stat: attack_add, value: 15, conditionId: cd:xu_wus_vigor }
+    - - { stat: attack_add, value: 30, conditionId: cd:xu_wus_vigor }
+  sk:-1607763456: # 超会心
+    - - { stat: crit_mul, value: 1.28 }
+    - - { stat: crit_mul, value: 1.31 }
+    - - { stat: crit_mul, value: 1.34 }
+    - - { stat: crit_mul, value: 1.37 }
+    - - { stat: crit_mul, value: 1.4 }
+  sk:-1662120192: # 無我の境地
+    - - { stat: affinity_add, value: 3, conditionId: cd:antivirus }
+    - - { stat: affinity_add, value: 6, conditionId: cd:antivirus }
+    - - { stat: affinity_add, value: 10, conditionId: cd:antivirus }
+  sk:-171796848: # 急襲
+    - - { stat: attack_mul, value: 1.05, conditionId: cd:ambush }
+    - - { stat: attack_mul, value: 1.1, conditionId: cd:ambush }
+    - - { stat: attack_mul, value: 1.15, conditionId: cd:ambush }
+  sk:-181127504: # 攻めの守勢
+    - - { stat: attack_mul, value: 1.05, conditionId: cd:offensive_guard }
+    - - { stat: attack_mul, value: 1.1, conditionId: cd:offensive_guard }
+    - - { stat: attack_mul, value: 1.15, conditionId: cd:offensive_guard }
+  sk:-1946345856: # 抜刀術【力】
+    - - { stat: attack_add, value: 3, conditionId: cd:punishing_draw }
+    - - { stat: attack_add, value: 5, conditionId: cd:punishing_draw }
+    - - { stat: attack_add, value: 7, conditionId: cd:punishing_draw }
+  sk:-2096489472: # 見切り
+    - - { stat: affinity_add, value: 4 }
+    - - { stat: affinity_add, value: 8 }
+    - - { stat: affinity_add, value: 12 }
+    - - { stat: affinity_add, value: 16 }
+    - - { stat: affinity_add, value: 20 }
+  sk:-397570464: # 弱点特効
+    - - { stat: affinity_add, value: 5, conditionId: cd:weak_point }
+      - { stat: affinity_add, value: 3, conditionId: cd:wound }
+    - - { stat: affinity_add, value: 10, conditionId: cd:weak_point }
+      - { stat: affinity_add, value: 5, conditionId: cd:wound }
+    - - { stat: affinity_add, value: 15, conditionId: cd:weak_point }
+      - { stat: affinity_add, value: 10, conditionId: cd:wound }
+    - - { stat: affinity_add, value: 20, conditionId: cd:weak_point }
+      - { stat: affinity_add, value: 15, conditionId: cd:wound }
+    - - { stat: affinity_add, value: 30, conditionId: cd:weak_point }
+      - { stat: affinity_add, value: 20, conditionId: cd:wound }
+  sk:-62248528: # 闢獣の力
+    - - { stat: attack_add, value: 10, conditionId: cd:doshagumas_might }
+    - - { stat: attack_add, value: 25, conditionId: cd:doshagumas_might }
+  sk:-847539392: # 濡れ刃紋
+    - - { stat: affinity_add, value: 3, conditionId: cd:wet }
+      - { stat: affinity_add, value: 7, conditionId: cd:bubbleblight }
+    - - { stat: affinity_add, value: 6, conditionId: cd:wet }
+      - { stat: affinity_add, value: 14, conditionId: cd:bubbleblight }
+    - - { stat: affinity_add, value: 9, conditionId: cd:wet }
+      - { stat: affinity_add, value: 21, conditionId: cd:bubbleblight }
+  sk:1: # 攻撃
+    - - { stat: attack_add, value: 3 }
+    - - { stat: attack_add, value: 5 }
+    - - { stat: attack_add, value: 7 }
+    - - { stat: attack_mul, value: 1.02 }
+      - { stat: attack_add, value: 8 }
+    - - { stat: attack_mul, value: 1.04 }
+      - { stat: attack_add, value: 9 }
+  sk:1174975744: # 巧撃
+    - - { stat: attack_add, value: 10, conditionId: cd:adrenaline_rush }
+    - - { stat: attack_add, value: 15, conditionId: cd:adrenaline_rush }
+    - - { stat: attack_add, value: 20, conditionId: cd:adrenaline_rush }
+    - - { stat: attack_add, value: 25, conditionId: cd:adrenaline_rush }
+    - - { stat: attack_add, value: 30, conditionId: cd:adrenaline_rush }
+  sk:1359821952: # 逆恨み
+    - - { stat: attack_add, value: 5, conditionId: cd:resentment }
+    - - { stat: attack_add, value: 10, conditionId: cd:resentment }
+    - - { stat: attack_add, value: 15, conditionId: cd:resentment }
+    - - { stat: attack_add, value: 20, conditionId: cd:resentment }
+    - - { stat: attack_add, value: 25, conditionId: cd:resentment }
+  sk:1763191040: # 力の解放
+    - - { stat: affinity_add, value: 10, conditionId: cd:latent_power }
+    - - { stat: affinity_add, value: 20, conditionId: cd:latent_power }
+    - - { stat: affinity_add, value: 30, conditionId: cd:latent_power }
+    - - { stat: affinity_add, value: 40, conditionId: cd:latent_power }
+    - - { stat: affinity_add, value: 50, conditionId: cd:latent_power }
+  sk:1865909632: # 挑戦者
+    - - { stat: attack_add, value: 4, conditionId: cd:agitator }
+      - { stat: affinity_add, value: 3, conditionId: cd:agitator }
+    - - { stat: attack_add, value: 8, conditionId: cd:agitator }
+      - { stat: affinity_add, value: 5, conditionId: cd:agitator }
+    - - { stat: attack_add, value: 12, conditionId: cd:agitator }
+      - { stat: affinity_add, value: 7, conditionId: cd:agitator }
+    - - { stat: attack_add, value: 16, conditionId: cd:agitator }
+      - { stat: affinity_add, value: 10, conditionId: cd:agitator }
+    - - { stat: attack_add, value: 20, conditionId: cd:agitator }
+      - { stat: affinity_add, value: 15, conditionId: cd:agitator }
+  sk:2106877312: # フルチャージ
+    - - { stat: attack_add, value: 3, conditionId: cd:peak_performance }
+    - - { stat: attack_add, value: 6, conditionId: cd:peak_performance }
+    - - { stat: attack_add, value: 10, conditionId: cd:peak_performance }
+    - - { stat: attack_add, value: 15, conditionId: cd:peak_performance }
+    - - { stat: attack_add, value: 20, conditionId: cd:peak_performance }
+  sk:27684744: # 攻勢
+    - - { stat: attack_add, value: 6, conditionId: cd:foray }
+    - - { stat: attack_add, value: 8, conditionId: cd:foray }
+      - { stat: affinity_add, value: 5, conditionId: cd:foray }
+    - - { stat: attack_add, value: 10, conditionId: cd:foray }
+      - { stat: affinity_add, value: 10, conditionId: cd:foray }
+    - - { stat: attack_add, value: 12, conditionId: cd:foray }
+      - { stat: affinity_add, value: 15, conditionId: cd:foray }
+    - - { stat: attack_add, value: 15, conditionId: cd:foray }
+      - { stat: affinity_add, value: 20, conditionId: cd:foray }
+  sk:280489184: # 逆襲
+    - - { stat: attack_add, value: 10, conditionId: cd:counterstrike }
+    - - { stat: attack_add, value: 15, conditionId: cd:counterstrike }
+    - - { stat: attack_add, value: 25, conditionId: cd:counterstrike }
+  sk:422666624: # 火事場力（Lv1 は防御力だけ）
+    - []
+    - - { stat: attack_mul, value: 1.05, conditionId: cd:heroics }
+    - - { stat: attack_mul, value: 1.05, conditionId: cd:heroics }
+    - - { stat: attack_mul, value: 1.1, conditionId: cd:heroics }
+    - - { stat: attack_mul, value: 1.3, conditionId: cd:heroics }
+  sk:632127488: # 渾身
+    - - { stat: affinity_add, value: 10, conditionId: cd:maximum_might }
+    - - { stat: affinity_add, value: 20, conditionId: cd:maximum_might }
+    - - { stat: affinity_add, value: 30, conditionId: cd:maximum_might }
+  sk:686533440: # 抜刀術【技】
+    - - { stat: affinity_add, value: 50, conditionId: cd:critical_draw }
+    - - { stat: affinity_add, value: 75, conditionId: cd:critical_draw }
+    - - { stat: affinity_add, value: 100, conditionId: cd:critical_draw }
+  sk:918165056: # 兇爪竜の力
+    - - { stat: attack_add, value: 8, conditionId: cd:ebony_odogarons_power }
+    - - { stat: attack_add, value: 18, conditionId: cd:ebony_odogarons_power }

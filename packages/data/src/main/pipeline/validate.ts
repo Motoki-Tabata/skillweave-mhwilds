@@ -1,5 +1,6 @@
 import type { MasterBundle, MasterDictionary, Slot, SkillLevel } from '../index.ts'
 import type { SetBonusMismatch } from './convert.ts'
+import { CONDITION_ID_PATTERN, effectProblem } from './effects.ts'
 
 export interface Violation {
   rule: string
@@ -220,6 +221,46 @@ function checkAppraisedCharm(bundle: MasterBundle, out: Violation[]): void {
   })
 }
 
+function checkConditions(bundle: MasterBundle, out: Violation[]): void {
+  const seen = new Set<string>()
+  for (const { id } of bundle.conditions) {
+    if (!CONDITION_ID_PATTERN.test(id)) {
+      out.push({
+        rule: 'conditions',
+        message: `${id}: 条件 ID が cd:<slug>（slug は ^[a-z][a-z0-9_]*$）の形ではありません`,
+      })
+    }
+    if (seen.has(id)) out.push({ rule: 'conditions', message: `${id}: 条件 ID が重複しています` })
+    seen.add(id)
+  }
+}
+
+function checkSkillEffects(bundle: MasterBundle, out: Violation[]): void {
+  const conditionIds = new Set<string>(bundle.conditions.map((condition) => condition.id))
+  for (const skill of bundle.skills) {
+    const levels = skill.effectsByLevel
+    if (levels.length !== 0 && levels.length !== skill.maxLevel) {
+      out.push({
+        rule: 'skill-effects',
+        message: `${skill.id}: effectsByLevel の長さ ${levels.length} が 0 でも最大レベル ${skill.maxLevel} でもありません`,
+      })
+    }
+    levels.forEach((effects, index) => {
+      for (const effect of effects) {
+        const owner = `${skill.id}: Lv${index + 1}`
+        const problem = effectProblem(effect.stat, effect.value)
+        if (problem) out.push({ rule: 'skill-effects', message: `${owner}: ${problem}` })
+        if (effect.conditionId !== undefined && !conditionIds.has(effect.conditionId)) {
+          out.push({
+            rule: 'skill-effects',
+            message: `${owner}: conditionId ${effect.conditionId} が conditions にありません`,
+          })
+        }
+      }
+    })
+  }
+}
+
 /** 出力の `MasterBundle` と辞書を検証する。違反は全件を返す（0件なら空配列） */
 export function validate(input: ValidateInput): Violation[] {
   const { bundle } = input
@@ -289,7 +330,10 @@ export function validate(input: ValidateInput): Violation[] {
     ...bundle.decorations,
     ...bundle.weapons,
     ...bundle.charms,
+    ...bundle.conditions,
   ].map((entry) => entry.id as string)
+  checkConditions(bundle, out)
+  checkSkillEffects(bundle, out)
   checkDictionaries(input, ids, out)
   checkReadings(input, out)
   checkAppraisedCharm(bundle, out)

@@ -7,6 +7,8 @@ export const MAX_RESULTS_LIMIT = 30
 
 /** 武器の形（マスターの武器も個体差のある武器も同じ形にそろえる） */
 export interface ResolvedWeapon {
+  attack: number
+  affinity: number
   slots: Slot[]
   skills: SkillLevel[]
   setBonusIds: SetBonusId[]
@@ -29,7 +31,13 @@ function resolveWeapon(master: MasterBundle, request: SolverRequest): ResolvedWe
   if (weapon.kind === 'master') {
     const found = master.weapons.find((w) => w.id === weapon.weaponId)
     if (found === undefined) fail(`武器 ${weapon.weaponId} がマスターに無い`)
-    return { slots: found.slots, skills: found.skills, setBonusIds: found.setBonusIds }
+    return {
+      attack: found.attack,
+      affinity: found.affinity,
+      slots: found.slots,
+      skills: found.skills,
+      setBonusIds: found.setBonusIds,
+    }
   }
   if (!master.weapons.some((w) => w.id === weapon.baseWeaponId)) {
     fail(`個体差のある武器の基の武器 ${weapon.baseWeaponId} がマスターに無い`)
@@ -40,7 +48,31 @@ function resolveWeapon(master: MasterBundle, request: SolverRequest): ResolvedWe
       fail(`個体差のある武器のシリーズ／グループスキル ${id} がマスターに無い`)
     }
   }
-  return { slots: weapon.slots, skills: weapon.skills, setBonusIds: weapon.setBonusIds }
+  return {
+    attack: weapon.attack,
+    affinity: weapon.affinity,
+    slots: weapon.slots,
+    skills: weapon.skills,
+    setBonusIds: weapon.setBonusIds,
+  }
+}
+
+/** 個体差のある武器の攻撃力と会心率（期待値の計算に使うので expectedDamage のときだけ確かめる） */
+function checkDamageWeapon(request: SolverRequest) {
+  const { weapon } = request
+  if (weapon.kind !== 'custom') return
+  if (!Number.isFinite(weapon.attack) || weapon.attack <= 0) {
+    fail(`個体差のある武器の attack ${weapon.attack} は 0 より大きい有限の数でなければならない`)
+  }
+  if (!Number.isInteger(weapon.affinity)) {
+    fail(`個体差のある武器の affinity ${weapon.affinity} は整数でなければならない`)
+  }
+}
+
+function checkConditions(master: MasterBundle, request: SolverRequest) {
+  for (const id of request.activeConditionIds ?? []) {
+    if (!master.conditions.some((c) => c.id === id)) fail(`発動条件 ${id} がマスターに無い`)
+  }
 }
 
 function checkRequired(master: MasterBundle, request: SolverRequest) {
@@ -92,8 +124,9 @@ export function validateRequest(master: MasterBundle, request: SolverRequest): R
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
     fail(`timeoutMs ${timeoutMs} は 0 より大きい有限の数でなければならない`)
   }
+  checkConditions(master, request)
   if (objective.kind === 'maximize' && objective.metric === 'expectedDamage') {
-    fail('目的関数 expectedDamage は未対応')
+    checkDamageWeapon(request)
   }
   return weapon
 }

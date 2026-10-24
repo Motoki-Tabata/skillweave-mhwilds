@@ -9,6 +9,7 @@ import {
   BASE_WEAPON_ID,
   buildMaster,
   charm,
+  conditionId,
   makeRequest,
   masterSkill,
   plainArmors,
@@ -135,11 +136,84 @@ describe('[AC9] 不正な要求はエラー（解なしとは分ける）', () =
     },
   )
 
-  it('目的関数が expectedDamage', async () => {
+  // 006 の変更: expectedDamage を拒否する検査を外した（受入基準 7・8。以前は未対応として拒否していた）
+  it('[006 AC7] マスターに無い条件 ID は目的関数を問わず不正な要求', async () => {
+    const unknown = [conditionId('cd:nope')]
+    await expectInvalid({ activeConditionIds: unknown }, '発動条件')
     await expectInvalid(
-      { objective: { kind: 'maximize', metric: 'expectedDamage' } },
-      'expectedDamage',
+      {
+        activeConditionIds: unknown,
+        objective: { kind: 'maximize', metric: 'expectedDamage' },
+      },
+      '発動条件',
     )
+  })
+
+  it('[006 AC7] マスターにある条件 ID と空の指定は不正ではない', async () => {
+    const withCondition = buildMaster({ conditions: [{ id: conditionId('cd:known') }] })
+    for (const ids of [[conditionId('cd:known')], []]) {
+      const result = await solve(
+        highs,
+        withCondition,
+        makeRequest(withCondition, { activeConditionIds: ids }),
+      )
+      expect(result.status).toBe('feasible')
+    }
+  })
+
+  it('[006 AC7] 目的関数 expectedDamage は拒否されない', async () => {
+    const result = await solve(
+      highs,
+      master,
+      makeRequest(master, { objective: { kind: 'maximize', metric: 'expectedDamage' } }),
+    )
+    expect(result.status).toBe('optimal')
+  })
+
+  const customWeapon = (attack: number, affinity: number): SolverRequest['weapon'] => ({
+    kind: 'custom',
+    id: uuid('c'),
+    baseWeaponId: weaponId(BASE_WEAPON_ID),
+    attack,
+    affinity,
+    slots: [],
+    skills: [],
+    setBonusIds: [],
+  })
+
+  it.each([0, -5, Number.NaN, Number.POSITIVE_INFINITY])(
+    '[006 AC7] expectedDamage で個体差のある武器の攻撃力が正の有限の数でない（%s）',
+    async (attack) => {
+      await expectInvalid(
+        {
+          weapon: customWeapon(attack, 0),
+          objective: { kind: 'maximize', metric: 'expectedDamage' },
+        },
+        'attack',
+      )
+    },
+  )
+
+  it('[006 AC7] expectedDamage で個体差のある武器の会心率が整数でない', async () => {
+    await expectInvalid(
+      {
+        weapon: customWeapon(100, 1.5),
+        objective: { kind: 'maximize', metric: 'expectedDamage' },
+      },
+      'affinity',
+    )
+  })
+
+  it('[006 AC10] 他の目的関数では個体差のある武器の攻撃力と会心率を検査しない', async () => {
+    const result = await solve(
+      highs,
+      master,
+      makeRequest(master, {
+        weapon: customWeapon(0, 1.5),
+        objective: { kind: 'maximize', metric: 'defense' },
+      }),
+    )
+    expect(result.status).toBe('optimal')
   })
 
   it('境界の値（maxResults 1 と 30・最大レベルちょうどの下限）は不正ではない', async () => {
