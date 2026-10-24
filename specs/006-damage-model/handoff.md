@@ -77,6 +77,7 @@
 |---|---|---|---|
 | D | packages/solver/src/main/damageModel.ts | toSorted を sort に直す（新しい配列リテラルなので結果は同じ） | apps/web の型検査の lib に toSorted が無く web の type-check・build・e2e の webServer が落ちたため |
 | D | design/master-data.md | §4 の例 cd:challenger を実在の cd:agitator に直す | T0 で自分が書いた例が実データの ID（挑戦者の en 名は Agitator）と食い違っていたため |
+| D | design/master-data.md | §4 に、スキル固有のきっかけの条件 ID はスキル名の snake_case でよいと一文足す | ゲート D-1 のレビューの要判断でユーザーが決めたため |
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
@@ -85,6 +86,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（触る領域の web と区間 B の条件は tasks/lessons.md に起票済み）
+- なし（tasks/lessons.md に 2 件起票済み: 領域モードの Sonar・規則を当てはめた例）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->

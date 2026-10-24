@@ -48,7 +48,7 @@ MHDB 自身の `id` は取り込み直しで変わりうるので使わず、gam
 | 生産護石 | `ch:<gameId>:<ランク>` | `ch:-2084662144:1` |
 | 発動条件 | `cd:<slug>`（slug は `^[a-z][a-z0-9_]*$`） | `cd:weak_point` |
 
-発動条件はゲームの gameId を持たない手書きの定義なので、slug で名付ける。きっかけの en の表現の snake_case にする（例: `cd:weak_point`・`cd:wound`）。各スキルの「スキル発動中」「効果発動時」は、そのスキルの en の名前の snake_case にする（例: `cd:agitator`）。
+発動条件はゲームの gameId を持たない手書きの定義なので、slug で名付ける。きっかけの en の表現の snake_case にする（例: `cd:weak_point`・`cd:wound`）。各スキルの「スキル発動中」「効果発動時」は、そのスキルの en の名前の snake_case にする（例: `cd:agitator`）。スキル固有のきっかけ（例: `cd:foray`・`cd:punishing_draw`）も、きっかけの表現でなくスキル名の snake_case でよい。
 
 ## 5. 変換の規則
 
