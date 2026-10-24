@@ -1,7 +1,7 @@
 import type { Highs } from 'highs'
 import type { MasterBundle, MasterVersion } from '@swv/data'
 import { InvalidRequestError, SolveCancelledError } from './errors'
-import type { SolverRequest, SolverResponse } from './request'
+import type { SolvedBuild, SolverRequest, SolverResponse } from './request'
 import { solveBuilds } from './solveBuilds'
 
 // Worker とのメッセージ（マスターは最初に 1 回だけ送る）
@@ -12,7 +12,7 @@ export type WorkerInbound =
 
 export type WorkerOutbound =
   | { type: 'masterLoaded'; version: MasterVersion }
-  | { type: 'progress'; requestId: string; found: number }
+  | { type: 'progress'; requestId: string; found: number; build: SolvedBuild }
   | { type: 'result'; requestId: string; response: SolverResponse }
   | { type: 'error'; requestId: string; message: string }
 
@@ -58,8 +58,8 @@ export function createWorkerHandler(deps: WorkerDeps): (message: WorkerInbound) 
         now,
         yieldControl,
         isCancelled: () => me.cancelled,
-        onProgress: (found) => {
-          if (!me.cancelled) post({ type: 'progress', requestId, found })
+        onProgress: (found, build) => {
+          if (!me.cancelled) post({ type: 'progress', requestId, found, build })
         },
       })
       if (!me.cancelled) post({ type: 'result', requestId, response })

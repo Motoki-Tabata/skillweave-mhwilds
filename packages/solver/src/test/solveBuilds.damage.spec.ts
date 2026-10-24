@@ -1,8 +1,9 @@
 import highsLoader, { type Highs } from 'highs'
 import type { MasterBundle } from '@swv/data'
 import { beforeAll, describe, expect, it } from 'vitest'
-import type { SolverRequest, SolverResponse } from '../main/request'
-import { DAMAGE_EPSILON } from '../main/solveBuilds'
+import { SolveCancelledError } from '../main/errors'
+import type { SolvedBuild, SolverRequest, SolverResponse } from '../main/request'
+import { DAMAGE_EPSILON, solveBuilds } from '../main/solveBuilds'
 import {
   armor,
   BASE_WEAPON_ID,
@@ -21,7 +22,7 @@ import {
   weaponId,
 } from './support/builders'
 import { bruteForce, buildKey, freeLevels, type BruteConfig } from './support/bruteForce'
-import { solve, solveVerified } from './support/harness'
+import { fakeClock, solve, solveVerified } from './support/harness'
 import { verifyBuild } from './support/verifyBuild'
 
 let highs: Highs
@@ -387,5 +388,86 @@ describe('[AC8] 期待値の ILP の端の条件', () => {
     )
     expect(result.builds).toHaveLength(1)
     expect(result.builds[0]?.score).toBe(100)
+  })
+})
+
+describe('[019 AC5] 解なしの扱い（1回の求解で 1 件を決める方式）', () => {
+  /** n 回目以降の Model.run を解なしの結果に差し替える（それ以外は本物のまま） */
+  function infeasibleFrom(n: number): Highs {
+    let runs = 0
+    const wrapModel = (model: object) =>
+      new Proxy(model, {
+        get(m, prop) {
+          const value: unknown = Reflect.get(m, prop, m)
+          if (prop === 'run' && typeof value === 'function') {
+            return (...args: unknown[]) => {
+              runs++
+              if (runs >= n) return { modelStatus: highs.constants.modelStatus.infeasible }
+              return value.apply(m, args)
+            }
+          }
+          return typeof value === 'function' ? value.bind(m) : value
+        },
+      })
+    return new Proxy(highs, {
+      get(target, prop) {
+        const value: unknown = Reflect.get(target, prop, target)
+        if (prop === 'withModel' && typeof value === 'function') {
+          return (callback: (model: object) => unknown) =>
+            value.call(target, (model: object) => callback(wrapModel(model)))
+        }
+        return typeof value === 'function' ? value.bind(target) : value
+      },
+    })
+  }
+
+  it('最初の求解が解なしでも例外にせず、状態 infeasible で空の構成を返す', async () => {
+    const master = smallMaster()
+    const request = build(master, { activeConditionIds: ALL })
+    const result = await solve(infeasibleFrom(1), master, request)
+    expect(result).toMatchObject({ status: 'infeasible', builds: [] })
+  })
+
+  it('2 件目の求解が解なしでも例外にせず、1 件目の構成をその件として返す', async () => {
+    const master = smallMaster()
+    const request = build(master, { activeConditionIds: ALL, maxResults: 5 })
+    const real = await solveVerified(highs, master, { ...request, maxResults: 1 })
+    const result = await solve(infeasibleFrom(2), master, request)
+    expect(result.status).toBe('optimal')
+    expect(result.builds).toEqual(real.builds)
+  })
+})
+
+describe('[019 AC6][AC9] 期待値の時間切れ・キャンセル・進捗', () => {
+  const master = smallMaster()
+  const request = build(master, { activeConditionIds: ALL, maxResults: 5 })
+
+  it('時間の上限を過ぎたら、それまでの構成を状態 timeout で返す', async () => {
+    const clock = fakeClock(10_000) // 求解の前に 10 秒進む。3 回目の前に打ち切る（HiGHS の実時間の上限は残り 15 秒以上）
+    const result = await solveBuilds(
+      highs,
+      master,
+      { ...request, timeoutMs: 25_000 },
+      clock.options,
+    )
+    expect(result.status).toBe('timeout')
+    expect(result.builds).toHaveLength(2)
+    for (const b of result.builds) expect(verifyBuild(master, request, b)).toEqual([])
+  })
+
+  it('キャンセルされたら SolveCancelledError を投げる', async () => {
+    const clock = fakeClock(0, { isCancelled: () => true })
+    await expect(solveBuilds(highs, master, request, clock.options)).rejects.toBeInstanceOf(
+      SolveCancelledError,
+    )
+  })
+
+  it('onProgress は件数と構成を渡し、構成は返す builds と同じ並びになる', async () => {
+    const progress: { found: number; build: SolvedBuild }[] = []
+    const clock = fakeClock(0, { onProgress: (found, build) => progress.push({ found, build }) })
+    const result = await solveBuilds(highs, master, request, clock.options)
+    expect(result.builds.length).toBeGreaterThan(1)
+    expect(progress.map((p) => p.found)).toEqual(result.builds.map((_, i) => i + 1))
+    expect(progress.map((p) => p.build)).toEqual(result.builds)
   })
 })

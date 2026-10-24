@@ -92,5 +92,6 @@ export interface SolveOptions {
   now: () => number
   yieldControl: () => Promise<void>
   isCancelled?: () => boolean
-  onProgress?: (found: number) => void
+  /** 構成を 1 件求めるごとに呼ぶ。found は求めた件数、build はその件の構成（返す builds の同じ並び） */
+  onProgress?: (found: number, build: SolvedBuild) => void
 }
