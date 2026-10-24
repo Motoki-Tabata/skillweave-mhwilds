@@ -7,7 +7,7 @@ import {
   createSolverClient,
 } from '@/lib/solver/client'
 import type { SolveHandlers } from '@/lib/solver/client'
-import { FakeWorker, makeBundle } from '../../support/fixtures'
+import { FakeWorker, makeBuild, makeBundle } from '../../support/fixtures'
 
 // 受入基準 1・2・6・7（Worker との通信）
 describe('createSolverClient', () => {
@@ -106,7 +106,7 @@ describe('createSolverClient', () => {
       await client.load(bundle)
       const h = handlers()
       const id = client.solve(request, h)
-      worker.emit({ type: 'progress', requestId: id, found: 3 })
+      worker.emit({ type: 'progress', requestId: id, found: 3, build: makeBuild() })
       worker.emit({ type: 'result', requestId: id, response })
       expect(h.onProgress).toHaveBeenCalledWith(3)
       expect(h.onResult).toHaveBeenCalledWith(response)
@@ -117,7 +117,7 @@ describe('createSolverClient', () => {
       await client.load(bundle)
       const h = handlers()
       client.solve(request, h)
-      worker.emit({ type: 'progress', requestId: 'other', found: 9 })
+      worker.emit({ type: 'progress', requestId: 'other', found: 9, build: makeBuild() })
       worker.emit({ type: 'result', requestId: 'other', response })
       worker.emit({ type: 'error', requestId: 'other', message: 'x' })
       expect(h.onProgress).not.toHaveBeenCalled()
@@ -132,7 +132,7 @@ describe('createSolverClient', () => {
       const id = client.solve(request, h)
       worker.emit({ type: 'result', requestId: id, response })
       worker.emit({ type: 'result', requestId: id, response })
-      worker.emit({ type: 'progress', requestId: id, found: 1 })
+      worker.emit({ type: 'progress', requestId: id, found: 1, build: makeBuild() })
       expect(h.onResult).toHaveBeenCalledTimes(1)
       expect(h.onProgress).not.toHaveBeenCalled()
     })
@@ -153,9 +153,9 @@ describe('createSolverClient', () => {
       const second = handlers()
       const firstId = client.solve(request, first)
       const secondId = client.solve(request, second)
-      worker.emit({ type: 'progress', requestId: firstId, found: 5 })
+      worker.emit({ type: 'progress', requestId: firstId, found: 5, build: makeBuild() })
       worker.emit({ type: 'result', requestId: firstId, response })
-      worker.emit({ type: 'progress', requestId: secondId, found: 1 })
+      worker.emit({ type: 'progress', requestId: secondId, found: 1, build: makeBuild() })
       expect(first.onProgress).not.toHaveBeenCalled()
       expect(first.onResult).not.toHaveBeenCalled()
       expect(second.onProgress).toHaveBeenCalledWith(1)
@@ -168,7 +168,7 @@ describe('createSolverClient', () => {
       const id = client.solve(request, h)
       client.cancel()
       expect(worker.sent.at(-1)).toEqual({ type: 'cancel', requestId: id })
-      worker.emit({ type: 'progress', requestId: id, found: 2 })
+      worker.emit({ type: 'progress', requestId: id, found: 2, build: makeBuild() })
       worker.emit({ type: 'result', requestId: id, response })
       expect(h.onProgress).not.toHaveBeenCalled()
       expect(h.onResult).not.toHaveBeenCalled()
