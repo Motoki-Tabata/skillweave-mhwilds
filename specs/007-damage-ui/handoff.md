@@ -3,7 +3,7 @@
 
 ## 現在地
 - 区間: B
-- 次に起動するコマンド: `/tsod-screen-table 007-damage-ui`
+- 次に起動するコマンド: `/tsod-screen-table 007-damage-ui`（Q41 の対策の機能のマージ後。それまでは `main` で `/tsod-discover` から対策の機能を進める）
 - 推奨モデル: Opus
 - ブランチ: `feat/007-damage-ui`（不変）
 <!--
@@ -71,7 +71,8 @@
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
 - 区間 B: 検索画面（SearchView.vue）のレイアウトを変える（カードを足すなど）と決めたら、open-questions.md Q28 の仮（ブレークポイントの決定と MASTER.md の Layout の修正）に当たるので、扱いをそこで決める。ResultAlert.vue を触るなら Q27 も同様
-- 区間 D の前: Q41 の対策の機能を /tsod-discover で機能マップに追加し、マージ済みであること（decisions.md Q42）。spec.md の「依存する機能ID」の仮の行をその ID に直す
+- 区間 D の前: （区間 B の前に繰り上げた。「区間 B の前」の行を見る）
+- 区間 B の前: Q41 の対策の機能を /tsod-discover で機能マップに追加し、マージ済みであること（decisions.md Q42）。対策の結果で spec の前提（時間切れの扱い・件数・並びの厳密さ）が変わったら spec.md を直し、「依存する機能ID」の仮の行をその ID に直す
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
