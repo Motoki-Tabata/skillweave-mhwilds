@@ -42,7 +42,9 @@ const reachedLimit = computed(() => builds.value.length >= max.value)
 const summaryLine = computed(() => {
   const summary = search.summary
   if (summary === null) return ''
-  return `武器: ${summary.weaponName} ／ 必須スキル ${summary.requiredCount} 件 ／ ${summary.objectiveLabel} ／ ${summary.maxResults} 件まで ／ 護石 ${summary.charmCount} 件`
+  const conditionsText =
+    summary.activeConditionNames.length === 0 ? 'なし' : summary.activeConditionNames.join('・')
+  return `武器: ${summary.weaponName} ／ 必須スキル ${summary.requiredCount} 件 ／ ${summary.objectiveLabel} ／ ${summary.maxResults} 件まで ／ 護石 ${summary.charmCount} 件 ／ 発動条件: ${conditionsText}`
 })
 
 const TIMEOUT_HINT =
@@ -100,6 +102,17 @@ const TIMEOUT_HINT =
           :style="{ width: `${progressPercent}%` }"
         />
       </ProgressRoot>
+      <template v-if="search.progressBuilds.length > 0">
+        <p class="text-muted-foreground text-xs">
+          見つけた順に表示しています。検索が終わると、目的の順に並べ直します。
+        </p>
+        <p class="text-xs break-words">{{ summaryLine }}</p>
+        <ul class="flex flex-col gap-4">
+          <li v-for="(build, index) in search.progressBuilds" :key="`progress-${index}`">
+            <BuildCard :build="build" :index="index" />
+          </li>
+        </ul>
+      </template>
     </div>
 
     <!-- Q6 エラー -->
@@ -149,7 +162,7 @@ const TIMEOUT_HINT =
         </div>
         <p class="text-xs break-words">{{ summaryLine }}</p>
         <ul class="flex flex-col gap-4">
-          <li v-for="(build, index) in builds" :key="index">
+          <li v-for="(build, index) in builds" :key="`result-${index}`">
             <BuildCard :build="build" :index="index" />
           </li>
         </ul>

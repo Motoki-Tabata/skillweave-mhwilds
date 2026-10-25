@@ -1,5 +1,11 @@
 import type { MasterBundle } from '@swv/data'
-import type { SolverRequest, SolverResponse, WorkerInbound, WorkerOutbound } from '@swv/solver'
+import type {
+  SolvedBuild,
+  SolverRequest,
+  SolverResponse,
+  WorkerInbound,
+  WorkerOutbound,
+} from '@swv/solver'
 
 /** Worker が HiGHS の初期化に失敗したときに送る（`packages/solver` の WorkerOutbound に足した web の型）。 */
 export type SolverWorkerOutbound = WorkerOutbound | { type: 'initFailed'; message: string }
@@ -29,7 +35,7 @@ export interface WorkerLike {
 }
 
 export interface SolveHandlers {
-  onProgress: (found: number) => void
+  onProgress: (found: number, build: SolvedBuild) => void
   onResult: (response: SolverResponse) => void
   onError: (message: string) => void
 }
@@ -105,7 +111,8 @@ export function createSolverClient(
       }
       case 'progress':
         // 現在の検索と requestId が違う応答は捨てる
-        if (active?.requestId === message.requestId) active.handlers.onProgress(message.found)
+        if (active?.requestId === message.requestId)
+          active.handlers.onProgress(message.found, message.build)
         return
       case 'result':
         takeActive(message.requestId)?.handlers.onResult(message.response)

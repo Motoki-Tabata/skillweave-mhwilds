@@ -147,6 +147,93 @@ describe('SkillDialog（D2）', () => {
     ])
   })
 
+  // 受入基準 8・9・10（D2 の格子の列数と、説明の開閉）
+  describe('説明の開閉', () => {
+    const infoButton = (name: string) =>
+      dialog()!.querySelector<HTMLButtonElement>(`button[aria-label="${name}の説明"]`)!
+    const region = (name: string) =>
+      dialog()!.querySelector<HTMLElement>(`section[aria-label="${name}の説明"]`)
+
+    it('[基準8] 格子の列数は基準 1・md 2・lg 3', async () => {
+      await open()
+      const grid = dialog()!.querySelector('ul.grid')!
+      expect(grid.classList.contains('grid-cols-1')).toBe(true)
+      expect(grid.classList.contains('md:grid-cols-2')).toBe(true)
+      expect(grid.classList.contains('lg:grid-cols-3')).toBe(true)
+    })
+
+    it('[基準8] 各スキルの右に説明の開閉ボタンを置く（既定は閉じ）', async () => {
+      await open()
+      const button = infoButton('剛刃')
+      expect(button.getAttribute('aria-expanded')).toBe('false')
+      expect(region('剛刃')).toBeNull()
+      expect(button.previousElementSibling?.getAttribute('aria-pressed')).toBe('false')
+    })
+
+    it('[基準8・9・10] 開くとレベルごとの説明文と補完を出す。説明文も効果も無いレベルは出さない', async () => {
+      await open()
+      await selectTab('防具')
+      const button = infoButton('攻撃')
+      await click(button)
+      expect(button.getAttribute('aria-expanded')).toBe('true')
+      const area = region('攻撃')!
+      expect(button.getAttribute('aria-controls')).toBe(area.id)
+      expect(textOf(area.querySelector('p'))).toBe('攻撃（最大 Lv3）')
+      const rows = Array.from(area.querySelectorAll('dl > div')).map((row) => [
+        textOf(row.querySelector('dt')),
+        ...Array.from(row.querySelectorAll('dd p')).map((p) => p.textContent ?? ''),
+      ])
+      expect(rows).toEqual([
+        ['Lv1', '攻撃力が少し上がる。', '効果: 攻撃力 +3'],
+        ['Lv2', '攻撃力が上がる。', '効果: 攻撃力 +6'],
+        [
+          'Lv3',
+          '攻撃力が大きく上がる。\n会心率も上がる。',
+          '効果: 攻撃力 ×1.04・攻撃力 +9 ／ 会心率 +20%（有効部位への攻撃）',
+        ],
+      ])
+      await click(button)
+      expect(region('攻撃')).toBeNull()
+    })
+
+    it('[基準10] 説明文が無いレベルは補完だけ、どちらも無いレベルは行ごと出さない', async () => {
+      await open()
+      await click(infoButton('剛刃'))
+      const rows = Array.from(region('剛刃')!.querySelectorAll('dl > div')).map((row) =>
+        textOf(row),
+      )
+      // Lv1（説明文が空・効果なし）は出ない。Lv2 は説明文だけ、Lv5 は補完だけ
+      expect(rows).toEqual(['Lv2武器の切れ味が増す。', 'Lv5効果: 攻撃力 +10'])
+    })
+
+    it('[基準8] 説明も効果も無いスキルは「説明はありません」を出す', async () => {
+      await open()
+      await selectTab('シリーズ')
+      await click(infoButton('火竜の力'))
+      expect(textOf(region('火竜の力'))).toContain('このスキルの説明はありません。')
+    })
+
+    it('[基準8] 開くのは1つだけで、タブの切り替え・検索語の変更・ダイアログを閉じたときに閉じる', async () => {
+      await open()
+      await click(infoButton('剛刃'))
+      expect(region('剛刃')).not.toBeNull()
+      await selectTab('防具')
+      expect(dialog()!.querySelector('section[aria-label]')).toBeNull()
+      await click(infoButton('攻撃'))
+      await click(infoButton('ガード'))
+      expect(dialog()!.querySelectorAll('section[aria-label]')).toHaveLength(1)
+      expect(region('ガード')).not.toBeNull()
+      await setQuery('攻')
+      expect(dialog()!.querySelector('section[aria-label]')).toBeNull()
+      await click(infoButton('攻撃'))
+      expect(region('攻撃')).not.toBeNull()
+      await click(findButton('閉じる', dialog()!))
+      await vi.waitFor(() => expect(dialog()).toBeNull())
+      await click(findButton('スキルを選ぶ'))
+      expect(dialog()!.querySelector('section[aria-label]')).toBeNull()
+    })
+  })
+
   it('「閉じる」で閉じても、選択は取り消さない', async () => {
     const m = await open()
     await click(skillButtons()[0])

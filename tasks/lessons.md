@@ -60,3 +60,18 @@
 - 種別: 規律昇華
 - 何が起きたか: 試作の `damagePrototype.measure.ts` を足すと、`vitest run --mode measure -t "expectedDamage"` が `solveBuilds.measure.ts` と同時に走る。vitest の `-t` は、空白と `=` を含む名前（`k=3 解あり`）に合わせにくく、試作は環境変数（`PROTO_CONFIGS` など）で絞った。
 - 提案: `.claude/rules/solver.md` に、「測定は `--mode measure` の末尾にファイルを指定して実行する。describe 名の語で分けるだけにしない。ケースを絞るときは環境変数で絞る」を足す。
+
+## 2026-10-26 見出しの font-semibold（600）が MASTER.md のウェイト3種（400・500・700）と食い違う（機能007・区間D）
+- 種別: 矛盾是正
+- 何が起きたか: reviewer が、007 で足した `ActivationConditionsCard.vue` の h2 の `font-semibold` を MASTER.md「Typography」のウェイト3種と突合して指摘した。既存の全カード（`WeaponCard`・`CharmCard`・`RequiredSkillsCard`・`ConditionsCard`・`BuildCard` の h3 など）が同じ書き方で、007 の欠陥ではない。
+- 提案: MASTER.md のウェイトに 600 を足すか、既存カードを `font-bold` に揃えるかを、次に UI の見出しを触る機能の区間 B で決める。
+
+## 2026-10-26 conventions.md のテスト配置に e2e/measure/*.measure.ts と共有ケースの置き場が無い（機能007・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 007 で測定のハーネス（`apps/web/e2e/measure/damage-ui.measure.ts`）と、004 の測定と共有する `apps/web/e2e/support/measureCases.ts` を足したが、`conventions.md`「テスト配置・命名規約」の E2E の項にこの置き場の定めが無い（004 から続く実態）。`.claude/**` なので区間の中では書けない。
+- 提案: `.claude/rules/conventions.md` の E2E の項に、測定は `e2e/measure/*.measure.ts`（CI では実行しない）・測定どうしで共有するケースは `e2e/support/` に置き、測定のファイルどうしは import しない、を足す。
+
+## 2026-10-26 Sonar の Web:S6819 は role="region" にも当たる（機能007・区間D）
+- 種別: 規律昇華
+- 何が起きたか: web-agent が説明の領域に `role="region"` を付けたところ `Web:S6819` に当たり、`<section aria-label>` に変えて解消した（暗黙の role が region になる）。screen-design.md 3.1 は `role="region"` と書いている。
+- 提案: `.claude/rules/web-vue.md`「Sonar で繰り返し出たルールの避け方（web）」の `role="group"`・`role="status"` の項に、`role="region"` も `<section aria-label>` に代える旨を足す。

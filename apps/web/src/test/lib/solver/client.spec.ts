@@ -108,7 +108,7 @@ describe('createSolverClient', () => {
       const id = client.solve(request, h)
       worker.emit({ type: 'progress', requestId: id, found: 3, build: makeBuild() })
       worker.emit({ type: 'result', requestId: id, response })
-      expect(h.onProgress).toHaveBeenCalledWith(3)
+      expect(h.onProgress).toHaveBeenCalledWith(3, makeBuild())
       expect(h.onResult).toHaveBeenCalledWith(response)
     })
 
@@ -158,7 +158,7 @@ describe('createSolverClient', () => {
       worker.emit({ type: 'progress', requestId: secondId, found: 1, build: makeBuild() })
       expect(first.onProgress).not.toHaveBeenCalled()
       expect(first.onResult).not.toHaveBeenCalled()
-      expect(second.onProgress).toHaveBeenCalledWith(1)
+      expect(second.onProgress).toHaveBeenCalledWith(1, makeBuild())
     })
 
     it('キャンセルは cancel を送り、以降の進捗と結果を渡さない', async () => {

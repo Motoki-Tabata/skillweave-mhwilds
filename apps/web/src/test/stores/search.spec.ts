@@ -274,6 +274,48 @@ describe('search ストア', () => {
     })
   })
 
+  // 受入基準 3（オンの条件を目的にかかわらず要求へ。無ければ空）
+  it('要求の activeConditionIds は目的にかかわらずオンの条件で、無ければ空の配列', async () => {
+    const { search, conditions, worker } = await setup()
+    search.submit()
+    expect(worker.messages('solve')[0]).toMatchObject({ request: { activeConditionIds: [] } })
+    const [first, , third] = conditions.conditionOptions.map((o) => o.id)
+    conditions.setConditionActive(third, true)
+    conditions.setConditionActive(first, true)
+    for (const objective of ['feasible', 'expectedDamage'] as const) {
+      conditions.setObjective(objective)
+      search.submit()
+      expect(worker.messages('solve').at(-1)).toMatchObject({
+        request: { activeConditionIds: [first, third] },
+      })
+    }
+    expect(worker.messages('solve').at(-1)).toMatchObject({
+      request: { objective: { kind: 'maximize', metric: 'expectedDamage' } },
+    })
+  })
+
+  // 受入基準 3・6（検索したときの写しと要約の発動条件。検索の後の変更で変わらない）
+  it('検索したときの武器・オンの条件を写しに持ち、後からトグル・武器を変えても変わらない', async () => {
+    const { search, conditions } = await setup()
+    const [first, second] = conditions.conditionOptions
+    conditions.setConditionActive(first.id, true)
+    search.submit()
+    conditions.setConditionActive(first.id, false)
+    conditions.setConditionActive(second.id, true)
+    conditions.selectWeapon(wp('bow:1'))
+    expect(search.submittedBasis).toEqual({
+      damageBase: { attack: 250, affinity: -15 },
+      activeConditionIds: [first.id],
+    })
+    expect(search.summary?.activeConditionNames).toEqual([first.name])
+  })
+
+  it('オンの条件が無いとき、要約の発動条件の名前は空', async () => {
+    const { search } = await setup()
+    search.submit()
+    expect(search.summary?.activeConditionNames).toEqual([])
+  })
+
   it('進捗で件数を更新し、結果で完了（Q2〜Q5）にする', async () => {
     const { search, worker } = await setup()
     search.submit()
@@ -355,6 +397,57 @@ describe('search ストア', () => {
     search.cancel()
     expect(worker.messages('cancel')).toHaveLength(0)
     expect(useToastStore(pinia).items).toEqual([])
+  })
+
+  // 受入基準 11〜13（逐次表示の構成の列。decisions.md Q46・Q47）
+  describe('逐次表示の構成', () => {
+    const other = { ...makeBuild(), charmId: null, freeSlots: [] }
+
+    it('届いた構成を届いた順に足し、検索が終わったらソルバーの結果で置き換える（列は空になる）', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      const id = worker.lastSolveId
+      worker.emit({ type: 'progress', requestId: id, found: 1, build: makeBuild() })
+      worker.emit({ type: 'progress', requestId: id, found: 2, build: other })
+      expect(search.progressBuilds).toEqual([makeBuild(), other])
+      worker.emit({ type: 'result', requestId: id, response })
+      expect(search.progressBuilds).toEqual([])
+      expect(search.response).toEqual(response)
+    })
+
+    it('取り消すと、届いた構成も消す', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      worker.emit({
+        type: 'progress',
+        requestId: worker.lastSolveId,
+        found: 1,
+        build: makeBuild(),
+      })
+      search.cancel()
+      expect(search.progressBuilds).toEqual([])
+    })
+
+    it('エラーになると、届いた構成を消す', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      const id = worker.lastSolveId
+      worker.emit({ type: 'progress', requestId: id, found: 1, build: makeBuild() })
+      worker.emit({ type: 'error', requestId: id, message: '原因です' })
+      expect(search.progressBuilds).toEqual([])
+      expect(search.status).toBe('error')
+    })
+
+    it('検索し直すとすぐに消し、前の検索の構成は足さない', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      const firstId = worker.lastSolveId
+      worker.emit({ type: 'progress', requestId: firstId, found: 1, build: makeBuild() })
+      search.submit()
+      expect(search.progressBuilds).toEqual([])
+      worker.emit({ type: 'progress', requestId: firstId, found: 2, build: makeBuild() })
+      expect(search.progressBuilds).toEqual([])
+    })
   })
 
   it('全ランクを選んだことを要約に持つ', async () => {

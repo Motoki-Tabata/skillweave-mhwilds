@@ -1,9 +1,18 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { ArmorRank, MasterSkill, SkillId, SkillKind, SkillLevel, WeaponId } from '@swv/data'
+import type {
+  ArmorRank,
+  ConditionId,
+  MasterSkill,
+  SkillId,
+  SkillKind,
+  SkillLevel,
+  WeaponId,
+} from '@swv/data'
 import { SKILL_KINDS } from '@/constants/labels'
 import type { ObjectiveChoice } from '@/constants/labels'
 import { MAX_RESULTS_DEFAULT, MAX_RESULTS_MAX, MAX_RESULTS_MIN } from '@/constants/search'
+import { compareJa } from '@/lib/text'
 import { useMasterStore } from '@/stores/master'
 
 export const NO_WEAPON_REASON = '武器を選ぶと検索できます。'
@@ -34,6 +43,8 @@ export const useConditionsStore = defineStore('conditions', () => {
   const maxResults = ref(MAX_RESULTS_DEFAULT)
   // null は「既定」（マスターに含まれる最も高いランクだけ）
   const selectedRanks = ref<ArmorRank[] | null>(null)
+  // オンの発動条件の ID（既定は空。保存しない）
+  const activeIds = ref<ConditionId[]>([])
   // 武器が未選択のまま送信した・ダイアログを閉じたときに、武器欄のエラーを出す
   const weaponErrorShown = ref(false)
 
@@ -46,6 +57,18 @@ export const useConditionsStore = defineStore('conditions', () => {
     const highest = master.availableRanks.at(-1)
     return highest === undefined ? [] : [highest]
   })
+
+  /** マスターの発動条件すべて。ja の名前の順（トグルの並び）。 */
+  const conditionOptions = computed(() =>
+    (master.bundle?.conditions ?? [])
+      .map((condition) => ({ id: condition.id, name: master.nameOf(condition.id) }))
+      .sort((a, b) => compareJa(a.name, b.name)),
+  )
+
+  /** オンの発動条件の ID。トグルの並びの順。 */
+  const activeConditionIds = computed(() =>
+    conditionOptions.value.filter((option) => activeIds.value.includes(option.id)).map((o) => o.id),
+  )
 
   const rankError = computed(() => ranks.value.length === 0)
 
@@ -115,6 +138,11 @@ export const useConditionsStore = defineStore('conditions', () => {
     maxResults.value = clampCount(value)
   }
 
+  function setConditionActive(id: ConditionId, active: boolean): void {
+    const rest = activeIds.value.filter((item) => item !== id)
+    activeIds.value = active ? [...rest, id] : rest
+  }
+
   function setRank(rank: ArmorRank, checked: boolean): void {
     const next = new Set(ranks.value)
     if (checked) next.add(rank)
@@ -134,6 +162,9 @@ export const useConditionsStore = defineStore('conditions', () => {
     rankError,
     unavailableReason,
     requiredGroups,
+    conditionOptions,
+    activeConditionIds,
+    setConditionActive,
     selectWeapon,
     showWeaponError,
     isRequired,

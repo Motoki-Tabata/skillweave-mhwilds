@@ -61,6 +61,11 @@ export const OBJECTIVE_OPTIONS = [
     label: '空きスロットの最大化',
     description: '空きスロットが多い順に探します。',
   },
+  {
+    id: 'expectedDamage',
+    label: '火力の最大化',
+    description: '物理の期待値が大きい順に探します。「発動条件」でオンにした効果を数えます。',
+  },
 ] as const
 
 export type ObjectiveChoice = (typeof OBJECTIVE_OPTIONS)[number]['id']

@@ -2,9 +2,12 @@ import type {
   ArmorId,
   ArmorPart,
   ArmorRank,
+  ConditionId,
   DecorationId,
+  Effect,
   MasterArmor,
   MasterBundle,
+  MasterCondition,
   MasterDictionary,
   MasterSkill,
   MasterVersion,
@@ -41,13 +44,37 @@ const PART_LABEL: Record<ArmorPart, string> = {
 
 export const armorId = (rank: ArmorRank, part: ArmorPart) => ar(`ar:${rank}:${part}`)
 
-function skill(id: string, kind: SkillKind, maxLevel: number): MasterSkill {
-  return { id: sk(id), kind, maxLevel, effectsByLevel: [] }
+export const cd = (id: string) => `cd:${id}` as ConditionId
+
+/** 発動条件（辞書の名前は NAMES）。トグルの並びは ja の名前順なので、ID 順とは一致しない。 */
+export const CONDITIONS: MasterCondition[] = [
+  { id: cd('weak_point') },
+  { id: cd('wound') },
+  { id: cd('challenger') },
+]
+
+function skill(
+  id: string,
+  kind: SkillKind,
+  maxLevel: number,
+  effectsByLevel: Effect[][] = [],
+): MasterSkill {
+  return { id: sk(id), kind, maxLevel, effectsByLevel }
 }
 
 export const SKILLS: MasterSkill[] = [
-  skill('w1', 'weapon', 5),
-  skill('a1', 'armor', 3),
+  // 剛刃: Lv1〜5。効果は Lv5 だけ（効果が無いレベルの確認用）
+  skill('w1', 'weapon', 5, [[], [], [], [], [{ stat: 'attack_add', value: 10 }]]),
+  // 攻撃: Lv1〜3。常時の効果と、条件付きの効果
+  skill('a1', 'armor', 3, [
+    [{ stat: 'attack_add', value: 3 }],
+    [{ stat: 'attack_add', value: 6 }],
+    [
+      { stat: 'attack_mul', value: 1.04 },
+      { stat: 'attack_add', value: 9 },
+      { stat: 'affinity_add', value: 20, conditionId: cd('weak_point') },
+    ],
+  ]),
   skill('a2', 'armor', 4),
   skill('s1', 'series', 2),
   skill('g1', 'group', 1),
@@ -133,7 +160,7 @@ export function makeBundle(options: BundleOptions = {}): MasterBundle {
     weapons: makeWeapons(options.extraGreatSwords ?? 0),
     charms: [],
     appraisedCharm: { patterns: [], groups: [] },
-    conditions: [],
+    conditions: CONDITIONS,
   }
 }
 
@@ -149,6 +176,19 @@ export const NAMES: Record<string, string> = {
   [wp('long-sword:1')]: '鉄の太刀',
   [wp('bow:1')]: '鉄の弓',
   [dc('1')]: '攻撃珠【２】',
+  [cd('weak_point')]: '有効部位への攻撃',
+  [cd('wound')]: '傷口への攻撃',
+  [cd('challenger')]: '挑戦者の発動中',
+}
+
+/** スキルのレベルごとの説明文（index 0 = Lv1）。空文字は「説明文が無い」。 */
+export const LEVEL_DESCRIPTIONS: Record<string, string[]> = {
+  [sk('a1')]: [
+    '攻撃力が少し上がる。',
+    '攻撃力が上がる。',
+    '攻撃力が大きく上がる。\r\n会心率も上がる。',
+  ],
+  [sk('w1')]: ['', '武器の切れ味が増す。'],
 }
 
 /** スキルの読み（ひらがなと「ー」）。 */
@@ -160,7 +200,9 @@ export const READINGS: Record<string, string> = {
 
 export function makeDictionary(options: BundleOptions = {}): MasterDictionary {
   const entries: MasterDictionary['entries'] = {}
-  for (const [id, name] of Object.entries(NAMES)) entries[id] = { name, reading: READINGS[id] }
+  for (const [id, name] of Object.entries(NAMES)) {
+    entries[id] = { name, reading: READINGS[id], levelDescriptions: LEVEL_DESCRIPTIONS[id] }
+  }
   for (const rank of options.ranks ?? ['low', 'high']) {
     for (const part of PARTS) {
       entries[armorId(rank, part)] = { name: `${RANK_LABEL[rank]}の${PART_LABEL[part]}` }

@@ -4,7 +4,7 @@ import type { SolvedBuild } from '@swv/solver'
 import type { CharmPayload } from '@/lib/charms/types'
 import { createMemoryCharmRepository } from '../../support/charmRepository'
 import { charmId, storedCharm } from '../../support/charms'
-import { FakeWorker, dc, makeBuild, sk, wp } from '../../support/fixtures'
+import { FakeWorker, cd, dc, makeBuild, sk, wp } from '../../support/fixtures'
 import {
   click,
   installDomPolyfills,
@@ -27,10 +27,14 @@ describe('BuildCard', () => {
   })
 
   /** 武器を選んで検索し、構成を結果として返す。 */
-  async function showBuilds(builds: SolvedBuild[]): Promise<Mounted> {
+  async function showBuilds(
+    builds: SolvedBuild[],
+    beforeSearch: (m: Mounted) => void = () => {},
+  ): Promise<Mounted> {
     stubBackend()
     mounted = await mountReadyApp()
     mounted.conditions.selectWeapon(wp('great-sword:1'))
+    beforeSearch(mounted)
     await flushPromises()
     await click(document.querySelector('button[type="submit"]')!)
     const worker = FakeWorker.last
@@ -59,7 +63,7 @@ describe('BuildCard', () => {
     expect(document.querySelectorAll('#results-heading ~ ul > li')).toHaveLength(2)
     expect(textOf(card(0).querySelector('h3'))).toBe('構成 1')
     expect(textOf(card(1).querySelector('h3'))).toBe('構成 2')
-    expect(textOf(card(0).querySelector('p'))).toBe('防御力 20')
+    expect(textOf(card(0).querySelector('h3 ~ div p:last-child'))).toBe('防御力 20')
   })
 
   it('防具5部位を表で出す。防具が無い部位は「防具なし」。見出しセルは thead の th scope="col"', async () => {
@@ -161,7 +165,7 @@ describe('BuildCard', () => {
     it('使った護石のレア度・スキル・スロット（武器用・防具用）を、防具と装飾品のあいだに出す', async () => {
       await showWithCharm([charmBuild()])
       const headings = Array.from(card().querySelectorAll('h4')).map((h) => textOf(h))
-      expect(headings.slice(0, 3)).toEqual(['防具', '護石', '装飾品'])
+      expect(headings.slice(0, 4)).toEqual(['火力', '防具', '護石', '装飾品'])
       const text = textOf(section('護石', card()))
       expect(text).toContain('レア度8')
       expect(text).toContain('攻撃 Lv2')
@@ -228,5 +232,199 @@ describe('BuildCard', () => {
       textOf(li),
     )
     expect(chips).toEqual(['武器 Lv3', '武器 Lv1'])
+  })
+})
+
+// 受入基準 4・5・6（火力の表示と丸め、検索の後の変更に影響されないこと）
+describe('BuildCard の火力', () => {
+  let mounted: Mounted | null = null
+
+  beforeAll(installDomPolyfills)
+  afterEach(() => {
+    mounted?.wrapper.unmount()
+    mounted = null
+    restoreStubs()
+  })
+
+  // 攻撃 Lv3（攻撃力 ×1.04・+9、有効部位で会心率 +20%）。武器は攻撃力 250・会心率 -15%
+  const strongBuild = (): SolvedBuild => ({
+    ...makeBuild(),
+    skills: [{ skillId: sk('a1'), level: 3, rawLevel: 3 }],
+  })
+
+  async function show(
+    builds: SolvedBuild[],
+    beforeSearch: (m: Mounted) => void = () => {},
+  ): Promise<Mounted> {
+    stubBackend()
+    mounted = await mountReadyApp()
+    mounted.conditions.selectWeapon(wp('great-sword:1'))
+    beforeSearch(mounted)
+    await flushPromises()
+    await click(document.querySelector('button[type="submit"]')!)
+    const worker = FakeWorker.last
+    worker.emit({
+      type: 'result',
+      requestId: worker.lastSolveId,
+      response: { status: 'optimal', builds, elapsedMs: 1 },
+    })
+    await flushPromises()
+    return mounted
+  }
+
+  const card = (index = 0) =>
+    document.querySelectorAll<HTMLElement>('#results-heading ~ ul > li')[index]
+  const damageOf = (root: Element) => {
+    const section = Array.from(root.querySelectorAll('section')).find(
+      (s) => textOf(s.querySelector('h4')) === '火力',
+    )!
+    return Array.from(section.querySelectorAll('dl > div')).map((row) => [
+      textOf(row.querySelector('dt')),
+      textOf(row.querySelector('dd')),
+    ])
+  }
+
+  it('[基準4・5] どの構成にも、期待値・攻撃力・会心率・会心倍率を丸めて出す。見出し行にも期待値を出す', async () => {
+    await show([strongBuild(), makeBuild()])
+    // 250×1.04+9 = 269.0、会心率 -15%、倍率 1.25 → 269×0.9625 = 258.9125
+    expect(damageOf(card(0))).toEqual([
+      ['期待値', '258.9'],
+      ['攻撃力', '269.0'],
+      ['会心率', '-15%'],
+      ['会心倍率', '1.25'],
+    ])
+    expect(textOf(card(0).querySelector('h3 ~ div p'))).toBe('期待値 258.9')
+    // 250+3 = 253.0、253×0.9625 = 243.5125
+    expect(damageOf(card(1))[0]).toEqual(['期待値', '243.5'])
+  })
+
+  it('[基準1・5] 期待値が昇順の2構成でも、ソルバーが返した順のまま並べ、期待値（丸めた値を含む）で並べ替えない', async () => {
+    // 返した順: 1件目 243.5125（253×0.9625）→ 2件目 258.9125（269×0.9625）
+    await show([makeBuild(), strongBuild()])
+    expect(textOf(card(0).querySelector('h3'))).toBe('構成 1')
+    expect(textOf(card(0).querySelector('h3 ~ div p'))).toBe('期待値 243.5')
+    expect(textOf(card(1).querySelector('h3'))).toBe('構成 2')
+    expect(textOf(card(1).querySelector('h3 ~ div p'))).toBe('期待値 258.9')
+  })
+
+  it('[基準4] 検索したときにオンの発動条件を火力に数える', async () => {
+    await show([strongBuild()], (m) => m.conditions.setConditionActive(cd('weak_point'), true))
+    // 会心率 5% → 269×(1+0.05×0.25) = 272.3625
+    expect(damageOf(card())).toEqual([
+      ['期待値', '272.4'],
+      ['攻撃力', '269.0'],
+      ['会心率', '5%'],
+      ['会心倍率', '1.25'],
+    ])
+  })
+
+  it('[基準6] 検索の後に発動条件のトグルと武器を変えても、火力は変わらない', async () => {
+    const m = await show([strongBuild()])
+    const before = damageOf(card())
+    m.conditions.setConditionActive(cd('weak_point'), true)
+    m.conditions.selectWeapon(wp('long-sword:1'))
+    await flushPromises()
+    expect(damageOf(card())).toEqual(before)
+  })
+})
+
+// 受入基準 7・10（スキルの効果の開閉と、説明文・補完）
+describe('BuildCard のスキルの効果', () => {
+  let mounted: Mounted | null = null
+
+  beforeAll(installDomPolyfills)
+  afterEach(() => {
+    mounted?.wrapper.unmount()
+    mounted = null
+    restoreStubs()
+  })
+
+  async function show(builds: SolvedBuild[]): Promise<void> {
+    stubBackend()
+    mounted = await mountReadyApp()
+    mounted.conditions.selectWeapon(wp('great-sword:1'))
+    await flushPromises()
+    await click(document.querySelector('button[type="submit"]')!)
+    const worker = FakeWorker.last
+    worker.emit({
+      type: 'result',
+      requestId: worker.lastSolveId,
+      response: { status: 'optimal', builds, elapsedMs: 1 },
+    })
+    await flushPromises()
+  }
+
+  const card = (index = 0) =>
+    document.querySelectorAll<HTMLElement>('#results-heading ~ ul > li')[index]
+  const toggle = (index = 0) =>
+    Array.from(card(index).querySelectorAll('button')).find((b) =>
+      b.hasAttribute('aria-expanded'),
+    ) as HTMLButtonElement | undefined
+  const detailRows = (index = 0) =>
+    Array.from(card(index).querySelectorAll('dl[id] > div')).map((row) => ({
+      title: textOf(row.querySelector('dt')),
+      paragraphs: Array.from(row.querySelectorAll('dd p')).map((p) => p.textContent ?? ''),
+    }))
+
+  const withSkills = (skills: SolvedBuild['skills']): SolvedBuild => ({ ...makeBuild(), skills })
+
+  it('[基準7] 既定は閉じ。開閉のボタンは件数を出し、aria-expanded と aria-controls を持つ', async () => {
+    await show([makeBuild()])
+    const button = toggle()!
+    expect(textOf(button)).toBe('スキルの効果を表示（2）')
+    expect(button.getAttribute('aria-expanded')).toBe('false')
+    expect(detailRows()).toEqual([])
+    await click(button)
+    expect(textOf(button)).toBe('スキルの効果を隠す')
+    expect(button.getAttribute('aria-expanded')).toBe('true')
+    const list = card().querySelector('dl[id]')!
+    expect(button.getAttribute('aria-controls')).toBe(list.id)
+    await click(button)
+    expect(detailRows()).toEqual([])
+  })
+
+  it('[基準7] 開閉は構成カードごとに独立している', async () => {
+    await show([makeBuild(), makeBuild()])
+    await click(toggle(0)!)
+    expect(toggle(0)!.getAttribute('aria-expanded')).toBe('true')
+    expect(toggle(1)!.getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('[基準7] 発動スキルが0件のときはボタンを出さない', async () => {
+    await show([withSkills([])])
+    expect(toggle()).toBeUndefined()
+  })
+
+  it('[基準7・9] 発動しているレベルの説明文（改行を保つ）と補完を、チップと同じ並びで出す', async () => {
+    await show([
+      withSkills([
+        { skillId: sk('a1'), level: 3, rawLevel: 3 },
+        { skillId: sk('w1'), level: 2, rawLevel: 2 },
+      ]),
+    ])
+    await click(toggle()!)
+    // 武器 → 防具の順（チップと同じ）
+    expect(detailRows()).toEqual([
+      { title: '剛刃 Lv2', paragraphs: ['武器の切れ味が増す。'] },
+      {
+        title: '攻撃 Lv3',
+        paragraphs: [
+          '攻撃力が大きく上がる。\n会心率も上がる。',
+          '効果: 攻撃力 ×1.04・攻撃力 +9 ／ 会心率 +20%（有効部位への攻撃）',
+        ],
+      },
+    ])
+    expect(card().querySelector('dl[id] p')!.className).toContain('whitespace-pre-line')
+  })
+
+  it('[基準10] 説明文が無いレベルは補完だけ、補完が無いレベルは説明文だけ、どちらも無ければ見出しだけ', async () => {
+    await show([
+      withSkills([{ skillId: sk('w1'), level: 5, rawLevel: 5 }]), // 説明文なし・効果あり
+      withSkills([{ skillId: sk('w1'), level: 1, rawLevel: 1 }]), // 説明文が空・効果なし
+    ])
+    await click(toggle(0)!)
+    await click(toggle(1)!)
+    expect(detailRows(0)).toEqual([{ title: '剛刃 Lv5', paragraphs: ['効果: 攻撃力 +10'] }])
+    expect(detailRows(1)).toEqual([{ title: '剛刃 Lv1', paragraphs: [] }])
   })
 })

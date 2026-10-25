@@ -3,7 +3,7 @@ import type { Uuid } from '@swv/solver'
 import type { SearchConditions } from '@/lib/solver/request'
 import { buildSolverRequest, excludedArmorIds, toObjective } from '@/lib/solver/request'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
-import { VERSION, armorId, makeBundle, sk, wp } from '../../support/fixtures'
+import { VERSION, armorId, cd, makeBundle, sk, wp } from '../../support/fixtures'
 
 // 受入基準 6（SolverRequest への変換）
 describe('buildSolverRequest', () => {
@@ -17,6 +17,7 @@ describe('buildSolverRequest', () => {
     objective: 'feasible',
     maxResults: 7,
     ranks: ['high'],
+    activeConditionIds: [],
     charms: [],
   }
 
@@ -51,6 +52,21 @@ describe('buildSolverRequest', () => {
     expect(excludedArmorIds(bundle, [])).toHaveLength(bundle.armors.length)
   })
 
+  // 受入基準 1（火力の最大化の要求）
+  it('火力の最大化は expectedDamage の最大化で要求する', () => {
+    expect(toObjective('expectedDamage')).toEqual({ kind: 'maximize', metric: 'expectedDamage' })
+  })
+
+  // 受入基準 3（オンの条件を目的にかかわらず入れる。無ければ空の配列）
+  it('activeConditionIds を目的にかかわらず入れ、無ければ空の配列', () => {
+    expect(buildSolverRequest(bundle, base).activeConditionIds).toEqual([])
+    const ids = [cd('wound'), cd('weak_point')]
+    for (const objective of ['feasible', 'expectedDamage'] as const) {
+      const request = buildSolverRequest(bundle, { ...base, objective, activeConditionIds: ids })
+      expect(request.activeConditionIds).toEqual(ids)
+    }
+  })
+
   it('目的の対応: 条件を満たす・防御力・空きスロット', () => {
     expect(toObjective('feasible')).toEqual({ kind: 'feasible' })
     expect(toObjective('defense')).toEqual({ kind: 'maximize', metric: 'defense' })
@@ -71,6 +87,7 @@ describe('buildSolverRequest の護石', () => {
     objective: 'feasible',
     maxResults: 5,
     ranks: ['high'],
+    activeConditionIds: [],
     charms: [
       {
         id: '018f0000-0000-7000-8000-000000000001' as Uuid,

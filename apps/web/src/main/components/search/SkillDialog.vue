@@ -2,11 +2,12 @@
 import { computed, ref, watch } from 'vue'
 import type { MasterSkill, SkillKind } from '@swv/data'
 import PickerDialog from '@/components/search/PickerDialog.vue'
+import SkillPickerList from '@/components/search/SkillPickerList.vue'
 import { Button } from '@/components/ui/button'
 import { DialogClose } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SKILL_KINDS, skillKindLabel } from '@/constants/labels'
+import { SKILL_KINDS } from '@/constants/labels'
 import { matchesSkillQuery } from '@/lib/text'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
@@ -22,15 +23,23 @@ const conditions = useConditionsStore()
 
 const query = ref('')
 const activeKind = ref<SkillKind>('weapon')
+/** 説明を開いているスキル（開くのは1つだけ） */
+const openSkillId = ref<string | null>(null)
 
 // 開いたときに、空の検索語から始める
 watch(
   () => props.open,
   (open) => {
+    openSkillId.value = null
     if (open) query.value = ''
   },
   { immediate: true },
 )
+
+// タブの切り替え・検索語の変更で、開いている説明を閉じる
+watch([activeKind, query], () => {
+  openSkillId.value = null
+})
 
 const searching = computed(() => query.value.trim() !== '')
 
@@ -84,22 +93,7 @@ function onOpenChange(open: boolean): void {
         <p v-if="searchResults.length === 0" class="text-sm">
           該当するスキルがありません。名前を変えてください。
         </p>
-        <ul class="grid grid-cols-2 gap-1.5 lg:grid-cols-3">
-          <li v-for="skill in searchResults" :key="skill.id" class="flex">
-            <button
-              type="button"
-              class="focus-visible:ring-ring/50 focus-visible:border-ring aria-pressed:border-foreground flex min-h-11 w-full items-center justify-between gap-1.5 rounded-md border px-2.5 py-1 text-left text-sm outline-none focus-visible:ring-3 aria-pressed:border-2 aria-pressed:font-bold"
-              :aria-pressed="conditions.isRequired(skill.id)"
-              @click="conditions.toggleSkill(skill.id)"
-            >
-              <span class="min-w-0 break-words">{{ master.nameOf(skill.id) }}</span>
-              <span class="flex shrink-0 flex-col items-end text-xs font-normal">
-                <span v-if="conditions.isRequired(skill.id)">選択中</span>
-                <span>{{ skillKindLabel(skill.kind) }}</span>
-              </span>
-            </button>
-          </li>
-        </ul>
+        <SkillPickerList v-model:open-id="openSkillId" :skills="searchResults" show-kind />
       </template>
 
       <Tabs v-else v-model="activeKind">
@@ -109,25 +103,10 @@ function onOpenChange(open: boolean): void {
           </TabsTrigger>
         </TabsList>
         <TabsContent v-for="kind in SKILL_KINDS" :key="kind.id" :value="kind.id">
-          <ul class="grid grid-cols-2 gap-1.5 lg:grid-cols-3">
-            <li
-              v-for="skill in master.skillsByKind.get(kind.id) ?? []"
-              :key="skill.id"
-              class="flex"
-            >
-              <button
-                type="button"
-                class="focus-visible:ring-ring/50 focus-visible:border-ring aria-pressed:border-foreground flex min-h-11 w-full items-center justify-between gap-1.5 rounded-md border px-2.5 py-1 text-left text-sm outline-none focus-visible:ring-3 aria-pressed:border-2 aria-pressed:font-bold"
-                :aria-pressed="conditions.isRequired(skill.id)"
-                @click="conditions.toggleSkill(skill.id)"
-              >
-                <span class="min-w-0 break-words">{{ master.nameOf(skill.id) }}</span>
-                <span v-if="conditions.isRequired(skill.id)" class="shrink-0 text-xs font-normal"
-                  >選択中</span
-                >
-              </button>
-            </li>
-          </ul>
+          <SkillPickerList
+            v-model:open-id="openSkillId"
+            :skills="master.skillsByKind.get(kind.id) ?? []"
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -12,7 +12,7 @@ import {
 } from '../../support/mount'
 import type { Mounted } from '../../support/mount'
 
-// 受入基準 5（目的・件数・ランク）
+// 受入基準 5（目的・件数・ランク）、007 受入基準 1（火力の最大化の選択肢）
 describe('ConditionsCard', () => {
   let mounted: Mounted | null = null
 
@@ -52,7 +52,7 @@ describe('ConditionsCard', () => {
   }
 
   describe('目的', () => {
-    it('3つの選択肢と補助文を出し、既定は「条件を満たす構成」', async () => {
+    it('4つの選択肢と補助文を出し、既定は「条件を満たす構成」', async () => {
       await ready()
       const body = textOf(document.body)
       for (const text of [
@@ -62,6 +62,8 @@ describe('ConditionsCard', () => {
         '防具の防御力の合計が大きい順に探します。',
         '空きスロットの最大化',
         '空きスロットが多い順に探します。',
+        '火力の最大化',
+        '物理の期待値が大きい順に探します。「発動条件」でオンにした効果を数えます。',
       ]) {
         expect(body).toContain(text)
       }
