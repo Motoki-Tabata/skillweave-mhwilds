@@ -3,7 +3,7 @@
 
 ## 現在地
 - 区間: B
-- 次に起動するコマンド: `/tsod-screen-table 007-damage-ui`（Q41 の対策の機能のマージ後。それまでは `main` で `/tsod-discover` から対策の機能を進める）
+- 次に起動するコマンド: `/tsod-screen-table 007-damage-ui`
 - 推奨モデル: Opus
 - ブランチ: `feat/007-damage-ui`（不変）
 <!--
@@ -24,7 +24,7 @@
 | ゲート | 対象 | 状態 | 承認日時・記録 |
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-25 / 4b632d9 |
-| A-2 | 薄仕様 spec.md | 承認済み | 2026-10-24 / 844c6d2 |
+| A-2 | 薄仕様 spec.md | 承認済み | 2026-10-25 / 08f156d |
 | B-1 | 画面設計 screen-design.md | 未 | |
 | B-2 | テーブル設計（design/・migration） | 未 | |
 | C-1 | plan.md・tasks.md | 未 | |
@@ -72,7 +72,8 @@
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
 - 区間 B: 検索画面（SearchView.vue）のレイアウトを変える（カードを足すなど）と決めたら、open-questions.md Q28 の仮（ブレークポイントの決定と MASTER.md の Layout の修正）に当たるので、扱いをそこで決める。ResultAlert.vue を触るなら Q27 も同様
 - 区間 D の前: （区間 B の前に繰り上げた。「区間 B の前」の行を見る）
-- 区間 B の前: Q41 の対策の機能 019 damage-solve-perf（機能マップに追加済み）がマージ済みであること（decisions.md Q42）。対策の結果で spec の前提（時間切れの扱い・件数・並びの厳密さ）が変わったら spec.md を直す
+- 区間 B の前: 済み（2026-10-25。019 は main にマージ済みで、main を取り込んだ（4b34039）。019 の結果による前提の変化は decisions.md Q46〜Q49 で決め、spec.md に反映した（08f156d））
+- 区間 B: 逐次表示（Q46）の見せ方（届いた構成の足し方・進捗の帯との関係・検索の終わりの置き換え）を画面設計で決める。web のクライアント（apps/web/src/main/lib/solver/client.ts）は progress の build を捨てているので、区間 C でここを直す前提で計画する（019 からの持ち越し）
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
