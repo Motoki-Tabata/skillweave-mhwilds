@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import ActivationConditionsCard from '@/components/search/ActivationConditionsCard.vue'
 import CharmCard from '@/components/search/CharmCard.vue'
 import ConditionsCard from '@/components/search/ConditionsCard.vue'
 import RequiredSkillsCard from '@/components/search/RequiredSkillsCard.vue'
@@ -119,6 +120,7 @@ function returnFocusToWeapon(event: Event): void {
           <RequiredSkillsCard @open="skillDialogOpen = true" />
           <CharmCard />
           <ConditionsCard ref="conditionsCard" />
+          <ActivationConditionsCard />
           <SearchActions />
         </form>
         <ResultsPanel @pick-weapon="weaponDialogOpen = true" />

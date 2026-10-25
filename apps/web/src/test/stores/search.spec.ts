@@ -274,6 +274,48 @@ describe('search ストア', () => {
     })
   })
 
+  // 受入基準 3（オンの条件を目的にかかわらず要求へ。無ければ空）
+  it('要求の activeConditionIds は目的にかかわらずオンの条件で、無ければ空の配列', async () => {
+    const { search, conditions, worker } = await setup()
+    search.submit()
+    expect(worker.messages('solve')[0]).toMatchObject({ request: { activeConditionIds: [] } })
+    const [first, , third] = conditions.conditionOptions.map((o) => o.id)
+    conditions.setConditionActive(third, true)
+    conditions.setConditionActive(first, true)
+    for (const objective of ['feasible', 'expectedDamage'] as const) {
+      conditions.setObjective(objective)
+      search.submit()
+      expect(worker.messages('solve').at(-1)).toMatchObject({
+        request: { activeConditionIds: [first, third] },
+      })
+    }
+    expect(worker.messages('solve').at(-1)).toMatchObject({
+      request: { objective: { kind: 'maximize', metric: 'expectedDamage' } },
+    })
+  })
+
+  // 受入基準 3・6（検索したときの写しと要約の発動条件。検索の後の変更で変わらない）
+  it('検索したときの武器・オンの条件を写しに持ち、後からトグル・武器を変えても変わらない', async () => {
+    const { search, conditions } = await setup()
+    const [first, second] = conditions.conditionOptions
+    conditions.setConditionActive(first.id, true)
+    search.submit()
+    conditions.setConditionActive(first.id, false)
+    conditions.setConditionActive(second.id, true)
+    conditions.selectWeapon(wp('bow:1'))
+    expect(search.submittedBasis).toEqual({
+      damageBase: { attack: 250, affinity: -15 },
+      activeConditionIds: [first.id],
+    })
+    expect(search.summary?.activeConditionNames).toEqual([first.name])
+  })
+
+  it('オンの条件が無いとき、要約の発動条件の名前は空', async () => {
+    const { search } = await setup()
+    search.submit()
+    expect(search.summary?.activeConditionNames).toEqual([])
+  })
+
   it('進捗で件数を更新し、結果で完了（Q2〜Q5）にする', async () => {
     const { search, worker } = await setup()
     search.submit()

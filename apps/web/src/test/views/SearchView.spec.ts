@@ -228,6 +228,28 @@ describe('SearchView', () => {
 
     const found: SolverResponse = { status: 'optimal', builds: [makeBuild()], elapsedMs: 3 }
 
+    // 受入基準 3（要約の発動条件。検索の後に変えても変わらない）
+    it('要約に検索したときにオンだった発動条件を、トグルの並びの順に「・」でつなぐ。無ければ「なし」', async () => {
+      const m = await ready()
+      await startSearch(m)
+      m.worker.emit({ type: 'result', requestId: m.worker.lastSolveId, response: found })
+      await flushPromises()
+      expect(body()).toContain('護石 0 件 ／ 発動条件: なし')
+
+      const options = m.conditions.conditionOptions
+      m.conditions.setConditionActive(options[1].id, true)
+      m.conditions.setConditionActive(options[0].id, true)
+      await startSearch(m)
+      m.worker.emit({ type: 'result', requestId: m.worker.lastSolveId, response: found })
+      await flushPromises()
+      const expected = `発動条件: ${options[0].name}・${options[1].name}`
+      expect(body()).toContain(expected)
+      m.conditions.setConditionActive(options[2].id, true)
+      await flushPromises()
+      expect(body()).toContain(expected)
+      expect(body()).not.toContain(`・${options[2].name}`)
+    })
+
     it('Q2: 件数が上限より少ないとき「これで全部です」と、検索条件の要約・構成カードを出す', async () => {
       const m = await ready()
       m.conditions.toggleSkill(sk('a1'))

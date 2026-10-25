@@ -42,7 +42,9 @@ const reachedLimit = computed(() => builds.value.length >= max.value)
 const summaryLine = computed(() => {
   const summary = search.summary
   if (summary === null) return ''
-  return `武器: ${summary.weaponName} ／ 必須スキル ${summary.requiredCount} 件 ／ ${summary.objectiveLabel} ／ ${summary.maxResults} 件まで ／ 護石 ${summary.charmCount} 件`
+  const conditionsText =
+    summary.activeConditionNames.length === 0 ? 'なし' : summary.activeConditionNames.join('・')
+  return `武器: ${summary.weaponName} ／ 必須スキル ${summary.requiredCount} 件 ／ ${summary.objectiveLabel} ／ ${summary.maxResults} 件まで ／ 護石 ${summary.charmCount} 件 ／ 発動条件: ${conditionsText}`
 })
 
 const TIMEOUT_HINT =

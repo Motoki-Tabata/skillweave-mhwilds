@@ -1,4 +1,4 @@
-import type { ArmorId, ArmorRank, MasterBundle, SkillLevel, WeaponId } from '@swv/data'
+import type { ArmorId, ArmorRank, ConditionId, MasterBundle, SkillLevel, WeaponId } from '@swv/data'
 import type { Objective, SolverCharm, SolverRequest } from '@swv/solver'
 import type { ObjectiveChoice } from '@/constants/labels'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
@@ -10,6 +10,8 @@ export interface SearchConditions {
   objective: ObjectiveChoice
   maxResults: number
   ranks: ArmorRank[]
+  /** オンの発動条件の ID（目的にかかわらず要求に入れる。オンが無ければ空） */
+  activeConditionIds: ConditionId[]
   /** 護石の候補（構造上の制約を満たすもの。空なら護石なしで解く） */
   charms: SolverCharm[]
 }
@@ -22,6 +24,8 @@ export function toObjective(choice: ObjectiveChoice): Objective {
       return { kind: 'maximize', metric: 'defense' }
     case 'freeSlots':
       return { kind: 'maximize', metric: 'freeSlots' }
+    case 'expectedDamage':
+      return { kind: 'maximize', metric: 'expectedDamage' }
   }
 }
 
@@ -42,6 +46,7 @@ export function buildSolverRequest(
     required: conditions.required.map((skill) => ({ ...skill })),
     excludedArmorIds: excludedArmorIds(bundle, conditions.ranks),
     objective: toObjective(conditions.objective),
+    activeConditionIds: [...conditions.activeConditionIds],
     maxResults: conditions.maxResults,
     timeoutMs: SOLVE_TIMEOUT_MS,
   }

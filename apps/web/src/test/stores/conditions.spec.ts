@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { NO_RANK_REASON, NO_WEAPON_REASON } from '@/stores/conditions'
 import { MAX_RESULTS_DEFAULT } from '@/constants/search'
-import { makeBundle, makeDictionary, sk, wp } from '../support/fixtures'
+import { compareJa } from '@/lib/text'
+import { CONDITIONS, NAMES, makeBundle, makeDictionary, sk, wp } from '../support/fixtures'
 import { loadStores, restoreStubs, stubBackend } from '../support/mount'
 
 // 受入基準 3〜5（条件の入力）・6（検索できない理由）
@@ -139,6 +140,27 @@ describe('conditions ストア', () => {
       const { conditions } = await loadStores()
       conditions.toggleSkill(sk('s1'))
       expect(conditions.requiredGroups.map((g) => g.kind)).toEqual(['series'])
+    })
+
+    // 受入基準 2（すべてのトグルを辞書の名前で。既定はオフ）
+    it('発動条件はマスターのすべてを ja の名前の順に出し、既定はすべてオフ', async () => {
+      const { conditions } = await loadStores()
+      const names = conditions.conditionOptions.map((o) => o.name)
+      expect([...names].sort(compareJa)).toEqual(names)
+      expect(new Set(names)).toEqual(new Set(CONDITIONS.map((c) => NAMES[c.id])))
+      expect(names).toHaveLength(CONDITIONS.length)
+      expect(conditions.activeConditionIds).toEqual([])
+    })
+
+    // 受入基準 3（オンの ID はトグルの並びの順）
+    it('オンにした条件の ID をトグルの並びの順で持ち、オフで外す', async () => {
+      const { conditions } = await loadStores()
+      const order = conditions.conditionOptions.map((o) => o.id)
+      conditions.setConditionActive(order[2], true)
+      conditions.setConditionActive(order[0], true)
+      expect(conditions.activeConditionIds).toEqual([order[0], order[2]])
+      conditions.setConditionActive(order[0], false)
+      expect(conditions.activeConditionIds).toEqual([order[2]])
     })
 
     it('スキルを外す', async () => {
