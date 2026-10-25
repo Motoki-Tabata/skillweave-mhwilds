@@ -50,6 +50,7 @@
 |---|---|---|
 | web | web-agent | 4cd6456 (T2・T3) |
 | web | web-agent | 6e21d71 (T4・T5) |
+| E2E | e2e-agent | cc91387 (T6・T7) |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
