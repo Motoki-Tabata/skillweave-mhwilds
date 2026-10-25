@@ -9,4 +9,4 @@
 - [x] T5 [web-agent]      D2 のダイアログ: 格子の列数、説明の開閉ボタンと説明の領域（plan D9・D10）と単体テスト。既存の `SkillDialog.spec.ts` を追従させる     refs spec §受入基準 8, 9, 10
 - [x] T6 [e2e-agent]      `e2e/damage-ui.spec.ts`: 火力の最大化・トグルの反映・検索の後の変更で表示が変わらないこと・説明文と補完（plan D14）。既存の `solver-ui.spec.ts` が変更に依存していれば追従させる     refs spec §受入基準 1, 3, 6, 7, 15
 - [x] T7 [e2e-agent]      測定のハーネス: `e2e/measure/damage-ui.measure.ts` と、6 ケースを共有する `e2e/support/measureCases.ts`（004 の `solver-ui.measure.ts` もここから読む。中身は変えない）（plan D15）。測定を1回実行して出力を報告する     refs spec §受入基準 14
-- [ ] T8 [main]           `pnpm --filter @swv/web run measure` を実行し、`design/tech-stack.md` の新しい節「ブラウザの Worker 上の expectedDamage の測定（007 damage-ui）」に記録して 019 の節から参照する。1件目までの時間の最大が 3 秒を超えたら、対策を `specs/open-questions.md` に新しい Q として起票し、記録から参照する（plan D17・decisions.md Q49）     refs spec §受入基準 14
+- [x] T8 [main]           `pnpm --filter @swv/web run measure` を実行し、`design/tech-stack.md` の新しい節「ブラウザの Worker 上の expectedDamage の測定（007 damage-ui）」に記録して 019 の節から参照する。1件目までの時間の最大が 3 秒を超えたら、対策を `specs/open-questions.md` に新しい Q として起票し、記録から参照する（plan D17・decisions.md Q49）     refs spec §受入基準 14
