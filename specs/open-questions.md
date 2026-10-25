@@ -1,4 +1,4 @@
-次の番号: Q46
+次の番号: Q50
 
 ## 要確認事項
 - [ ] Q5: デプロイ（Web: Cloudflare Pages / API: Cloud Run / DB: Neon または Supabase）を TSOD の機能として切るか、区間外の運用作業とするか。フレンドに使ってもらう時期と、独自ドメイン（Cookie の同一サイト化）・マネージド DB の未決事項（§11）にも関わる（仮: 機能にはしない。004 solver-ui の後に Web だけ区間外で先に公開し、API・DB の公開は 009 discord-login の ship の前に区間外で行う）
