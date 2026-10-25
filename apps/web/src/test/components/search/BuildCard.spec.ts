@@ -298,6 +298,15 @@ describe('BuildCard の火力', () => {
     expect(damageOf(card(1))[0]).toEqual(['期待値', '243.5'])
   })
 
+  it('[基準1・5] 期待値が昇順の2構成でも、ソルバーが返した順のまま並べ、期待値（丸めた値を含む）で並べ替えない', async () => {
+    // 返した順: 1件目 243.5125（253×0.9625）→ 2件目 258.9125（269×0.9625）
+    await show([makeBuild(), strongBuild()])
+    expect(textOf(card(0).querySelector('h3'))).toBe('構成 1')
+    expect(textOf(card(0).querySelector('h3 ~ div p'))).toBe('期待値 243.5')
+    expect(textOf(card(1).querySelector('h3'))).toBe('構成 2')
+    expect(textOf(card(1).querySelector('h3 ~ div p'))).toBe('期待値 258.9')
+  })
+
   it('[基準4] 検索したときにオンの発動条件を火力に数える', async () => {
     await show([strongBuild()], (m) => m.conditions.setConditionActive(cd('weak_point'), true))
     // 会心率 5% → 269×(1+0.05×0.25) = 272.3625

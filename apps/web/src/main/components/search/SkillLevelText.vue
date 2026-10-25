@@ -23,7 +23,10 @@ const texts = computed(() =>
   <p v-if="texts.description !== null" class="text-xs break-words whitespace-pre-line">
     {{ texts.description }}
   </p>
-  <p v-if="texts.summary !== null" class="text-muted-foreground text-xs break-words">
+  <p
+    v-if="texts.summary !== null"
+    class="font-num text-muted-foreground text-xs tabular-nums break-words"
+  >
     {{ texts.summary }}
   </p>
 </template>
