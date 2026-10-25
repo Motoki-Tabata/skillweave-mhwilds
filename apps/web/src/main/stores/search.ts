@@ -1,7 +1,7 @@
 import { ref, shallowRef, toRaw } from 'vue'
 import { defineStore } from 'pinia'
 import type { ConditionId, WeaponId } from '@swv/data'
-import type { DamageBase, SolverCharm, SolverResponse } from '@swv/solver'
+import type { DamageBase, SolvedBuild, SolverCharm, SolverResponse } from '@swv/solver'
 import { objectiveLabel } from '@/constants/labels'
 import { buildSolverRequest, type SearchConditions } from '@/lib/solver/request'
 import { useCharmsStore } from '@/stores/charms'
@@ -43,6 +43,8 @@ export const useSearchStore = defineStore('search', () => {
   const status = ref<SearchStatus>('idle')
   const found = ref(0)
   const response = ref<SolverResponse | null>(null)
+  /** 検索中に Worker から届いた構成（届いた順）。結果・取り消し・エラー・新しい検索で空にする */
+  const progressBuilds = shallowRef<readonly SolvedBuild[]>([])
   const errorMessage = ref('')
   const summary = ref<SearchSummary | null>(null)
   /** 送信した時点の護石の候補（ID で引く）。構成の表示はここから護石を引く */
@@ -58,6 +60,7 @@ export const useSearchStore = defineStore('search', () => {
 
   function clearResult(): void {
     found.value = 0
+    progressBuilds.value = []
     response.value = null
     errorMessage.value = ''
   }
@@ -141,16 +144,19 @@ export const useSearchStore = defineStore('search', () => {
     submittedBasis.value = { damageBase, activeConditionIds: rest.activeConditionIds }
     summary.value = summarize(submitted, charms.length)
     master.solve(request, {
-      onProgress: (count) => {
+      onProgress: (count, build) => {
+        progressBuilds.value = [...progressBuilds.value, build]
         found.value = count
       },
       onResult: (result) => {
         response.value = result
+        progressBuilds.value = []
         found.value = result.builds.length
         status.value = 'done'
       },
       onError: (message) => {
         errorMessage.value = message
+        progressBuilds.value = []
         status.value = 'error'
       },
     })
@@ -175,6 +181,7 @@ export const useSearchStore = defineStore('search', () => {
     status,
     found,
     response,
+    progressBuilds,
     errorMessage,
     summary,
     submittedCharms,

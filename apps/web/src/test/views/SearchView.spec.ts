@@ -220,6 +220,79 @@ describe('SearchView', () => {
       )
     })
 
+    // 受入基準 11（逐次表示と置き換え）
+    it('Q1: 構成が届くまでは補助文・要約・カードを出さず、届いた順に火力つきで足す', async () => {
+      const m = await ready()
+      await startSearch(m)
+      expect(body()).not.toContain('見つけた順に表示しています')
+      expect(body()).not.toContain('武器: 鉄の大剣')
+      const id = m.worker.lastSolveId
+      m.worker.emit({ type: 'progress', requestId: id, found: 1, build: makeBuild() })
+      await flushPromises()
+      expect(body()).toContain(
+        '見つけた順に表示しています。検索が終わると、目的の順に並べ直します。',
+      )
+      expect(body()).toContain('武器: 鉄の大剣')
+      expect(body()).toContain('構成 1')
+      expect(body()).toContain('期待値 243.5')
+      m.worker.emit({ type: 'progress', requestId: id, found: 2, build: makeBuild() })
+      await flushPromises()
+      expect(body()).toContain('構成 2')
+      expect(document.activeElement?.id).toBe('results-heading')
+    })
+
+    it('検索が終わったら結果で置き換え、開いていたスキルの効果は閉じる', async () => {
+      const m = await ready()
+      await startSearch(m)
+      const id = m.worker.lastSolveId
+      m.worker.emit({ type: 'progress', requestId: id, found: 1, build: makeBuild() })
+      await flushPromises()
+      await click(findButton('スキルの効果を表示（2）'))
+      expect(body()).toContain('スキルの効果を隠す')
+      m.worker.emit({
+        type: 'result',
+        requestId: id,
+        response: { status: 'optimal', builds: [makeBuild()], elapsedMs: 1 },
+      })
+      await flushPromises()
+      expect(body()).not.toContain('見つけた順に表示しています')
+      expect(body()).toContain('1 件の構成が見つかりました')
+      expect(body()).toContain('スキルの効果を表示（2）')
+      expect(body()).not.toContain('スキルの効果を隠す')
+    })
+
+    // 受入基準 12（取り消し）
+    it('Q7: 届いた構成があっても、取り消すと構成を消して取り消した旨を出す', async () => {
+      const m = await ready()
+      await startSearch(m)
+      m.worker.emit({
+        type: 'progress',
+        requestId: m.worker.lastSolveId,
+        found: 1,
+        build: makeBuild(),
+      })
+      await flushPromises()
+      expect(body()).toContain('構成 1')
+      const cancel = Array.from(document.querySelectorAll('button')).find(
+        (b) => textOf(b) === 'キャンセル',
+      )!
+      await click(cancel)
+      expect(body()).not.toContain('構成 1')
+      expect(body()).toContain('検索をキャンセルしました。')
+    })
+
+    it('Q6: 届いた構成があっても、エラーになると構成を消す', async () => {
+      const m = await ready()
+      await startSearch(m)
+      const id = m.worker.lastSolveId
+      m.worker.emit({ type: 'progress', requestId: id, found: 1, build: makeBuild() })
+      await flushPromises()
+      m.worker.emit({ type: 'error', requestId: id, message: '原因です' })
+      await flushPromises()
+      expect(body()).toContain('検索できませんでした')
+      expect(body()).not.toContain('構成 1')
+    })
+
     it('Q1: メインスレッドではなく Worker に solve を送る', async () => {
       const m = await ready()
       await startSearch(m)
@@ -325,6 +398,8 @@ describe('SearchView', () => {
       )
       expect(body()).toContain('武器: 鉄の大剣')
       expect(body()).toContain('構成 1')
+      // 受入基準 13: 打ち切りでも火力を出す
+      expect(body()).toContain('期待値 243.5')
       expect(body()).not.toContain('件の構成が見つかりました')
     })
 

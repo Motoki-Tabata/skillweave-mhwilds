@@ -399,6 +399,57 @@ describe('search ストア', () => {
     expect(useToastStore(pinia).items).toEqual([])
   })
 
+  // 受入基準 11〜13（逐次表示の構成の列。decisions.md Q46・Q47）
+  describe('逐次表示の構成', () => {
+    const other = { ...makeBuild(), charmId: null, freeSlots: [] }
+
+    it('届いた構成を届いた順に足し、検索が終わったらソルバーの結果で置き換える（列は空になる）', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      const id = worker.lastSolveId
+      worker.emit({ type: 'progress', requestId: id, found: 1, build: makeBuild() })
+      worker.emit({ type: 'progress', requestId: id, found: 2, build: other })
+      expect(search.progressBuilds).toEqual([makeBuild(), other])
+      worker.emit({ type: 'result', requestId: id, response })
+      expect(search.progressBuilds).toEqual([])
+      expect(search.response).toEqual(response)
+    })
+
+    it('取り消すと、届いた構成も消す', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      worker.emit({
+        type: 'progress',
+        requestId: worker.lastSolveId,
+        found: 1,
+        build: makeBuild(),
+      })
+      search.cancel()
+      expect(search.progressBuilds).toEqual([])
+    })
+
+    it('エラーになると、届いた構成を消す', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      const id = worker.lastSolveId
+      worker.emit({ type: 'progress', requestId: id, found: 1, build: makeBuild() })
+      worker.emit({ type: 'error', requestId: id, message: '原因です' })
+      expect(search.progressBuilds).toEqual([])
+      expect(search.status).toBe('error')
+    })
+
+    it('検索し直すとすぐに消し、前の検索の構成は足さない', async () => {
+      const { search, worker } = await setup()
+      search.submit()
+      const firstId = worker.lastSolveId
+      worker.emit({ type: 'progress', requestId: firstId, found: 1, build: makeBuild() })
+      search.submit()
+      expect(search.progressBuilds).toEqual([])
+      worker.emit({ type: 'progress', requestId: firstId, found: 2, build: makeBuild() })
+      expect(search.progressBuilds).toEqual([])
+    })
+  })
+
   it('全ランクを選んだことを要約に持つ', async () => {
     const { search, conditions } = await setup()
     conditions.setRank('low', true)

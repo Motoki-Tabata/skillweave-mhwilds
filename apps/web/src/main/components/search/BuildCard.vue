@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { SolvedBuild } from '@swv/solver'
+import { computed, ref, useId } from 'vue'
+import { ChevronDown, ChevronRight } from '@lucide/vue'
+import { evaluateDamage, type SolvedBuild } from '@swv/solver'
+import SkillLevelText from '@/components/search/SkillLevelText.vue'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { SKILL_KINDS } from '@/constants/labels'
+import { formatAffinityPercent, formatDamageValue, formatMultiplier } from '@/lib/format'
 import { toBuildView } from '@/lib/solver/buildView'
 import { useMasterStore } from '@/stores/master'
 import { useSearchStore } from '@/stores/search'
@@ -22,6 +27,33 @@ const view = computed(() =>
   }),
 )
 
+// 火力は検索したときの写し（武器の攻撃力・会心率とオンの条件）だけから計算する。ソルバーの score は使わない
+const damage = computed(() => {
+  const basis = search.submittedBasis
+  if (master.bundle === null || basis === null) return null
+  const stats = evaluateDamage(
+    master.bundle,
+    basis.damageBase,
+    props.build.skills,
+    basis.activeConditionIds,
+  )
+  return [
+    { label: '期待値', text: formatDamageValue(stats.expectedDamage), strong: true },
+    { label: '攻撃力', text: formatDamageValue(stats.attack), strong: false },
+    { label: '会心率', text: formatAffinityPercent(stats.affinity), strong: false },
+    { label: '会心倍率', text: formatMultiplier(stats.critMultiplier), strong: false },
+  ]
+})
+
+// スキルの効果の一覧。並びはチップと同じ（種類の順、種類の中はチップの順）
+const effectSkills = computed(() =>
+  SKILL_KINDS.flatMap(({ id }) =>
+    props.build.skills.filter((skill) => master.skillById.get(skill.skillId)?.kind === id),
+  ),
+)
+const effectsOpen = ref(false)
+const effectsId = useId()
+
 function levelLabel(level: number | null): string {
   return level === null ? '−' : `Lv${level}`
 }
@@ -31,10 +63,29 @@ function levelLabel(level: number | null): string {
   <Card class="@container gap-3 py-4">
     <div class="flex items-baseline justify-between gap-2 px-4">
       <h3 class="text-base leading-snug font-semibold">構成 {{ index + 1 }}</h3>
-      <p class="text-sm">
-        防御力 <span class="font-num font-bold tabular-nums">{{ view.defenseTotal }}</span>
-      </p>
+      <div class="flex flex-wrap justify-end gap-x-4 text-sm">
+        <p v-if="damage !== null">
+          期待値 <span class="font-num font-bold tabular-nums">{{ damage[0].text }}</span>
+        </p>
+        <p>
+          防御力 <span class="font-num font-bold tabular-nums">{{ view.defenseTotal }}</span>
+        </p>
+      </div>
     </div>
+    <section v-if="damage !== null" class="flex flex-col gap-1 px-4">
+      <h4 class="text-sm font-bold">火力</h4>
+      <dl class="grid grid-cols-4 gap-2">
+        <div v-for="item in damage" :key="item.label" class="flex flex-col">
+          <dt class="text-muted-foreground text-xs">{{ item.label }}</dt>
+          <dd
+            class="font-num tabular-nums"
+            :class="item.strong ? 'text-base font-bold' : 'text-sm'"
+          >
+            {{ item.text }}
+          </dd>
+        </div>
+      </dl>
+    </section>
     <div class="grid gap-4 px-4 @[600px]:grid-cols-2">
       <div class="flex flex-col gap-4">
         <section class="flex flex-col gap-1">
@@ -147,6 +198,36 @@ function levelLabel(level: number | null): string {
               </li>
             </ul>
           </div>
+          <template v-if="effectSkills.length > 0">
+            <Button
+              type="button"
+              variant="ghost"
+              class="h-11 justify-start gap-2 px-2"
+              :aria-expanded="effectsOpen"
+              :aria-controls="effectsId"
+              @click="effectsOpen = !effectsOpen"
+            >
+              <component
+                :is="effectsOpen ? ChevronDown : ChevronRight"
+                class="size-4"
+                aria-hidden="true"
+              />
+              {{
+                effectsOpen ? 'スキルの効果を隠す' : `スキルの効果を表示（${effectSkills.length}）`
+              }}
+            </Button>
+            <dl v-if="effectsOpen" :id="effectsId" class="flex flex-col gap-2">
+              <div v-for="skill in effectSkills" :key="skill.skillId" class="flex flex-col gap-0.5">
+                <dt class="text-sm font-bold">
+                  {{ master.nameOf(skill.skillId) }}
+                  <span class="font-num tabular-nums">Lv{{ skill.level }}</span>
+                </dt>
+                <dd class="flex flex-col gap-0.5">
+                  <SkillLevelText :skill-id="skill.skillId" :level="skill.level" />
+                </dd>
+              </div>
+            </dl>
+          </template>
         </section>
 
         <section class="flex flex-col gap-1">
