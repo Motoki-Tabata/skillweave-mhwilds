@@ -52,17 +52,20 @@ describe('[AC11] Worker のメッセージハンドラ', () => {
     sent.length = 0
     await handler(solveMessage('r1'))
     expect(typesOf(sent)).toEqual(['progress', 'progress', 'progress', 'result'])
-    expect(sent.slice(0, 3)).toEqual([
-      { type: 'progress', requestId: 'r1', found: 1 },
-      { type: 'progress', requestId: 'r1', found: 2 },
-      { type: 'progress', requestId: 'r1', found: 3 },
-    ])
     const last = sent.at(-1)
     expect(last).toMatchObject({ type: 'result', requestId: 'r1' })
-    if (last?.type === 'result') {
-      expect(last.response.status).toBe('feasible')
-      expect(last.response.builds).toHaveLength(3)
-    }
+    if (last?.type !== 'result') throw new Error('result が無い')
+    expect(last.response.status).toBe('feasible')
+    expect(last.response.builds).toHaveLength(3)
+    // [019 AC9] progress は件数と、その件の構成（result の builds と同じ並び）を運ぶ
+    expect(sent.slice(0, 3)).toEqual(
+      last.response.builds.map((build, i) => ({
+        type: 'progress',
+        requestId: 'r1',
+        found: i + 1,
+        build,
+      })),
+    )
   })
 
   it('マスター未読込の solve は error を送る', async () => {
@@ -124,7 +127,7 @@ describe('[AC12] cancel と実行中の別の solve', () => {
       if (count === 2) void handler({ type: 'cancel', requestId: 'r1' })
     }
     await handler(solveMessage('r1'))
-    expect(sent).toEqual([{ type: 'progress', requestId: 'r1', found: 1 }])
+    expect(sent).toEqual([expect.objectContaining({ type: 'progress', requestId: 'r1', found: 1 })])
   })
 
   it('別の requestId の cancel は実行中の要求に効かない', async () => {
@@ -158,7 +161,7 @@ describe('[AC12] cancel と実行中の別の solve', () => {
     await handler(solveMessage('r1'))
     await nested
     expect(sent.filter((m) => requestIdOf(m) === 'r1')).toEqual([
-      { type: 'progress', requestId: 'r1', found: 1 },
+      expect.objectContaining({ type: 'progress', requestId: 'r1', found: 1 }),
     ])
     expect(sent.filter((m) => m.type === 'result').map(requestIdOf)).toEqual(['r2'])
     expect(sent.filter((m) => m.type === 'error')).toEqual([])

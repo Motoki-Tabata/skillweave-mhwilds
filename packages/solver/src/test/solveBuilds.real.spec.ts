@@ -25,62 +25,83 @@ const SKILL = {
 
 const required = (...pairs: [string, number][]) => pairs.map(([id, level]) => skill(id, level))
 
+/** 求解の時間上限。vitest のテストの時間の上限（TEST_TIMEOUT_MS）より短くして、時間切れを status で検出する（019 AC10） */
+const SOLVE_TIMEOUT_MS = 30_000
+const TEST_TIMEOUT_MS = 60_000
+
 describe('実データ（現行のマスター）で解く', () => {
   it('マスターが読めて、テストが使うスキルが存在する', () => {
     const ids = new Set<string>(master.skills.map((s: { id: SkillId }) => s.id))
     for (const id of Object.values(SKILL)) expect(ids.has(id)).toBe(true)
   })
 
-  it('[AC2][AC13] シリーズ／グループスキルを含む必須スキルの組（解あり）を解き、全構成を検算する', async () => {
-    const request = makeRequest(master, {
-      weapon: { kind: 'master', weaponId: master.weapons[0]?.id ?? weaponId('') },
-      required: required([SKILL.fire, 2], [SKILL.scale, 1], [SKILL.evade, 3]),
-      objective: { kind: 'maximize', metric: 'defense' },
-      maxResults: 5,
-    })
-    const result = await solveVerified(highs, master, request)
-    expect(result.status).toBe('optimal')
-    expect(result.builds.length).toBeGreaterThan(0)
-    const names = result.builds[0]?.skills.map((s) => s.skillId) ?? []
-    expect(names).toEqual(expect.arrayContaining([SKILL.fire, SKILL.scale, SKILL.evade]))
-  })
+  it(
+    '[AC2][AC13] シリーズ／グループスキルを含む必須スキルの組（解あり）を解き、全構成を検算する',
+    async () => {
+      const request = makeRequest(master, {
+        weapon: { kind: 'master', weaponId: master.weapons[0]?.id ?? weaponId('') },
+        required: required([SKILL.fire, 2], [SKILL.scale, 1], [SKILL.evade, 3]),
+        objective: { kind: 'maximize', metric: 'defense' },
+        maxResults: 5,
+        timeoutMs: SOLVE_TIMEOUT_MS,
+      })
+      const result = await solveVerified(highs, master, request, 'optimal')
+      expect(result.builds.length).toBeGreaterThan(0)
+      const names = result.builds[0]?.skills.map((s) => s.skillId) ?? []
+      expect(names).toEqual(expect.arrayContaining([SKILL.fire, SKILL.scale, SKILL.evade]))
+    },
+    TEST_TIMEOUT_MS,
+  )
 
-  it('[AC2][AC13] 部位数が5を超えるシリーズスキルの組（解なし）は infeasible', async () => {
-    const request = makeRequest(master, {
-      required: required([SKILL.fire, 2], [SKILL.frenzy, 2]),
-      objective: { kind: 'maximize', metric: 'defense' },
-    })
-    const result = await solveVerified(highs, master, request)
-    expect(result).toMatchObject({ status: 'infeasible', builds: [] })
-  })
+  it(
+    '[AC2][AC13] 部位数が5を超えるシリーズスキルの組（解なし）は infeasible',
+    async () => {
+      const request = makeRequest(master, {
+        required: required([SKILL.fire, 2], [SKILL.frenzy, 2]),
+        objective: { kind: 'maximize', metric: 'defense' },
+        timeoutMs: SOLVE_TIMEOUT_MS,
+      })
+      const result = await solveVerified(highs, master, request, 'infeasible')
+      expect(result).toMatchObject({ status: 'infeasible', builds: [] })
+    },
+    TEST_TIMEOUT_MS,
+  )
 
-  it('[AC13] freeSlots の最大化と装飾品の配置も実データで検算を通る', async () => {
-    const request = makeRequest(master, {
-      required: required([SKILL.fire, 1], [SKILL.taijutsu, 3]),
-      objective: { kind: 'maximize', metric: 'freeSlots' },
-      maxResults: 3,
-    })
-    const result = await solveVerified(highs, master, request)
-    expect(result.status).toBe('optimal')
-    expect(result.builds.length).toBeGreaterThan(0)
-  })
+  it(
+    '[AC13] freeSlots の最大化と装飾品の配置も実データで検算を通る',
+    async () => {
+      const request = makeRequest(master, {
+        required: required([SKILL.fire, 1], [SKILL.taijutsu, 3]),
+        objective: { kind: 'maximize', metric: 'freeSlots' },
+        maxResults: 3,
+        timeoutMs: SOLVE_TIMEOUT_MS,
+      })
+      const result = await solveVerified(highs, master, request, 'optimal')
+      expect(result.builds.length).toBeGreaterThan(0)
+    },
+    TEST_TIMEOUT_MS,
+  )
 })
 
 describe('[006 AC11] 実データで expectedDamage を解く（条件をすべて有効にする）', () => {
-  it('固定の必須スキルの組で、全構成を独立の期待値で検算し、score が降順に並ぶ', async () => {
-    const request = makeRequest(master, {
-      weapon: { kind: 'master', weaponId: master.weapons[0]?.id ?? weaponId('') },
-      required: required([SKILL.fire, 1], [SKILL.taijutsu, 3]),
-      activeConditionIds: master.conditions.map((c) => c.id),
-      objective: { kind: 'maximize', metric: 'expectedDamage' },
-      maxResults: 2,
-    })
-    const result = await solveVerified(highs, master, request)
-    expect(result.status).toBe('optimal')
-    expect(result.builds.length).toBeGreaterThan(0)
-    const scores = result.builds.map((b) => b.score ?? Number.NaN)
-    for (let i = 1; i < scores.length; i++) {
-      expect(scores[i] ?? 0).toBeLessThanOrEqual((scores[i - 1] ?? 0) + DAMAGE_EPSILON)
-    }
-  }, 60_000)
+  it(
+    '固定の必須スキルの組で、全構成を独立の期待値で検算し、score が降順に並ぶ',
+    async () => {
+      const request = makeRequest(master, {
+        weapon: { kind: 'master', weaponId: master.weapons[0]?.id ?? weaponId('') },
+        required: required([SKILL.fire, 1], [SKILL.taijutsu, 3]),
+        activeConditionIds: master.conditions.map((c) => c.id),
+        objective: { kind: 'maximize', metric: 'expectedDamage' },
+        maxResults: 2,
+        timeoutMs: SOLVE_TIMEOUT_MS,
+      })
+      const result = await solveVerified(highs, master, request, 'optimal')
+      expect(result.builds.length).toBeGreaterThan(0)
+      const scores = result.builds.map((b) => b.score ?? Number.NaN)
+      for (let i = 1; i < scores.length; i++) {
+        expect(scores[i] ?? 0).toBeLessThanOrEqual((scores[i - 1] ?? 0) + DAMAGE_EPSILON)
+      }
+    },
+    TEST_TIMEOUT_MS,
+  )
 })
