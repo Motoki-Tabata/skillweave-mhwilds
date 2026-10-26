@@ -57,6 +57,15 @@
 ## レビュー記録
 | 回 | 範囲 | 所見の要約 | 区分 | 処遇 | 状態 |
 |---|---|---|---|---|---|
+| 1 | 91d26d4..fa65ed7 | その他: sonar-project.properties e6 は spec/plan に無い常時許可外だが承認済みで handoff に記録済み（PR 本文へ転記） | 持ち越し | 持ち越し | 解消 |
+| 1 | 91d26d4..fa65ed7 | web: 読込失敗の帯で句点が重なる（WeaponDialog.vue と spec が重なりを期待） | 要修正 | 是正 | 要修正 |
+| 1 | 91d26d4..fa65ed7 | web: S3 一覧の性能行に font-num が無い（WeaponListItem.vue） | 要修正 | 是正 | 要修正 |
+| 1 | 91d26d4..fa65ed7 | web: D1 の帯を unavailable でも出す（screen-design 2.3 は読込失敗のみ） | 要判断 | ゲートで判断 | 要修正 |
+| 1 | 91d26d4..fa65ed7 | web: S3 の failed 状態・フォーム無効文言が画面設計に無く、次の行動の案内が的外れ | 要判断 | ゲートで判断 | 要修正 |
+| 1 | 91d26d4..fa65ed7 | web: CharmDeleteDialog/WeaponDeleteDialog と charms/weapons ストアの二重化 | 起票 | 起票 | 要修正 |
+| 1 | 91d26d4..fa65ed7 | web: unavailableReason が selection のみ判定（weapon 未解決で検索が無反応） | 持ち越し | 持ち越し | 要修正 |
+| 1 | 91d26d4..fa65ed7 | web: WeaponForm の aria-describedby が存在しない id を指す | 持ち越し | 持ち越し | 要修正 |
+| 1 | 91d26d4..fa65ed7 | web: e2e の期待値セレクタが damage-ui.spec.ts と重複 | 持ち越し | 持ち越し | 要修正 |
 <!-- 区間 D。所見1件につき1行。所見は要約で書く（差分や所見の全文を貼らない）。区分: reviewer-agent の区分（要修正 / 要判断 / 起票 / 持ち越し）。処遇: 是正 / 直接修正 / ゲートで判断 / 起票 / 持ち越し のどれか。状態: 要修正 / 是正済み / 解消。既存の行は書き換えず、是正後は同じ所見の新しい行を状態=解消で追記する。
 区分と処遇の対応: 要修正 → 是正または直接修正 / 要判断 → ゲートで判断 / 起票 → 起票 / 持ち越し → 持ち越し -->
 
