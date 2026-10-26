@@ -24,6 +24,7 @@
 ## 2026-10-23 Select を使う新規 .vue があるのに、sonar-project.properties の抑止が plan の常時許可外に挙がらなかった（機能005・区間D）
 - 種別: 規律昇華
 - 何が起きたか: 004 の e3 と同じ `Web:InputWithoutLabelCheck`（Reka UI の SelectTrigger への誤検知）が、005 の `CharmSkillRow.vue`・`CharmForm.vue` に出た。plan と spec の常時許可外に `sonar-project.properties` が無く、区間 D の途中でユーザーに承認を取って e4・e5 を足した（0babc4d）。既知の事象は `.claude/rules/web-vue.md`「Sonar で繰り返し出たルールの避け方（web）」に載っている。
+- 再発: 008 の区間 D でも、`WeaponForm.vue` の SelectTrigger に同じ指摘が3件出て、T3 の途中でユーザー承認のうえ e6 を足した（d1f31ef）。plan・spec の常時許可外に挙がっていなかった。
 - 提案: `.claude/skills/tsod-plan/SKILL.md` の「常時許可外の変更」の節に、「Select／SelectTrigger を使う新規 .vue を含む機能は、`sonar-project.properties` の multicriteria 追記を常時許可外に挙げる」を足す。
 
 ## 2026-10-23 shadcn-vue の CLI が依存を足して node_modules を壊し、web-agent の paths 前提も落とし穴になった（機能005・区間D）
@@ -80,3 +81,13 @@
 - 種別: 規律昇華
 - 何が起きたか: `tsod-spec/SKILL.md` は「handoff.md が無ければ handoff-template.md から作る」とだけ書き、作り方（置換の範囲）を定めていない。008 では見出しと現在地の行だけを置換したため、コメント内の「区間の終わりの定型」表に `NNN-<slug>` が残り、`handoff.mjs transition 008 A→B` が `/tsod-screen-table NNN-<slug>` を現在地に書いた。`handoff.mjs` にはコメントを直すサブコマンドが無く、ユーザーの承認を得てファイル全体の一度の置換で直した（specs/008-user-weapon/handoff.md・ゲート A-2 の handoff のコミット）。
 - 提案: `handoff.mjs` に `init NNN-<slug>` サブコマンドを足し、テンプレートの `NNN-<slug>` をすべて置換して作るようにする。`tsod-spec/SKILL.md`「開始条件」の handoff を作る箇条を、そのサブコマンドを使う形に直す。あわせて `transition` が `NNN-<slug>` を含む行を写そうとしたら失敗させる。
+
+## 2026-10-26 削除確認ダイアログと、端末保存のストアの状態機械が護石と武器で二重になった（機能008・区間D）
+- 種別: 規律昇華
+- 何が起きたか: reviewer が、`CharmDeleteDialog.vue` と `WeaponDeleteDialog.vue`（違いは本文の断り文1つ）、`stores/charms.ts` と `stores/weapons.ts`（`ensureLoaded`・`reload`・`failureText`・`byIdDescending`・`plainPayload`）の二重化を指摘した。conventions.md「共有部品の扱い」の「2箇所以上に現れる UI は共有部品にする」に当たるが、008 の範囲外（護石の側を変える）のため、そのまま積んだ（レビュー記録 1 回目）。
+- 提案: 端末保存の3つ目の機能が出る前に、`components/common/` の汎用の削除確認（本文を slot で差し替える）と、保存先の状態機械の共通化を、専用の機能（またはリファクタの区間 B）として切る。
+
+## 2026-10-26 護石の読込失敗の帯に、文末の「。」が重なる同じ不具合が残っている（機能008・区間D）
+- 種別: 矛盾是正
+- 何が起きたか: 008 のレビューで、`WeaponDialog.vue` の帯が `failureMessage`（文末が「。」）を「（…）。」に入れて句点が重なる不具合を直した（350e262）。同じ書き方の `components/search/CharmCard.vue` の読込失敗の帯（49 行付近）と、`CharmCard.spec.ts`（83 行付近）の期待値が、005 から重なったまま残っている。
+- 提案: 次に護石の画面を触る機能で、`failureMessage` の末尾の「。」を除いてから括弧に入れる形に直し、`CharmCard.spec.ts` の期待値を合わせる。
