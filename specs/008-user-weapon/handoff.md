@@ -2,29 +2,29 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: A
-- 次に起動するコマンド: `/tsod-spec 008-user-weapon`
+- 区間: B
+- 次に起動するコマンド: `/tsod-screen-table 008-user-weapon`
 - 推奨モデル: Opus
-- ブランチ: `feat/008-user-weapon`
+- ブランチ: `feat/008-user-weapon`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
 | 移行 | 区間 | 次に起動するコマンド | 推奨モデル | ブランチ |
 |---|---|---|---|---|
-| 開始（A） | A | `/tsod-spec NNN-<slug>` | Opus | `feat/NNN-<slug>` |
-| A→B | B | `/tsod-screen-table NNN-<slug>` | Opus | `feat/NNN-<slug>`（不変） |
-| A→C（UI もテーブル変更も無い） | C | `/tsod-plan NNN-<slug>` | Opus | `feat/NNN-<slug>`（不変） |
-| B→C | C | `/tsod-plan NNN-<slug>` | Opus | `feat/NNN-<slug>`（不変） |
-| C→D | D | `/tsod-build NNN-<slug>` | Sonnet | `feat/NNN-<slug>`（不変） |
-| D→E | E | `/tsod-ship NNN-<slug>` | Sonnet | `feat/NNN-<slug>`（不変） |
-| E→完了 | 完了 | なし | なし | なし（`feat/NNN-<slug>`・`docs/NNN-<slug>-drift` ともマージ・削除済み） |
+| 開始（A） | A | `/tsod-spec 008-user-weapon` | Opus | `feat/008-user-weapon` |
+| A→B | B | `/tsod-screen-table 008-user-weapon` | Opus | `feat/008-user-weapon`（不変） |
+| A→C（UI もテーブル変更も無い） | C | `/tsod-plan 008-user-weapon` | Opus | `feat/008-user-weapon`（不変） |
+| B→C | C | `/tsod-plan 008-user-weapon` | Opus | `feat/008-user-weapon`（不変） |
+| C→D | D | `/tsod-build 008-user-weapon` | Sonnet | `feat/008-user-weapon`（不変） |
+| D→E | E | `/tsod-ship 008-user-weapon` | Sonnet | `feat/008-user-weapon`（不変） |
+| E→完了 | 完了 | なし | なし | なし（`feat/008-user-weapon`・`docs/008-user-weapon-drift` ともマージ・削除済み） |
 -->
 
 ## ゲート記録
 | ゲート | 対象 | 状態 | 承認日時・記録 |
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-26 / 9054dad |
-| A-2 | 薄仕様 spec.md | 未 | |
+| A-2 | 薄仕様 spec.md | 承認済み | 2026-10-26 / dd4bd51 |
 | B-1 | 画面設計 screen-design.md | 未 | |
 | B-2 | テーブル設計（design/・migration） | 未 | |
 | C-1 | plan.md・tasks.md | 未 | |

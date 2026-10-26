@@ -75,3 +75,8 @@
 - 種別: 規律昇華
 - 何が起きたか: web-agent が説明の領域に `role="region"` を付けたところ `Web:S6819` に当たり、`<section aria-label>` に変えて解消した（暗黙の role が region になる）。screen-design.md 3.1 は `role="region"` と書いている。
 - 提案: `.claude/rules/web-vue.md`「Sonar で繰り返し出たルールの避け方（web）」の `role="group"`・`role="status"` の項に、`role="region"` も `<section aria-label>` に代える旨を足す。
+
+## 2026-10-26 handoff をテンプレートから作るとき、コメント内の定型表の `NNN-<slug>` が置換から漏れ、transition がそのまま写した（機能008・区間A）
+- 種別: 規律昇華
+- 何が起きたか: `tsod-spec/SKILL.md` は「handoff.md が無ければ handoff-template.md から作る」とだけ書き、作り方（置換の範囲）を定めていない。008 では見出しと現在地の行だけを置換したため、コメント内の「区間の終わりの定型」表に `NNN-<slug>` が残り、`handoff.mjs transition 008 A→B` が `/tsod-screen-table NNN-<slug>` を現在地に書いた。`handoff.mjs` にはコメントを直すサブコマンドが無く、ユーザーの承認を得てファイル全体の一度の置換で直した（specs/008-user-weapon/handoff.md・ゲート A-2 の handoff のコミット）。
+- 提案: `handoff.mjs` に `init NNN-<slug>` サブコマンドを足し、テンプレートの `NNN-<slug>` をすべて置換して作るようにする。`tsod-spec/SKILL.md`「開始条件」の handoff を作る箇条を、そのサブコマンドを使う形に直す。あわせて `transition` が `NNN-<slug>` を含む行を写そうとしたら失敗させる。
