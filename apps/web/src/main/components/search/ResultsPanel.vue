@@ -71,7 +71,7 @@ const TIMEOUT_HINT =
         検索条件を選んで「検索」を押すと、構成がここに表示されます。
       </p>
       <Button
-        v-if="conditions.weaponId === null"
+        v-if="conditions.selection === null"
         type="button"
         variant="outline"
         class="h-10"

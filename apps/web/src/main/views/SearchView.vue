@@ -55,7 +55,7 @@ onMounted(() => {
 onBeforeUnmount(clearSkeletonTimer)
 
 function focusFirstInvalid(): void {
-  if (conditions.weaponId === null) weaponCard.value?.focus()
+  if (conditions.selection === null) weaponCard.value?.focus()
   else if (conditions.rankError) conditionsCard.value?.focusRanks()
 }
 

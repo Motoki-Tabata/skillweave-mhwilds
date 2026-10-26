@@ -1,4 +1,4 @@
-import type { ArmorPart, MasterArmor, MasterWeapon, SkillKind } from '@swv/data'
+import type { ArmorPart, MasterArmor, SkillKind } from '@swv/data'
 import type { SlotRef, SolvedBuild, SolverCharm } from '@swv/solver'
 import { SLOT_TARGET_LABELS } from '@/constants/charms'
 import { ARMOR_PARTS, SKILL_KINDS, SLOT_OWNER_LABELS } from '@/constants/labels'
@@ -8,7 +8,8 @@ export interface BuildLookup {
   /** 護石を ID で引く。送信した時点の候補から引き、検索の後の編集・削除に影響されない */
   charm: (id: string) => SolverCharm | undefined
   armor: (id: string) => MasterArmor | undefined
-  weapon: MasterWeapon | undefined
+  /** 武器のスロット。送信した時点の武器のものを渡す（マスターの武器でも個体差のある武器でも同じ） */
+  weaponSlots: readonly { level: number }[] | undefined
   skillKind: (skillId: string) => SkillKind | undefined
   nameOf: (id: string) => string
 }
@@ -89,7 +90,7 @@ function slotLevelOf(build: SolvedBuild, ref: SlotRef, lookup: BuildLookup): num
     if (build.charmId === null) return null
     return lookup.charm(build.charmId)?.slots[ref.index]?.level ?? null
   }
-  if (ref.owner === 'weapon') return lookup.weapon?.slots[ref.index]?.level ?? null
+  if (ref.owner === 'weapon') return lookup.weaponSlots?.[ref.index]?.level ?? null
   const armorId = build.armor[ref.owner]
   if (armorId === null) return null
   return lookup.armor(armorId)?.slots[ref.index]?.level ?? null

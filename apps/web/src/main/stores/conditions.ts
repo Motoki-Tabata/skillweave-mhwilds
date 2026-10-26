@@ -4,19 +4,48 @@ import type {
   ArmorRank,
   ConditionId,
   MasterSkill,
+  MasterWeapon,
   SkillId,
   SkillKind,
   SkillLevel,
   WeaponId,
 } from '@swv/data'
+import type { SolverWeapon } from '@swv/solver'
 import { SKILL_KINDS } from '@/constants/labels'
 import type { ObjectiveChoice } from '@/constants/labels'
 import { MAX_RESULTS_DEFAULT, MAX_RESULTS_MAX, MAX_RESULTS_MIN } from '@/constants/search'
+import { weaponDisplayName, toSolverWeapon } from '@/lib/weapons/convert'
+import type { StoredWeapon } from '@/lib/weapons/types'
 import { compareJa } from '@/lib/text'
 import { useMasterStore } from '@/stores/master'
+import { useWeaponsStore } from '@/stores/weapons'
 
 export const NO_WEAPON_REASON = '武器を選ぶと検索できます。'
 export const NO_RANK_REASON = '候補にするランクを選ぶと検索できます。'
+
+/** 検索条件で選んでいる武器。マスターの武器か、個体差のある武器（端末に保存した ID）。 */
+export type WeaponSelection =
+  { kind: 'master'; weaponId: WeaponId } | { kind: 'custom'; id: string }
+
+/** 選択を表示と検索に要る形に解決したもの。 */
+export interface ResolvedWeapon {
+  kind: 'master' | 'custom'
+  /** マスターの武器の ID、または個体差のある武器の ID */
+  id: string
+  /** 表示名（個体差のある武器は名前、空なら基の武器の名前） */
+  name: string
+  /** 武器種の ID（個体差のある武器は基の武器の武器種） */
+  weaponType: string
+  attack: number
+  affinity: number
+  slots: readonly { level: number }[]
+  /** ソルバーに渡す武器 */
+  solverWeapon: SolverWeapon
+  /** 個体差のある武器のとき、保存した武器 */
+  stored?: StoredWeapon
+  /** マスターの武器のとき、マスターの武器 */
+  master?: MasterWeapon
+}
 
 export interface RequiredSkillRow {
   skill: MasterSkill
@@ -36,8 +65,9 @@ function clampCount(value: number): number {
 /** 検索条件（武器・必須スキル・目的・件数・候補にするランク）。保存しない（decisions.md Q23）。 */
 export const useConditionsStore = defineStore('conditions', () => {
   const master = useMasterStore()
+  const weapons = useWeaponsStore()
 
-  const weaponId = ref<WeaponId | null>(null)
+  const selection = ref<WeaponSelection | null>(null)
   const required = ref<SkillLevel[]>([])
   const objective = ref<ObjectiveChoice>('feasible')
   const maxResults = ref(MAX_RESULTS_DEFAULT)
@@ -48,9 +78,49 @@ export const useConditionsStore = defineStore('conditions', () => {
   // 武器が未選択のまま送信した・ダイアログを閉じたときに、武器欄のエラーを出す
   const weaponErrorShown = ref(false)
 
-  const weapon = computed(() =>
-    weaponId.value === null ? null : (master.weaponById.get(weaponId.value) ?? null),
-  )
+  function resolveMaster(weaponId: WeaponId): ResolvedWeapon | null {
+    const found = master.weaponById.get(weaponId)
+    if (found === undefined) return null
+    return {
+      kind: 'master',
+      id: found.id,
+      name: master.nameOf(found.id),
+      weaponType: found.weaponType,
+      attack: found.attack,
+      affinity: found.affinity,
+      slots: found.slots,
+      solverWeapon: { kind: 'master', weaponId: found.id },
+      master: found,
+    }
+  }
+
+  function resolveCustom(id: string): ResolvedWeapon | null {
+    const bundle = master.bundle
+    // 検索の候補（現行のマスターで判定が通るもの）から引く。編集は次の参照から反映される
+    const stored = weapons.candidates.find((item) => item.id === id)
+    if (bundle === null || stored === undefined) return null
+    const base = bundle.weapons.find((item) => item.id === stored.payload.baseWeaponId)
+    if (base === undefined) return null
+    const { payload } = stored
+    return {
+      kind: 'custom',
+      id,
+      name: weaponDisplayName(payload, { bundle, nameOf: master.nameOf }),
+      weaponType: base.weaponType,
+      attack: payload.attack,
+      affinity: payload.affinity,
+      slots: payload.slots,
+      solverWeapon: toSolverWeapon(stored),
+      stored,
+    }
+  }
+
+  /** 選んでいる武器を、表示と検索に要る形にしたもの。マスターに無い・削除済みなら null。 */
+  const weapon = computed<ResolvedWeapon | null>(() => {
+    const current = selection.value
+    if (current === null) return null
+    return current.kind === 'master' ? resolveMaster(current.weaponId) : resolveCustom(current.id)
+  })
 
   const ranks = computed<ArmorRank[]>(() => {
     if (selectedRanks.value !== null) return selectedRanks.value
@@ -74,7 +144,7 @@ export const useConditionsStore = defineStore('conditions', () => {
 
   /** 検索できない理由。複数あてはまるときは上のものを返す。 */
   const unavailableReason = computed<string | null>(() => {
-    if (weaponId.value === null) return NO_WEAPON_REASON
+    if (selection.value === null) return NO_WEAPON_REASON
     if (rankError.value) return NO_RANK_REASON
     return null
   })
@@ -94,22 +164,28 @@ export const useConditionsStore = defineStore('conditions', () => {
   })
 
   function selectWeapon(id: WeaponId): void {
-    weaponId.value = id
+    selection.value = { kind: 'master', weaponId: id }
     weaponErrorShown.value = false
   }
 
-  /** 検索条件でこの ID の武器を選んでいるか（個体差のある武器の削除の確認に使う）。 */
-  function isWeaponSelected(id: string): boolean {
-    return weaponId.value === id
+  /** 個体差のある武器を選ぶ。 */
+  function selectCustomWeapon(id: string): void {
+    selection.value = { kind: 'custom', id }
+    weaponErrorShown.value = false
   }
 
-  /** この ID の武器を選んでいれば、選択を外す（武器欄のエラーは出さない）。 */
+  /** 検索条件でこの ID の個体差のある武器を選んでいるか（削除の確認に使う）。 */
+  function isWeaponSelected(id: string): boolean {
+    return selection.value?.kind === 'custom' && selection.value.id === id
+  }
+
+  /** この ID の個体差のある武器を選んでいれば、選択を外す（武器欄のエラーは出さない）。 */
   function releaseWeapon(id: string): void {
-    if (isWeaponSelected(id)) weaponId.value = null
+    if (isWeaponSelected(id)) selection.value = null
   }
 
   function showWeaponError(): void {
-    if (weaponId.value === null) weaponErrorShown.value = true
+    if (selection.value === null) weaponErrorShown.value = true
   }
 
   function isRequired(skillId: SkillId): boolean {
@@ -162,7 +238,7 @@ export const useConditionsStore = defineStore('conditions', () => {
   }
 
   return {
-    weaponId,
+    selection,
     required,
     objective,
     maxResults,
@@ -176,6 +252,7 @@ export const useConditionsStore = defineStore('conditions', () => {
     activeConditionIds,
     setConditionActive,
     selectWeapon,
+    selectCustomWeapon,
     showWeaponError,
     isWeaponSelected,
     releaseWeapon,

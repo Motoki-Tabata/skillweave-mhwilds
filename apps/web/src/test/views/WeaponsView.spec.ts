@@ -566,11 +566,11 @@ describe('WeaponsView（S3・D4）', () => {
       '検索条件で選んでいる武器を削除すると、本文に断りを出し、検索条件の選択を外す',
       async () => {
         const m = await ready(createMemoryWeaponRepository([storedWeapon(1)]))
-        m.conditions.selectWeapon(weaponId(1) as WeaponId)
+        m.conditions.selectCustomWeapon(weaponId(1))
         await click(findByLabel('巨戟ブレイドを削除'))
         expect(textOf(dialog())).toContain('検索条件の武器の選択も外します。')
         await click(findButton('削除', dialog()!))
-        await vi.waitFor(() => expect(m.conditions.weaponId).toBeNull())
+        await vi.waitFor(() => expect(m.conditions.selection).toBeNull())
       },
       SLOW,
     )
@@ -581,11 +581,11 @@ describe('WeaponsView（S3・D4）', () => {
         const r = createMemoryWeaponRepository([storedWeapon(1)])
         r.failWith('delete', 'unknown')
         const m = await ready(r)
-        m.conditions.selectWeapon(weaponId(1) as WeaponId)
+        m.conditions.selectCustomWeapon(weaponId(1))
         await click(findByLabel('巨戟ブレイドを削除'))
         await click(findButton('削除', dialog()!))
         await vi.waitFor(() => expect(useToastStore(m.pinia).items).toHaveLength(1))
-        expect(m.conditions.weaponId).toBe(weaponId(1))
+        expect(m.conditions.selection).toEqual({ kind: 'custom', id: weaponId(1) })
         expect(rows()).toHaveLength(1)
       },
       SLOW,

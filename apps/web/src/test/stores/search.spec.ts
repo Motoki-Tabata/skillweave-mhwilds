@@ -8,6 +8,17 @@ import { FakeWorker, armorId, makeBuild, sk, wp } from '../support/fixtures'
 import { flushPromises, loadStores, restoreStubs, stubBackend } from '../support/mount'
 import { createMemoryCharmRepository } from '../support/charmRepository'
 import { charmId, storedCharm } from '../support/charms'
+import { createMemoryWeaponRepository } from '../support/weaponRepository'
+import type { WeaponPayload } from '@/lib/weapons/types'
+import {
+  ARTIA_GREAT_SWORD,
+  GROUP_BONUS,
+  SERIES_BONUS,
+  makeWeaponBundle,
+  makeWeaponDictionary,
+  storedWeapon,
+  weaponId,
+} from '../support/weapons'
 
 // 受入基準 8（検索の状態 Q0〜Q7）
 describe('search ストア', () => {
@@ -265,7 +276,7 @@ describe('search ストア', () => {
     conditions.toggleSkill(sk('a2'))
     conditions.setMaxResults(9)
     expect(search.summary).toMatchObject({
-      weaponId: wp('great-sword:1'),
+      weaponSlots: [{ level: 3 }, { level: 1 }],
       weaponName: '鉄の大剣',
       requiredCount: 1,
       objectiveLabel: '条件を満たす構成',
@@ -455,5 +466,80 @@ describe('search ストア', () => {
     conditions.setRank('low', true)
     search.submit()
     expect(search.summary?.allRanksSelected).toBe(true)
+  })
+})
+
+// 受入基準 7・8（個体差のある武器での検索。送信した時点の写し）
+describe('search ストアの個体差のある武器', () => {
+  beforeEach(() => stubBackend({ bundle: makeWeaponBundle(), dictionary: makeWeaponDictionary() }))
+  afterEach(restoreStubs)
+
+  async function setup(payload: Partial<WeaponPayload> = {}) {
+    const stores = await loadStores(
+      undefined,
+      createMemoryWeaponRepository([storedWeapon(1, payload)]),
+    )
+    await stores.charms.ensureLoaded()
+    await stores.weapons.ensureLoaded()
+    stores.conditions.selectCustomWeapon(weaponId(1))
+    return { ...stores, worker: FakeWorker.last }
+  }
+
+  it('kind: custom の SolverWeapon（武器スキルは空）を要求に渡し、火力の元を入力した攻撃力・会心率にする', async () => {
+    const { search, worker } = await setup()
+    expect(search.submit()).toBe(true)
+    expect(worker.messages('solve')[0]).toMatchObject({
+      request: {
+        weapon: {
+          kind: 'custom',
+          id: weaponId(1),
+          baseWeaponId: ARTIA_GREAT_SWORD,
+          attack: 200,
+          affinity: 15,
+          element: { type: 'fire', value: 30 },
+          slots: [
+            { target: 'weapon', level: 3 },
+            { target: 'weapon', level: 1 },
+          ],
+          skills: [],
+          setBonusIds: [SERIES_BONUS, GROUP_BONUS],
+        },
+      },
+    })
+    expect(search.submittedBasis?.damageBase).toEqual({ attack: 200, affinity: 15 })
+  })
+
+  it('要約の武器は「<表示名>（個体差）」で、構成の表示用に武器のスロットを持つ', async () => {
+    const { search } = await setup()
+    search.submit()
+    expect(search.summary?.weaponName).toBe('巨戟ブレイド（個体差）')
+    expect(search.summary?.weaponSlots).toEqual([{ level: 3 }, { level: 1 }])
+  })
+
+  it('名前が空なら基の武器の名前で要約に出す', async () => {
+    const { search } = await setup({ name: '' })
+    search.submit()
+    expect(search.summary?.weaponName).toBe('アーティアブレイドⅡ（個体差）')
+  })
+
+  it('検索の後に武器を編集・削除しても、要約・火力の元・スロットは変わらない', async () => {
+    const { search, weapons } = await setup()
+    search.submit()
+    const stored = weapons.weapons[0]
+    await weapons.save(
+      { ...stored.payload, name: '別名', attack: 999, slots: [{ target: 'weapon', level: 2 }] },
+      stored,
+    )
+    await weapons.remove(weaponId(1))
+    expect(search.summary?.weaponName).toBe('巨戟ブレイド（個体差）')
+    expect(search.summary?.weaponSlots).toEqual([{ level: 3 }, { level: 1 }])
+    expect(search.submittedBasis?.damageBase).toEqual({ attack: 200, affinity: 15 })
+  })
+
+  it('選んだ個体差のある武器が解決できないときは検索しない', async () => {
+    const { search, conditions, worker } = await setup()
+    conditions.selectCustomWeapon(weaponId(9))
+    expect(search.submit()).toBe(false)
+    expect(worker.messages('solve')).toHaveLength(0)
   })
 })

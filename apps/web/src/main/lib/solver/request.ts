@@ -1,11 +1,12 @@
-import type { ArmorId, ArmorRank, ConditionId, MasterBundle, SkillLevel, WeaponId } from '@swv/data'
-import type { Objective, SolverCharm, SolverRequest } from '@swv/solver'
+import type { ArmorId, ArmorRank, ConditionId, MasterBundle, SkillLevel } from '@swv/data'
+import type { Objective, SolverCharm, SolverRequest, SolverWeapon } from '@swv/solver'
 import type { ObjectiveChoice } from '@/constants/labels'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
 
 /** 画面で入力した検索条件（武器が選ばれているもの）。 */
 export interface SearchConditions {
-  weaponId: WeaponId
+  /** マスターの武器、または個体差のある武器（送信した時点の写し） */
+  weapon: SolverWeapon
   required: SkillLevel[]
   objective: ObjectiveChoice
   maxResults: number
@@ -41,7 +42,7 @@ export function buildSolverRequest(
 ): SolverRequest {
   return {
     masterVersion: bundle.version,
-    weapon: { kind: 'master', weaponId: conditions.weaponId },
+    weapon: conditions.weapon,
     charms: conditions.charms,
     required: conditions.required.map((skill) => ({ ...skill })),
     excludedArmorIds: excludedArmorIds(bundle, conditions.ranks),

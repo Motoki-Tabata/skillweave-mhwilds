@@ -4,6 +4,16 @@ import { MAX_RESULTS_DEFAULT } from '@/constants/search'
 import { compareJa } from '@/lib/text'
 import { CONDITIONS, NAMES, makeBundle, makeDictionary, sk, wp } from '../support/fixtures'
 import { loadStores, restoreStubs, stubBackend } from '../support/mount'
+import { createMemoryWeaponRepository } from '../support/weaponRepository'
+import {
+  ARTIA_GREAT_SWORD,
+  GROUP_BONUS,
+  SERIES_BONUS,
+  makeWeaponBundle,
+  makeWeaponDictionary,
+  storedWeapon,
+  weaponId,
+} from '../support/weapons'
 
 // 受入基準 3〜5（条件の入力）・6（検索できない理由）
 describe('conditions ストア', () => {
@@ -17,7 +27,7 @@ describe('conditions ストア', () => {
       expect(conditions.objective).toBe('feasible')
       expect(conditions.maxResults).toBe(MAX_RESULTS_DEFAULT)
       expect(conditions.required).toEqual([])
-      expect(conditions.weaponId).toBeNull()
+      expect(conditions.selection).toBeNull()
       expect(conditions.weapon).toBeNull()
     })
 
@@ -164,16 +174,23 @@ describe('conditions ストア', () => {
     })
 
     // 受入基準 11（削除した武器を選んでいれば、選択を外す）
-    it('この ID の武器を選んでいれば選択を外し、別の武器を選んでいれば何もしない', async () => {
+    it('この ID の個体差のある武器を選んでいれば選択を外し、別の武器を選んでいれば何もしない', async () => {
+      const { conditions } = await loadStores()
+      conditions.selectCustomWeapon(weaponId(1))
+      expect(conditions.isWeaponSelected(weaponId(1))).toBe(true)
+      expect(conditions.isWeaponSelected(weaponId(2))).toBe(false)
+      conditions.releaseWeapon(weaponId(2))
+      expect(conditions.selection).toEqual({ kind: 'custom', id: weaponId(1) })
+      conditions.releaseWeapon(weaponId(1))
+      expect(conditions.selection).toBeNull()
+      expect(conditions.weaponErrorShown).toBe(false)
+    })
+
+    it('マスターの武器を選んでいるとき、同じ文字列の ID を外す操作では外れない', async () => {
       const { conditions } = await loadStores()
       conditions.selectWeapon(wp('great-sword:1'))
-      expect(conditions.isWeaponSelected(wp('great-sword:1'))).toBe(true)
-      expect(conditions.isWeaponSelected(wp('bow:1'))).toBe(false)
-      conditions.releaseWeapon(wp('bow:1'))
-      expect(conditions.weaponId).toBe(wp('great-sword:1'))
       conditions.releaseWeapon(wp('great-sword:1'))
-      expect(conditions.weaponId).toBeNull()
-      expect(conditions.weaponErrorShown).toBe(false)
+      expect(conditions.selection).toEqual({ kind: 'master', weaponId: wp('great-sword:1') })
     })
 
     it('スキルを外す', async () => {
@@ -182,6 +199,78 @@ describe('conditions ストア', () => {
       conditions.toggleSkill(sk('a2'))
       conditions.removeSkill(sk('a1'))
       expect(conditions.required.map((r) => r.skillId)).toEqual([sk('a2')])
+    })
+  })
+})
+
+// 受入基準 6・7・11（個体差のある武器の選択と解決）
+describe('conditions ストアの個体差のある武器', () => {
+  beforeEach(() => stubBackend({ bundle: makeWeaponBundle(), dictionary: makeWeaponDictionary() }))
+  afterEach(restoreStubs)
+
+  async function setup(...numbers: number[]) {
+    const stores = await loadStores(
+      undefined,
+      createMemoryWeaponRepository(numbers.map((n) => storedWeapon(n))),
+    )
+    await stores.weapons.ensureLoaded()
+    return stores
+  }
+
+  it('個体差のある武器を選ぶと、表示名・武器種・攻撃力・会心率・スロット・custom の SolverWeapon に解決する', async () => {
+    const { conditions } = await setup(1)
+    conditions.selectCustomWeapon(weaponId(1))
+    expect(conditions.unavailableReason).toBeNull()
+    expect(conditions.weapon).toMatchObject({
+      kind: 'custom',
+      id: weaponId(1),
+      name: '巨戟ブレイド',
+      weaponType: 'great-sword',
+      attack: 200,
+      affinity: 15,
+      slots: [{ level: 3 }, { level: 1 }],
+      solverWeapon: {
+        kind: 'custom',
+        id: weaponId(1),
+        baseWeaponId: ARTIA_GREAT_SWORD,
+        skills: [],
+        setBonusIds: [SERIES_BONUS, GROUP_BONUS],
+      },
+    })
+  })
+
+  it('S3 で編集すると、解決した武器は編集後の内容になり、選択は外れない', async () => {
+    const { conditions, weapons } = await setup(1)
+    conditions.selectCustomWeapon(weaponId(1))
+    const stored = weapons.weapons[0]
+    await weapons.save({ ...stored.payload, attack: 300 }, stored)
+    expect(conditions.weapon?.attack).toBe(300)
+    expect(conditions.selection).toEqual({ kind: 'custom', id: weaponId(1) })
+  })
+
+  it('武器のストアに無い ID を選んでいるとき、weapon は null', async () => {
+    const { conditions } = await setup()
+    conditions.selectCustomWeapon(weaponId(9))
+    expect(conditions.weapon).toBeNull()
+  })
+
+  it('基の武器が現行のマスターに無い個体差のある武器は解決しない', async () => {
+    const stores = await loadStores(
+      undefined,
+      createMemoryWeaponRepository([storedWeapon(1, { baseWeaponId: wp('great-sword:1') })]),
+    )
+    await stores.weapons.ensureLoaded()
+    stores.conditions.selectCustomWeapon(weaponId(1))
+    expect(stores.conditions.weapon).toBeNull()
+  })
+
+  it('マスターの武器は kind: master の SolverWeapon に解決する', async () => {
+    const { conditions } = await setup()
+    conditions.selectWeapon(wp('great-sword:1'))
+    expect(conditions.weapon).toMatchObject({
+      kind: 'master',
+      name: '鉄の大剣',
+      solverWeapon: { kind: 'master', weaponId: wp('great-sword:1') },
     })
   })
 })

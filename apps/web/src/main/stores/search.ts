@@ -1,6 +1,6 @@
 import { ref, shallowRef, toRaw } from 'vue'
 import { defineStore } from 'pinia'
-import type { ConditionId, WeaponId } from '@swv/data'
+import type { ConditionId } from '@swv/data'
 import type { DamageBase, SolvedBuild, SolverCharm, SolverResponse } from '@swv/solver'
 import { objectiveLabel } from '@/constants/labels'
 import { buildSolverRequest, type SearchConditions } from '@/lib/solver/request'
@@ -14,8 +14,10 @@ export type SearchStatus = 'idle' | 'searching' | 'done' | 'error'
 
 /** 検索したときの条件の要約。検索の後に条件を変えても変わらない。 */
 export interface SearchSummary {
-  weaponId: WeaponId
+  /** 要約に出す武器の名前（個体差のある武器は「<表示名>（個体差）」） */
   weaponName: string
+  /** 送信した時点の武器のスロット。構成の表示が装飾品の Lv を引く */
+  weaponSlots: readonly { level: number }[]
   requiredCount: number
   objectiveLabel: string
   maxResults: number
@@ -69,12 +71,14 @@ export const useSearchStore = defineStore('search', () => {
   type Submitted = Omit<SearchConditions, 'charms'> & {
     bundle: NonNullable<typeof master.bundle>
     damageBase: DamageBase
+    weaponName: string
+    weaponSlots: readonly { level: number }[]
   }
 
   function summarize(submitted: Submitted, charmCount: number): SearchSummary {
     return {
-      weaponId: submitted.weaponId,
-      weaponName: master.nameOf(submitted.weaponId),
+      weaponName: submitted.weaponName,
+      weaponSlots: submitted.weaponSlots,
       requiredCount: submitted.required.length,
       objectiveLabel: objectiveLabel(submitted.objective),
       maxResults: submitted.maxResults,
@@ -90,14 +94,8 @@ export const useSearchStore = defineStore('search', () => {
    */
   function submit(): boolean {
     const bundle = master.bundle
-    const weaponId = conditions.weaponId
     const weapon = conditions.weapon
-    if (
-      conditions.unavailableReason !== null ||
-      bundle === null ||
-      weaponId === null ||
-      weapon === null
-    ) {
+    if (conditions.unavailableReason !== null || bundle === null || weapon === null) {
       conditions.showWeaponError()
       return false
     }
@@ -108,7 +106,10 @@ export const useSearchStore = defineStore('search', () => {
       bundle,
       damageBase: { attack: weapon.attack, affinity: weapon.affinity },
       activeConditionIds: [...conditions.activeConditionIds],
-      weaponId,
+      // 検索の後に武器を編集・削除しても変わらないよう、送信した時点の写しを持つ
+      weapon: structuredClone(toRaw(weapon.solverWeapon)),
+      weaponName: weapon.kind === 'custom' ? `${weapon.name}（個体差）` : weapon.name,
+      weaponSlots: weapon.slots.map((slot) => ({ level: slot.level })),
       required: conditions.required.map((skill) => ({ ...skill })),
       objective: conditions.objective,
       maxResults: conditions.maxResults,
