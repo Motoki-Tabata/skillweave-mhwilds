@@ -65,6 +65,7 @@
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- 常時許可外の変更: sonar-project.properties に e6（WeaponForm.vue の Web:InputWithoutLabelCheck・Reka UI SelectTrigger の誤検知）を追記。区間 D の T3 で承認、コミット d1f31ef に含む
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
