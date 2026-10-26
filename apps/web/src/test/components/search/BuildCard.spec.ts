@@ -5,6 +5,13 @@ import type { CharmPayload } from '@/lib/charms/types'
 import { createMemoryCharmRepository } from '../../support/charmRepository'
 import { charmId, storedCharm } from '../../support/charms'
 import { FakeWorker, cd, dc, makeBuild, sk, wp } from '../../support/fixtures'
+import { createMemoryWeaponRepository } from '../../support/weaponRepository'
+import {
+  makeWeaponBundle,
+  makeWeaponDictionary,
+  storedWeapon,
+  weaponId,
+} from '../../support/weapons'
 import {
   click,
   installDomPolyfills,
@@ -426,5 +433,68 @@ describe('BuildCard のスキルの効果', () => {
     await click(toggle(1)!)
     expect(detailRows(0)).toEqual([{ title: '剛刃 Lv5', paragraphs: ['効果: 攻撃力 +10'] }])
     expect(detailRows(1)).toEqual([{ title: '剛刃 Lv1', paragraphs: [] }])
+  })
+})
+
+// 受入基準 7・8・9（個体差のある武器での検索結果。検索した時点の写しで表示する）
+describe('BuildCard の個体差のある武器', () => {
+  let mounted: Mounted | null = null
+
+  beforeAll(installDomPolyfills)
+  afterEach(() => {
+    mounted?.wrapper.unmount()
+    mounted = null
+    restoreStubs()
+  })
+
+  async function show(): Promise<Mounted> {
+    stubBackend({ bundle: makeWeaponBundle(), dictionary: makeWeaponDictionary() })
+    mounted = await mountReadyApp({
+      weaponRepository: createMemoryWeaponRepository([storedWeapon(1)]),
+    })
+    await mounted.weapons.ensureLoaded()
+    mounted.conditions.selectCustomWeapon(weaponId(1))
+    await flushPromises()
+    await click(document.querySelector('button[type="submit"]')!)
+    const worker = FakeWorker.last
+    const build: SolvedBuild = {
+      ...makeBuild(),
+      decorations: [{ slot: { owner: 'weapon', index: 0 }, decorationId: dc('1') }],
+      freeSlots: [{ owner: 'weapon', index: 1 }],
+    }
+    worker.emit({
+      type: 'result',
+      requestId: worker.lastSolveId,
+      response: { status: 'optimal', builds: [build], elapsedMs: 1 },
+    })
+    await flushPromises()
+    return mounted
+  }
+
+  it('要約に「<表示名>（個体差）」、装飾品と空きスロットに武器のスロットの Lv を出す', async () => {
+    await show()
+    expect(textOf(document.querySelector('#results-heading')!.parentElement)).toContain(
+      '武器: 巨戟ブレイド（個体差）',
+    )
+    const card = document.querySelector<HTMLElement>('#results-heading ~ ul > li')!
+    const text = textOf(card)
+    expect(text).toContain('武器')
+    expect(text).toMatch(/武器\s*Lv3/)
+    expect(text).toMatch(/武器\s*Lv1/)
+  })
+
+  it('火力は入力した攻撃力・会心率から計算する（検索の後に編集しても変わらない）', async () => {
+    const m = await show()
+    const before = textOf(
+      document.querySelector('#results-heading ~ ul > li section:nth-of-type(1)'),
+    )
+    const stored = m.weapons.weapons[0]
+    await m.weapons.save({ ...stored.payload, attack: 999 }, stored)
+    await flushPromises()
+    const after = textOf(
+      document.querySelector('#results-heading ~ ul > li section:nth-of-type(1)'),
+    )
+    expect(after).toBe(before)
+    expect(m.search.submittedBasis?.damageBase).toEqual({ attack: 200, affinity: 15 })
   })
 })

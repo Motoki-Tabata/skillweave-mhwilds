@@ -11,7 +11,7 @@ describe('toBuildView', () => {
   const lookup: BuildLookup = {
     charm: () => undefined,
     armor: (id) => bundle.armors.find((a) => a.id === id),
-    weapon,
+    weaponSlots: weapon?.slots,
     skillKind: (id) => SKILLS.find((s) => s.id === id)?.kind,
     nameOf: (id) => NAMES[id] ?? (id.startsWith('ar:') ? `名:${id}` : id),
   }
@@ -55,6 +55,18 @@ describe('toBuildView', () => {
     })
   })
 
+  // 受入基準 8（個体差のある武器のスロットに付けた装飾品）
+  it('個体差のある武器のスロット（送信した時点の写し）の Lv を、装飾品と空きスロットに出す', () => {
+    const build: SolvedBuild = {
+      ...makeBuild(),
+      decorations: [{ slot: { owner: 'weapon', index: 1 }, decorationId: dc('1') }],
+      freeSlots: [{ owner: 'weapon', index: 0 }],
+    }
+    const view = toBuildView(build, { ...lookup, weaponSlots: [{ level: 2 }, { level: 1 }] })
+    expect(view.decorations[0]).toMatchObject({ ownerLabel: '武器', slotLevel: 1 })
+    expect(view.freeSlots[0]).toMatchObject({ ownerLabel: '武器', slotLevel: 2 })
+  })
+
   it('持ち主が護石・防具なし・武器がマスターに無いときのスロット Lv は null', () => {
     const build: SolvedBuild = {
       ...makeBuild(),
@@ -64,7 +76,7 @@ describe('toBuildView', () => {
         { slot: { owner: 'weapon', index: 0 }, decorationId: dc('1') },
       ],
     }
-    const view = toBuildView(build, { ...lookup, weapon: undefined })
+    const view = toBuildView(build, { ...lookup, weaponSlots: undefined })
     expect(view.decorations.map((d) => [d.ownerLabel, d.slotLevel])).toEqual([
       ['護石', null],
       ['胴', null],
@@ -116,7 +128,7 @@ describe('toBuildView の護石', () => {
   const lookup: BuildLookup = {
     charm: (id) => (id === charm.id ? charm : undefined),
     armor: (id) => bundle.armors.find((a) => a.id === id),
-    weapon: undefined,
+    weaponSlots: undefined,
     skillKind: (id) => SKILLS.find((s) => s.id === id)?.kind,
     nameOf: (id) => NAMES[id] ?? id,
   }

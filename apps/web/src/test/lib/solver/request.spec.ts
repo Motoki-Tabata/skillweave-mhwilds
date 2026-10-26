@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Uuid } from '@swv/solver'
+import type { SolverWeapon, Uuid } from '@swv/solver'
 import type { SearchConditions } from '@/lib/solver/request'
 import { buildSolverRequest, excludedArmorIds, toObjective } from '@/lib/solver/request'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
@@ -9,7 +9,7 @@ import { VERSION, armorId, cd, makeBundle, sk, wp } from '../../support/fixtures
 describe('buildSolverRequest', () => {
   const bundle = makeBundle()
   const base: SearchConditions = {
-    weaponId: wp('great-sword:1'),
+    weapon: { kind: 'master', weaponId: wp('great-sword:1') },
     required: [
       { skillId: sk('a1'), level: 2 },
       { skillId: sk('w1'), level: 5 },
@@ -30,6 +30,21 @@ describe('buildSolverRequest', () => {
     expect(request.maxResults).toBe(7)
     expect(request.timeoutMs).toBe(SOLVE_TIMEOUT_MS)
     expect(request.fixedArmor).toBeUndefined()
+  })
+
+  // 受入基準 7（個体差のある武器を kind: custom の SolverWeapon のまま渡す）
+  it('個体差のある武器は kind: custom の SolverWeapon のまま要求に渡す', () => {
+    const custom: SolverWeapon = {
+      kind: 'custom',
+      id: '01900000-0000-7000-8000-000000000001' as Uuid,
+      baseWeaponId: wp('great-sword:1'),
+      attack: 200,
+      affinity: 15,
+      slots: [{ target: 'weapon', level: 3 }],
+      skills: [],
+      setBonusIds: [],
+    }
+    expect(buildSolverRequest(bundle, { ...base, weapon: custom }).weapon).toEqual(custom)
   })
 
   it('必須スキルは元の配列と別のオブジェクトにする', () => {
@@ -82,7 +97,7 @@ describe('buildSolverRequest', () => {
 describe('buildSolverRequest の護石', () => {
   const bundle = makeBundle()
   const conditions: SearchConditions = {
-    weaponId: wp('great-sword:1'),
+    weapon: { kind: 'master', weaponId: wp('great-sword:1') },
     required: [],
     objective: 'feasible',
     maxResults: 5,

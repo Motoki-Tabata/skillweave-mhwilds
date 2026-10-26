@@ -1,5 +1,6 @@
-import { CharmStorageError } from '@/lib/charms/storage'
-import type { CharmRepository, StorageFailureReason, StoredCharm } from '@/lib/charms/storage'
+import { StorageError } from '@/lib/storage/database'
+import type { StorageFailureReason } from '@/lib/storage/database'
+import type { CharmRepository, StoredCharm } from '@/lib/charms/storage'
 
 export interface MemoryCharmRepository extends CharmRepository {
   /** 保存されている護石（コピー） */
@@ -14,7 +15,7 @@ export function createMemoryCharmRepository(initial: StoredCharm[] = []): Memory
   const failures = new Map<string, StorageFailureReason>()
   const check = (operation: string): void => {
     const reason = failures.get(operation)
-    if (reason !== undefined) throw new CharmStorageError(reason)
+    if (reason !== undefined) throw new StorageError(reason)
   }
   return {
     list: async () => {

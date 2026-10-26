@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 const LINKS = [
   { to: '/', label: '装備検索' },
   { to: '/charms', label: '護石' },
+  { to: '/weapons', label: '個体差のある武器' },
 ] as const
 </script>
 

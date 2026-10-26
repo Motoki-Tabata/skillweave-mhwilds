@@ -21,7 +21,7 @@ const view = computed(() =>
   toBuildView(props.build, {
     charm: (id) => search.submittedCharms.get(id),
     armor: (id) => master.armorById.get(id),
-    weapon: search.summary === null ? undefined : master.weaponById.get(search.summary.weaponId),
+    weaponSlots: search.summary?.weaponSlots,
     skillKind: (skillId) => master.skillById.get(skillId)?.kind,
     nameOf: master.nameOf,
   }),

@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import type { MasterWeapon, WeaponId } from '@swv/data'
 import PickerDialog from '@/components/search/PickerDialog.vue'
+import ResultAlert from '@/components/search/ResultAlert.vue'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { WEAPON_TYPES, weaponTypeName } from '@/constants/weaponTypes'
-import { WEAPON_LIST_LIMIT } from '@/constants/search'
+import { LOADING_SKELETON_DELAY_MS, WEAPON_LIST_LIMIT } from '@/constants/search'
 import { formatWeaponStats } from '@/lib/format'
 import { matchesQuery } from '@/lib/text'
+import { weaponBonusLabels, weaponDisplayName, weaponSpecLine } from '@/lib/weapons/convert'
+import type { StoredWeapon } from '@/lib/weapons/types'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
+import { useWeaponsStore } from '@/stores/weapons'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{
@@ -21,6 +26,8 @@ const ALL = 'all'
 const master = useMasterStore()
 const conditions = useConditionsStore()
 
+const weapons = useWeaponsStore()
+
 const typeFilter = ref<string>(ALL)
 const query = ref('')
 
@@ -31,9 +38,76 @@ watch(
     if (!open) return
     typeFilter.value = conditions.weapon?.weaponType ?? ALL
     query.value = ''
+    void weapons.ensureLoaded()
   },
   { immediate: true },
 )
+
+// 個体差のある武器の読み込みが 300ms 未満で終わるときは、読込中の表示を出さない
+const showLoading = ref(false)
+let loadingTimer: ReturnType<typeof setTimeout> | undefined
+
+function clearLoadingTimer(): void {
+  if (loadingTimer !== undefined) clearTimeout(loadingTimer)
+  loadingTimer = undefined
+}
+
+watch(
+  [() => props.open, () => weapons.status],
+  ([open, status]) => {
+    clearLoadingTimer()
+    showLoading.value = false
+    if (!open || status !== 'loading') return
+    loadingTimer = setTimeout(() => {
+      showLoading.value = true
+    }, LOADING_SKELETON_DELAY_MS)
+  },
+  { immediate: true },
+)
+onBeforeUnmount(clearLoadingTimer)
+
+const weaponsFailed = computed(() => weapons.status === 'failed')
+
+const bundleContext = computed(() =>
+  master.bundle === null ? null : { bundle: master.bundle, nameOf: master.nameOf },
+)
+
+/** 検索の候補になる個体差のある武器を、武器種と検索語で絞り込んだもの（登録の新しい順）。 */
+const customMatched = computed<StoredWeapon[]>(() => {
+  const ctx = bundleContext.value
+  if (ctx === null) return []
+  return weapons.candidates.filter((stored) => {
+    const base = master.weaponById.get(stored.payload.baseWeaponId)
+    if (base === undefined) return false
+    if (typeFilter.value !== ALL && base.weaponType !== typeFilter.value) return false
+    return (
+      matchesQuery(weaponDisplayName(stored.payload, ctx), query.value) ||
+      matchesQuery(master.nameOf(base.id), query.value)
+    )
+  })
+})
+
+const showCustomSection = computed(() => weapons.status === 'ready' && weapons.candidateCount > 0)
+
+function customType(stored: StoredWeapon): string {
+  const base = master.weaponById.get(stored.payload.baseWeaponId)
+  return base === undefined ? '' : weaponTypeName(base.weaponType)
+}
+
+function customName(stored: StoredWeapon): string {
+  const ctx = bundleContext.value
+  return ctx === null ? stored.payload.name : weaponDisplayName(stored.payload, ctx)
+}
+
+function customBonuses(stored: StoredWeapon): string[] {
+  const ctx = bundleContext.value
+  return ctx === null ? [] : weaponBonusLabels(stored.payload, ctx)
+}
+
+function selectCustom(id: string): void {
+  conditions.selectCustomWeapon(id)
+  emit('update:open', false)
+}
 
 /** マスターに含まれる武器種だけを、定数の並び順で出す。 */
 const typeButtons = computed(() => {
@@ -114,12 +188,61 @@ function select(id: WeaponId): void {
 
       <p v-if="hint" class="text-muted-foreground text-xs">{{ hint }}</p>
 
+      <output v-if="showLoading" class="text-muted-foreground text-xs">
+        個体差のある武器を読み込んでいます…
+      </output>
+      <ResultAlert v-else-if="weaponsFailed" tone="warning">
+        個体差のある武器を読み込めませんでした（{{
+          weapons.failureMessage?.replace(/。$/, '')
+        }}）。通常の武器から選べます。
+      </ResultAlert>
+
+      <section v-if="showCustomSection" class="flex flex-col gap-2">
+        <h3 class="text-sm font-bold">個体差のある武器（{{ customMatched.length }}）</h3>
+        <p v-if="customMatched.length === 0" class="text-muted-foreground text-xs">
+          この武器種・名前に合う個体差のある武器はありません。
+        </p>
+        <ul class="flex flex-col gap-2">
+          <li v-for="stored in customMatched" :key="stored.id">
+            <button
+              type="button"
+              class="focus-visible:ring-ring/50 focus-visible:border-ring aria-pressed:border-foreground aria-pressed:bg-secondary flex min-h-11 w-full flex-col gap-1 rounded-md border px-3 py-2 text-left outline-none focus-visible:ring-3 aria-pressed:border-2"
+              :aria-pressed="conditions.isWeaponSelected(stored.id)"
+              :data-custom-weapon-id="stored.id"
+              @click="selectCustom(stored.id)"
+            >
+              <span class="flex items-start justify-between gap-2">
+                <span class="flex min-w-[140px] flex-wrap items-center gap-2">
+                  <span class="font-bold break-words">{{ customName(stored) }}</span>
+                  <Badge variant="outline">個体差</Badge>
+                </span>
+                <span class="shrink-0 text-xs">{{ customType(stored) }}</span>
+              </span>
+              <span class="font-num text-xs tabular-nums">{{
+                weaponSpecLine(stored.payload)
+              }}</span>
+              <span v-if="customBonuses(stored).length > 0" class="flex flex-wrap gap-1">
+                <span
+                  v-for="tag in customBonuses(stored)"
+                  :key="tag"
+                  class="rounded-md border px-1.5 text-xs"
+                  >{{ tag }}</span
+                >
+              </span>
+            </button>
+          </li>
+        </ul>
+        <h3 class="text-sm font-bold">通常の武器</h3>
+      </section>
+
       <ul class="flex flex-col gap-2">
         <li v-for="weapon in shown" :key="weapon.id">
           <button
             type="button"
             class="focus-visible:ring-ring/50 focus-visible:border-ring aria-pressed:border-foreground aria-pressed:bg-secondary flex min-h-11 w-full flex-col gap-1 rounded-md border px-3 py-2 text-left outline-none focus-visible:ring-3 aria-pressed:border-2"
-            :aria-pressed="weapon.id === conditions.weaponId"
+            :aria-pressed="
+              conditions.selection?.kind === 'master' && conditions.selection.weaponId === weapon.id
+            "
             @click="select(weapon.id)"
           >
             <span class="flex items-start justify-between gap-2">

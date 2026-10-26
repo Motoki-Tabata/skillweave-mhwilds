@@ -4,12 +4,8 @@ import type { SolverCharm } from '@swv/solver'
 import { matchCharm } from '@/lib/charms/match'
 import type { CharmMatch } from '@/lib/charms/match'
 import { eligibleSolverCharms } from '@/lib/charms/eligible'
-import {
-  CHARM_SCHEMA_VERSION,
-  STORAGE_FAILURE_MESSAGES,
-  classifyStorageError,
-  openCharmRepository,
-} from '@/lib/charms/storage'
+import { CHARM_SCHEMA_VERSION, openCharmRepository } from '@/lib/charms/storage'
+import { STORAGE_FAILURE_MESSAGES, classifyStorageError } from '@/lib/storage/database'
 import type { CharmRepository, StoredCharm } from '@/lib/charms/storage'
 import type { CharmPayload } from '@/lib/charms/types'
 import { charmEligibility } from '@/lib/charms/validate'

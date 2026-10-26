@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
-  CharmStorageError,
+  StorageError,
   STORAGE_FAILURE_MESSAGES,
   classifyStorageError,
-  openCharmRepository,
-} from '@/lib/charms/storage'
+} from '@/lib/storage/database'
+import { openCharmRepository } from '@/lib/charms/storage'
 import type { StoredCharm } from '@/lib/charms/storage'
 
 const charm = (id: string, schemaVersion = 1): StoredCharm => ({
@@ -86,10 +86,10 @@ function fakeFactory(options: FakeOptions = {}) {
 
 // 受入基準 3（端末内の IndexedDB への保存）
 describe('openCharmRepository', () => {
-  it('ストア charms を作り、登録・一覧・上書き・削除ができる', async () => {
+  it('ストア charms と weapons を作り、登録・一覧・上書き・削除ができる', async () => {
     const fake = fakeFactory()
     const repo = await openCharmRepository(fake.factory)
-    expect(fake.created).toEqual(['charms'])
+    expect(fake.created).toEqual(['charms', 'weapons'])
     await repo.put(charm('a'))
     await repo.put(charm('b'))
     expect((await repo.list()).map((c) => c.id)).toEqual(['a', 'b'])
@@ -116,7 +116,7 @@ describe('保存の失敗', () => {
   it('open の失敗・blocked・例外は unavailable', async () => {
     for (const openError of ['error', 'blocked', 'throw'] as const) {
       await expect(openCharmRepository(fakeFactory({ openError }).factory)).rejects.toBeInstanceOf(
-        CharmStorageError,
+        StorageError,
       )
       await expect(openCharmRepository(fakeFactory({ openError }).factory)).rejects.toMatchObject({
         reason: 'unavailable',
@@ -155,13 +155,13 @@ describe('classifyStorageError', () => {
     expect(classifyStorageError('x')).toBe('unknown')
   })
 
-  it('CharmStorageError はその原因のまま、文言は画面設計 3.4 のとおり', () => {
-    expect(classifyStorageError(new CharmStorageError('quota'))).toBe('quota')
+  it('StorageError はその原因のまま、文言は画面設計 3.4 のとおり', () => {
+    expect(classifyStorageError(new StorageError('quota'))).toBe('quota')
     expect(STORAGE_FAILURE_MESSAGES).toEqual({
       unavailable: 'この端末のブラウザでは、端末への保存（IndexedDB）が使えません。',
       quota: '端末の保存容量が足りません。',
       unknown: '端末への保存（IndexedDB）に失敗しました。',
     })
-    expect(new CharmStorageError('unknown').message).toBe(STORAGE_FAILURE_MESSAGES.unknown)
+    expect(new StorageError('unknown').message).toBe(STORAGE_FAILURE_MESSAGES.unknown)
   })
 })
