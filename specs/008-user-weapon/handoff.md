@@ -25,7 +25,7 @@
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-26 / 9054dad |
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-10-26 / dd4bd51 |
-| B-1 | 画面設計 screen-design.md | 未 | |
+| B-1 | 画面設計 screen-design.md | 承認済み | 2026-10-26 / 6aab8b0 |
 | B-2 | テーブル設計（design/・migration） | 未 | |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
