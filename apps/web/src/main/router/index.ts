@@ -21,6 +21,12 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/views/CharmsView.vue'),
     meta: { title: '護石 | SkillWeave' },
   },
+  {
+    path: '/weapons',
+    name: 'weapons',
+    component: () => import('@/views/WeaponsView.vue'),
+    meta: { title: '個体差のある武器 | SkillWeave' },
+  },
 ]
 
 /** 遷移のたびに、ルートの `meta.title` を `document.title` に書く。 */

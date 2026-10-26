@@ -7,7 +7,10 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import App from '@/App.vue'
 import { installTitleHook, routes } from '@/router'
 import { createMemoryCharmRepository } from './charmRepository'
+import { createMemoryWeaponRepository } from './weaponRepository'
 import type { CharmRepository } from '@/lib/charms/storage'
+import type { WeaponRepository } from '@/lib/weapons/storage'
+import { useWeaponsStore } from '@/stores/weapons'
 import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
@@ -55,6 +58,13 @@ function installRepository(pinia: Pinia, given?: CharmRepository): CharmReposito
   return repository
 }
 
+/** 武器の保存先を差し替える。既定はメモリ上の実装。 */
+function installWeaponRepository(pinia: Pinia, given?: WeaponRepository): WeaponRepository {
+  const repository = given ?? createMemoryWeaponRepository()
+  useWeaponsStore(pinia).setRepositoryOpener(async () => repository)
+  return repository
+}
+
 function newRouter() {
   const router = createRouter({ history: createMemoryHistory(), routes })
   installTitleHook(router)
@@ -66,12 +76,17 @@ export interface MountOptions {
   path?: string
   /** 護石の保存先。既定は空のメモリ上の実装 */
   charmRepository?: CharmRepository
+  /** 武器の保存先。既定は空のメモリ上の実装 */
+  weaponRepository?: WeaponRepository
 }
 
 export interface Mounted {
   wrapper: VueWrapper
   pinia: Pinia
   charms: ReturnType<typeof useCharmsStore>
+  weapons: ReturnType<typeof useWeaponsStore>
+  /** 武器の保存先（既定のときはメモリ上の実装） */
+  weaponRepository: WeaponRepository
   /** 既定のとき（メモリ上の実装）だけ、保存の中身を見られる */
   repository: CharmRepository
   master: ReturnType<typeof useMasterStore>
@@ -83,6 +98,7 @@ export interface Mounted {
 export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
   const pinia = newPinia()
   const repository = installRepository(pinia, options.charmRepository)
+  const weaponRepository = installWeaponRepository(pinia, options.weaponRepository)
   const router = newRouter()
   await router.push(options.path ?? '/')
   await router.isReady()
@@ -92,6 +108,8 @@ export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
     wrapper,
     pinia,
     charms: useCharmsStore(pinia),
+    weapons: useWeaponsStore(pinia),
+    weaponRepository,
     repository,
     master: useMasterStore(pinia),
     conditions: useConditionsStore(pinia),
@@ -112,9 +130,11 @@ export async function mountReadyApp(options: MountOptions = {}): Promise<Mounted
 /** ストアだけを読み込む（コンポーネントは別にマウントする）。 */
 export async function loadStores(
   charmRepository?: CharmRepository,
+  weaponRepositoryGiven?: WeaponRepository,
 ): Promise<Omit<Mounted, 'wrapper'>> {
   const pinia = newPinia()
   const repository = installRepository(pinia, charmRepository)
+  const weaponRepository = installWeaponRepository(pinia, weaponRepositoryGiven)
   const master = useMasterStore(pinia)
   await master.load()
   return {
@@ -122,6 +142,8 @@ export async function loadStores(
     repository,
     master,
     charms: useCharmsStore(pinia),
+    weapons: useWeaponsStore(pinia),
+    weaponRepository,
     conditions: useConditionsStore(pinia),
     search: useSearchStore(pinia),
   }

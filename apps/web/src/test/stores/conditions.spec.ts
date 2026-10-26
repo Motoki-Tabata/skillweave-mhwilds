@@ -163,6 +163,19 @@ describe('conditions ストア', () => {
       expect(conditions.activeConditionIds).toEqual([order[2]])
     })
 
+    // 受入基準 11（削除した武器を選んでいれば、選択を外す）
+    it('この ID の武器を選んでいれば選択を外し、別の武器を選んでいれば何もしない', async () => {
+      const { conditions } = await loadStores()
+      conditions.selectWeapon(wp('great-sword:1'))
+      expect(conditions.isWeaponSelected(wp('great-sword:1'))).toBe(true)
+      expect(conditions.isWeaponSelected(wp('bow:1'))).toBe(false)
+      conditions.releaseWeapon(wp('bow:1'))
+      expect(conditions.weaponId).toBe(wp('great-sword:1'))
+      conditions.releaseWeapon(wp('great-sword:1'))
+      expect(conditions.weaponId).toBeNull()
+      expect(conditions.weaponErrorShown).toBe(false)
+    })
+
     it('スキルを外す', async () => {
       const { conditions } = await loadStores()
       conditions.toggleSkill(sk('a1'))

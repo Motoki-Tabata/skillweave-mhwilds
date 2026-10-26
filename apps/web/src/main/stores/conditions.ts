@@ -98,6 +98,16 @@ export const useConditionsStore = defineStore('conditions', () => {
     weaponErrorShown.value = false
   }
 
+  /** 検索条件でこの ID の武器を選んでいるか（個体差のある武器の削除の確認に使う）。 */
+  function isWeaponSelected(id: string): boolean {
+    return weaponId.value === id
+  }
+
+  /** この ID の武器を選んでいれば、選択を外す（武器欄のエラーは出さない）。 */
+  function releaseWeapon(id: string): void {
+    if (isWeaponSelected(id)) weaponId.value = null
+  }
+
   function showWeaponError(): void {
     if (weaponId.value === null) weaponErrorShown.value = true
   }
@@ -167,6 +177,8 @@ export const useConditionsStore = defineStore('conditions', () => {
     setConditionActive,
     selectWeapon,
     showWeaponError,
+    isWeaponSelected,
+    releaseWeapon,
     isRequired,
     removeSkill,
     toggleSkill,
