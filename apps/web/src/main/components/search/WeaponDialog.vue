@@ -195,7 +195,7 @@ function select(id: WeaponId): void {
       </output>
       <ResultAlert v-else-if="weaponsFailed" tone="warning">
         個体差のある武器を読み込めませんでした（{{
-          weapons.failureMessage
+          weapons.failureMessage?.replace(/。$/, '')
         }}）。通常の武器から選べます。
       </ResultAlert>
 

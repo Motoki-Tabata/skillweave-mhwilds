@@ -297,7 +297,7 @@ describe('WeaponDialog（D1）の個体差のある武器', () => {
     await vi.waitFor(() => expect(m.weapons.status).toBe('failed'))
     await flushPromises()
     expect(textOf(dialog())).toContain(
-      '個体差のある武器を読み込めませんでした（端末への保存（IndexedDB）に失敗しました。）。通常の武器から選べます。',
+      '個体差のある武器を読み込めませんでした（端末への保存（IndexedDB）に失敗しました）。通常の武器から選べます。',
     )
     expect(customCards()).toHaveLength(0)
     expect(headings()).toEqual([])

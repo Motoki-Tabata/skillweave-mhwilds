@@ -73,7 +73,7 @@ const subtitle = computed(() => {
       </div>
     </div>
     <p v-if="subtitle !== ''" class="text-xs">{{ subtitle }}</p>
-    <p class="text-xs tabular-nums">{{ weaponSpecLine(payload) }}</p>
+    <p class="font-num text-xs tabular-nums">{{ weaponSpecLine(payload) }}</p>
     <ul v-if="bonusLabels.length > 0" class="flex flex-wrap gap-1">
       <li
         v-for="label in bonusLabels"
