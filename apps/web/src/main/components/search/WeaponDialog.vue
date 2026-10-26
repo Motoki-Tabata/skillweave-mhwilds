@@ -66,9 +66,7 @@ watch(
 )
 onBeforeUnmount(clearLoadingTimer)
 
-const weaponsFailed = computed(
-  () => weapons.status === 'failed' || weapons.status === 'unavailable',
-)
+const weaponsFailed = computed(() => weapons.status === 'failed')
 
 const bundleContext = computed(() =>
   master.bundle === null ? null : { bundle: master.bundle, nameOf: master.nameOf },

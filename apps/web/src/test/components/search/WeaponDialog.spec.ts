@@ -302,4 +302,25 @@ describe('WeaponDialog（D1）の個体差のある武器', () => {
     expect(customCards()).toHaveLength(0)
     expect(headings()).toEqual([])
   })
+
+  it('端末に保存できない（unavailable）ときは、帯も個体差のある武器の節も出さず、通常の武器を選べる', async () => {
+    stubBackend({ bundle: makeWeaponBundle(), dictionary: makeWeaponDictionary() })
+    mounted = await mountReadyApp()
+    mounted.weapons.setRepositoryOpener(async () => {
+      throw Object.assign(new Error('x'), { name: 'SecurityError' })
+    })
+    await mounted.weapons.ensureLoaded()
+    expect(mounted.weapons.status).toBe('unavailable')
+    const trigger = Array.from(document.querySelectorAll('button')).find((b) =>
+      textOf(b).includes('武器を選択'),
+    )!
+    await click(trigger)
+    await flushPromises()
+    expect(dialog()).not.toBeNull()
+    expect(textOf(dialog())).not.toContain('個体差のある武器を読み込めませんでした')
+    expect(dialog()!.querySelector('[role="alert"], [role="status"]')).toBeNull()
+    expect(customCards()).toHaveLength(0)
+    expect(headings()).toEqual([])
+    expect(dialog()!.querySelectorAll('ul li button').length).toBeGreaterThan(0)
+  })
 })

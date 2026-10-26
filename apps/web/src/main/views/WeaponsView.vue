@@ -180,7 +180,10 @@ const deleteSummary = computed(() => {
             "
           >
             <p>{{ weapons.failureMessage }}</p>
-            <p>
+            <p v-if="weapons.status === 'failed'">
+              「再読み込み」を押してください。直らないときは、保存したデータが読み取れない状態です。通常の武器での検索は引き続き使えます。
+            </p>
+            <p v-else>
               ブラウザの設定でこのサイトのデータの保存を許可するか、プライベートブラウズをやめてから、「再読み込み」を押してください。通常の武器での検索は引き続き使えます。
             </p>
           </ResultAlert>

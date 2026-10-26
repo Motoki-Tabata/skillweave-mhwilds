@@ -634,6 +634,13 @@ describe('WeaponsView（S3・D4）', () => {
       await ready(r)
       expect(body()).toContain('個体差のある武器を読み込めません')
       expect(body()).toContain('端末への保存（IndexedDB）に失敗しました。')
+      expect(body()).toContain(
+        '「再読み込み」を押してください。直らないときは、保存したデータが読み取れない状態です。通常の武器での検索は引き続き使えます。',
+      )
+      expect(body()).not.toContain('ブラウザの設定でこのサイトのデータの保存を許可')
+      expect(body()).toContain(
+        '個体差のある武器を読み込めないため、個体差のある武器を登録できません。',
+      )
     })
 
     it(
