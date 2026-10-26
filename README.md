@@ -13,7 +13,7 @@
 
 ## 現在の状態
 
-開発ハーネス（モノレポの雛形・CI・`main` の保護・契約ファースト運用・設計標準）を整備した段階です。機能は 001（solver-spike。HiGHS WASM の性能測定）・002（master-data-pipeline。MHDB からのマスターデータ生成）・003（solver-engine。`solveBuilds` と Worker のメッセージ型）・004（solver-ui。ログインなしで武器と必須スキルを指定して検索する最初の画面と e2e。ブラウザの Worker での測定は合格で、最大 1422.0 ms）・005（charm-input。鑑定護石を手入力して端末内の IndexedDB に保存し、検索の候補に使う。スキルの読みとダーク／ライトのテーマ切り替えを含む）・006（damage-model。スキル効果と発動条件を overlay で定義し、ソルバーの `maximize: expectedDamage` で期待値最大の構成を返す。画面は 007）・019（damage-solve-perf。`expectedDamage` の求解を、1件目までの時間の基準 3 秒以内に収める。Node での最大は 2609.6 ms）・007（damage-ui。結果の構成に火力の期待値を表示し、発動条件をトグルで切り替え、スキルの説明文に効果の数値を補完する。ブラウザの Worker での1件目までの時間は最大 3353.6 ms で、基準の 3 秒を超えた（open-questions.md Q50））が実装済みで、API はまだありません。
+開発ハーネス（モノレポの雛形・CI・`main` の保護・契約ファースト運用・設計標準）を整備した段階です。機能は 001（solver-spike。HiGHS WASM の性能測定）・002（master-data-pipeline。MHDB からのマスターデータ生成）・003（solver-engine。`solveBuilds` と Worker のメッセージ型）・004（solver-ui。ログインなしで武器と必須スキルを指定して検索する最初の画面と e2e。ブラウザの Worker での測定は合格で、最大 1422.0 ms）・005（charm-input。鑑定護石を手入力して端末内の IndexedDB に保存し、検索の候補に使う。スキルの読みとダーク／ライトのテーマ切り替えを含む）・006（damage-model。スキル効果と発動条件を overlay で定義し、ソルバーの `maximize: expectedDamage` で期待値最大の構成を返す。画面は 007）・019（damage-solve-perf。`expectedDamage` の求解を、1件目までの時間の基準 3 秒以内に収める。Node での最大は 2609.6 ms）・007（damage-ui。結果の構成に火力の期待値を表示し、発動条件をトグルで切り替え、スキルの説明文に効果の数値を補完する。ブラウザの Worker での1件目までの時間は最大 3353.6 ms で、基準の 3 秒を超えた（open-questions.md Q50））・008（user-weapon。個体差のある武器（基の武器・攻撃力・会心率・属性・スロット・付与スキル）を端末内の IndexedDB に登録し、検索の武器に選べる）が実装済みで、API はまだありません。
 
 ### 残作業（ハーネス）
 
