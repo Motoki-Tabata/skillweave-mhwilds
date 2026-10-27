@@ -50,6 +50,9 @@
 |---|---|---|
 | 契約 | contract-agent | debfd6a |
 | api | api-agent | 521dcd7 |
+| web (T4) | web-agent | 900029d |
+| web (T5) | web-agent | 493226f |
+| E2E | e2e-agent | 2462583 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
