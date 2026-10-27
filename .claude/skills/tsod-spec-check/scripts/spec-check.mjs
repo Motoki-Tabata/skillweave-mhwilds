@@ -240,8 +240,8 @@ export function comparePlan(specResult, planText, scopes) {
   const planOnly = [...planPaths].filter((p) => !specPaths.has(p));
   const specOnly = [...specPaths].filter((p) => !planPaths.has(p));
 
-  // パスを1つに決められない行（バッククォートがちょうど1個でない・glob）は両方の集合から落ちるため、判定不能として別に返す。
-  const unjudgeable = planChecks.filter((c) => !c.ok && !c.path).map((c) => ({ bullet: c.bullet.trim(), reason: c.reason }));
+  // パスを1つに決められない行（バッククォートがちょうど1個でない・glob。該当なしの印 `- なし` を除く）は両方の集合から落ちるため、判定不能として別に返す。
+  const unjudgeable = planChecks.filter((c) => !c.ok && !c.path && !/^\s*-\s*なし\s*$/.test(c.bullet)).map((c) => ({ bullet: c.bullet.trim(), reason: c.reason }));
 
   return { sectionMissing: false, both, planOnly, specOnly, planChecks, unjudgeable };
 }

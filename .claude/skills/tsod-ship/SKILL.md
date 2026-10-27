@@ -90,9 +90,9 @@ bash .claude/skills/tsod-ship/scripts/pr-merge.sh <PR 番号>   # パイプで�
 1. 承認された是正を書き、成果物としてコミットする（handoff.md はまだ変えない）。
 2. 是正内容の要約を一時ファイルに書き（drift PR の本文）、`bash .claude/skills/tsod-ship/scripts/pr-open.sh <本文ファイル>` で drift PR を作る。
 3. ゲート E-2 の記録と現在地の完了を1回で行う。`node .claude/skills/tsod-workflow/scripts/handoff.mjs finish NNN E-2 "drift PR #<番号>" --move E→完了`。handoff.md の変更だけを1回コミットし、push する（`--push-only`）。順は「成果物のコミット→finish→handoff.md のコミット1回」。記録済みのゲートには `--overwrite` が無いと exit 1 になる。
-3. `bash .claude/skills/tsod-ship/scripts/ci-wait.sh <drift PR 番号>`（`run_in_background`）。失敗したら、上の CI 失敗の是正と同じ手順で直す。
-4. 緑になったら `bash .claude/skills/tsod-ship/scripts/pr-merge.sh <drift PR 番号>`。
-5. `bash .claude/skills/tsod-ship/scripts/prune-gone-branches.sh` でローカルブランチを掃除する（個別の git コマンドで消さない）。
+4. `bash .claude/skills/tsod-ship/scripts/ci-wait.sh <drift PR 番号>`（`run_in_background`）。失敗したら、上の CI 失敗の是正と同じ手順で直す。
+5. 緑になったら `bash .claude/skills/tsod-ship/scripts/pr-merge.sh <drift PR 番号>`。
+6. `bash .claude/skills/tsod-ship/scripts/prune-gone-branches.sh` でローカルブランチを掃除する（個別の git コマンドで消さない）。
 
 是正が無いときは、drift PR を作らずに、`handoff.mjs finish NNN E-2 --na "是正なし" --move E→完了` でゲート E-2 の記録と「現在地」の完了を1回で行う。ここだけは main へのコミットが要るので、ユーザーに提示して判断を仰ぐ（main への直接 push は pre-push が拒否する。仕組みは `README.md` の「main への直接 push を防ぐ」節）。
 

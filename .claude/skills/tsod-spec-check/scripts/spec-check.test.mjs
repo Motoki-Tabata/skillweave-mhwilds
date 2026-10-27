@@ -203,6 +203,13 @@ test('compare-plan: 書式の正しい plan には判定不能の行が無い', 
   assert.doesNotMatch(formatTable(specResult, '007-sample', cmp), /判定不能/);
 });
 
+test('compare-plan: 該当なしの印「- なし」は判定不能に数えない', () => {
+  const specResult = checkSpec(makeSpec(), SCOPES);
+  const cmp = comparePlan(specResult, '## 常時許可外の変更\n- なし\n', SCOPES);
+  assert.deepEqual(cmp.unjudgeable, []);
+  assert.doesNotMatch(formatTable(specResult, '007-sample', cmp), /判定不能/);
+});
+
 test('compare-plan: CLI は判定不能の行があると表に出して終了コード 1', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'spec-check-'));
   try {

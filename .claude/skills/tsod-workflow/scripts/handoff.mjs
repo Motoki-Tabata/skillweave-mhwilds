@@ -131,7 +131,7 @@ export function parseArgs(argv) {
   };
   switch (cmd) {
     case 'init': {
-      if (!/^\d{3,}-.+$/.test(nnn)) throw new HandoffError('init の引数は NNN-<slug>（例: 004-solver-ui）です');
+      if (!/^\d{3,}-[A-Za-z0-9][A-Za-z0-9-]*$/.test(nnn)) throw new HandoffError('init の引数は NNN-<slug>（slug は英数字とハイフン。例: 004-solver-ui）です');
       if (rest.length !== 0) throw new HandoffError('init の引数は NNN-<slug> だけです');
       return { cmd, nnn };
     }
