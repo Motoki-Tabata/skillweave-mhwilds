@@ -42,12 +42,6 @@
 
 今は無い（009 discord-login で Spring Session JDBC と Spring Security・OAuth2 Client を導入した）。
 
----|---|---|
-| Spring Session JDBC | 009 discord-login | クラスパスに載せるとセッションテーブルを要求する。テーブルは Flyway で作るので、その機能で一緒に入れる |
-| Spring Security・OAuth2 Client（Discord） | 009 discord-login | 認証の要件（スコープ・リダイレクト URI・CSRF）を機能の中で決める。エンドポイントがまだ無いので保護対象も無い |
-
-版はいずれも Spring Boot BOM が解決する。導入時に `./gradlew dependencies` で実測して本書に追記する。
-
 ---
 
 ## Web（apps/web）と packages
