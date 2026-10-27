@@ -14,7 +14,13 @@ servers:
 tags:
   - name: auth
     description: 認証（Discord ログインで確立したセッションの参照とログアウト）
+  - name: charms
+    description: 護石（ログイン中のユーザーが保存する護石の一覧・作成・更新・削除）
 paths:
+  /api/charms:
+    $ref: paths/charms/charms.yaml
+  /api/charms/{id}:
+    $ref: paths/charms/charms-id.yaml
   /api/auth/me:
     $ref: paths/auth/auth-me.yaml
   /api/auth/logout:
@@ -31,6 +37,24 @@ components:
       $ref: components/schemas/auth/CurrentUser.yaml
     ProblemDetail:
       $ref: components/schemas/common/ProblemDetail.yaml
+    Charm:
+      $ref: components/schemas/charms/Charm.yaml
+    CharmPayload:
+      $ref: components/schemas/charms/CharmPayload.yaml
+    CharmSkill:
+      $ref: components/schemas/charms/CharmSkill.yaml
+    CharmSlot:
+      $ref: components/schemas/charms/CharmSlot.yaml
+    CreateCharmRequest:
+      $ref: components/schemas/charms/CreateCharmRequest.yaml
+    UpdateCharmRequest:
+      $ref: components/schemas/charms/UpdateCharmRequest.yaml
   responses:
     Unauthorized:
       $ref: components/responses/Unauthorized.yaml
+    BadRequest:
+      $ref: components/responses/BadRequest.yaml
+    NotFound:
+      $ref: components/responses/NotFound.yaml
+    Conflict:
+      $ref: components/responses/Conflict.yaml

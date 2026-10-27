@@ -1,0 +1,96 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    description: 護石の ID。
+    schema:
+      type: string
+      format: uuid
+put:
+  operationId: updateCharm
+  x-swv-status: draft
+  summary: 護石を更新する
+  tags:
+    - charms
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    自分の護石の内容を、読んだ時点の行バージョンを添えて上書きする。refs specs/010-charm-save/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+    2. セッション Cookie からログイン状態を判定する。
+    3. 要求の構造を検査する。
+    4. 自分の削除していない護石を探し、要求の行バージョンが行と一致すれば内容を書き換え、行バージョンを進める。
+    5. 保存後の護石を 200 で返す。
+
+    **【異常処理詳細】**
+
+    1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+    2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+    3. 要求の構造が契約に反する場合は 400（`application/problem+json`）を返し、保存しない。
+    4. 自分の削除していない行が無い場合（他のユーザーの行・削除済み・ID の形が不正を含む）は 404（`application/problem+json`）を返す。
+    5. 要求の行バージョンが行と一致しない場合、または同時の更新と競合した場合は 409（`application/problem+json`）を返し、上書きしない。
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/charms/UpdateCharmRequest.yaml
+  responses:
+    '200':
+      description: 保存後の護石。
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/charms/Charm.yaml
+    '400':
+      $ref: ../../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml
+    '404':
+      $ref: ../../components/responses/NotFound.yaml
+    '409':
+      $ref: ../../components/responses/Conflict.yaml
+delete:
+  operationId: deleteCharm
+  x-swv-status: draft
+  summary: 護石を削除する
+  tags:
+    - charms
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    自分の護石を論理削除する。冪等で、対象の行が無くても 204 を返す。refs specs/010-charm-save/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+    2. セッション Cookie からログイン状態を判定する。
+    3. 自分の削除していない護石があれば論理削除する。行バージョンは照合しない。
+    4. 204 を返す。行が無い・他のユーザーの行・ID の形が不正な場合も 204 で、他のユーザーの行は変えない。
+
+    **【異常処理詳細】**
+
+    1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+    2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+  responses:
+    '204':
+      description: 削除した（または対象が無かった）。本文は無い。
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml

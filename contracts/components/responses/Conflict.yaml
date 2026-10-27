@@ -1,0 +1,5 @@
+description: 競合している（ID の衝突、または行バージョンの不一致）。
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/common/ProblemDetail.yaml

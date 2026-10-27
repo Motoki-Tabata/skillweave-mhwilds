@@ -1,0 +1,26 @@
+type: object
+description: 護石の内容。
+required:
+  - rarity
+  - skills
+  - slots
+properties:
+  rarity:
+    type: integer
+    minimum: 5
+    maximum: 8
+    description: レア度。
+    examples:
+      - 8
+  skills:
+    type: array
+    maxItems: 3
+    description: スキルの配列（0〜3個）。同じ `skillId` を重複して持てない。
+    items:
+      $ref: CharmSkill.yaml
+  slots:
+    type: array
+    maxItems: 3
+    description: スロットの配列（0〜3枠）。
+    items:
+      $ref: CharmSlot.yaml

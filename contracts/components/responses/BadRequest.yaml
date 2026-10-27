@@ -1,0 +1,5 @@
+description: 要求の構造が契約に反している（必須項目の欠落・型の違い・値の範囲外・JSON として読めない本文）。
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/common/ProblemDetail.yaml

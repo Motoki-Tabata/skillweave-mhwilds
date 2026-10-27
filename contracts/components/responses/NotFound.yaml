@@ -1,0 +1,5 @@
+description: 対象の行が無い（自分の削除していない行ではない）。
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/common/ProblemDetail.yaml

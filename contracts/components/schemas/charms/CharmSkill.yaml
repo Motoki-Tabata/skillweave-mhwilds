@@ -1,0 +1,18 @@
+type: object
+description: 護石が持つスキルとそのレベル。
+required:
+  - skillId
+  - level
+properties:
+  skillId:
+    type: string
+    pattern: '^sk:[0-9]+$'
+    description: スキル ID。`sk:` に数字が続く形式。マスターデータにあるかどうかはサーバーでは検査しない。
+    examples:
+      - 'sk:101'
+  level:
+    type: integer
+    minimum: 1
+    description: スキルのレベル。最大レベルの検査は Web で行う。
+    examples:
+      - 2
