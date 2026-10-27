@@ -62,11 +62,6 @@ public class Charm {
         this.updatedAt = now;
     }
 
-    public void markDeleted(Instant now) {
-        this.deletedAt = now;
-        this.updatedAt = now;
-    }
-
     public UUID getId() {
         return id;
     }

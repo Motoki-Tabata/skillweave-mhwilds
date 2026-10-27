@@ -264,6 +264,20 @@ class CharmControllerTest {
         assertThat(isDeleted(id)).isTrue();
     }
 
+    // AC-9: 削除の途中で別の要求が同じ行の行バージョンを進めても、500 にならず 204 で削除済みになる。
+    @Test
+    void deleteIsNotAffectedByConcurrentVersionBump() throws Exception {
+        UUID id = id(1);
+        create(alice, id, VALID_PAYLOAD);
+        int before = rowVersion(id);
+        jdbc.update("UPDATE charms SET version = version + 1 WHERE id = ?", id);
+
+        assertThat(call("DELETE", CHARMS + "/" + id, alice, null).status()).isEqualTo(204);
+
+        assertThat(isDeleted(id)).isTrue();
+        assertThat(rowVersion(id)).isEqualTo(before + 1);
+    }
+
     // AC-10: 構造の制約の境界の内側は保存できる。
     @ParameterizedTest
     @MethodSource("validPayloads")

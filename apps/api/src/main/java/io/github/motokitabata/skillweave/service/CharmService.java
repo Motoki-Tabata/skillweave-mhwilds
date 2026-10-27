@@ -10,7 +10,6 @@ import io.github.motokitabata.skillweave.repository.CharmRepository;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -62,14 +61,10 @@ public class CharmService {
         }
     }
 
-    /** 冪等。行が無い・他のユーザーの行でも何もしない。 */
+    /** 冪等で、行バージョンに依らない。行が無い・他のユーザーの行・削除済みの行でも何もしない。 */
     @Transactional
     public void delete(UUID userId, UUID id) {
-        Optional<Charm> charm = repository.findByIdAndUserIdAndDeletedAtIsNull(id, userId);
-        charm.ifPresent(c -> {
-            c.markDeleted(now());
-            repository.saveAndFlush(c);
-        });
+        repository.markDeleted(id, userId, now());
     }
 
     // PostgreSQL の timestamptz はマイクロ秒なので、応答と DB の値が食い違わないよう丸める。
