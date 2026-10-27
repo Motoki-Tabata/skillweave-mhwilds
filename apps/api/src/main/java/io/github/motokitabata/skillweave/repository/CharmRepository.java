@@ -16,9 +16,12 @@ public interface CharmRepository extends JpaRepository<Charm, UUID> {
 
     Optional<Charm> findByIdAndUserIdAndDeletedAtIsNull(UUID id, UUID userId);
 
-    /** 行バージョンを照合・加算せず、削除していない自分の行だけに deleted_at を入れる。 */
+    /**
+     * 行バージョンは照合せず、削除していない自分の行だけに deleted_at を入れる。
+     * 行バージョンは加算する（同時の更新が古いスナップショットで削除を上書きして生き返らせるのを、楽観ロックで弾くため）。
+     */
     @Modifying
-    @Query("UPDATE Charm c SET c.deletedAt = :now, c.updatedAt = :now"
+    @Query("UPDATE Charm c SET c.deletedAt = :now, c.updatedAt = :now, c.version = c.version + 1"
             + " WHERE c.id = :id AND c.userId = :userId AND c.deletedAt IS NULL")
     int markDeleted(@Param("id") UUID id, @Param("userId") UUID userId, @Param("now") Instant now);
 }

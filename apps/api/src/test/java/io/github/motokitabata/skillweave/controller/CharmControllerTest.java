@@ -275,7 +275,23 @@ class CharmControllerTest {
         assertThat(call("DELETE", CHARMS + "/" + id, alice, null).status()).isEqualTo(204);
 
         assertThat(isDeleted(id)).isTrue();
+        assertThat(rowVersion(id)).isEqualTo(before + 2);
+    }
+
+    // AC-9: 削除は行バージョンを 1 進め、その後の更新（古い版）でも削除済みのまま生き返らない。
+    // 読んだ後に削除が割り込む競合そのものは HTTP では決定的に再現できないので、version の加算で固定する。
+    @Test
+    void deleteBumpsVersionAndStaleUpdateDoesNotRevive() throws Exception {
+        UUID id = id(1);
+        create(alice, id, VALID_PAYLOAD);
+        int before = rowVersion(id);
+        call("DELETE", CHARMS + "/" + id, alice, null);
+
         assertThat(rowVersion(id)).isEqualTo(before + 1);
+        Res res = call("PUT", CHARMS + "/" + id, alice, updateBody(OTHER_PAYLOAD, before));
+
+        assertThat(res.status()).isEqualTo(404);
+        assertThat(isDeleted(id)).isTrue();
     }
 
     // AC-10: 構造の制約の境界の内側は保存できる。
