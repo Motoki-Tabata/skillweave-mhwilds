@@ -5,8 +5,8 @@
 #
 # 運用: 機能が1つ TSOD で確定するたびに、その機能が扱う項目をここに追記する。
 # 物理名・型は design/data-model-standard.md の命名規則に従うこと（区分カラムは text + CHECK、
-# ENUM 型は使わない等）。最初のエントリは機能010（charm-save）で確定する予定
-# （候補: temp/initial-design.md §6.3）。
+# ENUM 型は使わない等）。最初のエントリは機能009（discord-login）で確定した
+# （users テーブルの項目）。
 #
 # エントリ形式（論理名をキーにした map）:
 #
@@ -31,4 +31,38 @@
 #     defined_by: null
 
 version: 1
-attributes: {}
+attributes:
+  ユーザーID:
+    physical_name: id
+    type: uuid
+    nullable: false
+    domain: 主キー（DEFAULT uuidv7()）
+    used_in: [users.id]
+    defined_by: specs/009-discord-login
+    note: users の主キー。サーバー採番。他テーブルからは「所有者ID」（user_id）で参照する
+
+  Discord ユーザーID:
+    physical_name: discord_id
+    type: text
+    length: 20
+    nullable: false
+    domain: "^[0-9]{1,20}$"・一意
+    used_in: [users.discord_id]
+    defined_by: specs/009-discord-login
+    note: Discord のスノーフレーク。文字列で保持する
+
+  作成日時:
+    physical_name: created_at
+    type: timestamptz
+    nullable: false
+    domain: DEFAULT now()・UTC
+    used_in: [users.created_at]
+    defined_by: specs/009-discord-login
+
+  更新日時:
+    physical_name: updated_at
+    type: timestamptz
+    nullable: false
+    domain: DEFAULT now()・UTC
+    used_in: [users.updated_at]
+    defined_by: specs/009-discord-login
