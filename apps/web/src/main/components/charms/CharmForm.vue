@@ -247,7 +247,7 @@ async function onSubmit(): Promise<void> {
     return
   }
   saving.value = true
-  const ok = await charms.save(payload.value, props.editing ?? undefined)
+  const ok = (await charms.save(payload.value, props.editing ?? undefined)) === 'saved'
   saving.value = false
   if (!ok) return
   if (isEditing.value) {

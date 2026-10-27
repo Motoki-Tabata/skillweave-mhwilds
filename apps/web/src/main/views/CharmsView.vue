@@ -99,7 +99,7 @@ async function confirmDelete(): Promise<void> {
   const id = target.charm.id
   const own = focusAfterDialog
   focusAfterDialog = focusTargetAfterRemove(id)
-  if (!(await charms.remove(id))) {
+  if ((await charms.remove(id)) !== 'saved') {
     focusAfterDialog = own
     return
   }
