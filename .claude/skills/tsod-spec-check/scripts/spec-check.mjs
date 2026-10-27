@@ -240,7 +240,10 @@ export function comparePlan(specResult, planText, scopes) {
   const planOnly = [...planPaths].filter((p) => !specPaths.has(p));
   const specOnly = [...specPaths].filter((p) => !planPaths.has(p));
 
-  return { sectionMissing: false, both, planOnly, specOnly, planChecks };
+  // パスを1つに決められない行（バッククォートがちょうど1個でない・glob。該当なしの印 `- なし` を除く）は両方の集合から落ちるため、判定不能として別に返す。
+  const unjudgeable = planChecks.filter((c) => !c.ok && !c.path && !/^\s*-\s*なし\s*$/.test(c.bullet)).map((c) => ({ bullet: c.bullet.trim(), reason: c.reason }));
+
+  return { sectionMissing: false, both, planOnly, specOnly, planChecks, unjudgeable };
 }
 
 /**
@@ -268,7 +271,11 @@ export function formatTable(specResult, slug, compareResult) {
       for (const p of compareResult.both) lines.push(`| 両方 | \`${p}\` |`);
       for (const p of compareResult.planOnly) lines.push(`| plan のみ（ゲート C-1 で明示が必要） | \`${p}\` |`);
       for (const p of compareResult.specOnly) lines.push(`| spec のみ（plan で扱いを決める） | \`${p}\` |`);
-      if (compareResult.both.length === 0 && compareResult.planOnly.length === 0 && compareResult.specOnly.length === 0) {
+      const unjudgeable = compareResult.unjudgeable || [];
+      for (const u of unjudgeable) {
+        lines.push(`| 判定不能（${u.reason.replace(/\|/g, '\\|')}） | ${u.bullet.replace(/\|/g, '\\|')} |`);
+      }
+      if (compareResult.both.length === 0 && compareResult.planOnly.length === 0 && compareResult.specOnly.length === 0 && unjudgeable.length === 0) {
         lines.push('| (該当なし) | |');
       }
     }
@@ -335,6 +342,9 @@ function main() {
 
   if (compareResult && compareResult.sectionMissing) {
     process.exit(2);
+  }
+  if (compareResult && compareResult.unjudgeable.length > 0) {
+    process.exit(1);
   }
   process.exit(specResult.overallOk ? 0 : 1);
 }

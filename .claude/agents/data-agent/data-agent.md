@@ -26,7 +26,7 @@ hooks:
 
 ## 責務
 
-薄仕様の受入基準を満たすデータパッケージの実装を `packages/data/src/main/**` に書く。overlay（`packages/data/overlays/*.yaml`）も担当に含む。受入基準（EARS 形式）1件につき最低1テストを対応させて、データパッケージのテストを `packages/data/src/test/**` に書く。受入基準の番号をテスト名かコメントに残す。規約は `.claude/rules/data.md` と `CLAUDE.md` の憲法に従う（本文に再掲しない）。
+薄仕様の受入基準を満たすデータパッケージの実装を `packages/data/src/main/**` に書く。overlay（`packages/data/overlays/*.yaml`）も担当に含む。受入基準（EARS 形式）1件につき最低1テストを対応させて、データパッケージのテストを `packages/data/src/test/**` に書く。spec の受入基準の ID（`AC-N`）をテスト名かコメントに残す。規約は `.claude/rules/data.md` と `CLAUDE.md` の憲法に従う（本文に再掲しない）。
 
 生成物（`packages/data/dist/`）や、担当外の `packages/data/scripts/` などに書く必要が出たら、書かずに停止して報告する。
 

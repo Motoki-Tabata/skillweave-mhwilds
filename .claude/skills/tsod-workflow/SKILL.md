@@ -22,20 +22,36 @@ effort: medium
 | D | `/tsod-build` | 実装→レビュー | D-1 実装受入 | Sonnet | C-1 承認済み | `/tsod-ship NNN` |
 | E | `/tsod-ship` | PR→CI→マージ→ドリフト検査→drift PR→マージ→ブランチ掃除 | E-1 マージ・E-2 ドリフト是正と drift PR のマージ | Sonnet | D-1 承認済み | なし（機能は完了。次の機能は `/tsod-spec NNN`） |
 
-UI もテーブル変更も無い機能は、区間 A の終わりで区間 C を案内してよい。区間 B は handoff に「該当なし」と記録して飛ばす。
+`apps/web/src/main/**` の画面・部品を変えず、新しい永続化も無い機能（`触る領域:` に `web` を含んでも、テストの追従だけならこちら）は、区間 A の終わりで区間 C を案内してよい。区間 B は handoff に「該当なし」と記録して飛ばす。
 
 ## 原則
 
 - 区間ごとに新しいセッションで始める。同じセッションで次の区間へ進まない。区間の切れ目の判断をユーザーに委ねると、文脈が膨らんだまま下流の判断を重ねてしまうため。
 - 区間どうしの引き継ぎは会話でなく `specs/NNN-<slug>/handoff.md` で行う（書式の正は [references/handoff-template.md](./references/handoff-template.md)）。
-- handoff は `node .claude/skills/tsod-workflow/scripts/handoff.mjs`（`gate`・`check`・`set`・`transition`・`row`・`note`）だけで更新する。Edit・sed・python・node -e で書き換えない。
+- handoff は `node .claude/skills/tsod-workflow/scripts/handoff.mjs`（`init`・`gate`・`finish`・`check`・`set`・`transition`・`row`・`note`）だけで更新する。Edit・sed・python・node -e で書き換えない。
 
 ## 区間コマンドの共通動作
 
 1. 開始時に handoff を全文読み、開始条件（前の区間のゲートの承認）を `handoff.mjs check NNN <ゲート>...` で照合する。exit 0 以外なら出力を示して停止し、handoff の「次に起動するコマンド」を案内する。
 2. 推奨モデルの案内は、セッションのモデルをそのまま継承する。継承したモデルが推奨と違うときだけ、`/model` での切替を1回提案する（強制しない）。
-3. ゲートは AskUserQuestion を1回だけ取る。承認されたら、成果物をコミットし、同じターンで成果物をコミットした直後の HEAD の短縮ハッシュを `handoff.mjs gate NNN <ゲート> <記録>` で handoff に記録してコミットする。gate を打った後にコミットするのは `handoff.md` だけにする（成果物を変えると、次の区間の `check` が exit 1 になる）。
-4. 区間の終わりでは、handoff の「現在地」を `handoff.mjs transition NNN <移行>` で [handoff-template.md](./references/handoff-template.md) の「区間の終わりの定型」のとおりに書き、停止して次のコマンドと推奨モデルを `Opus`／`Sonnet` の表記で案内する。
+3. ゲートは AskUserQuestion を1回だけ取る。承認されたら、次の順で進める。
+   1. 成果物をコミットする。
+   2. 同じターンで、成果物をコミットした直後の HEAD の短縮ハッシュを `handoff.mjs finish NNN <ゲート> <記録> [--move <移行>] [--note <節> <文>]` で handoff に記録する。ゲートの記録・区間メモ（`--note`）・現在地（`--move`）を1回で行う。`--move` と `--note` は要るときだけ付ける。
+   3. `handoff.md` をコミットする（1回）。`finish` を打った後にコミットするのは `handoff.md` だけにする（成果物を変えると、次の区間の `check` が exit 1 になる）。
+   - 記録済みのゲートへの `gate`・`finish` は、`--overwrite` が無いと exit 1 になる（二重の記録を防ぐ）。
+4. 区間の終わりでは、handoff の「現在地」を [handoff-template.md](./references/handoff-template.md) の「区間の終わりの定型」のとおりにする。最後のゲートの `finish` に `--move <移行>` を付けて書く。最後のゲートが該当なしのときは `handoff.mjs transition NNN <移行>` で書く。停止して次のコマンドと推奨モデルを `Opus`／`Sonnet` の表記で案内する。
+
+## 承認済みの前の区間の成果物を変えるとき
+
+後の区間で、承認済みの前の区間の成果物（`spec.md` など）を変える必要が出たら、次の順で進める。
+
+1. 成果物を修正する。
+2. 修正した成果物に対応する検査を再実行する（`spec.md` なら `node .claude/skills/tsod-spec-check/scripts/spec-check.mjs specs/NNN-<slug>/spec.md`）。
+3. 変えた理由と内容を `specs/NNN-<slug>/decisions.md` に記録する。
+4. 成果物と `decisions.md` をコミットする。
+5. AskUserQuestion で、そのゲートを取り直す。
+6. 承認されたら、直後の HEAD の短縮ハッシュで `handoff.mjs finish NNN <ゲート> <短縮ハッシュ> --note 区間メモ <文> --overwrite` を実行し、ゲートの記録を上書きして区間メモに経緯を残す。
+7. `handoff.md` をコミットする（1回）。
 
 ## ブランチ
 
@@ -56,6 +72,6 @@ UI もテーブル変更も無い機能は、区間 A の終わりで区間 C �
 - [references/handoff-template.md](./references/handoff-template.md): handoff を作る・更新するとき。ゲート記録・コミット範囲・再開点・区間の終わりの定型。
 - [references/judgment.md](./references/judgment.md): 技術判断の裏取り・他プロジェクトの標準の採否・削除の可否を決めるとき。
 - [references/lessons-guide.md](./references/lessons-guide.md): 教訓・`.claude/**`・`CLAUDE.md` への改修要求を `tasks/lessons.md` に起票するとき。
-- [references/reading-discipline.md](./references/reading-discipline.md): 区間 A〜C で `open-questions.md`・要件定義書などの大きいファイルを読むとき。
+- [references/reading-discipline.md](./references/reading-discipline.md): 区間 A〜E で `open-questions.md`・要件定義書・過去の機能の文書・`design/` 配下の大きな文書などを読むとき。
 - [references/waiting.md](./references/waiting.md): 長いコマンド・CI・サブエージェントの完了を待つとき（区間 D・E）。
 - [references/workflow-history.md](./references/workflow-history.md): この運用が TSOD の原典（`docs/method/`）とどこで違うか、その設計上の理由を確かめるとき。

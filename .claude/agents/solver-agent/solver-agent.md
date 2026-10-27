@@ -26,7 +26,7 @@ hooks:
 
 ## 責務
 
-薄仕様の受入基準を満たすソルバーの実装を `packages/solver/src/main/**` に書き、受入基準（EARS 形式）1件につき最低1テストを対応させてソルバーのテストを `packages/solver/src/test/**` に書く。受入基準の番号をテスト名かコメントに残す。規約は `.claude/rules/solver.md` と `CLAUDE.md` の憲法に従う（本文に再掲しない）。
+薄仕様の受入基準を満たすソルバーの実装を `packages/solver/src/main/**` に書き、受入基準（EARS 形式）1件につき最低1テストを対応させてソルバーのテストを `packages/solver/src/test/**` に書く。spec の受入基準の ID（`AC-N`）をテスト名かコメントに残す。規約は `.claude/rules/solver.md` と `CLAUDE.md` の憲法に従う（本文に再掲しない）。
 
 ## 書込範囲
 

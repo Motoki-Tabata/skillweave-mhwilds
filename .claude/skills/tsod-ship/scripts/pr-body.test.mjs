@@ -104,6 +104,45 @@ test('extractAcceptanceCriteria: 番号つきと箇条書きの両方を拾う',
   );
 });
 
+test('extractAcceptanceCriteria: AC-N があればその番号を使い、本文から AC-N を外す（ID が飛んでも食い違わない）', () => {
+  const spec = [
+    '## 受入基準（EARS記法）',
+    '',
+    '- AC-1: THE system SHALL a しなければならない。',
+    '- AC-2: WHEN b THE system SHALL c しなければならない。',
+    '- AC-4: THE system SHALL d しなければならない。',
+    '',
+    '## スコープ外',
+  ].join('\n');
+  const items = extractAcceptanceCriteria(spec);
+  assert.deepEqual(
+    items.map((c) => c.no),
+    [1, 2, 4],
+  );
+  assert.equal(items[2].text, 'THE system SHALL d しなければならない。');
+  const body = fillSection('このPRが満たす受入基準', { criteria: items });
+  assert.match(body, /- \[ \] 受入基準 4: THE system SHALL d/);
+  assert.ok(!body.includes('AC-'), body);
+});
+
+test('extractAcceptanceCriteria: 番号つき・装飾つきの AC-N も読み、AC-N の無い既存の spec は従来どおり', () => {
+  const decorated = '## 受入基準\n1. **AC-1** THE system SHALL a。\n2. `AC-2`: THE system SHALL b。\n';
+  assert.deepEqual(
+    extractAcceptanceCriteria(decorated).map((c) => [c.no, c.text]),
+    [
+      [1, 'THE system SHALL a。'],
+      [2, 'THE system SHALL b。'],
+    ],
+  );
+  assert.deepEqual(
+    extractAcceptanceCriteria(SPEC).map((c) => [c.no, c.text.slice(0, 10)]),
+    [
+      [1, 'THE system'],
+      [2, 'WHEN b THE'],
+    ],
+  );
+});
+
 test('extractOutsideChanges: なし・節なしは空、列挙があれば取る', () => {
   assert.deepEqual(extractOutsideChanges('## 常時許可外の変更\n- なし\n'), []);
   assert.deepEqual(extractOutsideChanges('## スタック\nx\n'), []);

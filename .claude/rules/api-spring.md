@@ -24,6 +24,17 @@ import 元パッケージを都度確認する。
 `META-INF/spring-configuration-metadata.json`（`deprecation.level` を含む）で実在と非推奨を
 確認する。`level: error` のキーは読まれず、起動も失敗しない（黙って無効化される）。
 
+## 依存の jar とソースは Gradle のキャッシュから探す
+依存の jar は `~/.gradle/caches/modules-2/files-2.1/<group>/<artifact>/<version>/<hash>/` にある
+（`*-sources.jar` があればソース）。`unzip -l <jar>` で中身を一覧し、`unzip -p <jar> <entry>` で
+`META-INF/spring-configuration-metadata.json` などを読む。`Glob` で `<artifact>-<version>*.jar` を探せば、
+ハッシュのディレクトリを辿らずに場所が分かる。
+
+## 必須の環境変数は `${VAR:}` で受けて起動時の検証で止める
+`${VAR}`（既定値なし）は、未設定でも未解決のプレースホルダが文字列のまま値に入り、アプリが起動する。
+必須の環境変数は `${VAR:}`（空の既定値）で受け、起動時の検証（`InitializingBean`・`Assert.hasText`）で
+空なら起動を止める。
+
 ## 一括 UPDATE（`@Modifying`）の後に読み直すときは flush と clear を付ける
 一括 UPDATE の後、同じトランザクションで読み直すときは
 `@Modifying(flushAutomatically = true, clearAutomatically = true)` を付ける。
@@ -34,6 +45,9 @@ Spring Security を導入する機能（認証の機能）から適用する。�
 `PathPatternRequestMatcher` を使い、`request.getRequestURI()`（未デコード）の文字列比較をしない。
 Spring MVC はデコード後のパスで照合するため、パーセントエンコードで認可をすり抜けうる。
 メソッドの指定は GET と HEAD をそろえる。認可の迂回テスト（エンコードしたパス・HEAD）を必ず置く。
+拒否の期待値はステータスを1つに固定する（`isIn(400, 401, 403, 404)` のような幅のある期待値は、
+`permitAll` の拡大を見逃す）。`anyRequest().denyAll()` は ERROR ディスパッチにもかかり、ログイン中の
+404・500 が 403 に化けるので、ERROR ディスパッチを許可し、化けないことをテストで固定する。
 同じパスをメソッド別に複数回書くときの書き方は「Sonar で繰り返し出たルールの避け方（api）」節を参照する。
 
 ## エンコード済みパスを送るテストは `URI` で渡す

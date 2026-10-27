@@ -13,6 +13,8 @@
     3. 補助のテストは `src/test/support/` に置いてよい。
     4. main のファイルに対応しないテストは `src/test/` 直下に置いてよい。
 - **E2E**（e2e-agent）: `apps/web/e2e/<名前>.spec.ts`、補助は `apps/web/e2e/support/`。
+  - 測定は `e2e/measure/*.measure.ts` に置く。CI では実行しない。
+  - 測定どうしで共有するケースは `e2e/support/` に置く。測定のファイルどうしは import しない。
 
 テストを書く各ワーカーは本節を適用し、reviewer-agent は本節との突合をチェック項目に持つ（本節を参照し、転記しない）。
 
