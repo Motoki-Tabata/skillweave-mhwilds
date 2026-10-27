@@ -29,3 +29,13 @@
 - 種別: 矛盾是正
 - 何が起きたか: `.claude/skills/tsod-build/SKILL.md`「委譲」節の並列の条件は「同じ契約ファイルを前提にしない」とするが、009 の plan D19 は、契約のタスクが済んだ後の api-agent と web-agent を「どちらも契約だけを前提にする」として並列にした。010 の plan D16 は条文どおり直列にした。契約が確定した後の api と web の並列を許すのか、条文の意図が読み取れない。
 - 提案: 「委譲」節の条件に、先行タスクで確定済みの契約を両者が読むだけなら並列にしてよいかを明記する。
+
+## 2026-10-27 JPA の一括 UPDATE は @Version を進めず、Jackson 3 は型の違いを黙って変換する（機能010・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 010 の api で、`@Modifying` の一括 UPDATE（論理削除）が `@Version` を進めず、同時の更新が古いスナップショットで削除を上書きして行を生き返らせる穴をレビューで指摘された（7ae46af で `version = version + 1` を明示して解消）。また Jackson 3 は既定で `"rarity":"8"` や `8.5` を 8 に変換するため、`application.yml` の `spring.jackson.mapper.allow-coercion-of-scalars: false` と `spring.jackson.deserialization.accept-float-as-int: false` で 400 にした（全 API に効く。`Charm.getVersion()` を `int` にすると Spring Data の新規判定で NPE になるため `Integer` にした）。
+- 提案: `.claude/rules/api-spring.md` に3点を足す。(1) `@Version` 付きエンティティを一括 UPDATE で変えるときは `version = version + 1` を明示する。(2) 要求の型を厳密に 400 にしたい API は上の2キーが要り、全体に効く。(3) `@Version` の getter は `Integer`。あわせて plan D4・decisions Q59 に「削除は行バージョンを照合しないが進める」を1行足す。
+
+## 2026-10-27 トーストの文言が通知用の live region にも出るため、e2e の getByText に exact: true が要る（機能010・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `e2e/charm-save.spec.ts` で、トーストの文言が Reka の通知用 live region にも重複して出て、`getByText` が strict mode 違反で落ちた（`exact: true` で解消）。同じ文言を探す将来の e2e も当たる。
+- 提案: `.claude/rules/web-vue.md` の E2E の節に、トーストの文言を `getByText` で探すときは `exact: true` を付ける、と1行足す。また、`e2e/charm-save.spec.ts` が `charm-input.spec.ts` の局所関数（`openCharms`・スキル選択・登録手順）を複製しているので、3つ目の護石系 spec を書く機能で `e2e/support/charms.ts` に切り出す。
