@@ -2,8 +2,8 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: B
-- 次に起動するコマンド: `/tsod-screen-table 009-discord-login`
+- 区間: C
+- 次に起動するコマンド: `/tsod-plan 009-discord-login`
 - 推奨モデル: Opus
 - ブランチ: `feat/009-discord-login`（不変）
 <!--
@@ -26,7 +26,7 @@
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-27 / 6c5429b |
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-10-27 / ecc75ca |
 | B-1 | 画面設計 screen-design.md | 承認済み | 2026-10-27 / ccc6411 |
-| B-2 | テーブル設計（design/・migration） | 未 | |
+| B-2 | テーブル設計（design/・migration） | 承認済み | 2026-10-27 / b118f6f |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
@@ -67,12 +67,15 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で新しい教訓は出なかった）
+- なし（区間 B で新しい教訓は出なかった）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
 - 区間 C: Vite の proxy は changeOrigin: true のため、Spring Security が組み立てる redirect_uri の baseUrl が localhost:8080 になる。redirect-uri を application-local.yml で http://localhost:5173/api/login/oauth2/code/discord に固定するか、apps/web/vite.config.ts の変更（常時許可外。spec には未記載）が要るかを plan で決める
 - 区間 C: OAuth の戻りとログアウトは Spring Security のフィルタで処理されると springdoc に出ない。POST /api/auth/logout は契約に載せるので、contractTest で突合できる実装の形を plan で決める
+- 区間 D: V2__create_spring_session.sql は jar を読まずに書いた Spring Session JDBC の公式スキーマの写し。依存を足した後、jar 同梱の org/springframework/session/jdbc/schema-postgresql.sql と一致することを確かめ、spring.session.jdbc.initialize-schema を never にする
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q5・Q55・Q56・Q57
+- B-1 のキャンバス: https://claude.ai/artifact/MXSFJ2jeqERUouS89obzhL（非公開）。基準幅の認証の部品は 44×44px のアイコンとアカウントのメニュー（dropdown-menu を区間 D でメインが CLI で足す）
