@@ -84,6 +84,22 @@ docker compose -f docker/compose.yaml up -d --wait
 pnpm --filter @swv/web dev                       # http://localhost:5173
 ```
 
+### Discord ログイン（ローカル）
+
+1. [Discord Developer Portal](https://discord.com/developers/applications) でアプリケーションを作る。
+2. OAuth2 の Redirects に `http://localhost:5173/api/login/oauth2/code/discord` を登録する（Web の Vite のオリジン。API のオリジンではない）。
+3. Client ID と Client Secret を環境変数に設定して API を起動する。値はリポジトリに書かない。
+
+```bash
+export DISCORD_CLIENT_ID=<Client ID>
+export DISCORD_CLIENT_SECRET=<Client Secret>
+# 任意: リダイレクト URI を変える場合だけ
+# export DISCORD_REDIRECT_URI=http://localhost:5173/api/login/oauth2/code/discord
+(cd apps/api && ./gradlew bootRun)
+```
+
+`DISCORD_CLIENT_ID`・`DISCORD_CLIENT_SECRET` が未設定だと API は起動に失敗する。要求するスコープは `identify` だけ。
+
 ---
 
 ## 検証コマンド
