@@ -41,7 +41,7 @@
 
 ## 区間の再開点
 - 一括検証が緑になった時点のコミット: 486172d
-- その時点の verify の要約行: 総合結果: PASS（Sonar は最終検証で実行）
+- その時点の verify の要約行: 総合結果: PASS / Sonar 件数: issue 0 / hotspot 0 / Quality Gate OK（verify.mjs --e2e --sonar）
 - レビューの進捗: <何回目まで済み・未解決の所見>
 <!-- 区間 D の文脈が膨らんで中断するときに書く。再開した区間 D はここからレビュー（または是正）を始める -->
 
@@ -106,12 +106,18 @@
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- ゲート D-1 でユーザーが承認した plan からの逸脱: (1) application.yml の DISCORD_CLIENT_ID・DISCORD_CLIENT_SECRET を既定値なしの ${VAR} から空の既定値（${VAR:}）＋ DiscordCredentialsValidator の起動時検証へ変更（理由: Boot は未解決の ${VAR} を文字列のまま値にして未設定でも起動するため。plan D2 の意図『未設定なら起動に失敗する』は達成）。(2) application-local.yml の swv.auth.web-top-url を http://localhost:5173/ の絶対 URL にした（理由: Tomcat は相対 Location を要求の Host で絶対化し、Vite proxy は Host を localhost:8080 に書き換えるため、相対の / では API 側へ戻る。base の既定は plan D3 どおり /）。
+- ゲート D-1 でユーザーが承認した @SuppressWarnings(java:S3330): SecurityConfig の XSRF-TOKEN の Cookie を HttpOnly にしない箇所（二重送信 Cookie は JS から読める必要がある）。理由のコメントはソースにある。抑止の置き場所（sonar-project.properties の multicriteria か @SuppressWarnings か）を規約が定めていない点は、後続の教訓として扱う。
+- メインの直接修正: 上の『メインの直接修正』表をそのまま転記すること（design/tech-stack.md・contracts/README.md・DiscordCredentialsValidator の Javadoc）。
+- 台帳（tasks/lessons.md）の変更: 区間 D で 3 件起票（未解決の ${VAR}・認可の迂回テストの期待値と ERROR ディスパッチ・並列委譲時の書込フック）。
+- 持ち越し（ゲート D-1 で承認）: 認可を始めただけで未ログインのセッションの行が作られ 30 日残る点は、本番公開前に認可の開始時に有効期間を短くして対処する。web の要判断 3 件（ログアウト失敗後のフォーカス喪失／bfcache・修飾キー付きクリックで古い戻り先の記録が残る／360px の出し分けを自動で検証していない）は T8 の手動確認で見て、問題があれば web-agent に再委譲する。そのほかの持ち越し: SessionCookieRefreshFilter が未確定の応答を flushBuffer で確定させる（chunked になりうる。実測していない）、非同期応答を足すときは同フィルタを見直す、ProblemDetail の examples が 401 に寄っている、ログインのリンクのクラス列が ui の outline の複製、ライトの outline の枠色が MASTER.md の btn-outline と違う（既存のログアウトも同じ）、safeReturnPath がキャッチオールのルートの不在に依存、--e2e-api では既存 e2e のヘッダーにログインのリンクが出る。
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で新しい教訓は出なかった）
 - なし（区間 B で新しい教訓は出なかった）
 - なし（区間 C の教訓は tasks/lessons.md に起票した: Spring Boot の版と tech-stack.md の表の食い違い）
+- なし（区間 D の教訓は tasks/lessons.md に 3 件起票した。上の PR 本文の記載事項を参照）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
