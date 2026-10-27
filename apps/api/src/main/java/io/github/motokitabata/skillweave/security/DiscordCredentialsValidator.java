@@ -7,8 +7,9 @@ import org.springframework.util.Assert;
 
 /**
  * Discord のクライアント ID・シークレットが空なら起動に失敗させる（受入基準 13）。
- * application.yml は環境変数に既定値を持たないが、Boot は未解決の値を空にして通すため、
- * ID は Boot の登録検証が、シークレットはここで検査する。
+ * application.yml は環境変数の既定値を空にしている（既定値が無いと、Boot は未解決の
+ * プレースホルダを文字列のまま値にして起動してしまう）。ID は Boot の登録検証が、
+ * シークレットはここで検査する。
  */
 public class DiscordCredentialsValidator implements InitializingBean {
 
