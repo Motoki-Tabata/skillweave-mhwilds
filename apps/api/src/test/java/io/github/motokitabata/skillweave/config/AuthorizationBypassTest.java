@@ -66,20 +66,23 @@ class AuthorizationBypassTest {
         assertThat(status(HttpMethod.HEAD, path)).isEqualTo(401);
     }
 
-    // ファイアウォール（400）が拒む形（%2F・/./）、または、または /api の外になる形は、200 にならず拒否される。
+    // ファイアウォールが拒む形（%2F・/./・/../）は、認可の前に 400 で拒否される（GET・HEAD とも）。
     @ParameterizedTest
-    @ValueSource(strings = {"/api/auth%2Fme", "/API/auth/me", "/api/./auth/me"})
-    void undecodablePathsAreNeverServed(String path) {
-        int get = status(HttpMethod.GET, path);
-        assertThat(get).isIn(400, 401, 403, 404);
-        assertThat(status(HttpMethod.HEAD, path)).isEqualTo(get);
+    @ValueSource(strings = {"/api/auth%2Fme", "/api/./auth/me", "/api/../api/auth/me", "/actuator/health/../env"})
+    void firewallRejectedPathsReturn400(String path) {
+        assertThat(status(HttpMethod.GET, path)).isEqualTo(400);
+        assertThat(status(HttpMethod.HEAD, path)).isEqualTo(400);
     }
 
-    // 認証不要の一覧に無いパスは拒否する（非公開のアクチュエーターなど）。
+    // 認証不要の一覧に無いパス（/api の外・大文字違い・非公開のアクチュエーター）は、
+    // 未ログインでは匿名の denyAll で 401 の problem+json（404 は認可を通ったときだけ返る）。
     @ParameterizedTest
-    @ValueSource(strings = {"/actuator/env", "/actuator/%65nv", "/unknown", "/actuator/health/../env"})
-    void unlistedPathsAreDenied(String path) {
-        assertThat(status(HttpMethod.GET, path)).isIn(400, 401, 403, 404);
-        assertThat(status(HttpMethod.HEAD, path)).isIn(400, 401, 403, 404);
+    @ValueSource(strings = {"/API/auth/me", "/unknown", "/actuator/env", "/actuator/%65nv"})
+    void unlistedPathsReturn401Problem(String path) {
+        ResponseEntity<String> get = exchange(HttpMethod.GET, path);
+        assertThat(get.getStatusCode().value()).isEqualTo(401);
+        assertThat(get.getHeaders().getContentType().toString()).startsWith(PROBLEM_JSON);
+
+        assertThat(status(HttpMethod.HEAD, path)).isEqualTo(401);
     }
 }
