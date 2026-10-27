@@ -164,7 +164,7 @@ skillweave-mhwilds/
 - `shares`: 短縮 ID、build の**スナップショット**（jsonb）、作成日時（参照ではなく複製。元を編集・削除しても共有内容が変わらない）
 - `spring_session` 系: Spring Session JDBC が要求するテーブル（Flyway で作成）
 
-> 卒業記録: 機能009で `users` と `spring_session` 系を `design/data-model-standard.md`・`design/attributes.yaml`・Flyway（V1・V2）へ移設し、実装済み。`charms`・`user_weapons`・`builds`・`shares` は未卒業（各機能で卒業させる）。
+> 卒業記録: 機能009で `users` と `spring_session` 系を `design/data-model-standard.md`・`design/attributes.yaml`・Flyway（V1・V2）へ移設し、実装済み。機能010で `charms` を `design/attributes.yaml`・Flyway（V3）へ移設し、実装済み（§6.3 も卒業）。`user_weapons`・`builds`・`shares` は未卒業（各機能で卒業させる）。
 
 護石のスキル・スロットは当面 jsonb。フェーズ③の逆引きで検索が必要になったら GIN インデックス、それでも足りなければ正規化を検討する。
 
@@ -194,6 +194,8 @@ Attribute／Entity／Column の三層と `attributes.yaml` を SSoT とする運
 6. **タイムゾーン**: §3.2 のとおり UTC。
 
 ### 6.3 attributes.yaml の最初のエントリ候補（機能010 charm-save で確定。機能005 はテーブルを持たず端末内 IndexedDB のみ）
+
+> 卒業記録: 機能010で確定し、`design/attributes.yaml` へ移設済み。以降は `design/attributes.yaml` が正。
 
 護石ID、所有者ID（`user_id`）、護石内容（`payload jsonb`）、スキーマ版（`schema_version`）、行バージョン（`version`）、
 作成日時、更新日時、削除日時。
