@@ -8,7 +8,6 @@ parameters:
       format: uuid
 put:
   operationId: updateCharm
-  x-swv-status: draft
   summary: 護石を更新する
   tags:
     - charms
@@ -62,7 +61,6 @@ put:
       $ref: ../../components/responses/Conflict.yaml
 delete:
   operationId: deleteCharm
-  x-swv-status: draft
   summary: 護石を削除する
   tags:
     - charms

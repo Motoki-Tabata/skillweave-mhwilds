@@ -1,6 +1,5 @@
 get:
   operationId: listCharms
-  x-swv-status: draft
   summary: 自分の護石の一覧を取得する
   tags:
     - charms
@@ -37,7 +36,6 @@ get:
       $ref: ../../components/responses/Unauthorized.yaml
 post:
   operationId: createCharm
-  x-swv-status: draft
   summary: 護石を保存する
   tags:
     - charms
