@@ -43,6 +43,6 @@ node .claude/skills/tsod-spec-check/scripts/spec-check.mjs <spec.md のパス>
 node .claude/skills/tsod-spec-check/scripts/spec-check.mjs <spec.md のパス> --compare-plan <plan.md のパス>
 ```
 
-plan にだけ現れる常時許可外の変更と、spec にだけ現れる変更予定を突き合わせる。`tsod-plan` がゲート C-1 の提示に用いる。plan.md に `## 常時許可外の変更` 節が無いときは判定不能として、終了コード 2 を返す。
+plan にだけ現れる常時許可外の変更と、spec にだけ現れる変更予定を突き合わせる。`tsod-plan` がゲート C-1 の提示に用いる。plan.md に `## 常時許可外の変更` 節が無いときは判定不能として、終了コード 2 を返す。節の中に、バッククォートのパスがちょうど1つでない行（説明の中の識別子にバッククォートを付けた行を含む）やパスに glob 記号がある行があると、その行を突合の表に「判定不能」として行の文言付きで出し、終了コード 1 を返す（NG と同じ扱い。表から消して「spec のみ」と誤判定しない）。
 
 回帰テストは `node --test .claude/skills/tsod-spec-check/scripts/spec-check.test.mjs`。

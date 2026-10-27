@@ -12,6 +12,8 @@
 //   4. CLAUDE.md「Commands」の表と verify.mjs の実行計画（buildPlan）の一致、および ci.yml の run: 行との対応
 //   5. tsod-build/SKILL.md の領域表のワーカーと write-scopes.json の roles が、.claude/agents/<名前>/<名前>.md に実在するか（取り残しの検出）
 //   6. temp/ に、当該機能 ID の「未卒業」の予約が残っていないか
+//   7. specs/feature-map.md の機能マップで、当該機能の状態が「済」になっているか
+// 1 の番号は、spec の受入基準の `AC-N` から取る（ID の無い spec は、箇条・番号の順に振る）。
 // 突き合わせの3者（4 の対象）は、CLAUDE.md の `## Commands` 節・.github/workflows/ci.yml の run 行・verify.mjs の計画。README は読まない。
 // temp/ の卒業記録の有無は、卒業記録の書き方（完了追記または節の削除）が文面の判断を要するため、機械では 6 の予約の残存だけを見る。
 //
@@ -109,7 +111,9 @@ export function mentionedCriteria(text) {
 }
 
 /**
- * spec.md の「受入基準」節の番号を取り出す。純関数。「1. …」はその番号、「- …」は出現順に振る。
+ * spec.md の「受入基準」節の番号を取り出す。純関数。
+ * 項目の先頭に `AC-N`（`- AC-1: …`・`1. **AC-1** …` のように、装飾は可）があればその N、
+ * 無ければ「1. …」はその番号、「- …」は出現順に振る。
  */
 export function criteriaNumbers(specText) {
   const section = sectionOf(specText, '受入基準');
@@ -117,8 +121,12 @@ export function criteriaNumbers(specText) {
   const nums = [];
   let seq = 0;
   for (const line of section.split('\n')) {
+    const ac = line.match(/^\s*(?:-|\d+\.)\s+[*_`[(]*AC[-_ ]?(\d+)(?!\d)/);
     const numbered = line.match(/^\s*(\d+)\.\s+\S/);
-    if (numbered) {
+    if (ac) {
+      seq = Number(ac[1]);
+      nums.push(seq);
+    } else if (numbered) {
       seq = Number(numbered[1]);
       nums.push(seq);
     } else if (/^\s*-\s+\S/.test(line)) {
@@ -420,6 +428,34 @@ export function findUnclaimedReservations(files, nnn) {
   return hits;
 }
 
+// ---------------------------------------------------------------- 7. feature-map の状態
+
+/**
+ * specs/feature-map.md の機能マップ（ヘッダに「機能ID」「状態」の列がある表）から、当該機能の状態を読む。純関数。
+ * @returns {{tableFound: boolean, rowFound: boolean, status: string|null, ok: boolean}}
+ */
+export function checkFeatureMapStatus(featureMapText, nnn) {
+  const cellsOf = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+  const lines = String(featureMapText ?? '').split(/\r?\n/);
+  const head = lines.findIndex((l) => {
+    const cells = l.trim().startsWith('|') ? cellsOf(l) : [];
+    return cells.includes('機能ID') && cells.includes('状態');
+  });
+  if (head === -1) return { tableFound: false, rowFound: false, status: null, ok: false };
+  const headCells = cellsOf(lines[head]);
+  const idCol = headCells.indexOf('機能ID');
+  const statusCol = headCells.indexOf('状態');
+  for (let i = head + 1; i < lines.length; i++) {
+    if (!lines[i].trim().startsWith('|')) break;
+    const cells = cellsOf(lines[i]);
+    if (cells[idCol] === nnn) {
+      const status = cells[statusCol] ?? '';
+      return { tableFound: true, rowFound: true, status, ok: status === '済' };
+    }
+  }
+  return { tableFound: true, rowFound: false, status: null, ok: false };
+}
+
 // ---------------------------------------------------------------- 出力
 
 function box(ok) {
@@ -527,6 +563,19 @@ export function buildSections(results) {
       items: results.temp.length
         ? results.temp.map((h) => ({ ok: false, text: `${h.file}:${h.line} ${h.text}` }))
         : [{ ok: true, text: '当該機能 ID の未卒業の予約は残っていない' }],
+    });
+  }
+  if (results.featureMap) {
+    const f = results.featureMap;
+    sections.push({
+      title: '7. specs/feature-map.md の状態',
+      items: [
+        !f.tableFound
+          ? { ok: false, text: 'specs/feature-map.md の機能マップの表を読めなかった' }
+          : !f.rowFound
+            ? { ok: false, text: '機能マップに当該機能の行が無い' }
+            : { ok: f.ok, text: f.ok ? '機能マップの状態は「済」' : `機能マップの状態が「済」でない（現在: ${f.status === '' ? '空' : f.status}）` },
+      ],
     });
   }
   return sections;
@@ -654,6 +703,7 @@ function main() {
     }),
     agents: checkAgentList(extractWorkerTable(readIfExists('.claude/skills/tsod-build/SKILL.md')), roleNamesOf(readIfExists('.claude/skills/impact-scope/write-scopes.json')), agentNames),
     temp: findUnclaimedReservations(tempFiles, nnn),
+    featureMap: checkFeatureMapStatus(readIfExists('specs/feature-map.md'), nnn),
   };
 
   const { markdown, findings, checked } = formatChecklist(nnn, buildSections(results));

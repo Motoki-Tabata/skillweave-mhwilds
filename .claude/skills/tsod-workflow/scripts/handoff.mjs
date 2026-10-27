@@ -2,11 +2,17 @@
 // handoff: specs/NNN-<slug>/handoff.md を決まった書式で更新・照合する。
 // handoff は このスクリプトだけで更新する（Edit・sed・python・node -e で書き換えない）。
 //
-// 使い方（リポジトリのどこかで実行。NNN は機能の番号。`004` でも `004-solver-ui` でもよい）:
-//   node .claude/skills/tsod-workflow/scripts/handoff.mjs gate NNN <ゲート> <記録>
+// 使い方（リポジトリのどこかで実行。NNN は機能の番号。`004` でも `004-solver-ui` でもよい。`--help`・`-h` でこの使い方を出す）:
+//   node .claude/skills/tsod-workflow/scripts/handoff.mjs init NNN-<slug>
+//       references/handoff-template.md の `NNN-<slug>` をすべて置き換え、specs/NNN-<slug>/handoff.md を作る。既にあれば exit 1。
+//   node .claude/skills/tsod-workflow/scripts/handoff.mjs gate NNN <ゲート> <記録> [--overwrite]
 //       ゲート記録の行を「承認済み」と「<今日> / <記録>」にする。記録の先頭がコミットのハッシュなら git に実在しないと exit 1。
-//   node .claude/skills/tsod-workflow/scripts/handoff.mjs gate NNN <ゲート> --na "<理由>" [<記録>]
+//       承認済み・該当なしの記録済みのゲートは、--overwrite が無いと exit 1（二重記録の防止）。
+//   node .claude/skills/tsod-workflow/scripts/handoff.mjs gate NNN <ゲート> --na "<理由>" [<記録>] [--overwrite]
 //       ゲート記録の行を「該当なし（<理由>）」にする。
+//   node .claude/skills/tsod-workflow/scripts/handoff.mjs finish NNN <ゲート> <記録> [--move <移行>] [--note <節> <文>] [--overwrite]
+//       ゲート記録（gate と同じ）→ 区間メモなどへの note → 現在地の transition を、1回の書き込みで行う。
+//       --move・--note は省略できる。--na "<理由>" で該当なしにもできる。途中で失敗したらファイルは変えない。
 //   node .claude/skills/tsod-workflow/scripts/handoff.mjs check NNN <ゲート>...
 //       各ゲートが承認済みか該当なしで、記録のハッシュが履歴にあり、そのハッシュから HEAD と作業ツリーまでに
 //       ゲートの成果物が変わっていないことを確かめる。不一致は理由を出して exit 1。
@@ -14,6 +20,7 @@
 //       節の中の `- キー: 値` の行を書き換える。
 //   node .claude/skills/tsod-workflow/scripts/handoff.mjs transition NNN <移行>
 //       現在地の4行を、現在地の節のコメントにある「区間の終わりの定型」の行で書く（移行は `A→B`・`D→E` など）。
+//       書く値に `NNN-<slug>` が残っていれば（init で作っていない handoff）、書かずに exit 1。
 //   node .claude/skills/tsod-workflow/scripts/handoff.mjs row NNN <節> <セル>...
 //       節の表に1行追記する。列数が表と違うと exit 2。
 //   node .claude/skills/tsod-workflow/scripts/handoff.mjs note NNN <節> <文>
@@ -24,29 +31,48 @@
 //   C-1 plan.md・tasks.md（tasks.md はチェックボックスの差を無視する。区間 D の再開で落ちないため）／D-1 handoff.md 以外の全体。
 //   E-1・E-2 は成果物を持たず、状態だけを見る。
 //
-// 終了コード: 0 成功／1 不一致（check の不一致・gate のハッシュが実在しない）／2 引数誤り・対象が見つからない。
+// 終了コード: 0 成功／1 不一致（check の不一致・gate のハッシュが実在しない・記録済みのゲートへの上書き・init の既存・transition の `NNN-<slug>` 残り）／2 引数誤り・対象が見つからない。
 // Node ESM・依存ゼロ。純関数を export する。
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const USAGE = [
   '使い方:',
-  '  node handoff.mjs gate NNN <ゲート> <記録>',
-  '  node handoff.mjs gate NNN <ゲート> --na "<理由>" [<記録>]',
+  '  node handoff.mjs init NNN-<slug>',
+  '  node handoff.mjs gate NNN <ゲート> <記録> [--overwrite]',
+  '  node handoff.mjs gate NNN <ゲート> --na "<理由>" [<記録>] [--overwrite]',
+  '  node handoff.mjs finish NNN <ゲート> <記録> [--move <移行>] [--note <節> <文>] [--overwrite]',
   '  node handoff.mjs check NNN <ゲート>...',
   '  node handoff.mjs set NNN <節> <キー> <値>',
   '  node handoff.mjs transition NNN <移行>',
   '  node handoff.mjs row NNN <節> <セル>...',
   '  node handoff.mjs note NNN <節> <文>',
+  '  node handoff.mjs --help | -h',
 ].join('\n');
 
 export const GATES = ['A-1', 'A-2', 'B-1', 'B-2', 'C-1', 'D-1', 'E-1', 'E-2'];
 const GATE_SECTION = 'ゲート記録';
 const CURRENT_SECTION = '現在地';
+const PLACEHOLDER = 'NNN-<slug>';
+const TEMPLATE_PATH = fileURLToPath(new URL('../references/handoff-template.md', import.meta.url));
+
+/** テンプレートの `NNN-<slug>`（コメントの中も含む）をすべて置き換える。純関数。 */
+export function fillTemplate(template, slugDir) {
+  return String(template).split(PLACEHOLDER).join(slugDir);
+}
+
+/** 記録済み（承認済み・該当なし）のゲートを --overwrite 無しで書こうとしたら HandoffError(1)。 */
+export function assertWritable(text, gate, overwrite) {
+  if (overwrite) return;
+  const row = readGateRow(text, gate);
+  if (classifyStatus(row.status) !== 'pending') {
+    throw new HandoffError(`ゲート ${gate} は記録済み（${row.status} / ${row.record}）。取り直したときだけ --overwrite を付ける`, 1);
+  }
+}
 
 /** 終了コードを持つエラー。既定の 2 は引数誤り・対象が見つからないこと。 */
 export class HandoffError extends Error {
@@ -62,6 +88,9 @@ export class HandoffError extends Error {
 export function parseArgs(argv) {
   const pos = [];
   let na = null;
+  let overwrite = false;
+  let move = null;
+  let note = null;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--na') {
@@ -69,25 +98,56 @@ export function parseArgs(argv) {
       na = argv[++i];
       continue;
     }
+    if (a === '--overwrite') {
+      overwrite = true;
+      continue;
+    }
+    if (a === '--move') {
+      if (i + 1 >= argv.length || String(argv[i + 1]).trim() === '') throw new HandoffError('--move には移行（例: A→B）が要ります');
+      move = argv[++i];
+      continue;
+    }
+    if (a === '--note') {
+      if (i + 2 >= argv.length || String(argv[i + 1]).trim() === '' || String(argv[i + 2]).trim() === '') {
+        throw new HandoffError('--note には <節> <文> が要ります');
+      }
+      note = { section: argv[i + 1], text: argv[i + 2] };
+      i += 2;
+      continue;
+    }
     if (a.startsWith('--')) throw new HandoffError(`不明な引数です: ${a}`);
     pos.push(a);
   }
   const [cmd, nnn, ...rest] = pos;
   if (!cmd) throw new HandoffError('サブコマンドがありません');
-  if (!['gate', 'check', 'set', 'transition', 'row', 'note'].includes(cmd)) throw new HandoffError(`不明なサブコマンドです: ${cmd}`);
+  if (!['init', 'gate', 'finish', 'check', 'set', 'transition', 'row', 'note'].includes(cmd)) throw new HandoffError(`不明なサブコマンドです: ${cmd}`);
   if (!nnn || !/^\d{3,}(-.+)?$/.test(nnn)) throw new HandoffError('機能の番号 NNN（例: 004 または 004-solver-ui）がありません');
-  if (na !== null && cmd !== 'gate') throw new HandoffError('--na は gate だけで使えます');
+  if (na !== null && cmd !== 'gate' && cmd !== 'finish') throw new HandoffError('--na は gate・finish だけで使えます');
+  if (overwrite && cmd !== 'gate' && cmd !== 'finish') throw new HandoffError('--overwrite は gate・finish だけで使えます');
+  if ((move !== null || note !== null) && cmd !== 'finish') throw new HandoffError('--move・--note は finish だけで使えます');
 
   const needGate = (g) => {
     if (!GATES.includes(g)) throw new HandoffError(`ゲートは ${GATES.join('・')} のどれかです: ${g}`);
   };
   switch (cmd) {
+    case 'init': {
+      if (!/^\d{3,}-.+$/.test(nnn)) throw new HandoffError('init の引数は NNN-<slug>（例: 004-solver-ui）です');
+      if (rest.length !== 0) throw new HandoffError('init の引数は NNN-<slug> だけです');
+      return { cmd, nnn };
+    }
     case 'gate': {
       if (rest.length < 1 || rest.length > 2) throw new HandoffError('gate の引数は <ゲート> <記録> です');
       needGate(rest[0]);
       const record = rest[1] ?? null;
       if (na === null && record === null) throw new HandoffError('記録がありません（該当なしなら --na "<理由>"）');
-      return { cmd, nnn, gate: rest[0], record, na };
+      return { cmd, nnn, gate: rest[0], record, na, overwrite };
+    }
+    case 'finish': {
+      if (rest.length < 1 || rest.length > 2) throw new HandoffError('finish の引数は <ゲート> <記録> です');
+      needGate(rest[0]);
+      const record = rest[1] ?? null;
+      if (na === null && record === null) throw new HandoffError('記録がありません（該当なしなら --na "<理由>"）');
+      return { cmd, nnn, gate: rest[0], record, na, overwrite, move, note };
     }
     case 'check': {
       if (rest.length < 1) throw new HandoffError('check にはゲートが1つ以上要ります');
@@ -271,6 +331,9 @@ export function applyTransition(text, name) {
   if (rows.length === 0) throw new HandoffError('現在地の節のコメントに「区間の終わりの定型」の表が無い');
   const row = rows.find((r) => r.name === name) ?? rows.find((r) => r.name.startsWith(`${name}（`));
   if (!row) throw new HandoffError(`移行「${name}」が定型に無い。候補: ${rows.map((r) => r.name).join(' / ')}`);
+  if ([row.section, row.command, row.model, row.branch].some((v) => v.includes(PLACEHOLDER))) {
+    throw new HandoffError(`定型の行に ${PLACEHOLDER} が残っている。handoff.mjs init で作った handoff.md か確かめる`, 1);
+  }
   let out = setKey(text, CURRENT_SECTION, '区間', row.section);
   out = setKey(out, CURRENT_SECTION, '次に起動するコマンド', row.command);
   out = setKey(out, CURRENT_SECTION, '推奨モデル', row.model);
@@ -446,6 +509,15 @@ function evaluateGate(root, specDir, gate, text) {
 function run(opts) {
   const root = gitRoot();
   const specsDir = path.join(root, 'specs');
+  if (opts.cmd === 'init') {
+    const target = path.join(specsDir, opts.nnn, 'handoff.md');
+    if (existsSync(target)) throw new HandoffError(`specs/${opts.nnn}/handoff.md は既にある`, 1);
+    if (!existsSync(TEMPLATE_PATH)) throw new HandoffError(`テンプレートが無い: ${TEMPLATE_PATH}`);
+    mkdirSync(path.dirname(target), { recursive: true });
+    writeFileSync(target, fillTemplate(readFileSync(TEMPLATE_PATH, 'utf8'), opts.nnn));
+    console.log(`specs/${opts.nnn}/handoff.md を作りました`);
+    return 0;
+  }
   if (!existsSync(specsDir)) throw new HandoffError('specs/ がありません');
   const names = readdirSync(specsDir, { withFileTypes: true })
     .filter((e) => e.isDirectory())
@@ -465,8 +537,27 @@ function run(opts) {
     case 'gate': {
       const hash = opts.record ? extractHash(opts.record) : null;
       if (hash && !hashExists(root, hash)) throw new HandoffError(`記録のハッシュ ${hash} が git に実在しません`, 1);
+      assertWritable(text, opts.gate, opts.overwrite);
       const { status, record } = buildGateCells(opts, formatDate());
       save(setGate(text, opts.gate, status, record), `${specDir}/handoff.md: ${opts.gate} を「${status}」にしました（${record}）`);
+      return 0;
+    }
+    case 'finish': {
+      const hash = opts.record ? extractHash(opts.record) : null;
+      if (hash && !hashExists(root, hash)) throw new HandoffError(`記録のハッシュ ${hash} が git に実在しません`, 1);
+      assertWritable(text, opts.gate, opts.overwrite);
+      const { status, record } = buildGateCells(opts, formatDate());
+      let next = setGate(text, opts.gate, status, record);
+      const done = [`${opts.gate} を「${status}」`];
+      if (opts.note) {
+        next = appendNote(next, opts.note.section, opts.note.text);
+        done.push(`「${opts.note.section}」に箇条を追記`);
+      }
+      if (opts.move) {
+        next = applyTransition(next, opts.move);
+        done.push(`現在地を ${opts.move} の定型に`);
+      }
+      save(next, `${specDir}/handoff.md: ${done.join('、')}にしました（${record}）`);
       return 0;
     }
     case 'check': {
@@ -497,6 +588,11 @@ function run(opts) {
 }
 
 function main() {
+  const args = process.argv.slice(2);
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(USAGE);
+    process.exit(0);
+  }
   let opts;
   try {
     opts = parseArgs(process.argv.slice(2));

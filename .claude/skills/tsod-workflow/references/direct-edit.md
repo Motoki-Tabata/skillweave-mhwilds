@@ -50,6 +50,6 @@
 - `apps/api/gradle/wrapper/**`
 - `docker/init/01_init.sql`（追記禁止）
 - 検査機構: `.githooks/**`・`.gitleaksignore`・`sonar-project.properties`・`docker/compose.sonar.yaml`・`scripts/**`・`.github/workflows/**`
-- リポジトリ直下の `README.md`
+- リポジトリ直下の `README.md`（区間 E のドリフトの是正では、E-2 の承認を明示の指示とみなす。手順は [drift-checklist.md](../../tsod-ship/references/drift-checklist.md)）
 
 `.claude/**` と `CLAUDE.md` は、区間の中では書かない。変更要求は `tasks/lessons.md` に起票し、[canon-boundary.md](./canon-boundary.md) の経路で直す。

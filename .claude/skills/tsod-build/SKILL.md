@@ -12,7 +12,7 @@ effort: medium
 
 ## 開始条件
 
-handoff を全文読み、`node .claude/skills/tsod-workflow/scripts/handoff.mjs check NNN C-1` を実行する。exit 0 以外（未承認・成果物がゲートの後に変わった・handoff が無い）なら出力を示し、「開始条件を満たさない」と提示して `/tsod-plan NNN` を案内して停止する。ブランチは `feat/NNN-<slug>` であること。
+handoff を全文読み、`node .claude/skills/tsod-workflow/scripts/handoff.mjs check NNN C-1` を実行する。exit 0 以外（未承認・成果物がゲートの後に変わった・handoff が無い）なら出力を示し、「開始条件を満たさない」と提示して `/tsod-plan NNN` を案内して停止する。ブランチは `feat/NNN-<slug>` であること。過去の機能の spec.md・decisions.md・handoff.md や `design/` 配下の大きな文書は、[reading-discipline.md](../tsod-workflow/references/reading-discipline.md) に従い、範囲指定の無い cat で読まず、Grep で位置を決めてから節を読む。
 
 handoff の更新（コミット範囲・委譲の記録・再開点・レビュー記録・直接修正・ゲート D-1・現在地）は `handoff.mjs` のサブコマンドだけで行い、Edit・sed・python・node -e で書き換えない。
 
@@ -22,7 +22,7 @@ handoff の更新（コミット範囲・委譲の記録・再開点・レビュ
 
 ## 委譲
 
-1. plan.md「常時許可外の変更」のうち、ゲート C-1 で承認された行を、ワーカーへの委譲の前にメインが書く（依存追加 → リポジトリ直下で `pnpm install`・`apps/api` で `./gradlew` の解決確認まで）。ただし、後続の成果に依存して委譲の前には書けない変更は、plan の決定事項に書いた時期に `[main]` のタスクとして書く。詳細の正は `.claude/skills/tsod-plan/SKILL.md`「常時許可外の変更」節。
+1. plan.md「常時許可外の変更」のうち、ゲート C-1 で承認された行を、ワーカーへの委譲の前にメインが書く（依存追加 → リポジトリ直下で `pnpm install`・`apps/api` で `./gradlew` の解決確認まで）。ただし、後続の成果に依存して委譲の前には書けない変更は、plan の決定事項に書いた時期に `[main]` のタスクとして書く。詳細の正は `.claude/skills/tsod-plan/SKILL.md`「常時許可外の変更」節。委譲の前に、`pnpm install --frozen-lockfile` を実行して、依存が lockfile と一致することを確かめる。
 2. tasks.md の担当領域ごとに、領域を担うワーカーを別の起動で委譲する（native の `subagent_type`）。
 
    | 領域 | ワーカー |
@@ -45,14 +45,14 @@ handoff の更新（コミット範囲・委譲の記録・再開点・レビュ
 
    したがって並列にしてよいのは、`apps/api` 側の役割（api-agent）と、pnpm workspace 側の役割（web・solver・data の各役割・e2e-agent のどれか1つ）の組で、上の他の条件も満たすときだけ。contract-agent は両側の前提になるので並列にしない。solver と data の役割は、互いに並列にしない（同じ `packages` の段で lint・format を検査するため）。
 
-   機能マップの依存の表（機能同士の依存）は、この判断の根拠にしない。並行で起動したときはバックグラウンドで起動し、完了通知を待つ。
+   機能マップの依存の表（機能同士の依存）は、この判断の根拠にしない。並行で起動したときはバックグラウンドで起動し、完了通知を待つ。並列で起動するときは、各委譲プロンプトに並行で動くワーカーとその書込フォルダを書く（[delegation-template.md](./references/delegation-template.md)）。ワーカーは、そのフォルダの変化を完了報告の「担当外の変化」に列挙し、停止せずに続ける。
 5. ワーカーが戻ったら、`git status` で担当外の変化が無いことを確かめ、領域ごとに1コミットを積み、`handoff.mjs row NNN 委譲の記録 <領域> <ワーカー> <コミット>` で記録する。
 6. 修正のための再委譲は、担当ワーカーを**新規起動**し、`review-diff.mjs` で保存した差分ファイルのパスと修正指示だけを渡す（前回の会話を再開しない。SendMessage で再開しない）。担当は上の領域表で一意に決まる。
 
 ### ワーカーの報告を受けたとき
 
 - フォルダ外の変更が必要と報告された → 共有構成ファイルなら AskUserQuestion でユーザーに提示し、承認後にメインが書き、handoff の「PR 本文に必須の記載事項」に記録する。ほかのワーカー領域の定型修正は、メインの直接修正の基準に当たるものだけメインが直す。それ以外は担当ワーカーを新規起動する。
-- 担当外の変化の報告があれば、並行で動いていたワーカーの書込かを確かめ、該当しなければ是正する。
+- 担当外の変化の報告があれば、並行で動いていたワーカーの書込かを確かめ、該当しなければ是正する。委譲プロンプトが並行ワーカーの書込フォルダとして示したパスの変化は、ワーカーが報告に列挙して停止せずに続けた扱いでよい。
 - 契約型のフレッシュネスは、verify.mjs が一時ファイルへの再生成との比較で判定する。`apps/web/src/main/lib/api/schema.ts` が未コミット・未ステージでも落ちない。FAIL なら再生成漏れ。
 
 ### draft の回収
@@ -73,7 +73,7 @@ api-agent の完了直後（data-agent・solver-agent・web-agent・e2e-agent �
 | data-agent | `pnpm --filter @swv/data run test:coverage` と `verify.mjs --only packages` と `--sonar-area packages` |
 | data-model-agent | Bash を持たないため下限なし（メインが区間 B で確かめる） |
 
-- Sonar の完了条件: 担当領域の新規コードに Sonar の issue が0件（`--sonar-area` の exit 0）。contract-agent・data-model-agent は Sonar の解析対象を書かないので対象外。
+- Sonar の完了条件: 担当領域の新規コードに Sonar の issue が0件（`--sonar-area` の exit 0）。contract-agent・data-model-agent は Sonar の解析対象を書かないので対象外。領域モード（`--sonar-area`）の0件は、全体解析（`--sonar`）の0件を保証しない。関数を分けたら、認知的複雑度が 15 以下になるかを自分で見積もる。
 - `--sonar-area packages` は、`packages/solver` と `packages/data` の**両方**を解析する。担当でないもう一方のパッケージの issue は、直さずに完了報告に書く。
 - api の最終検証は、Gradle のキャッシュ済みの結果を見ない。`verify.mjs` は `--rerun-tasks`・`--rerun` を付けて実行するので、手で `./gradlew` を叩くときも `--rerun-tasks` を付ける。
 
@@ -139,8 +139,8 @@ node .claude/skills/tsod-verify/scripts/verify.mjs --e2e --sonar
 一括検証・最終検証の要約・全所見（区分と処遇付き。handoff の「レビュー記録」）・メインの直接修正の表（そのまま）・常時許可外の変更の実績を提示する。区分が要判断の所見は、ゲートの問いに含めて人間に決めてもらう。`git diff` の確認を促してから、AskUserQuestion を1回取る。承認されたら、同じターンで次の順に進める。承認後に追加の確認を挟まない。
 
 1. 未起票の教訓を処理する（`tasks/lessons.md` へ起票する、または持ち越す旨を `handoff.mjs note NNN 未起票の教訓 <文>` で書く）。起票した台帳の変更など、`handoff.md` 以外の変更をここでコミットする。
-2. その時点（成果物をコミットした直後）の HEAD の短縮ハッシュで `handoff.mjs gate NNN D-1 <短縮ハッシュ>` を実行する。ゲート D-1 の成果物は `handoff.md` 以外の全体なので、gate の後に `handoff.md` 以外を変えると、次の区間の `check NNN D-1` が exit 1 になる。
-3. `handoff.mjs transition NNN D→E` を実行し、handoff の変更だけを1回コミットする。
+2. その時点（成果物をコミットした直後）の HEAD の短縮ハッシュで、ゲートの記録と現在地の移行を1回で行う。`node .claude/skills/tsod-workflow/scripts/handoff.mjs finish NNN D-1 <短縮ハッシュ> --move D→E`。ゲート D-1 の成果物は `handoff.md` 以外の全体なので、finish の後に `handoff.md` 以外を変えると、次の区間の `check NNN D-1` が exit 1 になる。記録済みのゲートには `--overwrite` が無いと exit 1 になる。
+3. handoff の変更だけを1回コミットする。順は「成果物のコミット→finish→handoff.md のコミット1回」。
 
 ## 再開
 
@@ -158,6 +158,6 @@ node .claude/skills/tsod-verify/scripts/verify.mjs --e2e --sonar
 
 ## 区間の終わり（次のコマンドと推奨モデル）
 
-ゲート D-1 の承認の直後に、handoff の「現在地」を `handoff.mjs transition NNN D→E` で書く（上のゲート D-1 の手順で実行済み）。このセッションでは PR 作成に進まない。次の定型の案内文を出して停止する。
+ゲート D-1 の承認の直後に、handoff の「現在地」を `handoff.mjs finish NNN D-1 <短縮ハッシュ> --move D→E` で書く（上のゲート D-1 の手順で実行済み）。このセッションでは PR 作成に進まない。次の定型の案内文を出して停止する。
 
 「新しいセッションを開き、`/model sonnet` にしてから `/tsod-ship NNN-<slug>` を起動してください。」

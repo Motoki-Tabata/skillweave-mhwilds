@@ -11,6 +11,7 @@ import {
   checkCommandsConsistency,
   checkDecisionsMigrated,
   checkEndpoints,
+  checkFeatureMapStatus,
   criteriaNumbers,
   DRIFT_PLAN_ARGS,
   extractCiTokens,
@@ -64,6 +65,37 @@ test('mentionedCriteria: 「受入基準 N」と AC-N の言及を拾う', () =>
 
 test('criteriaNumbers: 番号つきの受入基準の番号を取る', () => {
   assert.deepEqual(criteriaNumbers(SPEC), [1, 2, 3]);
+});
+
+const SPEC_AC = [
+  '## 受入基準（EARS記法）',
+  '',
+  '- AC-1: THE system SHALL a しなければならない。',
+  '- AC-2: WHEN b THE system SHALL c しなければならない。',
+  '- AC-4: WHEN d THE system SHALL e しなければならない。',
+  '',
+  '## スコープ外',
+].join('\n');
+
+test('criteriaNumbers: AC-N 付きの受入基準は、その N を取る（箇条の順ではない）', () => {
+  assert.deepEqual(criteriaNumbers(SPEC_AC), [1, 2, 4]);
+  assert.deepEqual(criteriaNumbers('## 受入基準\n1. **AC-1** a\n2. **AC-2** b\n'), [1, 2]);
+});
+
+test('AC-N 付きの spec と AC-N を書いたテストの組: 番号の検査が不足を出さない', () => {
+  const tasks = '- [ ] T1 refs AC-1, AC-2\n- [ ] T2 refs AC-4';
+  const tests = [{ file: 'apps/api/src/test/java/A.java', text: '// AC-1 AC-2\n@Test void ac4() {} // AC-4' }];
+  const r = checkAcceptanceCoverage(criteriaNumbers(SPEC_AC), tasks, tests);
+  assert.deepEqual(
+    r.map((x) => [x.no, x.inTasks, x.inTests]),
+    [
+      [1, true, true],
+      [2, true, true],
+      [4, true, true],
+    ],
+  );
+  const items = buildSections({ coverage: r })[0].items;
+  assert.ok(items.every((it) => it.ok));
 });
 
 test('checkAcceptanceCoverage: tasks にもテストにも現れない番号を検出する（違反の注入）', () => {
@@ -458,6 +490,52 @@ test('findUnclaimedReservations: 当該機能 ID の未卒業の予約だけを�
   assert.equal(hits.length, 1);
   assert.equal(hits[0].line, 1);
   assert.deepEqual(findUnclaimedReservations(files, '012'), []);
+});
+
+// ---- 7. feature-map の状態
+
+const FEATURE_MAP = [
+  '# 機能マップ',
+  '',
+  '### 機能マップ',
+  '| 機能ID | 名称 | 1行の価値 | 優先度 | 想定サイズ | 状態 |',
+  '|---|---|---|---|---|---|',
+  '| 008 | user-weapon | a | P1 | M | 済 |',
+  '| 009 | discord-login | b | P1 | M | 実装中 |',
+  '| 010 | charm-save | c | P1 | M | 未着手 |',
+  '',
+  '### 依存',
+  '| 機能 | 直接の依存 | 備考 |',
+  '|---|---|---|',
+  '| 009 discord-login | 004 | |',
+].join('\n');
+
+test('checkFeatureMapStatus: 状態が「済」でない機能を検出し、「済」なら出さない（違反の注入）', () => {
+  assert.deepEqual(checkFeatureMapStatus(FEATURE_MAP, '008'), { tableFound: true, rowFound: true, status: '済', ok: true });
+  const notDone = checkFeatureMapStatus(FEATURE_MAP, '009');
+  assert.equal(notDone.ok, false);
+  assert.equal(notDone.status, '実装中');
+  assert.equal(checkFeatureMapStatus(FEATURE_MAP, '010').ok, false);
+  assert.equal(checkFeatureMapStatus(FEATURE_MAP, '099').rowFound, false);
+  assert.equal(checkFeatureMapStatus(null, '008').tableFound, false);
+});
+
+test('buildSections: feature-map の状態が「済」でなければ指摘、「済」なら ok', () => {
+  const bad = buildSections({ featureMap: checkFeatureMapStatus(FEATURE_MAP, '009') })[0].items;
+  assert.equal(bad[0].ok, false);
+  assert.match(bad[0].text, /「済」でない（現在: 実装中）/);
+  const good = buildSections({ featureMap: checkFeatureMapStatus(FEATURE_MAP, '008') })[0].items;
+  assert.equal(good[0].ok, true);
+  const unreadable = buildSections({ featureMap: checkFeatureMapStatus(null, '008') })[0].items;
+  assert.equal(unreadable[0].ok, false);
+  assert.match(unreadable[0].text, /読めなかった/);
+});
+
+test('実物の specs/feature-map.md: 機能マップの表から行が取れる（素通りでない）', () => {
+  const real = readFileSync(path.join(REPO_ROOT, 'specs/feature-map.md'), 'utf8');
+  const r = checkFeatureMapStatus(real, '001');
+  assert.equal(r.tableFound, true);
+  assert.equal(r.rowFound, true);
 });
 
 // ---- 出力

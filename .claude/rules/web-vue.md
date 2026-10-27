@@ -56,8 +56,8 @@ Dialog 系 spec が `document.body.innerHTML = ''` の後に自動 unmount し�
   `TableHead` 等のラッパー越しだと Sonar の静的解析がコンポーネントの中身を追わず、この指摘が出る。
 - **`typescript:S3776`（認知的複雑度）**: 関数が分岐を重ねたら、判定を名前付きの小さな関数に分けるか、
   早期 return にして入れ子を減らす。
-- **`role="group"`・`role="status"`（S6819）**: これらの role はこのルールに当たるので、
-  `<fieldset>`・`<output>` で書く。
+- **`role="group"`・`role="status"`・`role="region"`（S6819）**: これらの role はこのルールに当たるので、
+  `<fieldset>`・`<output>` で書く。`role="region"` は `<section aria-label>` に代える（暗黙の role が region になる）。
 - **`Web:InputWithoutLabelCheck`・`Web:S6853`**: Reka UI の SelectTrigger と shadcn-vue の汎用
   Input・Label への指摘は誤検知である。`ui/` は編集禁止なので、抑止するときは
   `sonar-project.properties` の `sonar.issue.ignore.multicriteria` の抑止の規約（同ファイルのコメント）に従う。
@@ -67,6 +67,11 @@ Dialog 系 spec が `document.body.innerHTML = ''` の後に自動 unmount し�
 - web から `packages/*` のソースを import するときは、`tsconfig.app.json`・`tsconfig.vitest.json` の
   `include` に足す。足さないと `TS6307` で失敗する。
 - shadcn-vue の CLI は、`tsconfig.json` に `paths` が無いと失敗する。`components.json` の未知のキーも拒否する。
+- shadcn-vue の CLI（`add`）を実行したら、次の順で後始末をする。
+  - CLI が `package.json` に足した `cn` の依存を戻し、部品の import（`"cn"`）を `@/lib/utils` に直す。
+  - 既存の部品の上書き確認で止まるときは、その部品を退避してから実行し、実行後に復元する。
+  - 実行後に `pnpm install --frozen-lockfile` で node_modules を lockfile に合わせ、`prettier --write` で整形する。
+    戻さないと node_modules が lockfile と食い違い、`vitest` のリンク切れなどでテストが一つも走らなくなる。
 - vitest 内でリポジトリのファイルを読むときは `import.meta.dirname` を使う。
   `new URL(..., import.meta.url)` は vitest 内で `/@fs/` になり、ファイルパスとして使えない。
 - Playwright の `getByRole('heading', { name })` は部分一致である。連番の見出しなど、

@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
 import path from 'node:path';
+import process from 'node:process';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { AREA_VOCAB, checkSpec, comparePlan, formatTable, parseSpec } from './spec-check.mjs';
@@ -175,6 +178,45 @@ test('compare-plan: plan の節が無ければ終了コード相当の sectionMi
   const planText = '## スタック\n何か\n';
   const cmp = comparePlan(specResult, planText, SCOPES);
   assert.equal(cmp.sectionMissing, true);
+});
+
+test('compare-plan: 説明の中にバッククォートの識別子がある行は「判定不能」として表に出る', () => {
+  const specResult = checkSpec(makeSpec({ alwaysExcluded: '常時許可外の変更予定:\n- `apps/api/build.gradle.kts`（理由A）' }), SCOPES);
+  const planText = [
+    '## 常時許可外の変更',
+    '- `apps/api/build.gradle.kts`（担当: メイン。理由A）',
+    '- `pnpm-workspace.yaml`（`packages/*` を追加する）',
+  ].join('\n');
+  const cmp = comparePlan(specResult, planText, SCOPES);
+  assert.equal(cmp.unjudgeable.length, 1);
+  assert.match(cmp.unjudgeable[0].bullet, /pnpm-workspace\.yaml/);
+  assert.deepEqual(cmp.both, ['apps/api/build.gradle.kts']);
+  const table = formatTable(specResult, '007-sample', cmp);
+  assert.match(table, /判定不能/);
+  assert.match(table, /`packages\/\*` を追加する/);
+});
+
+test('compare-plan: 書式の正しい plan には判定不能の行が無い', () => {
+  const specResult = checkSpec(makeSpec(), SCOPES);
+  const cmp = comparePlan(specResult, '## 常時許可外の変更\n- `pnpm-workspace.yaml`（理由）\n', SCOPES);
+  assert.deepEqual(cmp.unjudgeable, []);
+  assert.doesNotMatch(formatTable(specResult, '007-sample', cmp), /判定不能/);
+});
+
+test('compare-plan: CLI は判定不能の行があると表に出して終了コード 1', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'spec-check-'));
+  try {
+    fs.mkdirSync(path.join(dir, '007-sample'));
+    const specPath = path.join(dir, '007-sample', 'spec.md');
+    const planPath = path.join(dir, '007-sample', 'plan.md');
+    fs.writeFileSync(specPath, makeSpec());
+    fs.writeFileSync(planPath, '## 常時許可外の変更\n- `pnpm-workspace.yaml`（`packages/*` を追加）\n');
+    const r = spawnSync(process.execPath, [path.join(__dirname, 'spec-check.mjs'), specPath, '--compare-plan', planPath], { encoding: 'utf8' });
+    assert.equal(r.status, 1, r.stderr);
+    assert.match(r.stdout, /判定不能/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('formatTable: 固定フォーマットの表を出力する', () => {

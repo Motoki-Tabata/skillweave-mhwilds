@@ -227,8 +227,21 @@ test('buildGateCells: 承認済みと該当なし', () => {
 });
 
 test('parseArgs: 正しい形', () => {
-  assert.deepEqual(parseArgs(['gate', '001', 'A-2', 'abc1234']), { cmd: 'gate', nnn: '001', gate: 'A-2', record: 'abc1234', na: null });
-  assert.deepEqual(parseArgs(['gate', '001', 'B-2', '--na', '変更なし']), { cmd: 'gate', nnn: '001', gate: 'B-2', record: null, na: '変更なし' });
+  assert.deepEqual(parseArgs(['gate', '001', 'A-2', 'abc1234']), { cmd: 'gate', nnn: '001', gate: 'A-2', record: 'abc1234', na: null, overwrite: false });
+  assert.deepEqual(parseArgs(['gate', '001', 'B-2', '--na', '変更なし']), { cmd: 'gate', nnn: '001', gate: 'B-2', record: null, na: '変更なし', overwrite: false });
+  assert.equal(parseArgs(['gate', '001', 'A-2', 'abc1234', '--overwrite']).overwrite, true);
+  assert.deepEqual(parseArgs(['finish', '001', 'A-2', 'abc1234', '--move', 'A→B', '--note', '区間メモ', '文', '--overwrite']), {
+    cmd: 'finish',
+    nnn: '001',
+    gate: 'A-2',
+    record: 'abc1234',
+    na: null,
+    overwrite: true,
+    move: 'A→B',
+    note: { section: '区間メモ', text: '文' },
+  });
+  assert.deepEqual(parseArgs(['finish', '001', 'A-2', 'abc1234']).move, null);
+  assert.deepEqual(parseArgs(['init', '001-demo']), { cmd: 'init', nnn: '001-demo' });
   assert.deepEqual(parseArgs(['check', '001-demo', 'A-2', 'B-1']), { cmd: 'check', nnn: '001-demo', gates: ['A-2', 'B-1'] });
   assert.deepEqual(parseArgs(['row', '001', '委譲の記録', 'a', 'b', 'c']).cells, ['a', 'b', 'c']);
 });
@@ -245,6 +258,11 @@ test('parseArgs: 引数誤りは HandoffError', () => {
   assert.throws(() => parseArgs(['note', '001', '区間メモ']), HandoffError);
   assert.throws(() => parseArgs(['check', '001', 'A-2', '--na', 'x']), HandoffError);
   assert.throws(() => parseArgs(['check', '001', 'A-2', '--bogus']), HandoffError);
+  assert.throws(() => parseArgs(['init', '001']), HandoffError);
+  assert.throws(() => parseArgs(['check', '001', 'A-2', '--overwrite']), HandoffError);
+  assert.throws(() => parseArgs(['gate', '001', 'A-2', 'abc1234', '--move', 'A→B']), HandoffError);
+  assert.throws(() => parseArgs(['finish', '001', 'A-2']), HandoffError);
+  assert.throws(() => parseArgs(['finish', '001', 'A-2', 'abc1234', '--note', '区間メモ']), HandoffError);
 });
 
 test('setKey: 該当の行だけを書き換え、コメントの中は触らない', () => {
@@ -485,6 +503,96 @@ test('row: 列数違いは exit 2 でファイルは変わらない', () => {
     const r = run(dir, 'row', '001', 'レビュー記録', '1', 'a..b', '要約');
     assert.equal(r.status, 2);
     assert.equal(read(dir, HANDOFF_PATH), before);
+  });
+});
+
+test('init: テンプレートの NNN-<slug> をコメントの中も含めてすべて置換し、既にあれば exit 1', () => {
+  withRepo((dir) => {
+    const r = run(dir, 'init', '002-new-feature');
+    assert.equal(r.status, 0, r.err);
+    const text = read(dir, 'specs/002-new-feature/handoff.md');
+    assert.equal(text.includes('NNN-<slug>'), false);
+    assert.match(text, /^# handoff: 002-new-feature$/m);
+    assert.match(text, /^- 次に起動するコマンド: `\/tsod-spec 002-new-feature`$/m);
+    assert.match(text, /\| A→B \| B \| `\/tsod-screen-table 002-new-feature` \|/);
+    const again = run(dir, 'init', '002-new-feature');
+    assert.equal(again.status, 1);
+    assert.equal(read(dir, 'specs/002-new-feature/handoff.md'), text);
+    assert.equal(run(dir, 'init', '002').status, 2);
+  });
+});
+
+test('transition: 定型に NNN-<slug> が残っていると書かずに exit 1', () => {
+  withRepo((dir) => {
+    const raw = HANDOFF.replace('`/tsod-screen-table 001-demo`', '`/tsod-screen-table NNN-<slug>`');
+    writeFileSync(path.join(dir, HANDOFF_PATH), raw);
+    const r = run(dir, 'transition', '001', 'A→B');
+    assert.equal(r.status, 1);
+    assert.equal(read(dir, HANDOFF_PATH), raw);
+    assert.equal(run(dir, 'transition', '001', 'C→D').status, 0);
+  });
+});
+
+test('finish: ゲート記録・note・移行を1回で行い、--move・--note は省略できる', () => {
+  withRepo((dir) => {
+    const hash = git(dir, 'rev-parse', '--short=7', 'HEAD');
+    const r = run(dir, 'finish', '001', 'A-2', hash, '--move', 'A→B', '--note', '区間メモ', '再開位置は B-1');
+    assert.equal(r.status, 0, r.err);
+    const after = read(dir, HANDOFF_PATH);
+    assert.equal(readGateRow(after, 'A-2').status, '承認済み');
+    assert.match(readGateRow(after, 'A-2').record, new RegExp(`^\\d{4}-\\d{2}-\\d{2} / ${hash}$`));
+    assert.match(after, /^- 再開位置は B-1$/m);
+    assert.match(after, /^- 区間: B$/m);
+    assert.match(after, /^- 次に起動するコマンド: `\/tsod-screen-table 001-demo`$/m);
+
+    const plain = run(dir, 'finish', '001', 'B-1', hash);
+    assert.equal(plain.status, 0, plain.err);
+    assert.equal(readGateRow(read(dir, HANDOFF_PATH), 'B-1').status, '承認済み');
+    const na = run(dir, 'finish', '001', 'B-2', '--na', '変更なし', '--move', 'A→C');
+    assert.equal(na.status, 0, na.err);
+    assert.equal(readGateRow(read(dir, HANDOFF_PATH), 'B-2').status, '該当なし（変更なし）');
+    assert.match(read(dir, HANDOFF_PATH), /^- 区間: C$/m);
+  });
+});
+
+test('finish: 移行や節が不正ならファイルは変わらず、ゲートも記録されない', () => {
+  withRepo((dir) => {
+    const hash = git(dir, 'rev-parse', '--short=7', 'HEAD');
+    const before = read(dir, HANDOFF_PATH);
+    assert.equal(run(dir, 'finish', '001', 'A-2', hash, '--move', 'X→Y').status, 2);
+    assert.equal(run(dir, 'finish', '001', 'A-2', hash, '--note', '無い節', '文').status, 2);
+    assert.equal(run(dir, 'finish', '001', 'A-2', 'deadbee').status, 1);
+    assert.equal(read(dir, HANDOFF_PATH), before);
+  });
+});
+
+test('gate / finish: 記録済みのゲートは --overwrite が無いと exit 1、有れば上書きできる', () => {
+  withRepo((dir) => {
+    const hash = git(dir, 'rev-parse', '--short=7', 'HEAD');
+    assert.equal(run(dir, 'gate', '001', 'A-2', hash).status, 0);
+    const approved = read(dir, HANDOFF_PATH);
+    assert.equal(run(dir, 'gate', '001', 'A-2', hash).status, 1);
+    assert.equal(run(dir, 'finish', '001', 'A-2', hash, '--move', 'A→B').status, 1);
+    assert.equal(read(dir, HANDOFF_PATH), approved);
+    // 該当なしも記録済み
+    assert.equal(run(dir, 'gate', '001', 'B-2', '--na', '変更なし').status, 0);
+    assert.equal(run(dir, 'gate', '001', 'B-2', 'PR 1').status, 1);
+    // 明示すれば上書きできる
+    assert.equal(run(dir, 'gate', '001', 'A-2', hash, '--overwrite').status, 0);
+    assert.equal(run(dir, 'finish', '001', 'A-2', hash, '--overwrite', '--move', 'A→B').status, 0);
+    assert.match(read(dir, HANDOFF_PATH), /^- 区間: B$/m);
+  });
+});
+
+test('--help / -h: 使い方を標準出力に出して exit 0', () => {
+  withRepo((dir) => {
+    for (const flag of ['--help', '-h']) {
+      const r = run(dir, flag);
+      assert.equal(r.status, 0);
+      assert.match(r.out, /使い方/);
+      assert.match(r.out, /finish NNN/);
+      assert.match(r.out, /init NNN-<slug>/);
+    }
   });
 });
 
