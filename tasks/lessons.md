@@ -39,3 +39,8 @@
 - 種別: 規律昇華
 - 何が起きたか: `e2e/charm-save.spec.ts` で、トーストの文言が Reka の通知用 live region にも重複して出て、`getByText` が strict mode 違反で落ちた（`exact: true` で解消）。同じ文言を探す将来の e2e も当たる。
 - 提案: `.claude/rules/web-vue.md` の E2E の節に、トーストの文言を `getByText` で探すときは `exact: true` を付ける、と1行足す。また、`e2e/charm-save.spec.ts` が `charm-input.spec.ts` の局所関数（`openCharms`・スキル選択・登録手順）を複製しているので、3つ目の護石系 spec を書く機能で `e2e/support/charms.ts` に切り出す。
+
+## 2026-10-28 契約に書いたマスター ID の pattern が実データの負の ID を拒否していた（機能011・区間C）
+- 種別: 規律昇華
+- 何が起きたか: 010 の `contracts/components/schemas/charms/CharmSkill.yaml` の `pattern: '^sk:[0-9]+$'` と `entity/CharmSkill.java` の `@Pattern(regexp = "sk:\\d+")` が、実データの防具・武器スキル 137 件のうち 54 件（`sk:-397570464` の弱点特効など、gameId が負のもの）を 400 で拒否する。010 の plan D2・テストの例が `sk:101` だけで、`packages/data/dist/` の実データに当てはめていなかった。011 の plan で、契約と api の pattern を直す。
+- 提案: `.claude/rules/contracts-first.md` に「マスター ID の pattern を契約に書くときは、`packages/data/dist/master-*.json` の該当の ID を全件当てはめて確かめ、負の gameId（`sk:-…`・`ar:-…`・`dc:-…`・`sb:-…`）を API のテストの例に1件含める」を足す。
