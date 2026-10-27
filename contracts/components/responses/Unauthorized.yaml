@@ -1,0 +1,5 @@
+description: 未ログイン、またはセッションが無効。
+content:
+  application/problem+json:
+    schema:
+      $ref: ../schemas/common/ProblemDetail.yaml

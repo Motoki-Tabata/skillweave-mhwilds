@@ -1,0 +1,33 @@
+post:
+  operationId: logout
+  summary: ログアウトする
+  tags:
+    - auth
+  x-swv-status: draft
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    現在のセッションを無効にしてログアウトする。refs specs/009-discord-login/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+    2. セッション Cookie からログイン状態を判定する。
+    3. セッションを無効にし、204 を返す。
+
+    **【異常処理詳細】**
+
+    1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）が無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+    2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+  responses:
+    '204':
+      description: ログアウトした。本文は無い。
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml

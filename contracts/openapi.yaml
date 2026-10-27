@@ -11,4 +11,26 @@ info:
 servers:
   - url: http://localhost:8080
     description: ローカル開発環境（docker compose + ./gradlew bootRun）
-paths: {}
+tags:
+  - name: auth
+    description: 認証（Discord ログインで確立したセッションの参照とログアウト）
+paths:
+  /api/auth/me:
+    $ref: paths/auth/auth-me.yaml
+  /api/auth/logout:
+    $ref: paths/auth/auth-logout.yaml
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: SESSION
+      description: Discord ログイン後に発行されるセッション Cookie。
+  schemas:
+    CurrentUser:
+      $ref: components/schemas/auth/CurrentUser.yaml
+    ProblemDetail:
+      $ref: components/schemas/common/ProblemDetail.yaml
+  responses:
+    Unauthorized:
+      $ref: components/responses/Unauthorized.yaml

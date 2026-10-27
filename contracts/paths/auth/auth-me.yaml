@@ -1,0 +1,35 @@
+get:
+  operationId: getCurrentUser
+  summary: 現在のユーザーを取得する
+  tags:
+    - auth
+  x-swv-status: draft
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    セッション Cookie から、現在ログイン中のユーザーの表示名を返す。未ログインは 401。refs specs/009-discord-login/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. セッション Cookie からログイン状態を判定する。
+    2. ログイン中なら、表示名（`displayName`）を 200 で返す。
+
+    **【異常処理詳細】**
+
+    1. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+  responses:
+    '200':
+      description: ログイン中のユーザー。
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/auth/CurrentUser.yaml
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml
