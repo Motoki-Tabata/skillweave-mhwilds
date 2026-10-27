@@ -96,3 +96,18 @@
 - 種別: 規律昇華
 - 何が起きたか: 3563ad4 で `apps/api/gradle/libs.versions.toml` の Spring Boot を 4.1.2 に上げたが、`design/tech-stack.md` の表（Spring Boot の行・更新の方針の表）は 4.1.1 のまま残った。`.claude/rules/tech-stack.md` は版を変える前の確認だけを求め、変えた後に正の表を直すことを求めていない。009 の T2 で表を実測に合わせる（specs/009-discord-login/plan.md D17）。
 - 提案: `.claude/rules/tech-stack.md` に「版を変えたら、同じコミットで `design/tech-stack.md` の該当行（版・確認日）を直す」を足す。区間 E の drift-scan で `libs.versions.toml`・`package.json` の版と `design/tech-stack.md` の表の一致を検査することも検討する。
+
+## 2026-10-27 Boot は未解決の `${VAR}` を文字列のまま値にする。必須の環境変数は空の既定値と起動時の検証で止める（機能009・区間D）
+- 種別: 規律昇華
+- 何が起きたか: plan D2 は「`${DISCORD_CLIENT_ID}` と書き、既定値を持たない。未設定なら起動に失敗する」としたが、実装すると環境変数なしでも `SmokeTest` が通り、アプリが起動した（レビュー記録 1 回目）。未解決のプレースホルダが文字列のまま client-id に入るため。ID は Boot の登録検証が空文字で止めるが、シークレットは通る。api-agent が `${…:}`（空の既定値）と `DiscordCredentialsValidator`（`InitializingBean`）で直した（7bfde21）。
+- 提案: `.claude/rules/api-spring.md` に「必須の環境変数は `${VAR:}`（空の既定値）で受け、起動時の検証（`InitializingBean`・`Assert.hasText`）で止める。既定値なしの `${VAR}` は未設定でも起動する」を足す。plan の雛形（`.claude/skills/tsod-plan/`）の「環境変数」の書き方にも同じ注意を足す。
+
+## 2026-10-27 認可の迂回テストで幅のある期待値（400/401/403/404）を使うと、permitAll の拡大を見逃す（機能009・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `AuthorizationBypassTest` が未ログインの要求に `isIn(400, 401, 403, 404)` を許していた。未ログインで 404 は認可を通ったときだけ返るので、`/actuator/**` を permitAll にしても通ってしまう（レビュー記録 1・2 回目）。実測してステータスを固定した（6f523b5。ファイアウォールが拒む形は 400、匿名の `denyAll` は 401）。あわせて `anyRequest().denyAll()` が ERROR ディスパッチにもかかり、ログイン中の 404・500 が 403 に化ける不具合が実測で見つかった（ERROR を permitAll にして直した）。
+- 提案: `.claude/rules/api-spring.md` の「Spring Security の独自 RequestMatcher は PathPatternRequestMatcher を使う」の節に、「拒否の期待値はステータスを 1 つに固定する。`anyRequest().denyAll()` を置くときは ERROR ディスパッチを許可し、ログイン中の 404・500 が 403 に化けないことをテストで固定する」を足す。
+
+## 2026-10-27 並列に委譲した api-agent が、web-agent の書込を「担当外の変化」として報告して止まる（機能009・区間D）
+- 種別: 規律昇華
+- 何が起きたか: T5（api-agent）と T6（web-agent）を plan D19 どおり並列で起動したところ、api-agent が Bash の後に書込フックから `apps/web/**` の4パスの変化を通知され、停止規律に従って実装前に止まった。並列の条件（書込フォルダ・共有物が重ならない）は満たしていたが、フックは作業ツリー全体の差分を見る。web-agent の完了を待って api-agent を新規起動し直した。
+- 提案: `.claude/skills/tsod-build/SKILL.md`「並列にしてよい条件」に、「並列に動くワーカーの書込も、書込フックは各ワーカーの『担当外の変化』として通知し、ワーカーが停止する。並列で動かす場合は、委譲プロンプトに『他の領域のパスの変化は並行ワーカーの書込として無視する』と明記する」か、並列を使わない旨を足す。
