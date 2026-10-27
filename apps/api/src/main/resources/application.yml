@@ -6,6 +6,11 @@ spring:
     default: local
   jackson:
     time-zone: UTC
+    # 要求の型の違い（数値の位置の文字列・小数）を暗黙に変換せず 400 にする（010 charm-save AC-10）。
+    mapper:
+      allow-coercion-of-scalars: false
+    deserialization:
+      accept-float-as-int: false
   jpa:
     hibernate:
       # Flyway にスキーマ管理を委任する。validate 等にすると

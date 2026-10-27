@@ -8,7 +8,7 @@ import { charmSummary, slotsLabel } from '@/lib/charms/format'
 import type { CharmEntry } from '@/stores/charms'
 import { useMasterStore } from '@/stores/master'
 
-const props = defineProps<{ entry: CharmEntry; editing: boolean }>()
+const props = defineProps<{ entry: CharmEntry; editing: boolean; deleting?: boolean }>()
 defineEmits<{ edit: []; remove: [] }>()
 
 const master = useMasterStore()
@@ -50,6 +50,7 @@ const statusIcon = computed(() => {
           variant="outline"
           class="h-11"
           :aria-label="`${summary}を編集`"
+          :disabled="deleting"
           :data-edit-id="entry.charm.id"
           @click="$emit('edit')"
         >
@@ -60,10 +61,11 @@ const statusIcon = computed(() => {
           variant="outline"
           class="text-destructive border-destructive hover:text-destructive h-11"
           :aria-label="`${summary}を削除`"
+          :disabled="deleting"
           :data-delete-id="entry.charm.id"
           @click="$emit('remove')"
         >
-          削除
+          {{ deleting ? '削除中…' : '削除' }}
         </Button>
       </div>
     </div>

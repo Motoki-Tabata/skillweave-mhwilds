@@ -57,5 +57,16 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { status, displayName, loggingOut, setApi, initialize, logout }
+  /**
+   * ログインの期限切れ（護石の API の 401）を反映する。ログアウトの API は呼ばない。
+   * ログイン中のときだけ未ログインにして true を返す（同時の 401 で最初の1回だけ true）。
+   */
+  function expire(): boolean {
+    if (status.value !== 'authenticated') return false
+    status.value = 'unauthenticated'
+    displayName.value = ''
+    return true
+  }
+
+  return { status, displayName, loggingOut, setApi, initialize, logout, expire }
 })

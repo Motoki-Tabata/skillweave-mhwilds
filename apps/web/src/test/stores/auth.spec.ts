@@ -63,3 +63,23 @@ describe('auth ストア', () => {
     expect(api.logout).toHaveBeenCalledTimes(1)
   })
 })
+
+// 010 AC-11（ログインの期限切れ）
+describe('auth ストアの expire', () => {
+  it('AC-11: ログイン中だけ未ログイン・表示名なしにして true を返し、2回目は false', async () => {
+    const { auth, api } = setup({ kind: 'authenticated', displayName: '狩人太郎' })
+    await auth.initialize()
+    expect(auth.expire()).toBe(true)
+    expect(auth.status).toBe('unauthenticated')
+    expect(auth.displayName).toBe('')
+    expect(auth.expire()).toBe(false)
+    expect(api.logout).not.toHaveBeenCalled()
+  })
+
+  it('AC-11: 未ログイン・取得できないときは何も変えず false', async () => {
+    const { auth } = setup({ kind: 'unavailable' })
+    await auth.initialize()
+    expect(auth.expire()).toBe(false)
+    expect(auth.status).toBe('unavailable')
+  })
+})

@@ -4,6 +4,137 @@
  */
 
 export interface paths {
+    "/api/charms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 自分の護石の一覧を取得する
+         * @description **【機能概要】**
+         *
+         *     ログイン中のユーザーが保存した、削除していない護石を全件返す。ID の降順で、ページングはしない。refs specs/010-charm-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. セッション Cookie からログイン状態を判定する。
+         *     2. 自分の削除していない護石を ID の降順で並べ、200 で返す。0件なら空の配列。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        get: operations["listCharms"];
+        put?: never;
+        /**
+         * 護石を保存する
+         * @description **【機能概要】**
+         *
+         *     クライアントが採番した ID で護石を新規に保存する。refs specs/010-charm-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 要求の構造（ID・スキーマ版・レア度・スキル・スロット）を検査する。
+         *     4. 護石を自分の行として保存する。行バージョン・作成日時・更新日時はサーバーが決める。
+         *     5. 保存後の護石を 201 で返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         *     3. 要求の構造が契約に反する場合は 400（`application/problem+json`）を返し、保存しない。
+         *     4. ID が既存の行（他のユーザー・削除済みを含む）と衝突する場合は 409（`application/problem+json`）を返し、既存の行は変えない。
+         */
+        post: operations["createCharm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/charms/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 護石の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 護石を更新する
+         * @description **【機能概要】**
+         *
+         *     自分の護石の内容を、読んだ時点の行バージョンを添えて上書きする。refs specs/010-charm-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 要求の構造を検査する。
+         *     4. 自分の削除していない護石を探し、要求の行バージョンが行と一致すれば内容を書き換え、行バージョンを進める。
+         *     5. 保存後の護石を 200 で返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         *     3. 要求の構造が契約に反する場合は 400（`application/problem+json`）を返し、保存しない。
+         *     4. 自分の削除していない行が無い場合（他のユーザーの行・削除済み・ID の形が不正を含む）は 404（`application/problem+json`）を返す。
+         *     5. 要求の行バージョンが行と一致しない場合、または同時の更新と競合した場合は 409（`application/problem+json`）を返し、上書きしない。
+         */
+        put: operations["updateCharm"];
+        post?: never;
+        /**
+         * 護石を削除する
+         * @description **【機能概要】**
+         *
+         *     自分の護石を論理削除する。冪等で、対象の行が無くても 204 を返す。refs specs/010-charm-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 自分の削除していない護石があれば論理削除する。行バージョンは照合しない。
+         *     4. 204 を返す。行が無い・他のユーザーの行・ID の形が不正な場合も 204 で、他のユーザーの行は変えない。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        delete: operations["deleteCharm"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/me": {
         parameters: {
             query?: never;
@@ -117,10 +248,126 @@ export interface components {
              */
             instance?: string;
         };
+        /** @description 保存した護石。 */
+        Charm: {
+            /**
+             * Format: uuid
+             * @description 護石の ID。クライアントが採番した UUIDv7。
+             */
+            id: string;
+            payload: components["schemas"]["CharmPayload"];
+            /**
+             * @description payload の形の版。
+             * @example 1
+             */
+            schemaVersion: number;
+            /** @description 行バージョン。更新のたびにサーバーが進める。 */
+            version: number;
+            /**
+             * Format: date-time
+             * @description 作成日時（UTC）。
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 更新日時（UTC）。
+             */
+            updatedAt: string;
+        };
+        /** @description 護石の内容。 */
+        CharmPayload: {
+            /**
+             * @description レア度。
+             * @example 8
+             */
+            rarity: number;
+            /** @description スキルの配列（0〜3個）。同じ `skillId` を重複して持てない。 */
+            skills: components["schemas"]["CharmSkill"][];
+            /** @description スロットの配列（0〜3枠）。 */
+            slots: components["schemas"]["CharmSlot"][];
+        };
+        /** @description 護石が持つスキルとそのレベル。 */
+        CharmSkill: {
+            /**
+             * @description スキル ID。`sk:` に数字が続く形式。マスターデータにあるかどうかはサーバーでは検査しない。
+             * @example sk:101
+             */
+            skillId: string;
+            /**
+             * @description スキルのレベル。最大レベルの検査は Web で行う。
+             * @example 2
+             */
+            level: number;
+        };
+        /** @description 護石が持つ装飾品スロット1枠。 */
+        CharmSlot: {
+            /**
+             * @description 装飾品の種別。
+             * @enum {string}
+             */
+            target: "weapon" | "armor";
+            /**
+             * @description スロットのレベル。
+             * @example 2
+             */
+            level: number;
+        };
+        /** @description 護石の作成の要求。 */
+        CreateCharmRequest: {
+            /**
+             * Format: uuid
+             * @description クライアントが採番した UUIDv7。
+             */
+            id: string;
+            payload: components["schemas"]["CharmPayload"];
+            /**
+             * @description payload の形の版。
+             * @enum {integer}
+             */
+            schemaVersion: 1;
+        };
+        /** @description 護石の更新の要求。 */
+        UpdateCharmRequest: {
+            payload: components["schemas"]["CharmPayload"];
+            /**
+             * @description payload の形の版。
+             * @enum {integer}
+             */
+            schemaVersion: 1;
+            /** @description クライアントが読んだ時点の行バージョン。サーバーの行と違えば 409。 */
+            version: number;
+        };
     };
     responses: {
         /** @description 未ログイン、またはセッションが無効。 */
         Unauthorized: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["ProblemDetail"];
+            };
+        };
+        /** @description 要求の構造が契約に反している（必須項目の欠落・型の違い・値の範囲外・JSON として読めない本文）。 */
+        BadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["ProblemDetail"];
+            };
+        };
+        /** @description 対象の行が無い（自分の削除していない行ではない）。 */
+        NotFound: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["ProblemDetail"];
+            };
+        };
+        /** @description 競合している（ID の衝突、または行バージョンの不一致）。 */
+        Conflict: {
             headers: {
                 [name: string]: unknown;
             };
@@ -136,6 +383,107 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listCharms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 自分の護石の配列。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Charm"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    createCharm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCharmRequest"];
+            };
+        };
+        responses: {
+            /** @description 保存した護石。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Charm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    updateCharm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 護石の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCharmRequest"];
+            };
+        };
+        responses: {
+            /** @description 保存後の護石。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Charm"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    deleteCharm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 護石の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 削除した（または対象が無かった）。本文は無い。 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
     getCurrentUser: {
         parameters: {
             query?: never;

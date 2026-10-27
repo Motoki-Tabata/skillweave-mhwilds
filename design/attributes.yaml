@@ -56,7 +56,7 @@ attributes:
     type: timestamptz
     nullable: false
     domain: DEFAULT now()・UTC
-    used_in: [users.created_at]
+    used_in: [users.created_at, charms.created_at]
     defined_by: specs/009-discord-login
 
   更新日時:
@@ -64,5 +64,57 @@ attributes:
     type: timestamptz
     nullable: false
     domain: DEFAULT now()・UTC
-    used_in: [users.updated_at]
+    used_in: [users.updated_at, charms.updated_at]
     defined_by: specs/009-discord-login
+
+  護石ID:
+    physical_name: id
+    type: uuid
+    nullable: false
+    domain: 主キー（DEFAULT uuidv7()）
+    used_in: [charms.id]
+    defined_by: specs/010-charm-save
+    note: クライアント採番の UUIDv7。他ユーザー・削除済みの行との衝突は拒否する
+
+  所有者ID:
+    physical_name: user_id
+    type: uuid
+    nullable: false
+    domain: users (id)
+    used_in: [charms.user_id]
+    defined_by: specs/010-charm-save
+
+  内容:
+    physical_name: payload
+    type: jsonb
+    nullable: false
+    domain: JSON オブジェクト（jsonb_typeof = 'object'）
+    used_in: [charms.payload]
+    defined_by: specs/010-charm-save
+    note: 形は schema_version で版管理する。charms は { rarity, skills: [{ skillId, level }], slots: [{ target, level }] }（構造の検査は API。マスターに依る検査は Web）
+
+  スキーマ版:
+    physical_name: schema_version
+    type: integer
+    nullable: false
+    domain: 1 以上
+    used_in: [charms.schema_version]
+    defined_by: specs/010-charm-save
+    note: payload の形の版。charms は 1
+
+  行バージョン:
+    physical_name: version
+    type: integer
+    nullable: false
+    domain: DEFAULT 0
+    used_in: [charms.version]
+    defined_by: specs/010-charm-save
+    note: 楽観的ロック（@Version）。競合判定に updated_at を使わない
+
+  削除日時:
+    physical_name: deleted_at
+    type: timestamptz
+    nullable: true
+    domain: UTC。NULL が未削除
+    used_in: [charms.deleted_at]
+    defined_by: specs/010-charm-save

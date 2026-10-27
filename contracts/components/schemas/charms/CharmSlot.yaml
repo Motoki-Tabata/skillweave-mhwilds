@@ -1,0 +1,19 @@
+type: object
+description: 護石が持つ装飾品スロット1枠。
+required:
+  - target
+  - level
+properties:
+  target:
+    type: string
+    enum:
+      - weapon
+      - armor
+    description: 装飾品の種別。
+  level:
+    type: integer
+    minimum: 1
+    maximum: 3
+    description: スロットのレベル。
+    examples:
+      - 2

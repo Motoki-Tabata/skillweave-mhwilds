@@ -9,6 +9,8 @@ import { installTitleHook, routes } from '@/router'
 import { createMemoryCharmRepository } from './charmRepository'
 import { createMemoryWeaponRepository } from './weaponRepository'
 import type { AuthApi } from '@/lib/api/auth'
+import type { CharmsApi } from '@/lib/api/charms'
+import { createMemoryCharmsApi } from './charmsApi'
 import type { CharmRepository } from '@/lib/charms/storage'
 import type { WeaponRepository } from '@/lib/weapons/storage'
 import { useAuthStore } from '@/stores/auth'
@@ -60,6 +62,13 @@ function installRepository(pinia: Pinia, given?: CharmRepository): CharmReposito
   return repository
 }
 
+/** 護石の API を差し替える。既定はメモリ上の実装（サーバーに届かない）。 */
+function installCharmsApi(pinia: Pinia, given?: CharmsApi): CharmsApi {
+  const api = given ?? createMemoryCharmsApi()
+  useCharmsStore(pinia).setApi(api)
+  return api
+}
+
 /** 武器の保存先を差し替える。既定はメモリ上の実装。 */
 function installWeaponRepository(pinia: Pinia, given?: WeaponRepository): WeaponRepository {
   const repository = given ?? createMemoryWeaponRepository()
@@ -89,6 +98,8 @@ export interface MountOptions {
   charmRepository?: CharmRepository
   /** 武器の保存先。既定は空のメモリ上の実装 */
   weaponRepository?: WeaponRepository
+  /** 護石の API。既定は空のメモリ上の実装 */
+  charmsApi?: CharmsApi
   /** 認証 API。既定は「取得できない」を返す偽物 */
   authApi?: AuthApi
 }
@@ -102,6 +113,8 @@ export interface Mounted {
   weaponRepository: WeaponRepository
   /** 既定のとき（メモリ上の実装）だけ、保存の中身を見られる */
   repository: CharmRepository
+  /** アカウントの護石の API（既定のときはメモリ上の実装） */
+  charmsApi: CharmsApi
   master: ReturnType<typeof useMasterStore>
   conditions: ReturnType<typeof useConditionsStore>
   search: ReturnType<typeof useSearchStore>
@@ -111,6 +124,7 @@ export interface Mounted {
 export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
   const pinia = newPinia()
   const repository = installRepository(pinia, options.charmRepository)
+  const charmsApi = installCharmsApi(pinia, options.charmsApi)
   const weaponRepository = installWeaponRepository(pinia, options.weaponRepository)
   useAuthStore(pinia).setApi(options.authApi ?? fakeAuthApi())
   const router = newRouter()
@@ -125,6 +139,7 @@ export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
     weapons: useWeaponsStore(pinia),
     weaponRepository,
     repository,
+    charmsApi,
     master: useMasterStore(pinia),
     conditions: useConditionsStore(pinia),
     search: useSearchStore(pinia),
@@ -145,15 +160,19 @@ export async function mountReadyApp(options: MountOptions = {}): Promise<Mounted
 export async function loadStores(
   charmRepository?: CharmRepository,
   weaponRepositoryGiven?: WeaponRepository,
+  backends: { authApi?: AuthApi; charmsApi?: CharmsApi } = {},
 ): Promise<Omit<Mounted, 'wrapper'>> {
   const pinia = newPinia()
   const repository = installRepository(pinia, charmRepository)
+  const charmsApi = installCharmsApi(pinia, backends.charmsApi)
+  useAuthStore(pinia).setApi(backends.authApi ?? fakeAuthApi())
   const weaponRepository = installWeaponRepository(pinia, weaponRepositoryGiven)
   const master = useMasterStore(pinia)
   await master.load()
   return {
     pinia,
     repository,
+    charmsApi,
     master,
     charms: useCharmsStore(pinia),
     weapons: useWeaponsStore(pinia),
