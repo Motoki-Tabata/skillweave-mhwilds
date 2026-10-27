@@ -3,7 +3,6 @@ post:
   summary: ログアウトする
   tags:
     - auth
-  x-swv-status: draft
   security:
     - sessionCookie: []
   description: |

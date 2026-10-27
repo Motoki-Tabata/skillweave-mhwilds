@@ -3,7 +3,6 @@ get:
   summary: 現在のユーザーを取得する
   tags:
     - auth
-  x-swv-status: draft
   security:
     - sessionCookie: []
   description: |
