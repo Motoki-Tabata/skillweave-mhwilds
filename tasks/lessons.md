@@ -91,3 +91,8 @@
 - 種別: 矛盾是正
 - 何が起きたか: 008 のレビューで、`WeaponDialog.vue` の帯が `failureMessage`（文末が「。」）を「（…）。」に入れて句点が重なる不具合を直した（350e262）。同じ書き方の `components/search/CharmCard.vue` の読込失敗の帯（49 行付近）と、`CharmCard.spec.ts`（83 行付近）の期待値が、005 から重なったまま残っている。
 - 提案: 次に護石の画面を触る機能で、`failureMessage` の末尾の「。」を除いてから括弧に入れる形に直し、`CharmCard.spec.ts` の期待値を合わせる。
+
+## 2026-10-27 Spring Boot の版を上げたコミットで design/tech-stack.md の表が更新されなかった（機能009・区間C）
+- 種別: 規律昇華
+- 何が起きたか: 3563ad4 で `apps/api/gradle/libs.versions.toml` の Spring Boot を 4.1.2 に上げたが、`design/tech-stack.md` の表（Spring Boot の行・更新の方針の表）は 4.1.1 のまま残った。`.claude/rules/tech-stack.md` は版を変える前の確認だけを求め、変えた後に正の表を直すことを求めていない。009 の T2 で表を実測に合わせる（specs/009-discord-login/plan.md D17）。
+- 提案: `.claude/rules/tech-stack.md` に「版を変えたら、同じコミットで `design/tech-stack.md` の該当行（版・確認日）を直す」を足す。区間 E の drift-scan で `libs.versions.toml`・`package.json` の版と `design/tech-stack.md` の表の一致を検査することも検討する。

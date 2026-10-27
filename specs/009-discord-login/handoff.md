@@ -2,9 +2,9 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: C
-- 次に起動するコマンド: `/tsod-plan 009-discord-login`
-- 推奨モデル: Opus
+- 区間: D
+- 次に起動するコマンド: `/tsod-build 009-discord-login`
+- 推奨モデル: Sonnet
 - ブランチ: `feat/009-discord-login`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
@@ -68,6 +68,7 @@
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で新しい教訓は出なかった）
 - なし（区間 B で新しい教訓は出なかった）
+- なし（区間 C の教訓は tasks/lessons.md に起票した: Spring Boot の版と tech-stack.md の表の食い違い）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
@@ -79,3 +80,4 @@
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q5・Q55・Q56・Q57
 - B-1 のキャンバス: https://claude.ai/artifact/MXSFJ2jeqERUouS89obzhL（非公開）。基準幅の認証の部品は 44×44px のアイコンとアカウントのメニュー（dropdown-menu を区間 D でメインが CLI で足す）
+- 区間 C: 要確認事項の redirect-uri は plan D2（application-local.yml で固定し vite.config.ts は変えない。Host 違いの戻りの成功を api-agent がテストで確かめる）、logout の契約突合は plan D6（@RestController で実装）で決めた。V2 の照合は T1
