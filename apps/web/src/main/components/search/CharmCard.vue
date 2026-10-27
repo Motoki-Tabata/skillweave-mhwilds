@@ -46,7 +46,11 @@ onBeforeUnmount(clearTimer)
         <template v-if="showLoading">護石を読み込んでいます…</template>
       </output>
       <ResultAlert v-else-if="charms.status !== 'ready'" tone="warning">
-        <p>護石を読み込めませんでした（{{ charms.failureMessage }}）。護石なしで検索します。</p>
+        <p>
+          護石を読み込めませんでした（{{
+            charms.failureMessage.replace(/。$/, '')
+          }}）。護石なしで検索します。
+        </p>
       </ResultAlert>
       <p v-else-if="charms.charms.length === 0" class="text-sm">
         護石が登録されていません。護石なしで検索します。

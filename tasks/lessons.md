@@ -20,11 +20,6 @@
 - 何が起きたか: reviewer が、`CharmDeleteDialog.vue` と `WeaponDeleteDialog.vue`（違いは本文の断り文1つ）、`stores/charms.ts` と `stores/weapons.ts`（`ensureLoaded`・`reload`・`failureText`・`byIdDescending`・`plainPayload`）の二重化を指摘した。conventions.md「共有部品の扱い」の「2箇所以上に現れる UI は共有部品にする」に当たるが、008 の範囲外（護石の側を変える）のため、そのまま積んだ（レビュー記録 1 回目）。
 - 提案: 端末保存の3つ目の機能が出る前に、`components/common/` の汎用の削除確認（本文を slot で差し替える）と、保存先の状態機械の共通化を、専用の機能（またはリファクタの区間 B）として切る。
 
-## 2026-10-26 護石の読込失敗の帯に、文末の「。」が重なる同じ不具合が残っている（機能008・区間D）
-- 種別: 矛盾是正
-- 何が起きたか: 008 のレビューで、`WeaponDialog.vue` の帯が `failureMessage`（文末が「。」）を「（…）。」に入れて句点が重なる不具合を直した（350e262）。同じ書き方の `components/search/CharmCard.vue` の読込失敗の帯（49 行付近）と、`CharmCard.spec.ts`（83 行付近）の期待値が、005 から重なったまま残っている。
-- 提案: 次に護石の画面を触る機能で、`failureMessage` の末尾の「。」を除いてから括弧に入れる形に直し、`CharmCard.spec.ts` の期待値を合わせる。
-
 ## 2026-10-27 Spring Boot の版を上げたコミットで design/tech-stack.md の表が更新されなかった（機能009・区間C）
 - 種別: 規律昇華
 - 何が起きたか: 3563ad4 で `apps/api/gradle/libs.versions.toml` の Spring Boot を 4.1.2 に上げたが、`design/tech-stack.md` の表（Spring Boot の行・更新の方針の表）は 4.1.1 のまま残った。009 の T2 で表を実測に合わせる（specs/009-discord-login/plan.md D17）。

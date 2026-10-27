@@ -3,8 +3,10 @@ import { flushPromises } from '@vue/test-utils'
 import type { CharmPayload } from '@/lib/charms/types'
 import { createMemoryCharmRepository } from '../../support/charmRepository'
 import { storedCharm } from '../../support/charms'
+import { accountCharm, createMemoryCharmsApi } from '../../support/charmsApi'
 import { makeTableBundle, sk } from '../../support/fixtures'
 import {
+  fakeAuthApi,
   installDomPolyfills,
   mountReadyApp,
   restoreStubs,
@@ -80,10 +82,39 @@ describe('CharmCard（S1 の護石カード）', () => {
     await vi.waitFor(() => expect(mounted!.charms.status).toBe('failed'))
     await flushPromises()
     expect(textOf(card())).toContain(
-      '護石を読み込めませんでした（端末への保存（IndexedDB）に失敗しました。）。護石なしで検索します。',
+      '護石を読み込めませんでした（端末への保存（IndexedDB）に失敗しました）。護石なしで検索します。',
     )
     expect(card().querySelector('a')).not.toBeNull()
     expect(document.querySelector<HTMLButtonElement>('button[type="submit"]')).not.toBeNull()
+  })
+
+  // 010 AC-1: ログイン中はアカウントの護石から数える
+  it('ログイン中: 候補の件数はアカウントの護石から数え、端末内の護石は数えない', async () => {
+    mounted = await mountReadyApp({
+      authApi: fakeAuthApi({
+        fetchCurrentUser: async () => ({ kind: 'authenticated', displayName: 'テスト' }),
+      }),
+      charmsApi: createMemoryCharmsApi([accountCharm(storedCharm(1, good))]),
+      charmRepository: createMemoryCharmRepository([storedCharm(2, good), storedCharm(3, good)]),
+    })
+    await vi.waitFor(() => expect(textOf(card())).toContain('候補にする護石: 1 件'))
+  })
+
+  // 010 AC-12: 原因の文末の「。」を重ねない
+  it('ログイン中の読込失敗: サーバーの原因を括弧に入れ、句点を重ねない', async () => {
+    const api = createMemoryCharmsApi()
+    api.failWith('list', { kind: 'failed', cause: 'network' })
+    mounted = await mountReadyApp({
+      authApi: fakeAuthApi({
+        fetchCurrentUser: async () => ({ kind: 'authenticated', displayName: 'テスト' }),
+      }),
+      charmsApi: api,
+    })
+    await vi.waitFor(() => expect(mounted!.charms.status).toBe('failed'))
+    await flushPromises()
+    expect(textOf(card())).toContain(
+      '護石を読み込めませんでした（サーバーに接続できませんでした）。護石なしで検索します。',
+    )
   })
 
   it('読込中: 300ms 未満は何も出さず、超えたら読み込み中の文言を出す', async () => {

@@ -35,7 +35,12 @@ const props = defineProps<{
   disabled: boolean
   disabledMessage: string
 }>()
-const emit = defineEmits<{ saved: []; cancel: [] }>()
+const emit = defineEmits<{
+  saved: []
+  cancel: []
+  /** 更新が 409・404・401 で終わった（一覧の読み直し・端末への切り替えは store が済ませている） */
+  rejected: [result: 'conflict' | 'notFound' | 'expired']
+}>()
 
 const master = useMasterStore()
 const charms = useCharmsStore()
@@ -247,9 +252,13 @@ async function onSubmit(): Promise<void> {
     return
   }
   saving.value = true
-  const ok = (await charms.save(payload.value, props.editing ?? undefined)) === 'saved'
+  const result = await charms.save(payload.value, props.editing ?? undefined)
   saving.value = false
-  if (!ok) return
+  if (result === 'conflict' || result === 'notFound' || result === 'expired') {
+    emit('rejected', result)
+    return
+  }
+  if (result !== 'saved') return
   if (isEditing.value) {
     emit('saved')
     return
@@ -272,7 +281,9 @@ function onEnter(event: KeyboardEvent): void {
       {{ isEditing ? '護石を編集' : '護石を登録' }}
     </h2>
     <CardContent class="px-4">
-      <p v-if="disabled" class="text-destructive mb-3 text-sm">{{ disabledMessage }}</p>
+      <p v-if="disabled && disabledMessage" class="text-destructive mb-3 text-sm">
+        {{ disabledMessage }}
+      </p>
       <form
         ref="root"
         class="flex flex-col gap-4"

@@ -10,7 +10,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-defineProps<{ open: boolean; summary: string }>()
+defineProps<{ open: boolean; summary: string; account?: boolean }>()
 const emit = defineEmits<{
   'update:open': [open: boolean]
   confirm: []
@@ -23,7 +23,11 @@ const emit = defineEmits<{
     <AlertDialogContent @close-auto-focus="(event: Event) => emit('closeAutoFocus', event)">
       <AlertDialogHeader>
         <AlertDialogTitle class="text-base">護石を削除しますか？</AlertDialogTitle>
-        <AlertDialogDescription>{{ summary }}。削除すると元に戻せません。</AlertDialogDescription>
+        <AlertDialogDescription
+          >{{ summary }}。削除すると元に戻せません。{{
+            account ? '同じアカウントのほかの端末からも消えます。' : ''
+          }}</AlertDialogDescription
+        >
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel class="h-11">キャンセル</AlertDialogCancel>
