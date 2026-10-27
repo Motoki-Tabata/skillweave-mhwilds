@@ -65,8 +65,21 @@ public class DiscordHttp {
     public record Started(String sessionCookie, String state) {}
 
     public Res send(String method, String path, String cookies, String xsrfHeader) throws Exception {
+        return sendJson(method, path, cookies, xsrfHeader, null);
+    }
+
+    /** JSON の本文を載せて送る。{@code jsonBody} が null なら本文なし。 */
+    public Res sendJson(String method, String path, String cookies, String xsrfHeader, String jsonBody)
+            throws Exception {
         HttpRequest.Builder b = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
-                .method(method, HttpRequest.BodyPublishers.noBody());
+                .method(
+                        method,
+                        jsonBody == null
+                                ? HttpRequest.BodyPublishers.noBody()
+                                : HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8));
+        if (jsonBody != null) {
+            b.header("Content-Type", "application/json");
+        }
         if (cookies != null) {
             b.header("Cookie", cookies);
         }
