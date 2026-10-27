@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { onMounted } from 'vue'
+import { RouterView, useRouter } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import AppNav from '@/components/common/AppNav.vue'
 import AppToaster from '@/components/common/AppToaster.vue'
 import CreditBar from '@/components/common/CreditBar.vue'
+import { restoreAfterLogin } from '@/lib/auth/loginReturn'
+import { useAuthStore } from '@/stores/auth'
+import { useToastStore } from '@/stores/toast'
+
+const router = useRouter()
+const auth = useAuthStore()
+const toast = useToastStore()
+
+// 起動のときに認証状態を1回だけ取り、ログインからの戻りを処理する
+onMounted(() => restoreAfterLogin(router, auth, toast))
 </script>
 
 <template>

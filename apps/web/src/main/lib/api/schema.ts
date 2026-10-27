@@ -3,15 +3,177 @@
  * Do not make direct changes to the file.
  */
 
-export type paths = Record<string, never>;
+export interface paths {
+    "/api/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 現在のユーザーを取得する
+         * @description **【機能概要】**
+         *
+         *     セッション Cookie から、現在ログイン中のユーザーの表示名を返す。未ログインは 401。refs specs/009-discord-login/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. セッション Cookie からログイン状態を判定する。
+         *     2. ログイン中なら、表示名（`displayName`）を 200 で返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        get: operations["getCurrentUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ログアウトする
+         * @description **【機能概要】**
+         *
+         *     現在のセッションを無効にしてログアウトする。refs specs/009-discord-login/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. セッションを無効にし、204 を返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）が無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+}
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
-    responses: never;
+    schemas: {
+        /** @description 現在ログイン中のユーザー。 */
+        CurrentUser: {
+            /**
+             * @description 画面に表示するユーザー名。
+             * @example 狩人太郎
+             */
+            displayName: string;
+        };
+        /** @description エラー応答（RFC 9457 Problem Details）。 */
+        ProblemDetail: {
+            /**
+             * Format: uri-reference
+             * @description 問題の種類を識別する URI 参照。
+             * @example about:blank
+             */
+            type?: string;
+            /**
+             * @description 問題の短い要約。
+             * @example Unauthorized
+             */
+            title?: string;
+            /**
+             * @description HTTP ステータスコード。
+             * @example 401
+             */
+            status?: number;
+            /** @description 今回の問題の説明。 */
+            detail?: string;
+            /**
+             * Format: uri-reference
+             * @description 今回の問題の発生箇所を識別する URI 参照。
+             * @example /api/auth/me
+             */
+            instance?: string;
+        };
+    };
+    responses: {
+        /** @description 未ログイン、またはセッションが無効。 */
+        Unauthorized: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/problem+json": components["schemas"]["ProblemDetail"];
+            };
+        };
+    };
     parameters: never;
     requestBodies: never;
     headers: never;
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    getCurrentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ログイン中のユーザー。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentUser"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ログアウトした。本文は無い。 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+}
