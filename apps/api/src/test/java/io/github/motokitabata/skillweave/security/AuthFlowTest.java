@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 
 import io.github.motokitabata.skillweave.TestcontainersConfiguration;
 import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -27,6 +29,8 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -37,7 +41,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * {@code server.servlet.session.cookie.*} を Spring Session の Cookie に適用しないため。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, AuthFlowTest.ErrorProbeController.class})
 @FakeDiscordCredentials
 class AuthFlowTest {
 
@@ -49,6 +53,22 @@ class AuthFlowTest {
     private static final String CALLBACK = "/api/login/oauth2/code/discord";
     private static final String THIRTY_DAYS = "Max-Age=2592000";
     private static final String CODE_AND_STATE = "code=abc&state=";
+    private static final String BOOM = "/api/test/boom";
+    private static final String BOOM_ERROR = "/api/test/send-error";
+
+    /** ERROR ディスパッチの検証用。例外を投げる経路と sendError する経路を持つ（テストだけに存在する）。 */
+    @RestController
+    static class ErrorProbeController {
+        @GetMapping(BOOM)
+        String boom() {
+            throw new IllegalStateException("boom");
+        }
+
+        @GetMapping(BOOM_ERROR)
+        void sendError(HttpServletResponse response) throws IOException {
+            response.sendError(500, "send-error");
+        }
+    }
 
     @LocalServerPort
     private int port;
@@ -77,15 +97,13 @@ class AuthFlowTest {
             return raw.body();
         }
 
-        /** 同じ名前が複数あるときは最後（ブラウザが採用する）。 */
+        /** 同じ名前の Set-Cookie は 1 つの応答に高々 1 本であること。無ければ null。 */
         String setCookie(String name) {
-            String found = null;
-            for (String h : raw.headers().allValues("set-cookie")) {
-                if (h.startsWith(name + "=")) {
-                    found = h;
-                }
-            }
-            return found;
+            List<String> found = raw.headers().allValues("set-cookie").stream()
+                    .filter(h -> h.startsWith(name + "="))
+                    .toList();
+            assertThat(found).as("Set-Cookie: %s", name).hasSizeLessThanOrEqualTo(1);
+            return found.isEmpty() ? null : found.get(0);
         }
     }
 
@@ -303,6 +321,47 @@ class AuthFlowTest {
                 .contains("SameSite=Lax")
                 .contains(THIRTY_DAYS);
         assertThat(cookieValue(refreshed)).isEqualTo(cookieValue(issued));
+    }
+
+    // 受入基準 4, 9: セッション固定の防止。ログイン後の SESSION は認可前と違い、認可前の SESSION では認証されない。
+    @Test
+    void loginChangesSessionIdAndPreLoginSessionIsNotAuthenticated() throws Exception {
+        stubDiscord(Map.of("id", "200000000000000008", "username", "u"));
+        Started started = startAuthorization();
+
+        Res res = callback(started, CODE_AND_STATE + started.state());
+
+        String after = cookieValue(res.setCookie(SESSION));
+        assertThat(after).isNotEqualTo(started.sessionCookie());
+        assertThat(get(ME, started.sessionCookie()).status()).isEqualTo(401);
+        assertThat(get(ME, after).status()).isEqualTo(200);
+    }
+
+    // 受入基準 9: 滑動の書き直しがあるときも、ログイン・ログアウトの応答にも SESSION の Set-Cookie は 1 本だけ。
+    @Test
+    void refreshWritesSingleSessionCookiePerResponse() throws Exception {
+        String session = login("200000000000000009");
+
+        Res me = get(ME, session);
+
+        assertThat(me.raw().headers().allValues("set-cookie").stream().filter(h -> h.startsWith(SESSION + "=")))
+                .hasSize(1);
+    }
+
+    // ERROR ディスパッチ（/error）にも認可がかかるが、元のステータスを変えない（ログイン中・未ログインとも）。
+    @Test
+    void errorStatusesAreNotRewrittenByErrorDispatch() throws Exception {
+        String session = login("200000000000000010");
+
+        assertThat(get("/api/does-not-exist", session).status()).isEqualTo(404);
+        assertThat(get(BOOM, session).status()).isEqualTo(500);
+        assertThat(get(BOOM_ERROR, session).status()).isEqualTo(500);
+        // 規則に無いパスは denyAll（REQUEST）で 403。/error への直接の要求も同じ
+        assertThat(get("/unknown", session).status()).isEqualTo(403);
+        assertThat(get("/error", session).status()).isEqualTo(403);
+        // 未ログインの保護パスは、存在しなくても 401（認可が先）
+        assertThat(get("/api/does-not-exist", null).status()).isEqualTo(401);
+        assertThat(get(BOOM, null).status()).isEqualTo(401);
     }
 
     // 受入基準 9: セッションの有効期間は 30 日（DB 上の最大無操作時間）。

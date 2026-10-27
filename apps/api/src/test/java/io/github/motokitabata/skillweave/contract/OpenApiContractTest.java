@@ -3,6 +3,7 @@ package io.github.motokitabata.skillweave.contract;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.motokitabata.skillweave.TestcontainersConfiguration;
+import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -40,6 +41,7 @@ import org.springframework.context.annotation.Import;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
 @Import(TestcontainersConfiguration.class)
+@FakeDiscordCredentials
 @Tag("contract")
 class OpenApiContractTest {
 

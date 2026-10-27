@@ -24,9 +24,10 @@ spring:
       client:
         registration:
           discord:
-            # 既定値を持たない（未設定なら起動に失敗する）。
-            client-id: ${DISCORD_CLIENT_ID}
-            client-secret: ${DISCORD_CLIENT_SECRET}
+            # 既定値は空。未設定・空なら起動に失敗する（ID は Boot の登録検証、シークレットは DiscordCredentialsValidator）。
+            # 既定値を書かないと、未解決の ${...} がそのまま値になって起動してしまう。
+            client-id: ${DISCORD_CLIENT_ID:}
+            client-secret: ${DISCORD_CLIENT_SECRET:}
             client-name: Discord
             authorization-grant-type: authorization_code
             scope: identify

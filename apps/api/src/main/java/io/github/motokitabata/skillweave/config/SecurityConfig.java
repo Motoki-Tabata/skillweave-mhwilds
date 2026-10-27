@@ -1,10 +1,12 @@
 package io.github.motokitabata.skillweave.config;
 
+import io.github.motokitabata.skillweave.security.DiscordCredentialsValidator;
 import io.github.motokitabata.skillweave.security.DiscordOAuth2UserService;
 import io.github.motokitabata.skillweave.security.DiscordUserFetcher;
 import io.github.motokitabata.skillweave.security.ProblemDetailAuthenticationEntryPoint;
 import io.github.motokitabata.skillweave.security.SessionCookieRefreshFilter;
 import io.github.motokitabata.skillweave.security.WebTopRedirectHandler;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -21,6 +23,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.web.SecurityFilterChain;
@@ -60,7 +63,11 @@ public class SecurityConfig {
         WebTopRedirectHandler redirectHandler = new WebTopRedirectHandler(authProperties.webTopUrl());
         ProblemDetailAuthenticationEntryPoint entryPoint = new ProblemDetailAuthenticationEntryPoint(objectMapper);
 
-        http.authorizeHttpRequests(auth -> auth.requestMatchers(
+        // ERROR ディスパッチ（/error）は許可する。元の認可はすでに済んでおり、denyAll がかかると 404・500 が 403 に化けるため。
+        // /error への直接の要求は REQUEST ディスパッチなので、下の denyAll で拒否される。
+        http.authorizeHttpRequests(auth -> auth.dispatcherTypeMatchers(DispatcherType.ERROR)
+                        .permitAll()
+                        .requestMatchers(
                                 getOrHead(AUTHORIZATION_BASE + "/**"),
                                 getOrHead(CALLBACK_PATTERN),
                                 getOrHead("/v3/api-docs/**"),
@@ -101,6 +108,11 @@ public class SecurityConfig {
     @Bean
     CsrfTokenRepository csrfTokenRepository() {
         return CookieCsrfTokenRepository.withHttpOnlyFalse();
+    }
+
+    @Bean
+    DiscordCredentialsValidator discordCredentialsValidator(ClientRegistrationRepository repository) {
+        return new DiscordCredentialsValidator(repository);
     }
 
     @Bean

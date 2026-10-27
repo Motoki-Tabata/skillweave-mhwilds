@@ -2,6 +2,7 @@ package io.github.motokitabata.skillweave;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -18,6 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
 @Import(TestcontainersConfiguration.class)
+@FakeDiscordCredentials
 class SmokeTest {
 
     @Autowired
