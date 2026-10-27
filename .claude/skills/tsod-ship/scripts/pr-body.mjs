@@ -71,7 +71,8 @@ export function stripComments(text) {
 
 /**
  * spec.md の「受入基準」節から、番号つきの基準を取り出す。純関数。
- * 「1. …」の形はその番号を使い、「- …」の形は出現順に番号を振る。
+ * 項目の先頭に `AC-N`（`- AC-1: …`・`1. **AC-1** …` のように装飾は可）があればその N を番号にし、本文から先頭の `AC-N` と区切り（`:`・`：`）を外す。
+ * 無ければ「1. …」はその番号を使い、「- …」は出現順に番号を振る。drift-scan.mjs の criteriaNumbers と同じ規則。
  * @returns {{no: number, text: string}[]}
  */
 export function extractAcceptanceCriteria(specText) {
@@ -80,9 +81,13 @@ export function extractAcceptanceCriteria(specText) {
   const items = [];
   let seq = 0;
   for (const line of section.split('\n')) {
+    const ac = line.match(/^\s*(?:-|\d+\.)\s+([*_`[(]*)AC[-_ ]?(\d+)(?!\d)[*_`\])]*\s*[:：]?\s*(.*\S)?\s*$/);
     const numbered = line.match(/^\s*(\d+)\.\s+(.*\S)\s*$/);
     const bullet = line.match(/^\s*-\s+(.*\S)\s*$/);
-    if (numbered) {
+    if (ac) {
+      seq = Number(ac[2]);
+      items.push({ no: seq, text: ac[3] ?? '' });
+    } else if (numbered) {
       seq = Number(numbered[1]);
       items.push({ no: seq, text: numbered[2] });
     } else if (bullet) {

@@ -1368,6 +1368,10 @@ test('CLI 事後照合: 許可フォルダ外の変化があれば block を返�
     const parsed = JSON.parse(post.stdout);
     assert.equal(parsed.decision, 'block');
     assert.ok(parsed.reason.includes('README.md'), parsed.reason);
+    // 示されたパスの変化は止めず列挙して続け、それ以外は止める（R21）。
+    assert.ok(parsed.reason.includes('止めずに'), parsed.reason);
+    assert.ok(parsed.reason.includes('作業を止め、実行したコマンドと対象パスをメインへ報告'), parsed.reason);
+    assert.equal(parsed.reason, parsed.hookSpecificOutput.additionalContext);
     assert.equal(parsed.hookSpecificOutput.hookEventName, 'PostToolUse');
   } finally {
     fs.rmSync(path.join(os.tmpdir(), 'agent-write-guard', sid), { recursive: true, force: true });
