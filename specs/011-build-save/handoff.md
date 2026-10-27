@@ -2,8 +2,8 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: B
-- 次に起動するコマンド: `/tsod-screen-table 011-build-save`
+- 区間: C
+- 次に起動するコマンド: `/tsod-plan 011-build-save`
 - 推奨モデル: Opus
 - ブランチ: `feat/011-build-save`（不変）
 <!--
@@ -26,7 +26,7 @@
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-28 / 3945e72 |
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-10-28 / c57fb11 |
 | B-1 | 画面設計 screen-design.md | 承認済み | 2026-10-28 / aa3f70c |
-| B-2 | テーブル設計（design/・migration） | 未 | |
+| B-2 | テーブル設計（design/・migration） | 承認済み | 2026-10-28 / 00f6c80 |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
@@ -67,6 +67,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で教訓の候補は出なかった）
+- なし（区間 B で教訓の候補は出なかった）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
@@ -74,3 +75,5 @@
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q63・Q64・Q65・Q66・Q67・Q68・Q69（Q70 は 014 向けに open-questions.md へ追加）
+- 区間 C で契約に決める: 構成名の空白の定義と文字数の数え方（DB の char_length はコードポイント、JS の length は UTF-16）・master_version の形式と長さの上限・payload の項目ごとの規則と配列の上限（Q68）
+- screen-design.md 8 節の MASTER.md への追記（ナビの横スクロール・一覧の行・ログインが必要の表示・不明な ID の表示・「保存」の用語）は常時許可外の変更として plan.md に載せる
