@@ -14,7 +14,7 @@
 | 006 | damage-model | スキル効果（`effectsByLevel`）と発動条件をオーバーレイで定義し、構成の期待値を計算して、ソルバーの `maximize: expectedDamage` で使えるようにする | P1 | M | 済 |
 | 007 | damage-ui | 結果の構成ごとに火力（期待値）を表示し、発動条件をトグルで切り替え、スキル説明文の後ろに効果の数値を補完して表示する | P1 | M | 済 |
 | 008 | user-weapon | 巨戟アーティア等の個体差がある武器（復元ボーナス・付与シリーズ／グループスキル）を端末内に入力し、ソルバーの固定武器に使える | P1 | M | 済 |
-| 009 | discord-login | Discord OAuth でログイン・ログアウトでき、セッションを Spring Session JDBC で保持する | P1 | M | 未着手 |
+| 009 | discord-login | Discord OAuth でログイン・ログアウトでき、セッションを Spring Session JDBC で保持する | P1 | M | 済 |
 | 010 | charm-save | ログインユーザーが護石をサーバーに保存し、複数端末で同じ護石一覧を使える（attributes.yaml の最初の確定） | P1 | M | 未着手 |
 | 011 | build-save | ログインユーザーが検索結果の構成に名前を付けて保存し、一覧から開き直せる（作成時の `master_version` を記録する） | P1 | M | 未着手 |
 | 012 | build-share | 保存した構成のスナップショットを短縮 ID の URL で共有し、受け手が閲覧できる（元を編集・削除しても内容は変わらない） | P1 | S | 未着手 |

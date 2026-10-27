@@ -164,6 +164,8 @@ skillweave-mhwilds/
 - `shares`: 短縮 ID、build の**スナップショット**（jsonb）、作成日時（参照ではなく複製。元を編集・削除しても共有内容が変わらない）
 - `spring_session` 系: Spring Session JDBC が要求するテーブル（Flyway で作成）
 
+> 卒業記録: 機能009で `users` と `spring_session` 系を `design/data-model-standard.md`・`design/attributes.yaml`・Flyway（V1・V2）へ移設し、実装済み。`charms`・`user_weapons`・`builds`・`shares` は未卒業（各機能で卒業させる）。
+
 護石のスキル・スロットは当面 jsonb。フェーズ③の逆引きで検索が必要になったら GIN インデックス、それでも足りなければ正規化を検討する。
 
 ---
