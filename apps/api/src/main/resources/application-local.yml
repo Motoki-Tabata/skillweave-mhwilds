@@ -4,7 +4,20 @@ spring:
     url: jdbc:postgresql://localhost:5433/swv_db
     username: swv_app
     password: swv_app_password
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            # Vite の proxy が Host を API に書き換えるため、Web のオリジンに固定する（plan D2）。
+            redirect-uri: ${DISCORD_REDIRECT_URI:http://localhost:5173/api/login/oauth2/code/discord}
 
 logging:
   level:
     io.github.motokitabata.skillweave: DEBUG
+
+swv:
+  auth:
+    # Tomcat は相対の Location を要求の Host で絶対化する。Vite の proxy は Host を API に書き換えるため、
+    # 相対の "/" だと戻りが API のオリジン（localhost:8080）になる。Web のオリジンを絶対 URL で指定する。
+    web-top-url: ${SWV_WEB_TOP_URL:http://localhost:5173/}

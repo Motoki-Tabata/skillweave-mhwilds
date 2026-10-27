@@ -14,9 +14,38 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+  session:
+    jdbc:
+      # テーブルは Flyway の V2 が作る。
+      initialize-schema: never
+    timeout: ${swv.auth.session-timeout}
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            # 既定値を持たない（未設定なら起動に失敗する）。
+            client-id: ${DISCORD_CLIENT_ID}
+            client-secret: ${DISCORD_CLIENT_SECRET}
+            client-name: Discord
+            authorization-grant-type: authorization_code
+            scope: identify
+        provider:
+          discord:
+            authorization-uri: https://discord.com/oauth2/authorize
+            token-uri: https://discord.com/api/oauth2/token
+            user-info-uri: https://discord.com/api/users/@me
+            user-name-attribute: id
 
 server:
   port: 8080
+  servlet:
+    session:
+      cookie:
+        name: SESSION
+        http-only: true
+        same-site: lax
+        max-age: ${swv.auth.session-timeout}
 
 management:
   endpoints:
@@ -34,3 +63,11 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
+# 認証（009 discord-login）
+swv:
+  auth:
+    # ログイン後の固定の戻り先（成功・失敗のどちらも）。本番で Web とオリジンが分かれたらここで変える。
+    web-top-url: /
+    # セッションの有効期間（Spring Session のタイムアウトと Cookie の Max-Age の両方がこのキーを参照する）。
+    session-timeout: 30d
