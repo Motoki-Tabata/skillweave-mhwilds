@@ -1,0 +1,28 @@
+type: object
+description: エラー応答（RFC 9457 Problem Details）。
+properties:
+  type:
+    type: string
+    format: uri-reference
+    description: 問題の種類を識別する URI 参照。
+    examples:
+      - about:blank
+  title:
+    type: string
+    description: 問題の短い要約。
+    examples:
+      - Unauthorized
+  status:
+    type: integer
+    description: HTTP ステータスコード。
+    examples:
+      - 401
+  detail:
+    type: string
+    description: 今回の問題の説明。
+  instance:
+    type: string
+    format: uri-reference
+    description: 今回の問題の発生箇所を識別する URI 参照。
+    examples:
+      - /api/auth/me

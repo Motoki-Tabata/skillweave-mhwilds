@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Moon, Sun } from '@lucide/vue'
+import AuthControls from '@/components/common/AuthControls.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { currentTheme, toggleTheme } from '@/lib/theme'
@@ -30,7 +31,9 @@ function onToggle(): void {
       <Sun v-if="theme === 'dark'" class="size-5" aria-hidden="true" />
       <Moon v-else class="size-5" aria-hidden="true" />
     </Button>
-    <!-- 将来の認証導線を1か所にまとめるための空き（009） -->
-    <div data-slot="header-auth" />
+    <!-- ログイン状態による出し分けはここ1か所に集約する -->
+    <div data-slot="header-auth" class="contents">
+      <AuthControls />
+    </div>
   </header>
 </template>

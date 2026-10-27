@@ -8,8 +8,10 @@ import App from '@/App.vue'
 import { installTitleHook, routes } from '@/router'
 import { createMemoryCharmRepository } from './charmRepository'
 import { createMemoryWeaponRepository } from './weaponRepository'
+import type { AuthApi } from '@/lib/api/auth'
 import type { CharmRepository } from '@/lib/charms/storage'
 import type { WeaponRepository } from '@/lib/weapons/storage'
+import { useAuthStore } from '@/stores/auth'
 import { useWeaponsStore } from '@/stores/weapons'
 import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
@@ -65,6 +67,15 @@ function installWeaponRepository(pinia: Pinia, given?: WeaponRepository): Weapon
   return repository
 }
 
+/** 認証 API の偽物。既定は「取得できない」（ヘッダーに何も出さない）。 */
+export function fakeAuthApi(overrides: Partial<AuthApi> = {}): AuthApi {
+  return {
+    fetchCurrentUser: async () => ({ kind: 'unavailable' }),
+    logout: async () => true,
+    ...overrides,
+  }
+}
+
 function newRouter() {
   const router = createRouter({ history: createMemoryHistory(), routes })
   installTitleHook(router)
@@ -78,6 +89,8 @@ export interface MountOptions {
   charmRepository?: CharmRepository
   /** 武器の保存先。既定は空のメモリ上の実装 */
   weaponRepository?: WeaponRepository
+  /** 認証 API。既定は「取得できない」を返す偽物 */
+  authApi?: AuthApi
 }
 
 export interface Mounted {
@@ -99,6 +112,7 @@ export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
   const pinia = newPinia()
   const repository = installRepository(pinia, options.charmRepository)
   const weaponRepository = installWeaponRepository(pinia, options.weaponRepository)
+  useAuthStore(pinia).setApi(options.authApi ?? fakeAuthApi())
   const router = newRouter()
   await router.push(options.path ?? '/')
   await router.isReady()

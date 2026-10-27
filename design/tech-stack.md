@@ -24,7 +24,9 @@
 |---|---|---|
 | Java（toolchain） | 25（Amazon Corretto 25.0.4.1 で実測） | LTS。CI も corretto 25 |
 | Gradle（wrapper） | 9.8.0 | `distributionSha256Sum` 付き |
-| Spring Boot | 4.1.1 | 4.1.1 が最新（2026-08-20） |
+| Spring Boot | 4.1.2 | `libs.versions.toml` の宣言（`./gradlew dependencies` で実測） |
+| Spring Security（`spring-boot-starter-security`・`spring-boot-starter-security-oauth2-client`） | 7.1.2 | 009 で導入。Boot BOM が解決。Boot 4 のスターター名は `-security-oauth2-client`（旧 `-oauth2-client` ではない）。テスト用は `spring-boot-starter-security-test` |
+| Spring Session JDBC（`spring-boot-starter-session-jdbc`） | 4.1.1 | 009 で導入。Boot BOM が解決。テーブルは Flyway の V2 で作る（jar 同梱の `schema-postgresql.sql` と一致を確認済み） |
 | Spring Framework | 7.0.9 | Boot BOM が解決 |
 | Hibernate ORM | 7.4.5.Final | Boot BOM が解決 |
 | Flyway | 12.4.0（＋ `flyway-database-postgresql`） | Boot BOM が解決。`flyway-database-postgresql` が無いと "Unsupported Database" で起動失敗する |
@@ -36,14 +38,9 @@
 | JUnit Jupiter | 6.0.3 | Boot BOM が解決 |
 | swagger-parser | 2.1.48 | contractTest 専用。swagger-core が参照する `javax.xml.bind` が JDK に無いため、`jaxb-api` 2.3.1 を testRuntimeOnly で併用 |
 
-### 後の機能で導入するもの（今回は入れない）
+### 後の機能で導入するもの
 
-| 項目 | 導入する機能 | 今回入れない理由 |
-|---|---|---|
-| Spring Session JDBC | 009 discord-login | クラスパスに載せるとセッションテーブルを要求する。テーブルは Flyway で作るので、その機能で一緒に入れる |
-| Spring Security・OAuth2 Client（Discord） | 009 discord-login | 認証の要件（スコープ・リダイレクト URI・CSRF）を機能の中で決める。エンドポイントがまだ無いので保護対象も無い |
-
-版はいずれも Spring Boot BOM が解決する。導入時に `./gradlew dependencies` で実測して本書に追記する。
+今は無い（009 discord-login で Spring Session JDBC と Spring Security・OAuth2 Client を導入した）。
 
 ---
 

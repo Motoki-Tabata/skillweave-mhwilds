@@ -1,0 +1,11 @@
+type: object
+description: 現在ログイン中のユーザー。
+required:
+  - displayName
+properties:
+  displayName:
+    type: string
+    minLength: 1
+    description: 画面に表示するユーザー名。
+    examples:
+      - 狩人太郎
