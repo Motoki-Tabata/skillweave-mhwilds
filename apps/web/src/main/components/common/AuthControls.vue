@@ -35,7 +35,11 @@ async function onLogout(): Promise<void> {
 
 <template>
   <div v-if="auth.status === 'unauthenticated'" data-slot="auth-login" class="flex shrink-0">
-    <Button as-child variant="ghost" class="size-11 md:h-10 md:w-auto md:border md:px-4">
+    <Button
+      as-child
+      variant="ghost"
+      class="size-11 md:bg-background md:dark:bg-input/30 md:dark:border-input md:dark:hover:bg-input/50 md:h-10 md:w-auto md:border md:px-4 md:shadow-xs"
+    >
       <a
         ref="loginLink"
         :href="LOGIN_PATH"

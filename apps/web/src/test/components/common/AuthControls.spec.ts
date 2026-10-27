@@ -131,5 +131,7 @@ describe('AuthControls（ヘッダーの認証の部品）', () => {
     expect(menu.textContent).toContain('モンハン太郎')
     menu.querySelector<HTMLElement>('[role="menuitem"]')!.click()
     await vi.waitFor(() => expect(logout).toHaveBeenCalledTimes(1))
+    await vi.waitFor(() => expect(loginLink()).not.toBeNull())
+    await vi.waitFor(() => expect(document.activeElement).toBe(loginLink()))
   })
 })
