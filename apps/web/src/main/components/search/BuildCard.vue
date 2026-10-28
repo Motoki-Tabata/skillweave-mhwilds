@@ -69,11 +69,12 @@ function levelLabel(level: number | null): string {
 
 <template>
   <Card class="@container gap-3 py-4">
-    <div class="flex items-center justify-between gap-2 px-4">
+    <div class="flex items-baseline justify-between gap-2 px-4">
       <component :is="`h${headingLevel}`" class="text-base leading-snug font-semibold">
         {{ title }}
       </component>
-      <div class="flex items-center gap-2">
+      <!-- 「保存」の slot が空なら、見出し行は変更前と同じ DOM。ある時だけボタンを縦中央に寄せる -->
+      <div v-if="$slots.action" class="flex items-center gap-2">
         <div class="flex flex-wrap justify-end gap-x-4 text-sm">
           <p v-if="damageRows !== null">
             期待値 <span class="font-num font-bold tabular-nums">{{ damageRows[0].text }}</span>
@@ -83,6 +84,14 @@ function levelLabel(level: number | null): string {
           </p>
         </div>
         <slot name="action" />
+      </div>
+      <div v-else class="flex flex-wrap justify-end gap-x-4 text-sm">
+        <p v-if="damageRows !== null">
+          期待値 <span class="font-num font-bold tabular-nums">{{ damageRows[0].text }}</span>
+        </p>
+        <p>
+          防御力 <span class="font-num font-bold tabular-nums">{{ view.defenseTotal }}</span>
+        </p>
       </div>
     </div>
     <section v-if="damageUnknown" class="flex flex-col gap-1 px-4">

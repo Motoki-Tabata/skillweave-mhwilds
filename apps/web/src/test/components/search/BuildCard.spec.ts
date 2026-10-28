@@ -1,5 +1,7 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { flushPromises } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
+import { createPinia } from 'pinia'
+import BuildCard from '@/components/search/BuildCard.vue'
 import type { SolvedBuild } from '@swv/solver'
 import type { CharmPayload } from '@/lib/charms/types'
 import { createMemoryCharmRepository } from '../../support/charmRepository'
@@ -496,5 +498,43 @@ describe('BuildCard の個体差のある武器', () => {
     )
     expect(after).toBe(before)
     expect(m.search.submittedBasis?.damageBase).toEqual({ attack: 200, affinity: 15 })
+  })
+})
+
+// 受入基準 9・D15（検索結果の表示は変えない）: 「保存」の slot の有無で見出し行の構造が変わらない
+describe('BuildCard の見出しの行', () => {
+  const lookup = {
+    charm: () => undefined,
+    armor: () => undefined,
+    weaponSlots: undefined,
+    skillKind: () => undefined,
+    nameOf: (id: string) => id,
+  }
+  const mountCard = (slots?: Record<string, string>) =>
+    mount(BuildCard, {
+      props: { build: makeBuild(), title: '構成 1', lookup, damage: null, showCharm: false },
+      slots,
+      global: { plugins: [createPinia()] },
+    })
+  const headerOf = (w: ReturnType<typeof mountCard>) => w.find('div.flex.items-baseline')
+
+  it('[基準9] slot が空のとき、見出しの行は baseline のままで、期待値・防御力の群が直接の子になる', () => {
+    const w = mountCard()
+    const row = headerOf(w)
+    expect(row.exists()).toBe(true)
+    expect(row.element.children).toHaveLength(2)
+    expect(row.element.children[1].className).toContain('flex-wrap')
+    w.unmount()
+  })
+
+  it('[基準9] slot があっても外側は baseline のままで、ボタンだけを縦中央の群に入れる', () => {
+    const w = mountCard({ action: '<button>保存</button>' })
+    const row = headerOf(w)
+    expect(row.element.children).toHaveLength(2)
+    const group = row.element.children[1]
+    expect(group.className).toContain('items-center')
+    expect(group.children[0].className).toContain('flex-wrap')
+    expect(group.querySelector('button')).not.toBeNull()
+    w.unmount()
   })
 })
