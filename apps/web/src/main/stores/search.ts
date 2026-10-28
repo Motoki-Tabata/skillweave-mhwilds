@@ -8,6 +8,7 @@ import { buildPayloadOf, customWeaponSnapshot } from '@/lib/builds/payload'
 import { buildSolverRequest, type SearchConditions } from '@/lib/solver/request'
 import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
+import { useLockExcludeStore } from '@/stores/lockExclude'
 import { useMasterStore } from '@/stores/master'
 import { useToastStore } from '@/stores/toast'
 
@@ -30,6 +31,12 @@ export interface SearchSummary {
   charmCount: number
   /** 送信した時点の「生産護石を候補に含める」の値 */
   includeCraftedCharms: boolean
+  /** 送信した時点で固定した部位の数（「何も付けない」を含む） */
+  fixedPartCount: number
+  /** 送信した時点でユーザーが除外した防具の件数（ランクで外した分は数えない） */
+  excludedArmorCount: number
+  /** 送信した時点でユーザーが除外した装飾品の件数 */
+  excludedDecorationCount: number
 }
 
 /** 検索したときの火力の計算の元（検索の後に変えても変わらない）。 */
@@ -51,6 +58,7 @@ export const useSearchStore = defineStore('search', () => {
   const conditions = useConditionsStore()
   const toast = useToastStore()
   const charmsStore = useCharmsStore()
+  const lockExclude = useLockExcludeStore()
 
   const status = ref<SearchStatus>('idle')
   const found = ref(0)
@@ -126,6 +134,9 @@ export const useSearchStore = defineStore('search', () => {
       activeConditionNames: submitted.activeConditionIds.map((id) => master.nameOf(id)),
       charmCount,
       includeCraftedCharms: submitted.includeCraftedCharms,
+      fixedPartCount: Object.keys(submitted.fixedArmor).length,
+      excludedArmorCount: submitted.excludedArmorIds.length,
+      excludedDecorationCount: submitted.excludedDecorationIds.length,
     }
   }
 
@@ -163,6 +174,9 @@ export const useSearchStore = defineStore('search', () => {
       maxResults: conditions.maxResults,
       ranks: [...conditions.ranks],
       includeCraftedCharms: conditions.includeCraftedCharms,
+      fixedArmor: { ...lockExclude.fixed },
+      excludedArmorIds: [...lockExclude.excludedArmorIds],
+      excludedDecorationIds: [...lockExclude.excludedDecorationIds],
     }
     // 前の検索の結果と進捗はすぐに消す
     clearResult()

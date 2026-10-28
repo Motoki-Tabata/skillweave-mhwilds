@@ -102,12 +102,24 @@ const max = computed(() => search.summary?.maxResults ?? 1)
 const progressPercent = computed(() => Math.min(100, (search.found / max.value) * 100))
 const reachedLimit = computed(() => builds.value.length >= max.value)
 
+const hasExclusion = computed(
+  () =>
+    (search.summary?.excludedArmorCount ?? 0) + (search.summary?.excludedDecorationCount ?? 0) > 0,
+)
+const hasLockOrExclusion = computed(
+  () => (search.summary?.fixedPartCount ?? 0) > 0 || hasExclusion.value,
+)
+
 const summaryLine = computed(() => {
   const summary = search.summary
   if (summary === null) return ''
   const conditionsText =
     summary.activeConditionNames.length === 0 ? 'なし' : summary.activeConditionNames.join('・')
-  return `武器: ${summary.weaponName} ／ 必須スキル ${summary.requiredCount} 件 ／ ${summary.objectiveLabel} ／ ${summary.maxResults} 件まで ／ 鑑定護石 ${summary.charmCount} 件 ／ ${summary.includeCraftedCharms ? '生産護石を含める' : '生産護石を含めない'} ／ 発動条件: ${conditionsText}`
+  const fixedText = summary.fixedPartCount > 0 ? `固定 ${summary.fixedPartCount} 部位` : '固定なし'
+  const excludedText = hasExclusion.value
+    ? `除外: 防具 ${summary.excludedArmorCount} 件・装飾品 ${summary.excludedDecorationCount} 件`
+    : '除外なし'
+  return `武器: ${summary.weaponName} ／ 必須スキル ${summary.requiredCount} 件 ／ ${summary.objectiveLabel} ／ ${summary.maxResults} 件まで ／ 鑑定護石 ${summary.charmCount} 件 ／ ${summary.includeCraftedCharms ? '生産護石を含める' : '生産護石を含めない'} ／ 発動条件: ${conditionsText} ／ ${fixedText} ／ ${excludedText}`
 })
 
 const TIMEOUT_HINT =
@@ -195,6 +207,7 @@ const TIMEOUT_HINT =
           <li>必須スキルを減らす</li>
           <li>下限レベルを下げる</li>
           <li v-if="!search.summary?.allRanksSelected">候補にするランクを広げる</li>
+          <li v-if="hasLockOrExclusion">部位の固定や除外を減らす</li>
         </ul>
       </ResultAlert>
 
