@@ -5,6 +5,7 @@
 import type {
   ArmorId,
   ArmorPart,
+  CharmId,
   ConditionId,
   DecorationId,
   MasterVersion,
@@ -19,7 +20,7 @@ import type {
 export type Uuid = string & { readonly __brand: 'Uuid' }
 
 export interface SolverCharm {
-  id: Uuid
+  id: Uuid | CharmId
   rarity: number
   skills: SkillLevel[]
   slots: Slot[]
@@ -68,7 +69,7 @@ export interface SlotRef {
 
 export interface SolvedBuild {
   armor: Record<ArmorPart, ArmorId | null>
-  charmId: Uuid | null
+  charmId: Uuid | CharmId | null
   decorations: { slot: SlotRef; decorationId: DecorationId }[]
   /** 発動スキル（maxLevel で頭打ちした後の値）と、頭打ち前の合計 */
   skills: { skillId: SkillId; level: number; rawLevel: number }[]
