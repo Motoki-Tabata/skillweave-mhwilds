@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import ActivationConditionsCard from '@/components/search/ActivationConditionsCard.vue'
+import ArmorLockCard from '@/components/search/ArmorLockCard.vue'
 import CharmCard from '@/components/search/CharmCard.vue'
 import ConditionsCard from '@/components/search/ConditionsCard.vue'
+import ExcludeCard from '@/components/search/ExcludeCard.vue'
 import RequiredSkillsCard from '@/components/search/RequiredSkillsCard.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import ResultsPanel from '@/components/search/ResultsPanel.vue'
@@ -65,6 +67,11 @@ function onSubmit(): void {
 
 // 送信ボタンが無効のあいだは Enter での送信が起きないので、ここで受けて各項目のエラーを出す
 function onEnter(event: KeyboardEvent): void {
+  // Combobox の Enter は候補の選択だけにする（送信しない）
+  if (event.target instanceof HTMLElement && event.target.getAttribute('role') === 'combobox') {
+    event.preventDefault()
+    return
+  }
   if (!(event.target instanceof HTMLInputElement) || conditions.unavailableReason === null) return
   event.preventDefault()
   onSubmit()
@@ -120,6 +127,8 @@ function returnFocusToWeapon(event: Event): void {
           <RequiredSkillsCard @open="skillDialogOpen = true" />
           <CharmCard />
           <ConditionsCard ref="conditionsCard" />
+          <ArmorLockCard />
+          <ExcludeCard />
           <ActivationConditionsCard />
           <SearchActions />
         </form>
