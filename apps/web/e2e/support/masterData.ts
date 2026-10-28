@@ -13,7 +13,13 @@ interface RawMaster {
   version: string
   weapons: { id: string; skills: unknown[]; setBonusIds: unknown[] }[]
   skills: { id: string; kind: string; maxLevel: number }[]
-  armors: { part: string; rank: string; setBonusIds: string[] }[]
+  armors: {
+    id: string
+    part: string
+    rank: string
+    skills: { skillId: string; level: number }[]
+    setBonusIds: string[]
+  }[]
   setBonuses: { id: string; skillId: string; thresholds: { level: number; pieces: number }[] }[]
 }
 
@@ -37,6 +43,8 @@ export interface MasterInfo {
   plainWeaponId: string
   /** 護石に入れる防具スキルのうち、名前に漢字を含み、読み（ひらがな）があり、名前が一意のもの */
   kanjiArmorSkill: () => { id: string; name: string; reading: string; maxLevel: number }
+  /** 指定のスキルを持つ上位の頭の防具の名前（そのスキルのレベルが最も高いもの） */
+  headArmorWithSkill: (skillId: string) => string
   /** 基の武器にできる、名前が「アーティア」で始まるマスターの武器の名前（先頭の1つ） */
   artiaWeaponName: () => string
   /** 上位の防具だけではシリーズ Lv2 とグループ Lv1 を両方は満たせず、武器の付与スキルを部位数に数えると満たせる組 */
@@ -137,7 +145,18 @@ export function loadMasterInfo(): MasterInfo {
     return entry.name
   }
 
+  const headArmorWithSkill: MasterInfo['headArmorWithSkill'] = (skillId) => {
+    const level = (a: RawMaster['armors'][number]) =>
+      a.skills.find((k) => k.skillId === skillId)?.level ?? 0
+    const [best] = master.armors
+      .filter((a) => a.part === 'head' && a.rank === 'high' && level(a) > 0)
+      .sort((a, b) => level(b) - level(a))
+    if (best === undefined) throw new Error(`${skillId} を持つ上位の頭の防具がマスターに無い`)
+    return dictionaryName(best.id)
+  }
+
   return {
+    headArmorWithSkill,
     kanjiArmorSkill,
     artiaWeaponName,
     grantPair,
