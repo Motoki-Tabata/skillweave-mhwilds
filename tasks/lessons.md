@@ -55,11 +55,6 @@
 - 何が起きたか: MASTER.md は「ウェイトは 400・500・700」「影を使わない」と定めるが、既存の画面（SearchView・CharmsView・WeaponsView・PickerDialog）の見出しの `font-semibold`、`shadow-lg`、`ui/` の既定がこれに反し、011 の新規画面（BuildsView・BuildDialogFrame・BuildCard の見出し）も同じ書き方を引き継いだ（レビュー記録 1 回目 web 2）。D8 の AlertDialog のオーバーレイも `ui/` 既定の `bg-black/80` で MASTER の Modals（0.6）と違う（web 6）。
 - 提案: MASTER.md 側で shadcn の既定の扱い（許容するか、`ui/` を CLI で更新して合わせるか）を決め、規約か実装のどちらかを揃える専用の作業を切る。
 
-## 2026-10-28 ダイアログのオーバーレイの記述が PickerDialog と BuildDialogFrame で複製された（機能011・区間D）
-- 種別: 規律昇華
-- 何が起きたか: `components/builds/BuildDialogFrame.vue` が `PickerDialog.vue` と同一のオーバーレイ（`fixed inset-x-0 top-12 bottom-8 z-50 bg-black/60 md:inset-y-0`）を持つ。conventions.md の「2箇所以上に現れる UI は共有部品にする」に当たる（レビュー記録 1 回目 web 3）。
-- 提案: 基準幅でヘッダーとクレジットのバーを覆わないオーバーレイを `components/common/` の共有部品に切り出し、PickerDialog と BuildDialogFrame の両方から使う。
-
 ## 2026-10-28 allow-coercion-of-scalars: false は数値・真偽から String への変換を止めない（機能011・区間D）
 - 種別: 規律昇華
 - 何が起きたか: 011 の api で、構成名とカスタム武器名に JSON の数値・真偽（`5`・`true`）を送ると、文字列 "5"・"true" に変換されて 201 になる。010 の護石の文字列項目も同じ性質（レビュー記録 2 回目 api F3）。

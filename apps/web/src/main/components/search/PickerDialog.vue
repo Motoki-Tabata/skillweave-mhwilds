@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { X } from '@lucide/vue'
-import { DialogContent, DialogOverlay, DialogPortal } from 'reka-ui'
+import { DialogContent, DialogPortal } from 'reka-ui'
+import AppDialogOverlay from '@/components/common/AppDialogOverlay.vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 
@@ -22,10 +23,7 @@ const emit = defineEmits<{
 <template>
   <Dialog :open="open" @update:open="(value: boolean) => emit('update:open', value)">
     <DialogPortal>
-      <!-- 基準幅では、ヘッダー（48px）とクレジットのバー（32px）を覆わない -->
-      <DialogOverlay
-        class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-x-0 top-12 bottom-8 z-50 bg-black/60 md:inset-y-0"
-      />
+      <AppDialogOverlay />
       <DialogContent
         class="bg-background fixed inset-x-0 top-12 bottom-8 z-50 flex flex-col outline-none md:inset-auto md:top-1/2 md:left-1/2 md:max-h-[calc(100vh-6rem)] md:w-[720px] md:max-w-[calc(100vw-3rem)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg md:border md:shadow-lg"
         @close-auto-focus="(event: Event) => emit('closeAutoFocus', event)"

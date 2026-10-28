@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Cloud, Smartphone } from '@lucide/vue'
-import CharmDeleteDialog from '@/components/charms/CharmDeleteDialog.vue'
 import CharmForm from '@/components/charms/CharmForm.vue'
 import CharmListItem from '@/components/charms/CharmListItem.vue'
+import DeleteConfirmDialog from '@/components/common/DeleteConfirmDialog.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -39,6 +39,14 @@ const loading = computed(
 const listLoading = computed(() => charms.status === 'loading')
 const hasSource = computed(() => charms.source !== 'unknown')
 const isAccount = computed(() => charms.source === 'account')
+/** 削除の確認の本文。アカウントの護石のときだけ、ほかの端末からも消える旨を足す。 */
+const deleteDescription = computed(() => {
+  const summary =
+    deleting.value === null ? '' : charmSummary(deleting.value.charm.payload, master.nameOf)
+  return `${summary}。削除すると元に戻せません。${
+    isAccount.value ? '同じアカウントのほかの端末からも消えます。' : ''
+  }`
+})
 const showDeviceBand = computed(
   () => isAccount.value && charms.deviceCharmCount !== null && charms.deviceCharmCount > 0,
 )
@@ -286,10 +294,10 @@ function onDialogCloseAutoFocus(event: Event): void {
       </div>
     </template>
 
-    <CharmDeleteDialog
+    <DeleteConfirmDialog
       v-model:open="deleteOpen"
-      :account="isAccount"
-      :summary="deleting === null ? '' : charmSummary(deleting.charm.payload, master.nameOf)"
+      title="護石を削除しますか？"
+      :description="deleteDescription"
       @confirm="confirmDelete"
       @close-auto-focus="onDialogCloseAutoFocus"
     />
