@@ -501,7 +501,7 @@ describe('BuildCard の個体差のある武器', () => {
   })
 })
 
-// 受入基準 9・D15（検索結果の表示は変えない）: 「保存」の slot の有無で見出し行の構造が変わらない
+// D15（検索結果の表示は変えない）: 「保存」の slot の有無で見出し行の構造が変わらない
 describe('BuildCard の見出しの行', () => {
   const lookup = {
     charm: () => undefined,
@@ -518,7 +518,7 @@ describe('BuildCard の見出しの行', () => {
     })
   const headerOf = (w: ReturnType<typeof mountCard>) => w.find('div.flex.items-baseline')
 
-  it('[基準9] slot が空のとき、見出しの行は baseline のままで、期待値・防御力の群が直接の子になる', () => {
+  it('[D15] slot が空のとき、見出しの行は baseline のままで、期待値・防御力の群が直接の子になる', () => {
     const w = mountCard()
     const row = headerOf(w)
     expect(row.exists()).toBe(true)
@@ -527,7 +527,7 @@ describe('BuildCard の見出しの行', () => {
     w.unmount()
   })
 
-  it('[基準9] slot があっても外側は baseline のままで、ボタンだけを縦中央の群に入れる', () => {
+  it('[D15] slot があっても外側は baseline のままで、ボタンだけを縦中央の群に入れる', () => {
     const w = mountCard({ action: '<button>保存</button>' })
     const row = headerOf(w)
     expect(row.element.children).toHaveLength(2)
