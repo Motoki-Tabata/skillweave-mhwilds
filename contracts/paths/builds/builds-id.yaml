@@ -8,7 +8,6 @@ parameters:
       format: uuid
 patch:
   operationId: renameBuild
-  x-swv-status: draft
   summary: 構成の名前を変更する
   tags:
     - builds
@@ -62,7 +61,6 @@ patch:
       $ref: ../../components/responses/Conflict.yaml
 delete:
   operationId: deleteBuild
-  x-swv-status: draft
   summary: 構成を削除する
   tags:
     - builds

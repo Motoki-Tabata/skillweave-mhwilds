@@ -1,6 +1,5 @@
 get:
   operationId: listBuilds
-  x-swv-status: draft
   summary: 自分の保存した構成の一覧を取得する
   tags:
     - builds
@@ -37,7 +36,6 @@ get:
       $ref: ../../components/responses/Unauthorized.yaml
 post:
   operationId: createBuild
-  x-swv-status: draft
   summary: 構成を保存する
   tags:
     - builds
