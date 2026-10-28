@@ -1,6 +1,7 @@
 package io.github.motokitabata.skillweave.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +18,7 @@ import java.util.Objects;
 public record BuildPayload(
         @NotNull @Valid BuildWeapon weapon,
         @NotNull @Valid BuildArmor armor,
-        @Valid BuildCharm charm,
+        @JsonProperty(required = true) @Valid BuildCharm charm,
         @NotNull @Size(max = 21) List<@NotNull @Valid BuildDecoration> decorations,
         @NotNull @Size(max = 100) List<@NotNull @Valid BuildSkill> skills,
         @NotNull @Size(max = 21) List<@NotNull @Valid BuildSlotRef> freeSlots,

@@ -2,6 +2,7 @@ package io.github.motokitabata.skillweave.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
@@ -19,10 +20,16 @@ public record CustomWeaponPayload(
         @NotNull String name,
         @NotNull @Min(1) @Max(999) Integer attack,
         @NotNull @Min(-100) @Max(100) Integer affinity,
+
         @Valid @JsonInclude(JsonInclude.Include.NON_NULL) Element element,
+
         @NotNull @Size(max = 3) List<@NotNull @Valid Slot> slots,
-        @Pattern(regexp = CustomWeaponPayload.BONUS_ID) String seriesBonusId,
-        @Pattern(regexp = CustomWeaponPayload.BONUS_ID) String groupBonusId) {
+
+        @JsonProperty(required = true) @Pattern(regexp = CustomWeaponPayload.BONUS_ID)
+        String seriesBonusId,
+
+        @JsonProperty(required = true) @Pattern(regexp = CustomWeaponPayload.BONUS_ID)
+        String groupBonusId) {
 
     static final String BONUS_ID = "sb:-?\\d+";
     private static final int NAME_MAX = 30;

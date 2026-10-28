@@ -32,7 +32,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * 保存した構成の API（011 build-save。受入基準 AC-1, 7, 8, 9, 10, 11, 13, 14）。
+ * 保存した構成の API（011 build-save。受入基準 AC-1, 7, 8, 9, 10, 11, 14）。
+ * AC-13（builds テーブル）は、全テストが V4 のマイグレーションを適用した DB で動くことで暗黙に満たす。
  * 実際の HTTP（組み込み Tomcat）で、ログインの Cookie と CSRF トークンを付けて呼ぶ。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -314,7 +315,7 @@ class BuildControllerTest {
         assertThat(ids).containsExactly(id(6).toString(), id(3).toString(), id(2).toString(), id(1).toString());
     }
 
-    // AC-8, AC-9: 他のユーザーの構成は、一覧に出ず、名前の変更は 404、削除は 204 で、行は変わらない。
+    // AC-7, AC-9（404）, AC-10（204）: 他のユーザーの構成は、一覧に出ず、名前の変更は 404、削除は 204 で、行は変わらない。
     @Test
     void otherUsersBuildIsIsolated() throws Exception {
         UUID id = id(1);
@@ -331,7 +332,7 @@ class BuildControllerTest {
         assertThat(isDeleted(id)).isFalse();
     }
 
-    // AC-7: ID が自分の行・他のユーザーの行・削除済みの行と衝突したら 409 で、既存の行を変えない。
+    // AC-8: ID が自分の行・他のユーザーの行・削除済みの行と衝突したら 409 で、既存の行を変えない。
     @Test
     void createWithCollidingIdIsConflict() throws Exception {
         UUID mine = id(1);
@@ -351,7 +352,7 @@ class BuildControllerTest {
         assertThat(isDeleted(deleted)).isTrue();
     }
 
-    // AC-8: 行バージョンの不一致は 409 で上書きしない。
+    // AC-9: 行バージョンの不一致は 409 で上書きしない。
     @Test
     void renameWithStaleVersionIsConflict() throws Exception {
         UUID id = id(1);
@@ -366,7 +367,7 @@ class BuildControllerTest {
         assertThat(rowVersion(id)).isEqualTo(1);
     }
 
-    // AC-8: 自分の削除していない行が無い（存在しない・削除済み・UUID でない ID）名前の変更は 404。
+    // AC-9: 自分の削除していない行が無い（存在しない・削除済み・UUID でない ID）名前の変更は 404。
     @Test
     void renameOfMissingDeletedOrMalformedIdIsNotFound() throws Exception {
         UUID deleted = id(1);
@@ -380,7 +381,7 @@ class BuildControllerTest {
         }
     }
 
-    // AC-9: 論理削除で、行バージョンを進め、何度でも・存在しない ID でも 204。削除後は生き返らない。
+    // AC-10: 論理削除で、行バージョンを進め、何度でも・存在しない ID でも 204。削除後は生き返らない。
     @Test
     void deleteIsLogicalIdempotentAndBumpsVersion() throws Exception {
         UUID id = id(1);
@@ -489,7 +490,6 @@ class BuildControllerTest {
         return Stream.of(
                 VALID_PAYLOAD,
                 payload("charm", "null"),
-                payload("charm", null),
                 payload("decorations", "[]"),
                 payload("decorations", repeat(DECORATION, 21)),
                 payload("freeSlots", repeat(SLOT_REF, 21)),
@@ -552,6 +552,12 @@ class BuildControllerTest {
                 payload("armor", "{\"head\":\"ar:1:foot\"}"),
                 payload("armor", "{\"head\":\"ar:x:head\"}"),
                 payload("armor", "{\"head\":5}"),
+                payload("charm", null),
+                payload("armor", "{\"chest\":null,\"arms\":null,\"waist\":null,\"legs\":null}"),
+                payload("armor", "{\"head\":null,\"arms\":null,\"waist\":null,\"legs\":null}"),
+                payload("armor", "{\"head\":null,\"chest\":null,\"waist\":null,\"legs\":null}"),
+                payload("armor", "{\"head\":null,\"chest\":null,\"arms\":null,\"legs\":null}"),
+                payload("armor", "{\"head\":null,\"chest\":null,\"arms\":null,\"waist\":null}"),
                 payload("charm", "{\"id\":\"not-a-uuid\",\"payload\":" + CHARM_PAYLOAD + "}"),
                 payload("charm", "{\"payload\":" + CHARM_PAYLOAD + "}"),
                 payload("charm", "{\"id\":\"" + CHARM_ID + "\"}"),
@@ -597,6 +603,8 @@ class BuildControllerTest {
                 weaponPayload("slots", "[{\"target\":\"weapon\",\"level\":4}]"),
                 weaponPayload("slots", "[{\"target\":\"weapon\",\"level\":0}]"),
                 weaponPayload("slots", null),
+                weaponPayload("seriesBonusId", null),
+                weaponPayload("groupBonusId", null),
                 weaponPayload("seriesBonusId", "\"sk:1\""),
                 weaponPayload("groupBonusId", "\"sb:x\""));
     }
@@ -706,7 +714,7 @@ class BuildControllerTest {
                 "");
     }
 
-    // AC-13: 未ログインは 4 つとも 401（problem+json・リダイレクトなし）で、構成を変えない。
+    // AC-7: 未ログインは 4 つとも 401（problem+json・リダイレクトなし）で、構成を変えない。
     @ParameterizedTest
     @MethodSource("unauthenticatedCalls")
     void unauthenticatedCallsReturn401(String method, String path, String body) throws Exception {
@@ -726,7 +734,7 @@ class BuildControllerTest {
                 Arguments.of("DELETE", BUILDS + "/" + id(1), null));
     }
 
-    // AC-13: CSRF トークンの無い POST・PATCH・DELETE は 403 で拒否し、構成を変えない。
+    // AC-7: CSRF トークンの無い POST・PATCH・DELETE は 403 で拒否し、構成を変えない。
     @Test
     void mutationsWithoutCsrfTokenAreForbidden() throws Exception {
         UUID id = id(1);
