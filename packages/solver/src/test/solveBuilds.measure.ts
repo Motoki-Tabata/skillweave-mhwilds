@@ -250,7 +250,7 @@ async function measureCase(testCase: Case) {
     if (testCase.crafted === true) {
       // 生産護石ありは状態が変わりうる。時間切れでなく、答えが出たことだけを確かめる
       expect(['optimal', 'infeasible']).toContain(result.status)
-      return
+      continue
     }
     // 解ありは optimal で 1 件以上、解なしは infeasible を返したことを確かめる
     expect(result.status).toBe(testCase.expected)
