@@ -99,7 +99,8 @@ function onBlur(): void {
         />
       </ComboboxAnchor>
       <ComboboxList class="w-(--reka-combobox-trigger-width) min-w-60">
-        <ComboboxViewport class="max-h-72 overflow-y-auto p-1">
+        <!-- 候補の mousedown で入力欄がフォーカスを失うと、blur のリセットで一覧が組み変わり、押した候補が選べない -->
+        <ComboboxViewport class="max-h-72 overflow-y-auto p-1" @mousedown.prevent>
           <p v-if="query !== ''" class="text-muted-foreground px-2 py-1 text-xs">
             「{{ query }}」を含む防具: <span class="tabular-nums">{{ candidates.count }}</span> 件
           </p>

@@ -156,6 +156,28 @@ describe('ArmorLockCard', () => {
   )
 
   it(
+    'AC-3: 絞り込んだ後に候補を押しても入力欄がフォーカスを失わず、押して選ぶと値が入る',
+    async () => {
+      const m = await ready()
+      const store = useLockExcludeStore(m.pinia)
+      await open('head')
+      await typeInto(input('head'), '上位')
+      await vi.waitFor(() =>
+        expect(optionTexts()).toEqual(['固定しない', '何も付けない', '上位の頭']),
+      )
+      const option = options().find((o) => textOf(o) === '上位の頭')!
+      // フォーカスの喪失（blur のリセットで一覧が組み変わる）を起こす mousedown の既定動作を止める
+      const down = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+      option.dispatchEvent(down)
+      expect(down.defaultPrevented).toBe(true)
+      await choose('上位の頭')
+      expect(store.fixed.head).toBe(armorId('high', 'head'))
+      expect(input('head').value).toBe('上位の頭')
+    },
+    SLOW,
+  )
+
+  it(
     'AC-3: Combobox の Enter では検索フォームを送信しない',
     async () => {
       const m = await ready()
