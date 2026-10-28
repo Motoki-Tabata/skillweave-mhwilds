@@ -1,0 +1,16 @@
+type: object
+description: マスターの武器の参照。
+required:
+  - kind
+  - weaponId
+properties:
+  kind:
+    type: string
+    enum:
+      - master
+  weaponId:
+    type: string
+    pattern: '^wp:[a-z]+(-[a-z]+)*:[0-9]+$'
+    description: 武器 ID。マスターデータにあるかどうかはサーバーでは検査しない。
+    examples:
+      - 'wp:bow:1'

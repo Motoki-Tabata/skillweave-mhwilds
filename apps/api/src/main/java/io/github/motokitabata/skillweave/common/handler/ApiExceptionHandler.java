@@ -1,5 +1,7 @@
 package io.github.motokitabata.skillweave.common.handler;
 
+import io.github.motokitabata.skillweave.common.exception.BuildConflictException;
+import io.github.motokitabata.skillweave.common.exception.BuildNotFoundException;
 import io.github.motokitabata.skillweave.common.exception.CharmConflictException;
 import io.github.motokitabata.skillweave.common.exception.CharmNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CharmConflictException.class)
     ProblemDetail conflict(CharmConflictException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(BuildNotFoundException.class)
+    ProblemDetail buildNotFound(BuildNotFoundException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(BuildConflictException.class)
+    ProblemDetail buildConflict(BuildConflictException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
     }
 }

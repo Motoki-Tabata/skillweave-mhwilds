@@ -11,6 +11,9 @@ import { createMemoryWeaponRepository } from './weaponRepository'
 import type { AuthApi } from '@/lib/api/auth'
 import type { CharmsApi } from '@/lib/api/charms'
 import { createMemoryCharmsApi } from './charmsApi'
+import type { BuildsApi } from '@/lib/api/builds'
+import { createMemoryBuildsApi } from './buildsApi'
+import { useBuildsStore } from '@/stores/builds'
 import type { CharmRepository } from '@/lib/charms/storage'
 import type { WeaponRepository } from '@/lib/weapons/storage'
 import { useAuthStore } from '@/stores/auth'
@@ -69,6 +72,13 @@ function installCharmsApi(pinia: Pinia, given?: CharmsApi): CharmsApi {
   return api
 }
 
+/** 構成の API を差し替える。既定はメモリ上の実装（サーバーに届かない）。 */
+function installBuildsApi(pinia: Pinia, given?: BuildsApi): BuildsApi {
+  const api = given ?? createMemoryBuildsApi()
+  useBuildsStore(pinia).setApi(api)
+  return api
+}
+
 /** 武器の保存先を差し替える。既定はメモリ上の実装。 */
 function installWeaponRepository(pinia: Pinia, given?: WeaponRepository): WeaponRepository {
   const repository = given ?? createMemoryWeaponRepository()
@@ -102,6 +112,8 @@ export interface MountOptions {
   charmsApi?: CharmsApi
   /** 認証 API。既定は「取得できない」を返す偽物 */
   authApi?: AuthApi
+  /** 構成の API。既定は空のメモリ上の実装 */
+  buildsApi?: BuildsApi
 }
 
 export interface Mounted {
@@ -115,6 +127,9 @@ export interface Mounted {
   repository: CharmRepository
   /** アカウントの護石の API（既定のときはメモリ上の実装） */
   charmsApi: CharmsApi
+  /** 構成の API（既定のときはメモリ上の実装） */
+  buildsApi: BuildsApi
+  builds: ReturnType<typeof useBuildsStore>
   master: ReturnType<typeof useMasterStore>
   conditions: ReturnType<typeof useConditionsStore>
   search: ReturnType<typeof useSearchStore>
@@ -125,6 +140,7 @@ export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
   const pinia = newPinia()
   const repository = installRepository(pinia, options.charmRepository)
   const charmsApi = installCharmsApi(pinia, options.charmsApi)
+  const buildsApi = installBuildsApi(pinia, options.buildsApi)
   const weaponRepository = installWeaponRepository(pinia, options.weaponRepository)
   useAuthStore(pinia).setApi(options.authApi ?? fakeAuthApi())
   const router = newRouter()
@@ -140,6 +156,8 @@ export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
     weaponRepository,
     repository,
     charmsApi,
+    buildsApi,
+    builds: useBuildsStore(pinia),
     master: useMasterStore(pinia),
     conditions: useConditionsStore(pinia),
     search: useSearchStore(pinia),
@@ -160,11 +178,12 @@ export async function mountReadyApp(options: MountOptions = {}): Promise<Mounted
 export async function loadStores(
   charmRepository?: CharmRepository,
   weaponRepositoryGiven?: WeaponRepository,
-  backends: { authApi?: AuthApi; charmsApi?: CharmsApi } = {},
+  backends: { authApi?: AuthApi; charmsApi?: CharmsApi; buildsApi?: BuildsApi } = {},
 ): Promise<Omit<Mounted, 'wrapper'>> {
   const pinia = newPinia()
   const repository = installRepository(pinia, charmRepository)
   const charmsApi = installCharmsApi(pinia, backends.charmsApi)
+  const buildsApi = installBuildsApi(pinia, backends.buildsApi)
   useAuthStore(pinia).setApi(backends.authApi ?? fakeAuthApi())
   const weaponRepository = installWeaponRepository(pinia, weaponRepositoryGiven)
   const master = useMasterStore(pinia)
@@ -173,6 +192,8 @@ export async function loadStores(
     pinia,
     repository,
     charmsApi,
+    buildsApi,
+    builds: useBuildsStore(pinia),
     master,
     charms: useCharmsStore(pinia),
     weapons: useWeaponsStore(pinia),
@@ -206,4 +227,24 @@ export function findByLabel(label: string, root: ParentNode = document.body): HT
 export async function click(element: Element): Promise<void> {
   element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
   await flushPromises()
+}
+
+/** 入力欄に文字を入れて描画を待つ。 */
+export async function typeInto(input: HTMLInputElement, text: string): Promise<void> {
+  input.value = text
+  input.dispatchEvent(new Event('input', { bubbles: true }))
+  await flushPromises()
+}
+
+/** フォーカスを外して（blur）描画を待つ。 */
+export async function blur(element: HTMLElement): Promise<void> {
+  element.dispatchEvent(new FocusEvent('blur'))
+  await flushPromises()
+}
+
+/** 認証 API の偽物（ログイン中）。 */
+export function loggedInAuth(): AuthApi {
+  return fakeAuthApi({
+    fetchCurrentUser: async () => ({ kind: 'authenticated', displayName: 'テスト' }),
+  })
 }

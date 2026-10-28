@@ -4,6 +4,137 @@
  */
 
 export interface paths {
+    "/api/builds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 自分の保存した構成の一覧を取得する
+         * @description **【機能概要】**
+         *
+         *     ログイン中のユーザーが保存した、削除していない構成を内容とともに全件返す。ID の降順で、ページングはしない。refs specs/011-build-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. セッション Cookie からログイン状態を判定する。
+         *     2. 自分の削除していない構成を ID の降順で並べ、200 で返す。0件なら空の配列。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        get: operations["listBuilds"];
+        put?: never;
+        /**
+         * 構成を保存する
+         * @description **【機能概要】**
+         *
+         *     クライアントが採番した ID で、名前を付けた構成を新規に保存する。refs specs/011-build-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 要求の構造（ID・名前・マスターの版・内容・スキーマ版）を検査する。マスターに依る検査（ID がマスターに存在するか）はしない。
+         *     4. 構成を自分の行として保存する。行バージョン・作成日時・更新日時はサーバーが決める。
+         *     5. 保存後の構成を 201 で返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         *     3. 要求の構造が契約に反する場合（名前の長さ・先頭と末尾の空白、ID の形式、配列の長さの上限を含む）は 400（`application/problem+json`）を返し、保存しない。
+         *     4. ID が既存の行（他のユーザー・削除済みを含む）と衝突する場合は 409（`application/problem+json`）を返し、既存の行は変えない。
+         */
+        post: operations["createBuild"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/builds/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 構成の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 構成を削除する
+         * @description **【機能概要】**
+         *
+         *     自分の構成を論理削除する。冪等で、対象の行が無くても 204 を返す。refs specs/011-build-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 自分の削除していない構成があれば論理削除する。行バージョンは照合しない。
+         *     4. 204 を返す。行が無い・削除済み・他のユーザーの行・ID の形が不正な場合も 204 で、他のユーザーの行は変えない。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        delete: operations["deleteBuild"];
+        options?: never;
+        head?: never;
+        /**
+         * 構成の名前を変更する
+         * @description **【機能概要】**
+         *
+         *     自分の構成の名前を、読んだ時点の行バージョンを添えて変更する。内容は変えない。refs specs/011-build-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 要求の構造（名前・行バージョン）を検査する。
+         *     4. 自分の削除していない構成を探し、要求の行バージョンが行と一致すれば名前を書き換え、行バージョンを進める。
+         *     5. 保存後の構成を 200 で返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         *     3. 名前が契約に反する場合（長さ、先頭と末尾の空白）は 400（`application/problem+json`）を返し、保存しない。
+         *     4. 自分の削除していない行が無い場合（他のユーザーの行・削除済み・ID の形が不正を含む）は 404（`application/problem+json`）を返す。
+         *     5. 要求の行バージョンが行と一致しない場合、または同時の更新と競合した場合は 409（`application/problem+json`）を返し、上書きしない。
+         */
+        patch: operations["renameBuild"];
+        trace?: never;
+    };
     "/api/charms": {
         parameters: {
             query?: never;
@@ -289,8 +420,9 @@ export interface components {
         /** @description 護石が持つスキルとそのレベル。 */
         CharmSkill: {
             /**
-             * @description スキル ID。`sk:` に数字が続く形式。マスターデータにあるかどうかはサーバーでは検査しない。
+             * @description スキル ID。`sk:` に整数（負の数を含む）が続く形式。マスターデータにあるかどうかはサーバーでは検査しない。
              * @example sk:101
+             * @example sk:-397570464
              */
             skillId: string;
             /**
@@ -334,6 +466,218 @@ export interface components {
              * @enum {integer}
              */
             schemaVersion: 1;
+            /** @description クライアントが読んだ時点の行バージョン。サーバーの行と違えば 409。 */
+            version: number;
+        };
+        /** @description 保存した構成。 */
+        Build: {
+            /**
+             * Format: uuid
+             * @description 構成の ID。クライアントが採番した UUIDv7。
+             */
+            id: string;
+            /** @description 構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白でない。 */
+            name: string;
+            /**
+             * @description 構成を検索したときのマスターの版。
+             * @example 2026.10.4
+             */
+            masterVersion: string;
+            payload: components["schemas"]["BuildPayload"];
+            /**
+             * @description payload の形の版。
+             * @example 1
+             */
+            schemaVersion: number;
+            /** @description 行バージョン。名前の変更のたびにサーバーが進める。 */
+            version: number;
+            /**
+             * Format: date-time
+             * @description 作成日時（UTC）。
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 更新日時（UTC）。
+             */
+            updatedAt: string;
+        };
+        /** @description 構成の内容。防具・装飾品・発動スキル・空きスロットはソルバーの出力と同じ形。 */
+        BuildPayload: {
+            weapon: components["schemas"]["BuildWeapon"];
+            armor: components["schemas"]["BuildArmor"];
+            /** @description 護石の参照と写し。護石を使わない構成は null。 */
+            charm: components["schemas"]["BuildCharm"] | null;
+            /** @description 装飾品の配置（0〜21個）。 */
+            decorations: components["schemas"]["BuildDecoration"][];
+            /** @description 発動スキル（0〜100個）。同じ `skillId` を重複して持てない。 */
+            skills: components["schemas"]["BuildSkill"][];
+            /** @description 空きスロット（0〜21個）。 */
+            freeSlots: components["schemas"]["BuildSlotRef"][];
+            /** @description 保存したときにオンだった発動条件の ID（0〜50個、重複なし）。 */
+            activeConditionIds: string[];
+        };
+        /** @description 構成の武器。`kind` で参照（master）と写し（custom）を判別する。 */
+        BuildWeapon: components["schemas"]["BuildMasterWeapon"] | components["schemas"]["BuildCustomWeapon"];
+        /** @description マスターの武器の参照。 */
+        BuildMasterWeapon: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "master";
+            /**
+             * @description 武器 ID。マスターデータにあるかどうかはサーバーでは検査しない。
+             * @example wp:bow:1
+             */
+            weaponId: string;
+        };
+        /** @description ユーザーが作った武器の参照と写し。 */
+        BuildCustomWeapon: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "custom";
+            /**
+             * Format: uuid
+             * @description ユーザーの武器の ID。参照なので UUID の形だけを検査し、版は問わない。
+             */
+            id: string;
+            payload: components["schemas"]["CustomWeaponPayload"];
+        };
+        /** @description ユーザーが作った武器の内容の写し。 */
+        CustomWeaponPayload: {
+            /**
+             * @description 基にした武器の ID。
+             * @example wp:charge-blade:22
+             */
+            baseWeaponId: string;
+            /** @description 武器の名前（0〜30文字）。空なら Web が基の武器の名前を出す。 */
+            name: string;
+            /** @description 攻撃力。 */
+            attack: number;
+            /** @description 会心率。 */
+            affinity: number;
+            /** @description 属性。属性を持たない武器は省略する。 */
+            element?: {
+                /** @enum {string} */
+                type: "fire" | "water" | "thunder" | "ice" | "dragon" | "poison" | "paralysis" | "sleep" | "blastblight";
+                /** @description 属性値（マスターと同じ単位の整数）。 */
+                value: number;
+            };
+            /** @description 武器のスロット（0〜3枠）。 */
+            slots: {
+                /** @enum {string} */
+                target: "weapon";
+                level: number;
+            }[];
+            /** @description シリーズスキルの ID。無ければ null。 */
+            seriesBonusId: string | null;
+            /** @description グループスキルの ID。無ければ null。 */
+            groupBonusId: string | null;
+        };
+        /** @description 部位ごとの防具 ID。防具を着けない部位は null。部位のキーと ID の部位の一致は検査しない。 */
+        BuildArmor: {
+            /**
+             * @description 防具 ID。着けない部位は null。
+             * @example ar:-2117203456:head
+             */
+            head: string | null;
+            /**
+             * @description 防具 ID。着けない部位は null。
+             * @example ar:-2117203456:head
+             */
+            chest: string | null;
+            /**
+             * @description 防具 ID。着けない部位は null。
+             * @example ar:-2117203456:head
+             */
+            arms: string | null;
+            /**
+             * @description 防具 ID。着けない部位は null。
+             * @example ar:-2117203456:head
+             */
+            waist: string | null;
+            /**
+             * @description 防具 ID。着けない部位は null。
+             * @example ar:-2117203456:head
+             */
+            legs: string | null;
+        };
+        /** @description 護石の参照と写し。 */
+        BuildCharm: {
+            /**
+             * Format: uuid
+             * @description 護石の ID。参照なので UUID の形だけを検査し、版は問わない。
+             */
+            id: string;
+            payload: components["schemas"]["CharmPayload"];
+        };
+        /** @description 装飾品1個の配置。 */
+        BuildDecoration: {
+            slot: components["schemas"]["BuildSlotRef"];
+            /**
+             * @description 装飾品 ID。
+             * @example dc:-1003144960
+             */
+            decorationId: string;
+        };
+        /** @description スロット1枠の位置。 */
+        BuildSlotRef: {
+            /**
+             * @description スロットの持ち主。
+             * @enum {string}
+             */
+            owner: "weapon" | "head" | "chest" | "arms" | "waist" | "legs" | "charm";
+            /** @description その持ち主のスロットの添字。 */
+            index: number;
+        };
+        /** @description 発動しているスキルとそのレベル。 */
+        BuildSkill: {
+            /**
+             * @description スキル ID。
+             * @example sk:-397570464
+             */
+            skillId: string;
+            /** @description 最大レベルで頭打ちした後のレベル。 */
+            level: number;
+            /** @description 頭打ち前の合計レベル。`level` 以上。 */
+            rawLevel: number;
+        };
+        /** @description 構成の作成の要求。 */
+        CreateBuildRequest: {
+            /**
+             * Format: uuid
+             * @description クライアントが採番した UUIDv7。
+             */
+            id: string;
+            /**
+             * @description 構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。
+             *     サーバーは前後を削らず、違反は 400 にする。
+             * @example 鉄刀【神楽】 構成3
+             */
+            name: string;
+            /**
+             * @description 構成を検索したときのマスターの版。
+             * @example 2026.10.4
+             */
+            masterVersion: string;
+            payload: components["schemas"]["BuildPayload"];
+            /**
+             * @description payload の形の版。
+             * @enum {integer}
+             */
+            schemaVersion: 1;
+        };
+        /** @description 構成の名前の変更の要求。 */
+        RenameBuildRequest: {
+            /**
+             * @description 新しい名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。
+             *     サーバーは前後を削らず、違反は 400 にする。
+             * @example 鉄刀【神楽】 構成3
+             */
+            name: string;
             /** @description クライアントが読んだ時点の行バージョン。サーバーの行と違えば 409。 */
             version: number;
         };
@@ -383,6 +727,107 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listBuilds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 自分の構成の配列。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Build"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    createBuild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBuildRequest"];
+            };
+        };
+        responses: {
+            /** @description 保存した構成。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Build"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    deleteBuild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 構成の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 削除した（または対象が無かった）。本文は無い。 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    renameBuild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 構成の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameBuildRequest"];
+            };
+        };
+        responses: {
+            /** @description 保存後の構成。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Build"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
     listCharms: {
         parameters: {
             query?: never;

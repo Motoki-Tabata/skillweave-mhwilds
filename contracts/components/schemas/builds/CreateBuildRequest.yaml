@@ -1,0 +1,37 @@
+type: object
+description: 構成の作成の要求。
+required:
+  - id
+  - name
+  - masterVersion
+  - payload
+  - schemaVersion
+properties:
+  id:
+    type: string
+    format: uuid
+    description: クライアントが採番した UUIDv7。
+  name:
+    type: string
+    minLength: 1
+    maxLength: 50
+    pattern: '^\S(?:[\s\S]*\S)?$'
+    description: |
+      構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。
+      サーバーは前後を削らず、違反は 400 にする。
+    examples:
+      - 鉄刀【神楽】 構成3
+  masterVersion:
+    type: string
+    pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+    maxLength: 32
+    description: 構成を検索したときのマスターの版。
+    examples:
+      - 2026.10.4
+  payload:
+    $ref: BuildPayload.yaml
+  schemaVersion:
+    type: integer
+    enum:
+      - 1
+    description: payload の形の版。

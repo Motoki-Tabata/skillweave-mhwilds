@@ -16,7 +16,13 @@ tags:
     description: 認証（Discord ログインで確立したセッションの参照とログアウト）
   - name: charms
     description: 護石（ログイン中のユーザーが保存する護石の一覧・作成・更新・削除）
+  - name: builds
+    description: 構成（ログイン中のユーザーが保存する構成の一覧・作成・名前の変更・削除）
 paths:
+  /api/builds:
+    $ref: paths/builds/builds.yaml
+  /api/builds/{id}:
+    $ref: paths/builds/builds-id.yaml
   /api/charms:
     $ref: paths/charms/charms.yaml
   /api/charms/{id}:
@@ -49,6 +55,32 @@ components:
       $ref: components/schemas/charms/CreateCharmRequest.yaml
     UpdateCharmRequest:
       $ref: components/schemas/charms/UpdateCharmRequest.yaml
+    Build:
+      $ref: components/schemas/builds/Build.yaml
+    BuildPayload:
+      $ref: components/schemas/builds/BuildPayload.yaml
+    BuildWeapon:
+      $ref: components/schemas/builds/BuildWeapon.yaml
+    BuildMasterWeapon:
+      $ref: components/schemas/builds/BuildMasterWeapon.yaml
+    BuildCustomWeapon:
+      $ref: components/schemas/builds/BuildCustomWeapon.yaml
+    CustomWeaponPayload:
+      $ref: components/schemas/builds/CustomWeaponPayload.yaml
+    BuildArmor:
+      $ref: components/schemas/builds/BuildArmor.yaml
+    BuildCharm:
+      $ref: components/schemas/builds/BuildCharm.yaml
+    BuildDecoration:
+      $ref: components/schemas/builds/BuildDecoration.yaml
+    BuildSlotRef:
+      $ref: components/schemas/builds/BuildSlotRef.yaml
+    BuildSkill:
+      $ref: components/schemas/builds/BuildSkill.yaml
+    CreateBuildRequest:
+      $ref: components/schemas/builds/CreateBuildRequest.yaml
+    RenameBuildRequest:
+      $ref: components/schemas/builds/RenameBuildRequest.yaml
   responses:
     Unauthorized:
       $ref: components/responses/Unauthorized.yaml

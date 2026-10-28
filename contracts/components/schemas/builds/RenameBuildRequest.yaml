@@ -1,0 +1,20 @@
+type: object
+description: 構成の名前の変更の要求。
+required:
+  - name
+  - version
+properties:
+  name:
+    type: string
+    minLength: 1
+    maxLength: 50
+    pattern: '^\S(?:[\s\S]*\S)?$'
+    description: |
+      新しい名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。
+      サーバーは前後を削らず、違反は 400 にする。
+    examples:
+      - 鉄刀【神楽】 構成3
+  version:
+    type: integer
+    minimum: 0
+    description: クライアントが読んだ時点の行バージョン。サーバーの行と違えば 409。

@@ -1,0 +1,86 @@
+get:
+  operationId: listBuilds
+  summary: 自分の保存した構成の一覧を取得する
+  tags:
+    - builds
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    ログイン中のユーザーが保存した、削除していない構成を内容とともに全件返す。ID の降順で、ページングはしない。refs specs/011-build-save/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. セッション Cookie からログイン状態を判定する。
+    2. 自分の削除していない構成を ID の降順で並べ、200 で返す。0件なら空の配列。
+
+    **【異常処理詳細】**
+
+    1. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+  responses:
+    '200':
+      description: 自分の構成の配列。
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/builds/Build.yaml
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml
+post:
+  operationId: createBuild
+  summary: 構成を保存する
+  tags:
+    - builds
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    クライアントが採番した ID で、名前を付けた構成を新規に保存する。refs specs/011-build-save/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+    2. セッション Cookie からログイン状態を判定する。
+    3. 要求の構造（ID・名前・マスターの版・内容・スキーマ版）を検査する。マスターに依る検査（ID がマスターに存在するか）はしない。
+    4. 構成を自分の行として保存する。行バージョン・作成日時・更新日時はサーバーが決める。
+    5. 保存後の構成を 201 で返す。
+
+    **【異常処理詳細】**
+
+    1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+    2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+    3. 要求の構造が契約に反する場合（名前の長さ・先頭と末尾の空白、ID の形式、配列の長さの上限を含む）は 400（`application/problem+json`）を返し、保存しない。
+    4. ID が既存の行（他のユーザー・削除済みを含む）と衝突する場合は 409（`application/problem+json`）を返し、既存の行は変えない。
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/builds/CreateBuildRequest.yaml
+  responses:
+    '201':
+      description: 保存した構成。
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/builds/Build.yaml
+    '400':
+      $ref: ../../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml
+    '409':
+      $ref: ../../components/responses/Conflict.yaml

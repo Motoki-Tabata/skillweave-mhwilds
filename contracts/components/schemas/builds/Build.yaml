@@ -1,0 +1,45 @@
+type: object
+description: 保存した構成。
+required:
+  - id
+  - name
+  - masterVersion
+  - payload
+  - schemaVersion
+  - version
+  - createdAt
+  - updatedAt
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 構成の ID。クライアントが採番した UUIDv7。
+  name:
+    type: string
+    minLength: 1
+    maxLength: 50
+    description: 構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白でない。
+  masterVersion:
+    type: string
+    description: 構成を検索したときのマスターの版。
+    examples:
+      - 2026.10.4
+  payload:
+    $ref: BuildPayload.yaml
+  schemaVersion:
+    type: integer
+    description: payload の形の版。
+    examples:
+      - 1
+  version:
+    type: integer
+    minimum: 0
+    description: 行バージョン。名前の変更のたびにサーバーが進める。
+  createdAt:
+    type: string
+    format: date-time
+    description: 作成日時（UTC）。
+  updatedAt:
+    type: string
+    format: date-time
+    description: 更新日時（UTC）。

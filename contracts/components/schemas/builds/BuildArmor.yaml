@@ -1,0 +1,21 @@
+type: object
+description: 部位ごとの防具 ID。防具を着けない部位は null。部位のキーと ID の部位の一致は検査しない。
+required:
+  - head
+  - chest
+  - arms
+  - waist
+  - legs
+properties:
+  head: &armorId
+    type:
+      - string
+      - 'null'
+    pattern: '^ar:-?[0-9]+:(head|chest|arms|waist|legs)$'
+    description: 防具 ID。着けない部位は null。
+    examples:
+      - 'ar:-2117203456:head'
+  chest: *armorId
+  arms: *armorId
+  waist: *armorId
+  legs: *armorId

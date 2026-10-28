@@ -1,0 +1,17 @@
+type: object
+description: ユーザーが作った武器の参照と写し。
+required:
+  - kind
+  - id
+  - payload
+properties:
+  kind:
+    type: string
+    enum:
+      - custom
+  id:
+    type: string
+    format: uuid
+    description: ユーザーの武器の ID。参照なので UUID の形だけを検査し、版は問わない。
+  payload:
+    $ref: CustomWeaponPayload.yaml

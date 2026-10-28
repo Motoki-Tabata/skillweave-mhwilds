@@ -1,0 +1,12 @@
+type: object
+description: 護石の参照と写し。
+required:
+  - id
+  - payload
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 護石の ID。参照なので UUID の形だけを検査し、版は問わない。
+  payload:
+    $ref: ../charms/CharmPayload.yaml

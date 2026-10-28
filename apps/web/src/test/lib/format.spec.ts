@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  formatDateTime,
   formatAffinityPercent,
   formatDamageValue,
   formatMultiplier,
@@ -42,5 +43,13 @@ describe('火力の丸め', () => {
 
   it('-0 を出さない（-0.04 → 0.0）', () => {
     expect(formatDamageValue(-0.04)).toBe('0.0')
+  })
+})
+
+// 011 AC-3（保存日時をブラウザのローカル時刻で出す）
+describe('formatDateTime', () => {
+  it('ローカル時刻の YYYY/MM/DD hh:mm にし、1 桁は 0 で埋める', () => {
+    const local = new Date(2026, 0, 5, 3, 7)
+    expect(formatDateTime(local.toISOString())).toBe('2026/01/05 03:07')
   })
 })

@@ -12,6 +12,9 @@ interface ToastLike {
   push: (message: string, tone?: 'default' | 'destructive') => void
 }
 
+/** Discord でログインする行き先（ヘッダー・構成の画面・ダイアログで共通）。 */
+export const LOGIN_PATH = '/api/oauth2/authorization/discord'
+
 /** ログインを押した画面の `fullPath` を覚える sessionStorage のキー。 */
 export const LOGIN_RETURN_KEY = 'swv-login-return'
 

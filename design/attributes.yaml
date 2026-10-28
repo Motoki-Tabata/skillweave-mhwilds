@@ -56,7 +56,7 @@ attributes:
     type: timestamptz
     nullable: false
     domain: DEFAULT now()・UTC
-    used_in: [users.created_at, charms.created_at]
+    used_in: [users.created_at, charms.created_at, builds.created_at]
     defined_by: specs/009-discord-login
 
   更新日時:
@@ -64,7 +64,7 @@ attributes:
     type: timestamptz
     nullable: false
     domain: DEFAULT now()・UTC
-    used_in: [users.updated_at, charms.updated_at]
+    used_in: [users.updated_at, charms.updated_at, builds.updated_at]
     defined_by: specs/009-discord-login
 
   護石ID:
@@ -81,7 +81,7 @@ attributes:
     type: uuid
     nullable: false
     domain: users (id)
-    used_in: [charms.user_id]
+    used_in: [charms.user_id, builds.user_id]
     defined_by: specs/010-charm-save
 
   内容:
@@ -89,25 +89,25 @@ attributes:
     type: jsonb
     nullable: false
     domain: JSON オブジェクト（jsonb_typeof = 'object'）
-    used_in: [charms.payload]
+    used_in: [charms.payload, builds.payload]
     defined_by: specs/010-charm-save
-    note: 形は schema_version で版管理する。charms は { rarity, skills: [{ skillId, level }], slots: [{ target, level }] }（構造の検査は API。マスターに依る検査は Web）
+    note: 形は schema_version で版管理する。charms は { rarity, skills: [{ skillId, level }], slots: [{ target, level }] }（構造の検査は API。マスターに依る検査は Web）。builds は構成（武器・防具・護石の参照と写し・装飾品の配置・発動スキル・空きスロット・発動条件）。形は区間 C で契約に書く
 
   スキーマ版:
     physical_name: schema_version
     type: integer
     nullable: false
     domain: 1 以上
-    used_in: [charms.schema_version]
+    used_in: [charms.schema_version, builds.schema_version]
     defined_by: specs/010-charm-save
-    note: payload の形の版。charms は 1
+    note: payload の形の版。charms は 1。builds は 1
 
   行バージョン:
     physical_name: version
     type: integer
     nullable: false
     domain: DEFAULT 0
-    used_in: [charms.version]
+    used_in: [charms.version, builds.version]
     defined_by: specs/010-charm-save
     note: 楽観的ロック（@Version）。競合判定に updated_at を使わない
 
@@ -116,5 +116,33 @@ attributes:
     type: timestamptz
     nullable: true
     domain: UTC。NULL が未削除
-    used_in: [charms.deleted_at]
+    used_in: [charms.deleted_at, builds.deleted_at]
     defined_by: specs/010-charm-save
+
+  構成ID:
+    physical_name: id
+    type: uuid
+    nullable: false
+    domain: 主キー（DEFAULT uuidv7()）
+    used_in: [builds.id]
+    defined_by: specs/011-build-save
+    note: クライアント採番の UUIDv7。自分・他ユーザー・削除済みの行との衝突は 409 で拒否する
+
+  構成名:
+    physical_name: name
+    type: text
+    length: 50
+    nullable: false
+    domain: 1〜50 文字（char_length）。前後の空白の除去は API
+    used_in: [builds.name]
+    defined_by: specs/011-build-save
+    note: 同じ名前の構成を複数保存してよい。空白の定義と文字数の数え方（コードポイント／UTF-16）は区間 C で契約に揃える
+
+  マスターの版:
+    physical_name: master_version
+    type: text
+    nullable: false
+    domain: 空でない文字列
+    used_in: [builds.master_version]
+    defined_by: specs/011-build-save
+    note: 作成時のマスターの版。形式と長さの上限は API の構造の検査（区間 C で契約に書く）。マスターへの参照の整合はアプリ層で検証する

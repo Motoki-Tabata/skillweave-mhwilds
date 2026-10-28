@@ -11,10 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { saveLoginReturn } from '@/lib/auth/loginReturn'
+import { LOGIN_PATH, saveLoginReturn } from '@/lib/auth/loginReturn'
 import { useAuthStore } from '@/stores/auth'
-
-const LOGIN_PATH = '/api/oauth2/authorization/discord'
 
 const auth = useAuthStore()
 const route = useRoute()

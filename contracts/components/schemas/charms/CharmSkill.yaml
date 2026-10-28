@@ -6,10 +6,11 @@ required:
 properties:
   skillId:
     type: string
-    pattern: '^sk:[0-9]+$'
-    description: スキル ID。`sk:` に数字が続く形式。マスターデータにあるかどうかはサーバーでは検査しない。
+    pattern: '^sk:-?[0-9]+$'
+    description: スキル ID。`sk:` に整数（負の数を含む）が続く形式。マスターデータにあるかどうかはサーバーでは検査しない。
     examples:
       - 'sk:101'
+      - 'sk:-397570464'
   level:
     type: integer
     minimum: 1
