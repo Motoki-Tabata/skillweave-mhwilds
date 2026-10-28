@@ -44,3 +44,23 @@
 - 種別: 規律昇華
 - 何が起きたか: 010 の `contracts/components/schemas/charms/CharmSkill.yaml` の `pattern: '^sk:[0-9]+$'` と `entity/CharmSkill.java` の `@Pattern(regexp = "sk:\\d+")` が、実データの防具・武器スキル 137 件のうち 54 件（`sk:-397570464` の弱点特効など、gameId が負のもの）を 400 で拒否する。010 の plan D2・テストの例が `sk:101` だけで、`packages/data/dist/` の実データに当てはめていなかった。011 の plan で、契約と api の pattern を直す。
 - 提案: `.claude/rules/contracts-first.md` に「マスター ID の pattern を契約に書くときは、`packages/data/dist/master-*.json` の該当の ID を全件当てはめて確かめ、負の gameId（`sk:-…`・`ar:-…`・`dc:-…`・`sb:-…`）を API のテストの例に1件含める」を足す。
+
+## 2026-10-28 例外クラスと ApiExceptionHandler のハンドラが機能ごとに並行して増える（機能011・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 011 の api で `BuildNotFoundException`・`BuildConflictException` と `ApiExceptionHandler` の同形のハンドラを足した。010 の `CharmNotFoundException`・`CharmConflictException` と構造が同じで、plan D7 が「構成用のものを足す」と決めていたため並行して増えた（レビュー記録 1 回目 api F7）。
+- 提案: 3つ目の機能が出る前に、汎用の NotFound／Conflict の例外とハンドラへ統合する専用の作業を切る。`.claude/rules/api-spring.md` に「404・409 の例外は機能名を付けず共有する」を足す。
+
+## 2026-10-28 MASTER.md の Typography／Shape と、shadcn-vue の既定・既存画面が食い違ったまま増えている（機能011・区間D）
+- 種別: 矛盾是正
+- 何が起きたか: MASTER.md は「ウェイトは 400・500・700」「影を使わない」と定めるが、既存の画面（SearchView・CharmsView・WeaponsView・PickerDialog）の見出しの `font-semibold`、`shadow-lg`、`ui/` の既定がこれに反し、011 の新規画面（BuildsView・BuildDialogFrame・BuildCard の見出し）も同じ書き方を引き継いだ（レビュー記録 1 回目 web 2）。D8 の AlertDialog のオーバーレイも `ui/` 既定の `bg-black/80` で MASTER の Modals（0.6）と違う（web 6）。
+- 提案: MASTER.md 側で shadcn の既定の扱い（許容するか、`ui/` を CLI で更新して合わせるか）を決め、規約か実装のどちらかを揃える専用の作業を切る。
+
+## 2026-10-28 ダイアログのオーバーレイの記述が PickerDialog と BuildDialogFrame で複製された（機能011・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `components/builds/BuildDialogFrame.vue` が `PickerDialog.vue` と同一のオーバーレイ（`fixed inset-x-0 top-12 bottom-8 z-50 bg-black/60 md:inset-y-0`）を持つ。conventions.md の「2箇所以上に現れる UI は共有部品にする」に当たる（レビュー記録 1 回目 web 3）。
+- 提案: 基準幅でヘッダーとクレジットのバーを覆わないオーバーレイを `components/common/` の共有部品に切り出し、PickerDialog と BuildDialogFrame の両方から使う。
+
+## 2026-10-28 allow-coercion-of-scalars: false は数値・真偽から String への変換を止めない（機能011・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 011 の api で、構成名とカスタム武器名に JSON の数値・真偽（`5`・`true`）を送ると、文字列 "5"・"true" に変換されて 201 になる。010 の護石の文字列項目も同じ性質（レビュー記録 2 回目 api F3）。
+- 提案: `.claude/rules/api-spring.md` の Jackson の項（2026-10-27 の教訓）に「文字列の項目への数値・真偽は変換される。厳密に 400 にするには別の設定が要る」と足す。
