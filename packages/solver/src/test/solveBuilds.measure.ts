@@ -10,6 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { SolverResponse } from '../main/request'
 import { solveBuilds } from '../main/solveBuilds'
 import { makeRequest, skill } from './support/builders'
+import { topRankCraftedCharms } from './support/craftedCharms'
 import { loadRealMaster } from './support/realMaster'
 
 const REPEATS = 3
@@ -40,6 +41,8 @@ interface Case {
   expected: 'optimal' | 'infeasible'
   /** 目的関数。省略は 003 の defense（maxResults 30）。expectedDamage は条件をすべて有効にして maxResults 10（機能 006 D17） */
   metric?: 'expectedDamage'
+  /** 021 D16: 系統ごとの最上位ランクの生産護石を候補にする。護石が増えると解なしが解ありになりうるので、状態の一致は検査しない */
+  crafted?: boolean
 }
 
 // どのケースもシリーズ／グループスキル（火竜の力・鱗張りの技法）を含む。
@@ -129,9 +132,17 @@ const DAMAGE_CASES: Case[] = CASES.map((c) => ({
   metric: 'expectedDamage',
 }))
 
+/** 021 D16: 003 の defense と 006 の expectedDamage の各ケースの、生産護石あり版 */
+const CRAFTED_CASES: Case[] = [...CASES, ...DAMAGE_CASES].map((c) => ({
+  ...c,
+  label: `生産護石あり ${c.label}`,
+  crafted: true,
+}))
+
 interface Measurement {
   label: string
   metric: string
+  crafted: boolean
   run: number
   totalMs: number
   /** 開始から最初の onProgress（1 件目の構成）までの時間。構成が 1 件も無いとき（解なし・時間切れ）は undefined */
@@ -208,6 +219,7 @@ async function measureCase(testCase: Case) {
     const isDamage = testCase.metric === 'expectedDamage'
     const request = makeRequest(master, {
       weapon: { kind: 'master', weaponId: plainWeaponId() },
+      charms: testCase.crafted === true ? topRankCraftedCharms(master) : [],
       required: testCase.required.map(([id, level]) => skill(id, level)),
       objective: { kind: 'maximize', metric: isDamage ? 'expectedDamage' : 'defense' },
       ...(isDamage && { activeConditionIds: master.conditions.map((c) => c.id) }),
@@ -227,6 +239,7 @@ async function measureCase(testCase: Case) {
     measurements.push({
       label: testCase.label,
       metric: isDamage ? 'expectedDamage' : 'defense',
+      crafted: testCase.crafted === true,
       run,
       totalMs,
       firstMs,
@@ -234,6 +247,11 @@ async function measureCase(testCase: Case) {
       builds: result.builds.length,
       status: result.status,
     })
+    if (testCase.crafted === true) {
+      // 生産護石ありは状態が変わりうる。時間切れでなく、答えが出たことだけを確かめる
+      expect(['optimal', 'infeasible']).toContain(result.status)
+      continue
+    }
     // 解ありは optimal で 1 件以上、解なしは infeasible を返したことを確かめる
     expect(result.status).toBe(testCase.expected)
     if (testCase.expected === 'optimal') expect(result.builds.length).toBeGreaterThan(0)
@@ -251,14 +269,15 @@ const firstOrTotal = (m: Measurement) => m.firstMs ?? m.totalMs
 const passFail = (ms: number) => (ms <= THRESHOLD_MS ? 'PASS' : 'FAIL')
 
 /** 機能 019 D8: 合計時間の最大が基準以下なら合格。超えたときは 1 件目までの時間の最大が基準以下なら合格 */
-function damageLines(): string[] {
-  const damage = measurements.filter((m) => m.metric === 'expectedDamage')
+function damageLines(crafted: boolean): string[] {
+  const tag = crafted ? '生産護石あり ' : ''
+  const damage = measurements.filter((m) => m.metric === 'expectedDamage' && m.crafted === crafted)
   if (damage.length === 0) return []
   const maxTotal = Math.max(...damage.map((m) => m.totalMs))
   const maxFirst = Math.max(...damage.map(firstOrTotal))
   const lines = [
-    `max total ms over expectedDamage cases and runs: ${fmt(maxTotal)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxTotal)}`,
-    `max first-build ms over expectedDamage cases and runs: ${fmt(maxFirst)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxFirst)}`,
+    `max total ms over ${tag}expectedDamage cases and runs: ${fmt(maxTotal)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxTotal)}`,
+    `max first-build ms over ${tag}expectedDamage cases and runs: ${fmt(maxFirst)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxFirst)}`,
   ]
   const verdict =
     maxTotal <= THRESHOLD_MS
@@ -266,16 +285,19 @@ function damageLines(): string[] {
       : maxFirst <= THRESHOLD_MS
         ? 'PASS (first build only; onProgress must deliver builds one by one)'
         : 'FAIL (even the first build exceeds the threshold)'
-  return [...lines, `expectedDamage verdict: ${verdict}`]
+  return [...lines, `${tag}expectedDamage verdict: ${verdict}`]
 }
 
 function report() {
-  const maxLine = (metric: string) => {
-    const totals = measurements.filter((m) => m.metric === metric).map((m) => m.totalMs)
+  const maxLine = (metric: string, crafted: boolean) => {
+    const tag = crafted ? '生産護石あり ' : ''
+    const totals = measurements
+      .filter((m) => m.metric === metric && m.crafted === crafted)
+      .map((m) => m.totalMs)
     if (totals.length === 0) return []
     const max = Math.max(...totals)
     return [
-      `max total ms over ${metric} cases and runs: ${fmt(max)} (threshold ${THRESHOLD_MS} ms): ${passFail(max)}`,
+      `max total ms over ${tag}${metric} cases and runs: ${fmt(max)} (threshold ${THRESHOLD_MS} ms): ${passFail(max)}`,
     ]
   }
   const rows = measurements.map((m) => ({
@@ -295,8 +317,10 @@ function report() {
     `HiGHS version: ${highs.version.string} (${highs.version.gitHash})`,
     `master version: ${master.version} (armors=${master.armors.length} decorations=${master.decorations.length} skills=${master.skills.length} setBonuses=${master.setBonuses.length} weapons=${master.weapons.length})`,
     `environment: node ${process.version}, ${process.platform} ${process.arch}, ${os.cpus()[0]?.model ?? 'unknown cpu'} x${os.cpus().length}`,
-    ...maxLine('defense'),
-    ...damageLines(),
+    ...maxLine('defense', false),
+    ...maxLine('defense', true),
+    ...damageLines(false),
+    ...damageLines(true),
   ]
   console.log(lines.join('\n'))
   console.table(rows)
@@ -319,7 +343,7 @@ describe('solveBuilds の測定（実データ）', () => {
     if (measurements.length > 0) report()
   })
 
-  it.each([...CASES, ...DAMAGE_CASES])('$label', async (testCase) => {
+  it.each([...CASES, ...DAMAGE_CASES, ...CRAFTED_CASES])('$label', async (testCase) => {
     await measureCase(testCase)
   })
 })

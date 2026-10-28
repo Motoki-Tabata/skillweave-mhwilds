@@ -1,4 +1,5 @@
 import highsLoader, { type Highs } from 'highs'
+import type { CharmId } from '@swv/data'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { SolveCancelledError } from '../main/errors'
 import type { SolverRequest } from '../main/request'
@@ -849,5 +850,33 @@ describe('[AC11][AC12] 進捗とキャンセル（solveBuilds）', () => {
       solveBuilds(highs, master, makeRequest(master), clock.options),
     ).rejects.toBeInstanceOf(SolveCancelledError)
     expect(found).toEqual([1])
+  })
+})
+
+describe('[AC-1] 護石の ID は渡した文字列のまま charmId に返る（021）', () => {
+  const crafted = 'ch:-1137475456:2' as CharmId
+  const appraised = uuid('0192f0aa-0000-7000-8000-000000000001')
+  const candidates = [
+    { ...charm('x', { skills: [skill('A')] }), id: crafted },
+    { ...charm('x', { skills: [skill('B')] }), id: appraised },
+  ]
+  const master = buildMaster({ skills: SKILLS })
+
+  it('生産護石（ch:）だけが条件を満たすとき、その ID がそのまま返る', async () => {
+    const result = await solveVerified(
+      highs,
+      master,
+      makeRequest(master, { charms: candidates, required: [skill('A')] }),
+    )
+    expect(result.builds.map((b) => b.charmId)).toEqual(['ch:-1137475456:2'])
+  })
+
+  it('鑑定護石（UUID）だけが条件を満たすとき、その ID がそのまま返る', async () => {
+    const result = await solveVerified(
+      highs,
+      master,
+      makeRequest(master, { charms: candidates, required: [skill('B')] }),
+    )
+    expect(result.builds.map((b) => b.charmId)).toEqual([appraised])
   })
 })

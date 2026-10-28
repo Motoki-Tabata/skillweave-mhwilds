@@ -94,6 +94,9 @@ function levelLabel(level: number | null): string {
         </p>
       </div>
     </div>
+    <div v-if="$slots.notice" class="px-4">
+      <slot name="notice" />
+    </div>
     <section v-if="damageUnknown" class="flex flex-col gap-1 px-4">
       <h4 class="text-sm font-bold">火力</h4>
       <p class="text-sm">武器が現在のマスターに無いため、火力を計算できません。</p>
@@ -149,6 +152,10 @@ function levelLabel(level: number | null): string {
           <h4 class="text-sm font-bold">護石</h4>
           <p v-if="view.charm === null" class="text-sm">護石なし</p>
           <dl v-else class="flex flex-col gap-1 text-sm">
+            <div v-if="view.charm.name !== null" class="flex items-start gap-2">
+              <dt class="w-14 shrink-0 pt-0.5 text-xs">名前</dt>
+              <dd class="min-w-0 flex-1 break-words">{{ view.charm.name }}</dd>
+            </div>
             <div class="flex items-start gap-2">
               <dt class="w-14 shrink-0 pt-0.5 text-xs">レア度</dt>
               <dd class="font-num tabular-nums">{{ view.charm.rarity }}</dd>

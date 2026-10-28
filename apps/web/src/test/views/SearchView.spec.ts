@@ -307,7 +307,7 @@ describe('SearchView', () => {
       await startSearch(m)
       m.worker.emit({ type: 'result', requestId: m.worker.lastSolveId, response: found })
       await flushPromises()
-      expect(body()).toContain('護石 0 件 ／ 発動条件: なし')
+      expect(body()).toContain('鑑定護石 0 件 ／ 生産護石を含める ／ 発動条件: なし')
 
       const options = m.conditions.conditionOptions
       m.conditions.setConditionActive(options[1].id, true)

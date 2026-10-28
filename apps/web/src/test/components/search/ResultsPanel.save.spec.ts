@@ -2,7 +2,8 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { useToastStore } from '@/stores/toast'
 import { createMemoryBuildsApi } from '../../support/buildsApi'
 import type { MemoryBuildsApi } from '../../support/buildsApi'
-import { FakeWorker, makeBuild, wp } from '../../support/fixtures'
+import type { SolvedBuild } from '@swv/solver'
+import { FakeWorker, makeBuild, makeBundle, makeDictionary, wp } from '../../support/fixtures'
 import {
   blur,
   click,
@@ -306,6 +307,102 @@ describe('ResultsPanel の構成の保存', () => {
       expect(dialog()).toBeNull()
       await vi.waitFor(() => expect(document.activeElement).toBe(saveButton(2)))
       expect(saveButton(2).getAttribute('aria-label')).toBe('構成 2 を保存')
+    })
+  })
+
+  // 021: 生産護石
+  describe('生産護石を使った構成', () => {
+    const crafted: SolvedBuild = { ...makeBuild(), charmId: 'ch:-1:2' as SolvedBuild['charmId'] }
+
+    async function searchCrafted(include: boolean): Promise<void> {
+      stubBackend({
+        bundle: makeBundle({ craftedCharms: true }),
+        dictionary: makeDictionary({ craftedCharms: true }),
+      })
+      mounted = await mountReadyApp({ authApi: loggedInAuth() })
+      const m = mounted
+      await vi.waitFor(() => expect(m.pinia.state.value.auth.status).not.toBe('checking'))
+      m.conditions.selectWeapon(wp('great-sword:1'))
+      m.conditions.includeCraftedCharms = include
+      await flushPromises()
+      await click(document.querySelector('button[type="submit"]')!)
+      const worker = FakeWorker.last
+      worker.emit({
+        type: 'result',
+        requestId: worker.lastSolveId,
+        response: { status: 'optimal', builds: [crafted, makeBuild()], elapsedMs: 1 },
+      })
+      await flushPromises()
+    }
+
+    const cardOf = (n: number) =>
+      document.querySelectorAll<HTMLElement>('#results-heading ~ ul > li')[n - 1]
+
+    it('AC-8: 「保存」を出さず、保存できない旨を出す。護石なしの構成は保存できる', async () => {
+      await searchCrafted(true)
+      expect(saveButton(1)).toBeNull()
+      expect(textOf(cardOf(1))).toContain('生産護石を使った構成は保存できません。')
+      expect(saveButton(2).getAttribute('aria-label')).toBe('構成 2 を保存')
+      expect(textOf(cardOf(2))).not.toContain('保存できません')
+    })
+
+    it('AC-8: 鑑定護石（UUID の charmId）を使った構成は保存でき、保存できない旨を出さない', async () => {
+      const appraised: SolvedBuild = {
+        ...makeBuild(),
+        charmId: '0190c0de-0000-7000-8000-000000000001' as SolvedBuild['charmId'],
+      }
+      stubBackend()
+      mounted = await mountReadyApp({ authApi: loggedInAuth() })
+      const m = mounted
+      await vi.waitFor(() => expect(m.pinia.state.value.auth.status).not.toBe('checking'))
+      m.conditions.selectWeapon(wp('great-sword:1'))
+      await flushPromises()
+      await click(document.querySelector('button[type="submit"]')!)
+      const worker = FakeWorker.last
+      worker.emit({
+        type: 'result',
+        requestId: worker.lastSolveId,
+        response: { status: 'optimal', builds: [appraised], elapsedMs: 1 },
+      })
+      await flushPromises()
+      expect(saveButton(1).getAttribute('aria-label')).toBe('構成 1 を保存')
+      expect(textOf(cardOf(1))).not.toContain('生産護石を使った構成は保存できません。')
+    })
+
+    it('AC-8: 検索中に見つけた順に出すカードには、生産護石の構成でも保存できない旨を出さない', async () => {
+      stubBackend({
+        bundle: makeBundle({ craftedCharms: true }),
+        dictionary: makeDictionary({ craftedCharms: true }),
+      })
+      mounted = await mountReadyApp({ authApi: loggedInAuth() })
+      mounted.conditions.selectWeapon(wp('great-sword:1'))
+      await flushPromises()
+      await click(document.querySelector('button[type="submit"]')!)
+      const worker = FakeWorker.last
+      worker.emit({ type: 'progress', requestId: worker.lastSolveId, found: 1, build: crafted })
+      await flushPromises()
+      expect(document.querySelectorAll('h3')).toHaveLength(1)
+      expect(document.querySelector('[data-save-index]')).toBeNull()
+      expect(textOf(document.body)).not.toContain('生産護石を使った構成は保存できません。')
+    })
+
+    it('AC-7: 護石の節に名前・レア度・スキル・スロットを出す', async () => {
+      await searchCrafted(true)
+      const section = Array.from(cardOf(1).querySelectorAll('section')).find(
+        (s) => textOf(s.querySelector('h4')) === '護石',
+      )!
+      const text = textOf(section)
+      expect(text).toContain('名前攻撃の護石Ⅱ')
+      expect(text).toContain('レア度7')
+      expect(text).toContain('攻撃 Lv2')
+      expect(text).toContain('武器用 Lv1')
+    })
+
+    it('AC-5: 要約に生産護石を含めたかどうかを出す', async () => {
+      await searchCrafted(false)
+      expect(textOf(document.querySelector('#results-heading')!.parentElement)).toContain(
+        '鑑定護石 0 件 ／ 生産護石を含めない',
+      )
     })
   })
 })

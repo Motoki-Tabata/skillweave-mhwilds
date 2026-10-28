@@ -77,6 +77,8 @@ export const useConditionsStore = defineStore('conditions', () => {
   const activeIds = ref<ConditionId[]>([])
   // 武器が未選択のまま送信した・ダイアログを閉じたときに、武器欄のエラーを出す
   const weaponErrorShown = ref(false)
+  // 生産護石を候補に含めるか（既定オン。端末には保存しない）
+  const includeCraftedCharms = ref(true)
 
   function resolveMaster(weaponId: WeaponId): ResolvedWeapon | null {
     const found = master.weaponById.get(weaponId)
@@ -243,6 +245,7 @@ export const useConditionsStore = defineStore('conditions', () => {
     objective,
     maxResults,
     weaponErrorShown,
+    includeCraftedCharms,
     weapon,
     ranks,
     rankError,

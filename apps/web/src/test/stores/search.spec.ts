@@ -4,7 +4,7 @@ import type { CharmPayload } from '@/lib/charms/types'
 import { CANCELLED_TOAST_MESSAGE } from '@/stores/search'
 import { useToastStore } from '@/stores/toast'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
-import { FakeWorker, armorId, makeBuild, sk, wp } from '../support/fixtures'
+import { FakeWorker, armorId, makeBuild, makeBundle, sk, wp } from '../support/fixtures'
 import { flushPromises, loadStores, restoreStubs, stubBackend } from '../support/mount'
 import { createMemoryCharmRepository } from '../support/charmRepository'
 import { charmId, storedCharm } from '../support/charms'
@@ -541,5 +541,73 @@ describe('search ストアの個体差のある武器', () => {
     conditions.selectCustomWeapon(weaponId(9))
     expect(search.submit()).toBe(false)
     expect(worker.messages('solve')).toHaveLength(0)
+  })
+
+  // AC-3・AC-4・AC-5・AC-6（021）
+  describe('生産護石の候補', () => {
+    const good: CharmPayload = {
+      rarity: 8,
+      skills: [{ skillId: sk('a1'), level: 2 }],
+      slots: [{ target: 'weapon', level: 1 }],
+    }
+    const craftedIds = ['ch:-1:2', 'ch:-2:1']
+
+    async function ready(repository = createMemoryCharmRepository([storedCharm(1, good)])) {
+      stubBackend({ bundle: makeBundle({ craftedCharms: true }) })
+      const stores = await loadStores(repository)
+      await stores.charms.ensureLoaded()
+      stores.conditions.selectWeapon(wp('great-sword:1'))
+      return stores
+    }
+    const sentIds = () =>
+      (
+        FakeWorker.last.messages('solve')[0] as { request: { charms: { id: string }[] } }
+      ).request.charms.map((c) => c.id)
+
+    it('AC-3: 既定（オン）では鑑定護石の後ろに、系統ごとの最上位ランクの生産護石だけを渡す', async () => {
+      const { search } = await ready()
+      search.submit()
+      expect(sentIds()).toEqual([charmId(1), ...craftedIds])
+      expect(search.summary).toMatchObject({ charmCount: 1, includeCraftedCharms: true })
+      expect(search.submittedCharms.has('ch:-1:2')).toBe(true)
+      expect(search.submittedCharms.has('ch:-1:1')).toBe(false)
+    })
+
+    it('AC-4: オフでは鑑定護石だけを渡し、鑑定護石が無ければ護石なし', async () => {
+      const { search, conditions } = await ready()
+      conditions.includeCraftedCharms = false
+      search.submit()
+      expect(sentIds()).toEqual([charmId(1)])
+      expect(search.summary?.includeCraftedCharms).toBe(false)
+      const empty = await ready(createMemoryCharmRepository([]))
+      empty.conditions.includeCraftedCharms = false
+      empty.search.submit()
+      expect(sentIds()).toEqual([])
+    })
+
+    it('AC-6: 鑑定護石を読み込めなくても、オンなら生産護石だけで検索する', async () => {
+      const repository = createMemoryCharmRepository([storedCharm(1, good)])
+      stubBackend({ bundle: makeBundle({ craftedCharms: true }) })
+      const { search, charms, conditions } = await loadStores(repository)
+      conditions.selectWeapon(wp('great-sword:1'))
+      repository.failWith('list', 'unknown')
+      await charms.ensureLoaded()
+      expect(charms.status).toBe('failed')
+      search.submit()
+      expect(sentIds()).toEqual(craftedIds)
+      expect(search.summary?.charmCount).toBe(0)
+    })
+
+    it('AC-3: 護石の読込を待つ間に切り替えても、押した時点の値を使う', async () => {
+      stubBackend({ bundle: makeBundle({ craftedCharms: true }) })
+      const { search, charms, conditions } = await loadStores(createMemoryCharmRepository([]))
+      conditions.selectWeapon(wp('great-sword:1'))
+      expect(charms.status).toBe('loading')
+      search.submit()
+      conditions.includeCraftedCharms = false
+      await charms.ensureLoaded()
+      await flushPromises()
+      expect(sentIds()).toEqual(craftedIds)
+    })
   })
 })
