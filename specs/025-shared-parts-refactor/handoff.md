@@ -2,10 +2,10 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: E
-- 次に起動するコマンド: `/tsod-ship 025-shared-parts-refactor`
-- 推奨モデル: Sonnet
-- ブランチ: `feat/025-shared-parts-refactor`（不変）
+- 区間: 完了
+- 次に起動するコマンド: なし
+- 推奨モデル: なし
+- ブランチ: なし（`feat/025-shared-parts-refactor`・`docs/025-shared-parts-refactor-drift` ともマージ・削除済み）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
@@ -29,8 +29,8 @@
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-10-28 |
 | C-1 | plan.md・tasks.md | 承認済み | 2026-10-28 / 69b469b |
 | D-1 | 実装受入 | 承認済み | 2026-10-28 / f66369a |
-| E-1 | マージ（PR・CI 緑） | 未 | |
-| E-2 | ドリフト是正と drift PR のマージ | 未 | |
+| E-1 | マージ（PR・CI 緑） | 承認済み | 2026-10-28 / PR #49 |
+| E-2 | ドリフト是正と drift PR のマージ | 承認済み | 2026-10-28 / drift PR #50 |
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
 
 ## コミット範囲
@@ -75,6 +75,7 @@
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で見つけた B／C の判定の食い違いは tasks/lessons.md に起票済み）
 - bootRun の起動確認に DISCORD_CLIENT_ID・DISCORD_CLIENT_SECRET のダミー値が要る（tsod-build の検証の下限に未記載）。web ワーカーの prettier は pnpm --filter @swv/web exec prettier で apps/web からの相対パスで指定する
+- 持ち越し: bootRun の起動確認に DISCORD_CLIENT_ID・DISCORD_CLIENT_SECRET のダミー値が要る点と、web ワーカーの prettier の指定（apps/web からの相対パス）は、tsod-build の検証の下限への反映を次の機能の区間 C で扱う
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
