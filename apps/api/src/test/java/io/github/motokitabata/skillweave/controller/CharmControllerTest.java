@@ -215,6 +215,7 @@ class CharmControllerTest {
             Res res = create(alice, id, OTHER_PAYLOAD);
             assertThat(res.status()).as("id=%s", id).isEqualTo(409);
             assertThat(res.header("Content-Type")).startsWith("application/problem+json");
+            assertThat(json(res).get("detail").asString()).isEqualTo("Charm id already exists");
             assertThat(rowPayload(id)).contains("\"rarity\": 8");
         }
         assertThat(isDeleted(deleted)).isTrue();
@@ -231,6 +232,7 @@ class CharmControllerTest {
 
         assertThat(res.status()).isEqualTo(409);
         assertThat(res.header("Content-Type")).startsWith("application/problem+json");
+        assertThat(json(res).get("detail").asString()).isEqualTo("Charm was changed by another request");
         assertThat(rowPayload(id)).contains("\"rarity\": 5");
         assertThat(rowVersion(id)).isEqualTo(1);
     }
@@ -246,6 +248,7 @@ class CharmControllerTest {
             Res res = call("PUT", CHARMS + "/" + target, alice, updateBody(OTHER_PAYLOAD, 0));
             assertThat(res.status()).as("id=%s", target).isEqualTo(404);
             assertThat(res.header("Content-Type")).startsWith("application/problem+json");
+            assertThat(json(res).get("detail").asString()).isEqualTo("Charm not found");
         }
     }
 

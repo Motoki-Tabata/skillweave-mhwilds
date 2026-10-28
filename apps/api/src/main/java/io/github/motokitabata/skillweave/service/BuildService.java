@@ -1,7 +1,7 @@
 package io.github.motokitabata.skillweave.service;
 
-import io.github.motokitabata.skillweave.common.exception.BuildConflictException;
-import io.github.motokitabata.skillweave.common.exception.BuildNotFoundException;
+import io.github.motokitabata.skillweave.common.exception.ResourceConflictException;
+import io.github.motokitabata.skillweave.common.exception.ResourceNotFoundException;
 import io.github.motokitabata.skillweave.dto.request.CreateBuildRequest;
 import io.github.motokitabata.skillweave.dto.request.RenameBuildRequest;
 import io.github.motokitabata.skillweave.dto.response.BuildResponse;
@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class BuildService {
 
+    public static final String NOT_FOUND = "Build not found";
+    static final String ID_EXISTS = "Build id already exists";
     private static final String CHANGED = "Build was changed by another request";
 
     private final BuildRepository repository;
@@ -38,7 +40,7 @@ public class BuildService {
     /** 衝突は、存在の確認と、同時の作成による主キー違反のどちらでも 409 にする。 */
     public BuildResponse create(UUID userId, CreateBuildRequest request) {
         if (repository.existsById(request.id())) {
-            throw new BuildConflictException("Build id already exists");
+            throw new ResourceConflictException(ID_EXISTS);
         }
         Build build = new Build(
                 request.id(),
@@ -51,22 +53,23 @@ public class BuildService {
         try {
             return BuildResponse.from(repository.saveAndFlush(build));
         } catch (DataIntegrityViolationException e) {
-            throw new BuildConflictException("Build id already exists", e);
+            throw new ResourceConflictException(ID_EXISTS, e);
         }
     }
 
     @Transactional
     public BuildResponse rename(UUID userId, UUID id, RenameBuildRequest request) {
-        Build build =
-                repository.findByIdAndUserIdAndDeletedAtIsNull(id, userId).orElseThrow(BuildNotFoundException::new);
+        Build build = repository
+                .findByIdAndUserIdAndDeletedAtIsNull(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
         if (!build.getVersion().equals(request.version())) {
-            throw new BuildConflictException(CHANGED);
+            throw new ResourceConflictException(CHANGED);
         }
         build.rename(request.name(), now());
         try {
             return BuildResponse.from(repository.saveAndFlush(build));
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new BuildConflictException(CHANGED, e);
+            throw new ResourceConflictException(CHANGED, e);
         }
     }
 

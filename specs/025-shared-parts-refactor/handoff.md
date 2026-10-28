@@ -1,0 +1,85 @@
+# handoff: 025-shared-parts-refactor
+<!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
+
+## 現在地
+- 区間: E
+- 次に起動するコマンド: `/tsod-ship 025-shared-parts-refactor`
+- 推奨モデル: Sonnet
+- ブランチ: `feat/025-shared-parts-refactor`（不変）
+<!--
+区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
+
+| 移行 | 区間 | 次に起動するコマンド | 推奨モデル | ブランチ |
+|---|---|---|---|---|
+| 開始（A） | A | `/tsod-spec 025-shared-parts-refactor` | Opus | `feat/025-shared-parts-refactor` |
+| A→B | B | `/tsod-screen-table 025-shared-parts-refactor` | Opus | `feat/025-shared-parts-refactor`（不変） |
+| A→C（UI もテーブル変更も無い） | C | `/tsod-plan 025-shared-parts-refactor` | Opus | `feat/025-shared-parts-refactor`（不変） |
+| B→C | C | `/tsod-plan 025-shared-parts-refactor` | Opus | `feat/025-shared-parts-refactor`（不変） |
+| C→D | D | `/tsod-build 025-shared-parts-refactor` | Sonnet | `feat/025-shared-parts-refactor`（不変） |
+| D→E | E | `/tsod-ship 025-shared-parts-refactor` | Sonnet | `feat/025-shared-parts-refactor`（不変） |
+| E→完了 | 完了 | なし | なし | なし（`feat/025-shared-parts-refactor`・`docs/025-shared-parts-refactor-drift` ともマージ・削除済み） |
+-->
+
+## ゲート記録
+| ゲート | 対象 | 状態 | 承認日時・記録 |
+|---|---|---|---|
+| A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-10-28 / ef91c61 |
+| A-2 | 薄仕様 spec.md | 承認済み | 2026-10-28 / 9ad7200 |
+| B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | 2026-10-28 |
+| B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-10-28 |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-10-28 / 69b469b |
+| D-1 | 実装受入 | 承認済み | 2026-10-28 / f66369a |
+| E-1 | マージ（PR・CI 緑） | 未 | |
+| E-2 | ドリフト是正と drift PR のマージ | 未 | |
+<!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
+
+## コミット範囲
+- 区間 D の開始コミット: 5a227f5
+- レビュー対象の範囲: `<開始コミット>..<再開点>`
+- 是正の範囲: `<前回のレビュー対象の終点>..<是正の最後のコミット>`
+<!-- 書くのは既に存在するコミットのハッシュだけ。区間 D 以外では空のまま -->
+
+## 区間の再開点
+- 一括検証が緑になった時点のコミット: f962247
+- その時点の verify の要約行: <総合結果の行と Sonar 件数行>
+- レビューの進捗: <何回目まで済み・未解決の所見>
+<!-- 区間 D の文脈が膨らんで中断するときに書く。再開した区間 D はここからレビュー（または是正）を始める -->
+
+## 委譲の記録
+| 領域 | ワーカー | コミット |
+|---|---|---|
+| web | web-agent | a57b9d7 |
+| api | api-agent | 64dd98e |
+| web | web-agent | f962247 |
+<!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
+
+## レビュー記録
+| 回 | 範囲 | 所見の要約 | 区分 | 処遇 | 状態 |
+|---|---|---|---|---|---|
+| 1 | 5a227f5..f962247 | api: ID_EXISTS が package-private（private で足りる。影響なし） | 持ち越し | 持ち越し | 解消 |
+| 1 | 5a227f5..f962247 | api: コントローラがサービスの NOT_FOUND 定数を参照（plan D3 どおり。013 で置き場を再検討可） | 持ち越し | 持ち越し | 解消 |
+| 1 | 5a227f5..f962247 | web: lib/api/charms.ts に CHARMS_FAILURE_MESSAGES・CharmsFailure の再エクスポートが未使用で残る（025 のスコープ外） | 持ち越し | 持ち越し | 解消 |
+<!-- 区間 D。所見1件につき1行。所見は要約で書く（差分や所見の全文を貼らない）。区分: reviewer-agent の区分（要修正 / 要判断 / 起票 / 持ち越し）。処遇: 是正 / 直接修正 / ゲートで判断 / 起票 / 持ち越し のどれか。状態: 要修正 / 是正済み / 解消。既存の行は書き換えず、是正後は同じ所見の新しい行を状態=解消で追記する。
+区分と処遇の対応: 要修正 → 是正または直接修正 / 要判断 → ゲートで判断 / 起票 → 起票 / 持ち越し → 持ち越し -->
+
+## メインの直接修正
+| 区間 | ファイル | 内容（1行） | 理由 |
+|---|---|---|---|
+- なし
+<!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
+
+## PR 本文に必須の記載事項
+<!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+
+## 未起票の教訓
+<!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
+- なし（区間 A で見つけた B／C の判定の食い違いは tasks/lessons.md に起票済み）
+- bootRun の起動確認に DISCORD_CLIENT_ID・DISCORD_CLIENT_SECRET のダミー値が要る（tsod-build の検証の下限に未記載）。web ワーカーの prettier は pnpm --filter @swv/web exec prettier で apps/web からの相対パスで指定する
+
+## 要確認事項
+<!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
+- 区間 C: tasks/lessons.md の 2026-10-26「削除確認ダイアログと、端末保存のストアの状態機械…」・2026-10-28「例外クラスと ApiExceptionHandler…」・2026-10-28「ダイアログのオーバーレイの記述…」は、直したコミットの中で台帳から消す。例外の項の提案のうち .claude/rules/api-spring.md への追記は 025 のスコープ外（canon-boundary.md の2経路で扱う）なので、その部分は台帳に残す
+
+## 区間メモ
+<!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
+- A-1 の移設先: Q73・Q74・Q75・Q76（いずれも区間 A で新たに立てた問い。open-questions.md からの移設は無い）

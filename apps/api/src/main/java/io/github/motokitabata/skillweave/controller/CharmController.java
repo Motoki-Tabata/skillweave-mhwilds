@@ -1,6 +1,6 @@
 package io.github.motokitabata.skillweave.controller;
 
-import io.github.motokitabata.skillweave.common.exception.CharmNotFoundException;
+import io.github.motokitabata.skillweave.common.exception.ResourceNotFoundException;
 import io.github.motokitabata.skillweave.dto.request.CreateCharmRequest;
 import io.github.motokitabata.skillweave.dto.request.UpdateCharmRequest;
 import io.github.motokitabata.skillweave.dto.response.CharmResponse;
@@ -67,7 +67,7 @@ public class CharmController {
             @AuthenticationPrincipal DiscordUserPrincipal principal,
             @PathVariable String id,
             @Valid @RequestBody UpdateCharmRequest request) {
-        UUID charmId = parseId(id).orElseThrow(CharmNotFoundException::new);
+        UUID charmId = parseId(id).orElseThrow(() -> new ResourceNotFoundException(CharmService.NOT_FOUND));
         return service.update(principal.userId(), charmId, request);
     }
 

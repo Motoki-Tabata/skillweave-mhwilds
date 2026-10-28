@@ -1,4 +1,4 @@
-次の番号: Q73
+次の番号: Q77
 
 ## 要確認事項
 - [ ] Q6: 018 pwa-offline の導入方式。`vite-plugin-pwa` は `design/tech-stack.md`「判断 3」でサプライチェーン対策の判断待ちになっている（仮: 判断が出るまで 018 は着手しない。自前の Service Worker で置き換える案もそこで比べる）

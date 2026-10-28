@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import DeleteConfirmDialog from '@/components/common/DeleteConfirmDialog.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import WeaponDeleteDialog from '@/components/weapons/WeaponDeleteDialog.vue'
 import WeaponForm from '@/components/weapons/WeaponForm.vue'
 import WeaponListItem from '@/components/weapons/WeaponListItem.vue'
 import { LOADING_SKELETON_DELAY_MS } from '@/constants/search'
@@ -103,7 +103,7 @@ async function confirmDelete(): Promise<void> {
   const id = target.weapon.id
   const own = focusAfterDialog
   focusAfterDialog = focusTargetAfterRemove(id)
-  if (!(await weapons.remove(id))) {
+  if ((await weapons.remove(id)) !== 'saved') {
     focusAfterDialog = own
     return
   }
@@ -127,6 +127,14 @@ const deleteSummary = computed(() => {
   const parts = [weaponDisplayName(payload, ctx), weaponTypeLabel(payload, ctx)]
   parts.push(`攻撃力 ${payload.attack}`, `会心 ${payload.affinity}%`)
   return parts.filter((part) => part !== null).join(' ／ ')
+})
+
+/** 削除の確認の本文。検索条件で選んでいる武器のときだけ、選択も外す旨を足す。 */
+const deleteDescription = computed(() => {
+  const selected = deleting.value !== null && conditions.isWeaponSelected(deleting.value.weapon.id)
+  return `${deleteSummary.value}。削除すると元に戻せません。${
+    selected ? '検索条件の武器の選択も外します。' : ''
+  }`
 })
 </script>
 
@@ -216,10 +224,10 @@ const deleteSummary = computed(() => {
       </section>
     </div>
 
-    <WeaponDeleteDialog
+    <DeleteConfirmDialog
       v-model:open="deleteOpen"
-      :summary="deleteSummary"
-      :selected="deleting !== null && conditions.isWeaponSelected(deleting.weapon.id)"
+      title="個体差のある武器を削除しますか？"
+      :description="deleteDescription"
       @confirm="confirmDelete"
       @close-auto-focus="onDialogCloseAutoFocus"
     />

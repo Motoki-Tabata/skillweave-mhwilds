@@ -15,11 +15,6 @@
 - 何が起きたか: reviewer が、007 で足した `ActivationConditionsCard.vue` の h2 の `font-semibold` を MASTER.md「Typography」のウェイト3種と突合して指摘した。既存の全カード（`WeaponCard`・`CharmCard`・`RequiredSkillsCard`・`ConditionsCard`・`BuildCard` の h3 など）が同じ書き方で、007 の欠陥ではない。
 - 提案: MASTER.md のウェイトに 600 を足すか、既存カードを `font-bold` に揃えるかを、次に UI の見出しを触る機能の区間 B で決める。
 
-## 2026-10-26 削除確認ダイアログと、端末保存のストアの状態機械が護石と武器で二重になった（機能008・区間D）
-- 種別: 規律昇華
-- 何が起きたか: reviewer が、`CharmDeleteDialog.vue` と `WeaponDeleteDialog.vue`（違いは本文の断り文1つ）、`stores/charms.ts` と `stores/weapons.ts`（`ensureLoaded`・`reload`・`failureText`・`byIdDescending`・`plainPayload`）の二重化を指摘した。conventions.md「共有部品の扱い」の「2箇所以上に現れる UI は共有部品にする」に当たるが、008 の範囲外（護石の側を変える）のため、そのまま積んだ（レビュー記録 1 回目）。
-- 提案: 端末保存の3つ目の機能が出る前に、`components/common/` の汎用の削除確認（本文を slot で差し替える）と、保存先の状態機械の共通化を、専用の機能（またはリファクタの区間 B）として切る。
-
 ## 2026-10-27 Spring Boot の版を上げたコミットで design/tech-stack.md の表が更新されなかった（機能009・区間C）
 - 種別: 規律昇華
 - 何が起きたか: 3563ad4 で `apps/api/gradle/libs.versions.toml` の Spring Boot を 4.1.2 に上げたが、`design/tech-stack.md` の表（Spring Boot の行・更新の方針の表）は 4.1.1 のまま残った。009 の T2 で表を実測に合わせる（specs/009-discord-login/plan.md D17）。
@@ -48,19 +43,19 @@
 ## 2026-10-28 例外クラスと ApiExceptionHandler のハンドラが機能ごとに並行して増える（機能011・区間D）
 - 種別: 規律昇華
 - 何が起きたか: 011 の api で `BuildNotFoundException`・`BuildConflictException` と `ApiExceptionHandler` の同形のハンドラを足した。010 の `CharmNotFoundException`・`CharmConflictException` と構造が同じで、plan D7 が「構成用のものを足す」と決めていたため並行して増えた（レビュー記録 1 回目 api F7）。
-- 提案: 3つ目の機能が出る前に、汎用の NotFound／Conflict の例外とハンドラへ統合する専用の作業を切る。`.claude/rules/api-spring.md` に「404・409 の例外は機能名を付けず共有する」を足す。
+- 提案: `.claude/rules/api-spring.md` に「404・409 の例外は機能名を付けず共有する」を足す。
 
 ## 2026-10-28 MASTER.md の Typography／Shape と、shadcn-vue の既定・既存画面が食い違ったまま増えている（機能011・区間D）
 - 種別: 矛盾是正
 - 何が起きたか: MASTER.md は「ウェイトは 400・500・700」「影を使わない」と定めるが、既存の画面（SearchView・CharmsView・WeaponsView・PickerDialog）の見出しの `font-semibold`、`shadow-lg`、`ui/` の既定がこれに反し、011 の新規画面（BuildsView・BuildDialogFrame・BuildCard の見出し）も同じ書き方を引き継いだ（レビュー記録 1 回目 web 2）。D8 の AlertDialog のオーバーレイも `ui/` 既定の `bg-black/80` で MASTER の Modals（0.6）と違う（web 6）。
 - 提案: MASTER.md 側で shadcn の既定の扱い（許容するか、`ui/` を CLI で更新して合わせるか）を決め、規約か実装のどちらかを揃える専用の作業を切る。
 
-## 2026-10-28 ダイアログのオーバーレイの記述が PickerDialog と BuildDialogFrame で複製された（機能011・区間D）
-- 種別: 規律昇華
-- 何が起きたか: `components/builds/BuildDialogFrame.vue` が `PickerDialog.vue` と同一のオーバーレイ（`fixed inset-x-0 top-12 bottom-8 z-50 bg-black/60 md:inset-y-0`）を持つ。conventions.md の「2箇所以上に現れる UI は共有部品にする」に当たる（レビュー記録 1 回目 web 3）。
-- 提案: 基準幅でヘッダーとクレジットのバーを覆わないオーバーレイを `components/common/` の共有部品に切り出し、PickerDialog と BuildDialogFrame の両方から使う。
-
 ## 2026-10-28 allow-coercion-of-scalars: false は数値・真偽から String への変換を止めない（機能011・区間D）
 - 種別: 規律昇華
 - 何が起きたか: 011 の api で、構成名とカスタム武器名に JSON の数値・真偽（`5`・`true`）を送ると、文字列 "5"・"true" に変換されて 201 になる。010 の護石の文字列項目も同じ性質（レビュー記録 2 回目 api F3）。
 - 提案: `.claude/rules/api-spring.md` の Jackson の項（2026-10-27 の教訓）に「文字列の項目への数値・真偽は変換される。厳密に 400 にするには別の設定が要る」と足す。
+
+## 2026-10-28 区間 A の終わりの B／C の判定が、見た目を変えないリファクタで文字どおりと意図の食い違いを生む（機能025・区間A）
+- 種別: 矛盾是正
+- 何が起きたか: `.claude/skills/tsod-spec/SKILL.md`「区間の終わり」は「`apps/web/src/main/**` の画面・部品を変える」なら区間 B とする。025 は部品（削除確認・オーバーレイ・ストア）を変えるが、見た目・操作・永続化を変えないため、区間 B で合意する画面設計・テーブル設計が無い。ゲート A-2 でユーザーに A→C を選んでもらった。
+- 提案: 同節の判定を「画面の見た目・操作を変える、または新しい永続化がある」なら B とし、見た目と操作を変えない部品の作り替え（リファクタ）は C とする旨を足す。
