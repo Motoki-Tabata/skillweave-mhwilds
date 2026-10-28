@@ -12,6 +12,7 @@ import type {
 } from '@swv/data'
 import type { SolverRequest } from '@swv/solver'
 import { ARMOR_RANKS, SKILL_KINDS } from '@/constants/labels'
+import { craftedSolverCharms } from '@/lib/charms/crafted'
 import { createSolverClient } from '@/lib/solver/client'
 import type { SolveHandlers } from '@/lib/solver/client'
 import { fetchMasterData, loadFailureMessage } from '@/lib/solver/masterData'
@@ -61,6 +62,9 @@ export const useMasterStore = defineStore('master', () => {
     indexById<MasterDecoration>(bundle.value?.decorations ?? []),
   )
 
+  /** 生産護石の候補（系統ごとに最上位ランクの1件）。マスターが無いときは空。 */
+  const craftedCharms = computed(() => craftedSolverCharms(bundle.value?.charms ?? []))
+
   /** 辞書に名前が無い ID は、ID の文字列をそのまま返す。 */
   function nameOf(id: string): string {
     return dictionary.value?.entries[id]?.name ?? id
@@ -101,6 +105,7 @@ export const useMasterStore = defineStore('master', () => {
     skillById,
     armorById,
     decorationById,
+    craftedCharms,
     nameOf,
     availableRanks,
     skillsByKind,

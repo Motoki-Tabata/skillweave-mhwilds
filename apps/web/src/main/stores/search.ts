@@ -26,8 +26,10 @@ export interface SearchSummary {
   allRanksSelected: boolean
   /** 検索したときにオンだった発動条件の名前（トグルの並びの順） */
   activeConditionNames: string[]
-  /** 送信した時点の護石の候補の件数 */
+  /** 送信した時点の鑑定護石の候補の件数 */
   charmCount: number
+  /** 送信した時点の「生産護石を候補に含める」の値 */
+  includeCraftedCharms: boolean
 }
 
 /** 検索したときの火力の計算の元（検索の後に変えても変わらない）。 */
@@ -109,6 +111,8 @@ export const useSearchStore = defineStore('search', () => {
     weaponSlots: readonly { level: number }[]
     /** 構成の保存に使う、送信した時点のマスターの版と武器の参照・写し */
     saveSource: SubmittedSaveSource
+    /** 送信した時点の「生産護石を候補に含める」の値 */
+    includeCraftedCharms: boolean
   }
 
   function summarize(submitted: Submitted, charmCount: number): SearchSummary {
@@ -121,6 +125,7 @@ export const useSearchStore = defineStore('search', () => {
       allRanksSelected: submitted.ranks.length === master.availableRanks.length,
       activeConditionNames: submitted.activeConditionIds.map((id) => master.nameOf(id)),
       charmCount,
+      includeCraftedCharms: submitted.includeCraftedCharms,
     }
   }
 
@@ -157,6 +162,7 @@ export const useSearchStore = defineStore('search', () => {
       objective: conditions.objective,
       maxResults: conditions.maxResults,
       ranks: [...conditions.ranks],
+      includeCraftedCharms: conditions.includeCraftedCharms,
     }
     // 前の検索の結果と進捗はすぐに消す
     clearResult()
@@ -179,7 +185,11 @@ export const useSearchStore = defineStore('search', () => {
 
   function dispatch(submitted: Submitted): void {
     // ストアの候補は読み込み後に差し替わるので、送信の時点の写しを取る
-    const charms = charmsStore.candidates.map((charm) => structuredClone(toRaw(charm)))
+    const appraised = charmsStore.candidates.map((charm) => structuredClone(toRaw(charm)))
+    const crafted = submitted.includeCraftedCharms
+      ? master.craftedCharms.map((charm) => structuredClone(toRaw(charm)))
+      : []
+    const charms = [...appraised, ...crafted]
     const { bundle, damageBase, saveSource, ...rest } = submitted
     submittedSaveSource.value = saveSource
     const request = buildSolverRequest(bundle, { ...rest, charms })
@@ -187,7 +197,7 @@ export const useSearchStore = defineStore('search', () => {
     submittedCharms.value = new Map(charms.map((charm) => [charm.id, charm]))
     // 結果の火力の計算には、この写しだけを使う（検索の後のトグル・武器の変更に影響されない）
     submittedBasis.value = { damageBase, activeConditionIds: rest.activeConditionIds }
-    summary.value = summarize(submitted, charms.length)
+    summary.value = summarize(submitted, appraised.length)
     master.solve(request, {
       onProgress: (count, build) => {
         progressBuilds.value = [...progressBuilds.value, build]

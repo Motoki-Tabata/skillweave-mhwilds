@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { BookmarkCheck, BookmarkPlus } from '@lucide/vue'
+import { BookmarkCheck, BookmarkPlus, Info } from '@lucide/vue'
 import type { SolvedBuild } from '@swv/solver'
 import BuildCard from '@/components/search/BuildCard.vue'
 import type { BuildCardDamage } from '@/components/search/BuildCard.vue'
 import { Button } from '@/components/ui/button'
+import { isCraftedCharmId } from '@/lib/charms/crafted'
 import type { BuildLookup } from '@/lib/solver/buildView'
 import { useAuthStore } from '@/stores/auth'
 import { useMasterStore } from '@/stores/master'
@@ -42,6 +43,10 @@ const damage = computed<BuildCardDamage | null>(() => {
   }
 })
 
+/** 生産護石を使った構成は保存できない（鑑定護石の ID でないと保存の写しを作れない） */
+const usesCrafted = computed(
+  () => props.build.charmId !== null && isCraftedCharmId(props.build.charmId),
+)
 const number = computed(() => props.index + 1)
 const saved = computed(() => search.isSaved(props.index))
 /** 保存済みの印は `aria-disabled` なので、押されても何もしない。 */
@@ -59,9 +64,15 @@ const label = computed(() =>
     :title="`構成 ${number}`"
     :lookup="lookup"
     :damage="damage"
-    :show-charm="(search.summary?.charmCount ?? 0) > 0"
+    :show-charm="search.submittedCharms.size > 0"
   >
-    <template v-if="saveable" #action>
+    <template v-if="saveable && usesCrafted" #notice>
+      <p class="text-muted-foreground flex items-center gap-1 text-xs">
+        <Info class="size-4 shrink-0" aria-hidden="true" />
+        生産護石を使った構成は保存できません。
+      </p>
+    </template>
+    <template v-if="saveable && !usesCrafted" #action>
       <Button
         type="button"
         variant="ghost"

@@ -12,6 +12,7 @@ import type {
 } from '@swv/data'
 import type { DamageBase, SlotRef, SolvedBuild, SolverCharm, Uuid } from '@swv/solver'
 import type { Build, BuildPayload, BuildWeapon } from '@/lib/api/builds'
+import { isCraftedCharmId } from '@/lib/charms/crafted'
 import { SLOT_TARGET_LABELS } from '@/constants/charms'
 import { ARMOR_PARTS, SKILL_KINDS, SLOT_OWNER_LABELS } from '@/constants/labels'
 
@@ -89,6 +90,8 @@ export interface CharmSlotView {
 }
 
 export interface CharmView {
+  /** 生産護石の名前（ja の辞書）。鑑定護石は null */
+  name: string | null
   rarity: number
   skills: SkillChip[]
   slots: CharmSlotView[]
@@ -105,6 +108,7 @@ function charmView(build: SolvedBuild, lookup: BuildLookup): CharmView | null {
   const charm = lookup.charm(build.charmId)
   if (charm === undefined) return null
   return {
+    name: isCraftedCharmId(build.charmId) ? lookup.nameOf(build.charmId) : null,
     rarity: charm.rarity,
     skills: charm.skills.map((skill) => skillChip(skill.skillId, skill.level, lookup)),
     slots: charm.slots.map((slot) => ({

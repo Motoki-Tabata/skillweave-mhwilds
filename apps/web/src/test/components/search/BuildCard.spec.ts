@@ -228,7 +228,7 @@ describe('BuildCard', () => {
     it('検索条件の要約に護石の件数を出す', async () => {
       await showWithCharm([charmBuild()])
       expect(textOf(document.querySelector('#results-heading')!.parentElement)).toContain(
-        '／ 護石 1 件',
+        '／ 鑑定護石 1 件 ／ 生産護石を含める',
       )
     })
   })

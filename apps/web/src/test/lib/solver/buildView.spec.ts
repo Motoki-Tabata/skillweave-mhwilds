@@ -140,6 +140,7 @@ describe('toBuildView の護石', () => {
 
   it('使った護石のレア度・スキル（並び順）・スロットを出す', () => {
     expect(toBuildView(withCharm(makeBuild()), lookup).charm).toEqual({
+      name: null,
       rarity: 8,
       skills: [
         { name: NAMES[sk('a1')], level: 2 },
@@ -150,6 +151,19 @@ describe('toBuildView の護石', () => {
         { targetLabel: '防具用', level: 3 },
       ],
     })
+  })
+
+  // AC-7
+  it('生産護石（ch: の ID）は辞書の名前を name に持ち、鑑定護石は null', () => {
+    const craftedCharm = { ...charm, id: 'ch:-1:2' as typeof charm.id }
+    const withLookup: BuildLookup = {
+      ...lookup,
+      charm: (id) => (id === craftedCharm.id ? craftedCharm : undefined),
+      nameOf: (id) => (id === craftedCharm.id ? '攻撃の護石Ⅱ' : lookup.nameOf(id)),
+    }
+    const build = { ...makeBuild(), charmId: craftedCharm.id }
+    expect(toBuildView(build, withLookup).charm?.name).toBe('攻撃の護石Ⅱ')
+    expect(toBuildView(withCharm(makeBuild()), lookup).charm?.name).toBeNull()
   })
 
   it('候補に無い護石の ID なら charm は null', () => {

@@ -6,7 +6,9 @@ import type {
   DecorationId,
   Effect,
   MasterArmor,
+  CharmId,
   MasterBundle,
+  MasterCharm,
   MasterCondition,
   MasterDictionary,
   MasterSkill,
@@ -141,10 +143,34 @@ function makeArmors(ranks: ArmorRank[]): MasterArmor[] {
   )
 }
 
+/** テスト用の生産護石。系統 A はランク 1・2（上位が下位を包含）、系統 B はランク 1 だけ。 */
+export const CRAFTED_CHARMS: MasterCharm[] = [
+  {
+    id: 'ch:-1:1' as CharmId,
+    rarity: 5,
+    skills: [{ skillId: sk('a1'), level: 1 }],
+    slots: [],
+  },
+  {
+    id: 'ch:-1:2' as CharmId,
+    rarity: 7,
+    skills: [{ skillId: sk('a1'), level: 2 }],
+    slots: [{ target: 'weapon', level: 1 }],
+  },
+  {
+    id: 'ch:-2:1' as CharmId,
+    rarity: 6,
+    skills: [{ skillId: sk('w1'), level: 1 }],
+    slots: [],
+  },
+]
+
 export interface BundleOptions {
   ranks?: ArmorRank[]
   /** 大剣を追加で増やす数（D1 の 50 件の上限の確認用）。 */
   extraGreatSwords?: number
+  /** true のとき、生産護石（2系統。うち1系統は2ランク）を足す。既定は護石なし */
+  craftedCharms?: boolean
 }
 
 export function makeBundle(options: BundleOptions = {}): MasterBundle {
@@ -158,7 +184,7 @@ export function makeBundle(options: BundleOptions = {}): MasterBundle {
       { id: dc('1'), target: 'armor', slotLevel: 2, skills: [{ skillId: sk('a1'), level: 1 }] },
     ],
     weapons: makeWeapons(options.extraGreatSwords ?? 0),
-    charms: [],
+    charms: options.craftedCharms === true ? CRAFTED_CHARMS : [],
     appraisedCharm: { patterns: [], groups: [] },
     conditions: CONDITIONS,
   }
@@ -207,6 +233,11 @@ export function makeDictionary(options: BundleOptions = {}): MasterDictionary {
     for (const part of PARTS) {
       entries[armorId(rank, part)] = { name: `${RANK_LABEL[rank]}の${PART_LABEL[part]}` }
     }
+  }
+  if (options.craftedCharms === true) {
+    entries['ch:-1:1'] = { name: '攻撃の護石Ⅰ' }
+    entries['ch:-1:2'] = { name: '攻撃の護石Ⅱ' }
+    entries['ch:-2:1'] = { name: '剛刃の護石Ⅰ' }
   }
   for (let i = 0; i < (options.extraGreatSwords ?? 0); i += 1) {
     entries[wp(`great-sword:x${i + 10}`)] = { name: `試作大剣${i + 10}` }
