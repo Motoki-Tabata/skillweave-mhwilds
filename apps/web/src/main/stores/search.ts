@@ -3,6 +3,8 @@ import { defineStore } from 'pinia'
 import type { ConditionId } from '@swv/data'
 import type { DamageBase, SolvedBuild, SolverCharm, SolverResponse } from '@swv/solver'
 import { objectiveLabel } from '@/constants/labels'
+import type { BuildPayload, BuildWeapon } from '@/lib/api/builds'
+import { buildPayloadOf, customWeaponSnapshot } from '@/lib/builds/payload'
 import { buildSolverRequest, type SearchConditions } from '@/lib/solver/request'
 import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
@@ -34,6 +36,12 @@ export interface SubmittedBasis {
   activeConditionIds: ConditionId[]
 }
 
+/** 構成の保存に使う、送信した時点の写し（マスターの版と武器の参照・写し）。 */
+export interface SubmittedSaveSource {
+  masterVersion: string
+  weapon: BuildWeapon
+}
+
 export const CANCELLED_TOAST_MESSAGE = '検索をキャンセルしました。'
 
 export const useSearchStore = defineStore('search', () => {
@@ -53,6 +61,10 @@ export const useSearchStore = defineStore('search', () => {
   const submittedCharms = shallowRef<ReadonlyMap<string, SolverCharm>>(new Map())
   /** 送信した時点の武器の攻撃力・会心率とオンの発動条件。火力の計算に使う */
   const submittedBasis = shallowRef<SubmittedBasis | null>(null)
+  /** 送信した時点のマスターの版と武器の写し。構成の保存はここから作る */
+  const submittedSaveSource = shallowRef<SubmittedSaveSource | null>(null)
+  /** 「保存済み」の印を付けた結果の位置。検索し直すと消す */
+  const savedIndexes = ref<readonly number[]>([])
   // 検索を始めるたびに増やす（結果パネルの見出しへフォーカスを移す合図）
   const runCount = ref(0)
 
@@ -65,6 +77,28 @@ export const useSearchStore = defineStore('search', () => {
     progressBuilds.value = []
     response.value = null
     errorMessage.value = ''
+    savedIndexes.value = []
+  }
+
+  /** 結果の構成から保存する `payload` を作る。検索の結果が無いときは null。 */
+  function buildPayload(build: SolvedBuild): BuildPayload | null {
+    const source = submittedSaveSource.value
+    const basis = submittedBasis.value
+    if (source === null || basis === null) return null
+    return buildPayloadOf(build, {
+      weapon: source.weapon,
+      charms: submittedCharms.value,
+      activeConditionIds: basis.activeConditionIds,
+    })
+  }
+
+  /** 結果の構成（先頭から数えた位置）を保存済みにする。 */
+  function markSaved(index: number): void {
+    if (!savedIndexes.value.includes(index)) savedIndexes.value = [...savedIndexes.value, index]
+  }
+
+  function isSaved(index: number): boolean {
+    return savedIndexes.value.includes(index)
   }
 
   /** 送信した時点の条件の写し（護石の候補を除く）。待っている間に条件を編集しても変わらない。 */
@@ -73,6 +107,8 @@ export const useSearchStore = defineStore('search', () => {
     damageBase: DamageBase
     weaponName: string
     weaponSlots: readonly { level: number }[]
+    /** 構成の保存に使う、送信した時点のマスターの版と武器の参照・写し */
+    saveSource: SubmittedSaveSource
   }
 
   function summarize(submitted: Submitted, charmCount: number): SearchSummary {
@@ -110,6 +146,13 @@ export const useSearchStore = defineStore('search', () => {
       weapon: structuredClone(toRaw(weapon.solverWeapon)),
       weaponName: weapon.kind === 'custom' ? `${weapon.name}（個体差）` : weapon.name,
       weaponSlots: weapon.slots.map((slot) => ({ level: slot.level })),
+      saveSource: {
+        masterVersion: bundle.version,
+        weapon:
+          weapon.kind === 'custom' && weapon.stored !== undefined
+            ? customWeaponSnapshot(weapon.stored)
+            : { kind: 'master', weaponId: weapon.id },
+      },
       required: conditions.required.map((skill) => ({ ...skill })),
       objective: conditions.objective,
       maxResults: conditions.maxResults,
@@ -137,7 +180,8 @@ export const useSearchStore = defineStore('search', () => {
   function dispatch(submitted: Submitted): void {
     // ストアの候補は読み込み後に差し替わるので、送信の時点の写しを取る
     const charms = charmsStore.candidates.map((charm) => structuredClone(toRaw(charm)))
-    const { bundle, damageBase, ...rest } = submitted
+    const { bundle, damageBase, saveSource, ...rest } = submitted
+    submittedSaveSource.value = saveSource
     const request = buildSolverRequest(bundle, { ...rest, charms })
     // 送信した時点の候補を持つ（検索の後に護石を編集・削除しても、表示中の結果は変えない）
     submittedCharms.value = new Map(charms.map((charm) => [charm.id, charm]))
@@ -188,6 +232,11 @@ export const useSearchStore = defineStore('search', () => {
     submittedCharms,
     submittedBasis,
     runCount,
+    submittedSaveSource,
+    savedIndexes,
+    buildPayload,
+    markSaved,
+    isSaved,
     submit,
     cancel,
   }

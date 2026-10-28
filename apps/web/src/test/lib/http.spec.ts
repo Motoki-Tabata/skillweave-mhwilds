@@ -113,6 +113,19 @@ describe('http', () => {
     expect(init?.body).toBe(JSON.stringify({ lastName: '田中' }))
   })
 
+  it('sends PATCH with the JSON body and the CSRF header', async () => {
+    document.cookie = 'XSRF-TOKEN=patch-token'
+    vi.mocked(fetch).mockResolvedValueOnce(mockResponse())
+
+    await http.patch('/api/builds/1', { name: 'x' })
+
+    const [, init] = vi.mocked(fetch).mock.calls[0]
+    expect(init?.method).toBe('PATCH')
+    expect(init?.body).toBe(JSON.stringify({ name: 'x' }))
+    expect((init!.headers as Headers).get('X-XSRF-TOKEN')).toBe('patch-token')
+    document.cookie = 'XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  })
+
   it('throws HttpError with status/statusText/body when the response is not ok', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(
       mockResponse({
