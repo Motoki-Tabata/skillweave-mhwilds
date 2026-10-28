@@ -31,6 +31,7 @@ async function fillConditions(page: Page, testCase: MeasureCase): Promise<void> 
   await fillRequiredSkills(page, testCase)
   await page.getByRole('radio', { name: '火力の最大化' }).check()
   await setRanks(page, { low: true, high: true })
+  await page.getByRole('checkbox', { name: '生産護石を候補に含める' }).uncheck()
   const toggles = page.getByRole('group', { name: '発動条件' }).getByRole('checkbox')
   const total = await toggles.count()
   expect(total).toBeGreaterThan(0)

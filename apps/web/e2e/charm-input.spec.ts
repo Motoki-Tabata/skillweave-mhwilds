@@ -68,7 +68,7 @@ test.describe('005 charm-input', () => {
     // ナビで検索画面へ行き、候補の件数を確かめる
     await goByNav(page, '装備検索')
     await expect(page.getByRole('button', { name: '武器を選択' })).toBeVisible({ timeout: 60_000 })
-    await expect(page.getByText(/候補にする護石:\s*1\s*件/)).toBeVisible()
+    await expect(page.getByText(/候補にする鑑定護石:\s*1\s*件/)).toBeVisible()
 
     await selectWeapon(page, master.nameOf(master.plainWeaponId))
     await page.getByRole('radio', { name: '空きスロットの最大化' }).click()

@@ -123,6 +123,8 @@ async function openBuilds(page: Page): Promise<void> {
 async function searchPlainWeapon(page: Page): Promise<void> {
   await openSearch(page)
   await selectWeapon(page, master.nameOf(master.plainWeaponId))
+  // 生産護石を候補に含めると保存できない構成が出るので、切り替えをオフにする
+  await page.getByRole('checkbox', { name: '生産護石を候補に含める' }).uncheck()
   await page.getByRole('radio', { name: '空きスロットの最大化' }).click()
   await searchButton(page).click()
   await expect(page.getByText(/\d+\s*件の構成が見つかりました/)).toBeVisible({ timeout: 60_000 })

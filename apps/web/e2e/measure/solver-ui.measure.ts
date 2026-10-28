@@ -28,6 +28,7 @@ async function fillConditions(page: Page, testCase: MeasureCase): Promise<void> 
   await fillRequiredSkills(page, testCase)
   await page.getByRole('radio', { name: '防御力の最大化' }).check()
   await setRanks(page, { low: true, high: true })
+  await page.getByRole('checkbox', { name: '生産護石を候補に含める' }).uncheck()
 }
 
 /** 検索を押してから結果（構成の見出し・解なし・打ち切り・エラーのいずれか）が出るまでの時間と状態。 */

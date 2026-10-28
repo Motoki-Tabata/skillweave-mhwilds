@@ -163,7 +163,7 @@ test.describe('010 charm-save', () => {
       .getByRole('link', { name: '装備検索', exact: true })
       .click()
     await expect(page.getByRole('button', { name: '武器を選択' })).toBeVisible({ timeout: 60_000 })
-    await expect(page.getByText(/候補にする護石:\s*1\s*件/)).toBeVisible()
+    await expect(page.getByText(/候補にする鑑定護石:\s*1\s*件/)).toBeVisible()
 
     await selectWeapon(page, master.nameOf(master.plainWeaponId))
     await page.getByRole('radio', { name: '空きスロットの最大化' }).click()
