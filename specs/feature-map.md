@@ -1,6 +1,7 @@
 # 機能マップ
 
 入力: `temp/initial-design.md`（§1・§2・§5・§7〜§9・§11）・`temp/solver-types.ts`。
+020〜026 の入力（2026-10-28）: 実装済みの機能（001〜011・019）の `decisions.md`・`handoff.md`・`spec.md` のスコープ外で後で機能マップに足すとした事項と、`tasks/lessons.md` で専用の作業として切るとした共通化。
 機能 ID は実装順に振る（依存の表を満たす順で、同じ段では優先度の高いものを先にする）。初回の分解の後に追加した機能は、既存の ID を振り直さず末尾に採番する。その場合の実装順は依存の表が正である。
 
 ### 機能マップ
@@ -25,6 +26,13 @@
 | 017 | reverse-lookup | 「この護石があれば組める」構成を抽選テーブルから逆引きし、狙う護石の候補を示す | P2 | L | 未着手 |
 | 018 | pwa-offline | アプリをインストールでき、オフラインでも閲覧とソルバー実行ができる | P2 | S | 未着手 |
 | 019 | damage-solve-perf | `maximize: expectedDamage` の検索を実データで基準の 3 秒以内に収め（Q41）、2 段目の求解が解なしのときは 1 段目の解を返す縮退を入れる | P1 | M | 済 |
+| 020 | armor-lock-exclude | 検索画面で防具の部位を固定し、使わない防具・装飾品を除外して検索できる（ソルバーは 003 で対応済み。入力 UI だけを足す） | P1 | M | 未着手 |
+| 021 | crafted-charm | 生産護石（マスターの `charms`）をソルバーの護石候補にでき、鑑定護石を入力しなくても護石込みの構成を探せる | P1 | M | 未着手 |
+| 022 | skill-category | スキルに攻撃系・会心系などの分類を持たせ、スキルを選ぶダイアログを分類ごとに並べる | P2 | M | 未着手 |
+| 023 | element-damage | 属性の期待値（`element_add`・`element_mul`・会心撃【属性】）を計算し、結果の火力に出し、`maximize: expectedDamage` でも使えるようにする | P2 | L | 未着手 |
+| 024 | worker-solve-perf | ブラウザの Worker 上の `expectedDamage` の1件目までの時間を基準の 3 秒以内に収める（Q50） | P2 | S | 未着手 |
+| 025 | shared-parts-refactor | 機能ごとに複製された部品（削除確認ダイアログ・端末保存のストアの状態機械・ダイアログのオーバーレイ・404／409 の例外とハンドラ）を共有部品にまとめ、次の保存機能が同じ複製を増やさないようにする（画面と API の挙動は変えない） | P1 | M | 未着手 |
+| 026 | design-system-alignment | MASTER.md と、shadcn-vue の既定・既存画面との食い違い（見出しのウェイト・影・オーバーレイの濃さ・警告の帯・outline の枠色）を、規約か実装のどちらかに揃える | P2 | M | 未着手 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
@@ -40,11 +48,18 @@
 | 009 discord-login | 004 | 画面の骨格（ヘッダーのログイン導線）が 004 にある。最初の API を持つ機能 |
 | 010 charm-save | 005, 009 | 護石の入力 UI とスキーマは 005 のものを使う（端末側とサーバー側でスキーマを同一にする §2.1） |
 | 011 build-save | 009, 010 | 構成は護石を UUID で参照する |
-| 012 build-share | 011 | |
-| 013 user-weapon-save | 008, 009 | |
-| 014 guest-draft-import | 010, 011, 013 | 一般公開段階で行う（§2.1） |
+| 012 build-share | 011 | 共有 URL を受け手に開いてもらうには、API・DB の公開と独自ドメインの決定（009 decisions.md Q5 の区間外の運用作業）が先に要る（Q71） |
+| 013 user-weapon-save | 008, 009, 025 | サーバー保存の3つ目の機能。例外とハンドラ・端末保存のストアの共通化（025）の後に行う |
+| 014 guest-draft-import | 010, 011, 013 | 一般公開段階で行う（§2.1）。取り込みの対象に構成を残すかは Q70。護石の件数の上限とページングをこの前に見直す（010 decisions.md Q62） |
 | 015 ocr-spike | なし | フェーズ②の前に行う |
 | 016 charm-ocr | 005, 015 | |
 | 017 reverse-lookup | 003, 005 | フェーズ③ |
 | 018 pwa-offline | 004 | 導入方式の判断待ち（Q6） |
 | 019 damage-solve-perf | 006 | `packages/solver` だけを触る。対策の中身は 019 の区間 A で Q41 として決める。ID は追加順で末尾だが、実装は 007 の区間 B より前に行う |
+| 020 armor-lock-exclude | 004 | 004 decisions.md Q22 で 004 のスコープ外にした。検索画面のレイアウトを変えるなら Q28 に当たる |
+| 021 crafted-charm | 003, 005 | 方式（`SolverCharm.id` の型の変更・所持の扱い）は Q31 |
+| 022 skill-category | 002, 004 | 004 handoff.md の区間メモでユーザーが後で作るとした。分類はマスターに無いので `packages/data` の overlay で持つ見込み |
+| 023 element-damage | 006, 007, 008 | 006 decisions.md Q35 で物理だけにした。扱う範囲は Q40 |
+| 024 worker-solve-perf | 007, 019 | `packages/solver` の性能改善か基準の見直しかは Q50 |
+| 025 shared-parts-refactor | 008, 010, 011 | `tasks/lessons.md` の 2026-10-26「削除確認ダイアログと、端末保存のストアの状態機械が護石と武器で二重になった」・2026-10-28「例外クラスと ApiExceptionHandler のハンドラが機能ごとに並行して増える」・2026-10-28「ダイアログのオーバーレイの記述が PickerDialog と BuildDialogFrame で複製された」を扱う。011 の `DeleteConfirmDialog` と既存の2つの削除ダイアログの併存（011 plan D16）も含む |
+| 026 design-system-alignment | 011 | `tasks/lessons.md` の 2026-10-26「見出しの font-semibold（600）が MASTER.md のウェイト3種と食い違う」・2026-10-28「MASTER.md の Typography／Shape と、shadcn-vue の既定・既存画面が食い違ったまま増えている」と、Q27（警告の帯）・009 handoff.md の持ち越し（ライトの outline の枠色）を扱う。どちらに揃えるかは区間 A・B で決める。025 と同じ部品を触るなら 025 の後に行う |
