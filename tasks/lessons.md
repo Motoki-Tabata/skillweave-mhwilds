@@ -48,7 +48,7 @@
 ## 2026-10-28 例外クラスと ApiExceptionHandler のハンドラが機能ごとに並行して増える（機能011・区間D）
 - 種別: 規律昇華
 - 何が起きたか: 011 の api で `BuildNotFoundException`・`BuildConflictException` と `ApiExceptionHandler` の同形のハンドラを足した。010 の `CharmNotFoundException`・`CharmConflictException` と構造が同じで、plan D7 が「構成用のものを足す」と決めていたため並行して増えた（レビュー記録 1 回目 api F7）。
-- 提案: 3つ目の機能が出る前に、汎用の NotFound／Conflict の例外とハンドラへ統合する専用の作業を切る。`.claude/rules/api-spring.md` に「404・409 の例外は機能名を付けず共有する」を足す。
+- 提案: `.claude/rules/api-spring.md` に「404・409 の例外は機能名を付けず共有する」を足す。
 
 ## 2026-10-28 MASTER.md の Typography／Shape と、shadcn-vue の既定・既存画面が食い違ったまま増えている（機能011・区間D）
 - 種別: 矛盾是正

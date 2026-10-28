@@ -1,6 +1,6 @@
 package io.github.motokitabata.skillweave.controller;
 
-import io.github.motokitabata.skillweave.common.exception.BuildNotFoundException;
+import io.github.motokitabata.skillweave.common.exception.ResourceNotFoundException;
 import io.github.motokitabata.skillweave.dto.request.CreateBuildRequest;
 import io.github.motokitabata.skillweave.dto.request.RenameBuildRequest;
 import io.github.motokitabata.skillweave.dto.response.BuildResponse;
@@ -67,7 +67,7 @@ public class BuildController {
             @AuthenticationPrincipal DiscordUserPrincipal principal,
             @PathVariable String id,
             @Valid @RequestBody RenameBuildRequest request) {
-        UUID buildId = parseId(id).orElseThrow(BuildNotFoundException::new);
+        UUID buildId = parseId(id).orElseThrow(() -> new ResourceNotFoundException(BuildService.NOT_FOUND));
         return service.rename(principal.userId(), buildId, request);
     }
 

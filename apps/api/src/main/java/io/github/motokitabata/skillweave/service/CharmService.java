@@ -1,7 +1,7 @@
 package io.github.motokitabata.skillweave.service;
 
-import io.github.motokitabata.skillweave.common.exception.CharmConflictException;
-import io.github.motokitabata.skillweave.common.exception.CharmNotFoundException;
+import io.github.motokitabata.skillweave.common.exception.ResourceConflictException;
+import io.github.motokitabata.skillweave.common.exception.ResourceNotFoundException;
 import io.github.motokitabata.skillweave.dto.request.CreateCharmRequest;
 import io.github.motokitabata.skillweave.dto.request.UpdateCharmRequest;
 import io.github.motokitabata.skillweave.dto.response.CharmResponse;
@@ -20,6 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CharmService {
 
+    public static final String NOT_FOUND = "Charm not found";
+    static final String ID_EXISTS = "Charm id already exists";
+    private static final String CHANGED = "Charm was changed by another request";
+
     private final CharmRepository repository;
 
     public CharmService(CharmRepository repository) {
@@ -36,28 +40,29 @@ public class CharmService {
     /** 衝突は、存在の確認と、同時の作成による主キー違反のどちらでも 409 にする。 */
     public CharmResponse create(UUID userId, CreateCharmRequest request) {
         if (repository.existsById(request.id())) {
-            throw new CharmConflictException("Charm id already exists");
+            throw new ResourceConflictException(ID_EXISTS);
         }
         Charm charm = new Charm(request.id(), userId, request.payload(), request.schemaVersion(), now());
         try {
             return CharmResponse.from(repository.saveAndFlush(charm));
         } catch (DataIntegrityViolationException e) {
-            throw new CharmConflictException("Charm id already exists", e);
+            throw new ResourceConflictException(ID_EXISTS, e);
         }
     }
 
     @Transactional
     public CharmResponse update(UUID userId, UUID id, UpdateCharmRequest request) {
-        Charm charm =
-                repository.findByIdAndUserIdAndDeletedAtIsNull(id, userId).orElseThrow(CharmNotFoundException::new);
+        Charm charm = repository
+                .findByIdAndUserIdAndDeletedAtIsNull(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND));
         if (!charm.getVersion().equals(request.version())) {
-            throw new CharmConflictException("Charm was changed by another request");
+            throw new ResourceConflictException(CHANGED);
         }
         charm.update(request.payload(), request.schemaVersion(), now());
         try {
             return CharmResponse.from(repository.saveAndFlush(charm));
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new CharmConflictException("Charm was changed by another request", e);
+            throw new ResourceConflictException(CHANGED, e);
         }
     }
 

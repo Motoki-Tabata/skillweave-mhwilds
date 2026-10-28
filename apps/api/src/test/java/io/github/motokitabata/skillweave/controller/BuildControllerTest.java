@@ -347,6 +347,7 @@ class BuildControllerTest {
             Res res = create(alice, id, q("上書き"), VALID_PAYLOAD);
             assertThat(res.status()).as("id=%s", id).isEqualTo(409);
             assertThat(res.header("Content-Type")).startsWith("application/problem+json");
+            assertThat(json(res).get("detail").asString()).isEqualTo("Build id already exists");
             assertThat(rowName(id)).isEqualTo(NAME);
         }
         assertThat(isDeleted(deleted)).isTrue();
@@ -363,6 +364,7 @@ class BuildControllerTest {
 
         assertThat(res.status()).isEqualTo(409);
         assertThat(res.header("Content-Type")).startsWith("application/problem+json");
+        assertThat(json(res).get("detail").asString()).isEqualTo("Build was changed by another request");
         assertThat(rowName(id)).isEqualTo("一回目");
         assertThat(rowVersion(id)).isEqualTo(1);
     }
@@ -378,6 +380,7 @@ class BuildControllerTest {
             Res res = call("PATCH", BUILDS + "/" + target, alice, renameBody(q("名前"), 0));
             assertThat(res.status()).as("id=%s", target).isEqualTo(404);
             assertThat(res.header("Content-Type")).startsWith("application/problem+json");
+            assertThat(json(res).get("detail").asString()).isEqualTo("Build not found");
         }
     }
 
