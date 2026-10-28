@@ -118,8 +118,10 @@ function candidateDecorations(
       .filter((r) => !isSetSkill(master.skills.find((s) => s.id === r.skillId)))
       .map((r) => r.skillId),
   )
-  return master.decorations.filter((d) =>
-    d.skills.some((s) => ordinary.has(s.skillId) || extra.has(s.skillId)),
+  const excluded = new Set<string>(request.excludedDecorationIds ?? [])
+  return master.decorations.filter(
+    (d) =>
+      !excluded.has(d.id) && d.skills.some((s) => ordinary.has(s.skillId) || extra.has(s.skillId)),
   )
 }
 

@@ -10,6 +10,7 @@ import {
   buildMaster,
   charm,
   decoration,
+  decorationId,
   makeRequest,
   masterSkill,
   PARTS,
@@ -388,6 +389,42 @@ describe('[AC4] 護石と装飾品', () => {
     const big = decoMaster([slot(4)], [], deco)
     const ok = await solveVerified(highs, big, makeRequest(big, { required: [skill('A')] }))
     expect(ok.builds[0]?.decorations).toHaveLength(1)
+  })
+
+  describe('[AC-1][AC-2] 装飾品の除外', () => {
+    const twoDecos = () =>
+      buildMaster({
+        skills: SKILLS,
+        armors: plainArmors({ head: [armor('head1', 'head', { slots: [slot(1)] })] }),
+        decorations: [
+          decoration('ad', 'armor', 1, [skill('A')]),
+          decoration('ad2', 'armor', 1, [skill('A')]),
+        ],
+      })
+    const usedIds = (builds: { decorations: { decorationId: string }[] }[]) =>
+      builds.flatMap((b) => b.decorations.map((d) => d.decorationId))
+
+    it('除外しなければ使われる装飾品は、除外すると返すどの構成にも出ない', async () => {
+      const master = twoDecos()
+      const base = makeRequest(master, { required: [skill('A')], maxResults: 10 })
+      const before = await solveVerified(highs, master, base)
+      expect(usedIds(before.builds)).toContain('ad')
+      const after = await solveVerified(highs, master, {
+        ...base,
+        excludedDecorationIds: [decorationId('ad')],
+      })
+      expect(after.builds.length).toBeGreaterThan(0)
+      expect(usedIds(after.builds)).not.toContain('ad')
+      expect(usedIds(after.builds)).toContain('ad2')
+    })
+
+    it('省略と空配列は結果が同じ', async () => {
+      const master = twoDecos()
+      const base = makeRequest(master, { required: [skill('A')], maxResults: 10 })
+      const omitted = await solveVerified(highs, master, base)
+      const empty = await solveVerified(highs, master, { ...base, excludedDecorationIds: [] })
+      expect(empty).toEqual(omitted)
+    })
   })
 
   it('複数の装飾品を複数の部位・護石のスロットに付けてスキルの下限を満たす', async () => {

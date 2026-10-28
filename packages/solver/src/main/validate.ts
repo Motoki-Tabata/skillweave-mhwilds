@@ -106,6 +106,12 @@ function checkArmor(master: MasterBundle, request: SolverRequest) {
   }
 }
 
+function checkDecorations(master: MasterBundle, request: SolverRequest) {
+  for (const id of request.excludedDecorationIds ?? []) {
+    if (!master.decorations.some((d) => d.id === id)) fail(`除外の装飾品 ${id} がマスターに無い`)
+  }
+}
+
 /** 求解の前に要求を検証する。不正なら InvalidRequestError を投げ、正しければ武器の形を返す */
 export function validateRequest(master: MasterBundle, request: SolverRequest): ResolvedWeapon {
   if (request.masterVersion !== master.version) {
@@ -117,6 +123,7 @@ export function validateRequest(master: MasterBundle, request: SolverRequest): R
   for (const c of request.charms) checkSkills(master, '護石', c.skills)
   checkRequired(master, request)
   checkArmor(master, request)
+  checkDecorations(master, request)
   const { maxResults, timeoutMs, objective } = request
   if (!Number.isInteger(maxResults) || maxResults < 1 || maxResults > MAX_RESULTS_LIMIT) {
     fail(`maxResults ${maxResults} は 1〜${MAX_RESULTS_LIMIT} の整数でなければならない`)
