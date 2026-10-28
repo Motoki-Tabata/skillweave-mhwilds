@@ -1,0 +1,14 @@
+type: object
+description: 装飾品1個の配置。
+required:
+  - slot
+  - decorationId
+properties:
+  slot:
+    $ref: BuildSlotRef.yaml
+  decorationId:
+    type: string
+    pattern: '^dc:-?[0-9]+$'
+    description: 装飾品 ID。
+    examples:
+      - 'dc:-1003144960'

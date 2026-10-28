@@ -1,0 +1,22 @@
+type: object
+description: スロット1枠の位置。
+required:
+  - owner
+  - index
+properties:
+  owner:
+    type: string
+    enum:
+      - weapon
+      - head
+      - chest
+      - arms
+      - waist
+      - legs
+      - charm
+    description: スロットの持ち主。
+  index:
+    type: integer
+    minimum: 0
+    maximum: 2
+    description: その持ち主のスロットの添字。

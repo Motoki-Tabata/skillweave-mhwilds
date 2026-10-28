@@ -1,0 +1,9 @@
+description: 構成の武器。`kind` で参照（master）と写し（custom）を判別する。
+oneOf:
+  - $ref: BuildMasterWeapon.yaml
+  - $ref: BuildCustomWeapon.yaml
+discriminator:
+  propertyName: kind
+  mapping:
+    master: BuildMasterWeapon.yaml
+    custom: BuildCustomWeapon.yaml

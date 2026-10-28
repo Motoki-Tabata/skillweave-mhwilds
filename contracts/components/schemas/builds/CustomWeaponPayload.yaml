@@ -1,0 +1,85 @@
+type: object
+description: ユーザーが作った武器の内容の写し。
+required:
+  - baseWeaponId
+  - name
+  - attack
+  - affinity
+  - slots
+  - seriesBonusId
+  - groupBonusId
+properties:
+  baseWeaponId:
+    type: string
+    pattern: '^wp:[a-z]+(-[a-z]+)*:[0-9]+$'
+    description: 基にした武器の ID。
+    examples:
+      - 'wp:charge-blade:22'
+  name:
+    type: string
+    maxLength: 30
+    description: 武器の名前（0〜30文字）。空なら Web が基の武器の名前を出す。
+  attack:
+    type: integer
+    minimum: 1
+    maximum: 999
+    description: 攻撃力。
+  affinity:
+    type: integer
+    minimum: -100
+    maximum: 100
+    description: 会心率。
+  element:
+    type: object
+    description: 属性。属性を持たない武器は省略する。
+    required:
+      - type
+      - value
+    properties:
+      type:
+        type: string
+        enum:
+          - fire
+          - water
+          - thunder
+          - ice
+          - dragon
+          - poison
+          - paralysis
+          - sleep
+          - blastblight
+      value:
+        type: integer
+        minimum: 1
+        maximum: 99
+        description: 属性値（マスターと同じ単位の整数）。
+  slots:
+    type: array
+    maxItems: 3
+    description: 武器のスロット（0〜3枠）。
+    items:
+      type: object
+      required:
+        - target
+        - level
+      properties:
+        target:
+          type: string
+          enum:
+            - weapon
+        level:
+          type: integer
+          minimum: 1
+          maximum: 3
+  seriesBonusId:
+    type:
+      - string
+      - 'null'
+    pattern: '^sb:-?[0-9]+$'
+    description: シリーズスキルの ID。無ければ null。
+  groupBonusId:
+    type:
+      - string
+      - 'null'
+    pattern: '^sb:-?[0-9]+$'
+    description: グループスキルの ID。無ければ null。

@@ -1,0 +1,48 @@
+type: object
+description: 構成の内容。防具・装飾品・発動スキル・空きスロットはソルバーの出力と同じ形。
+required:
+  - weapon
+  - armor
+  - charm
+  - decorations
+  - skills
+  - freeSlots
+  - activeConditionIds
+properties:
+  weapon:
+    $ref: BuildWeapon.yaml
+  armor:
+    $ref: BuildArmor.yaml
+  charm:
+    description: 護石の参照と写し。護石を使わない構成は null。
+    oneOf:
+      - $ref: BuildCharm.yaml
+      - type: 'null'
+  decorations:
+    type: array
+    maxItems: 21
+    description: 装飾品の配置（0〜21個）。
+    items:
+      $ref: BuildDecoration.yaml
+  skills:
+    type: array
+    maxItems: 100
+    description: 発動スキル（0〜100個）。同じ `skillId` を重複して持てない。
+    items:
+      $ref: BuildSkill.yaml
+  freeSlots:
+    type: array
+    maxItems: 21
+    description: 空きスロット（0〜21個）。
+    items:
+      $ref: BuildSlotRef.yaml
+  activeConditionIds:
+    type: array
+    maxItems: 50
+    uniqueItems: true
+    description: 保存したときにオンだった発動条件の ID（0〜50個、重複なし）。
+    items:
+      type: string
+      pattern: '^cd:[a-z][a-z0-9_]*$'
+      examples:
+        - 'cd:weak_point'

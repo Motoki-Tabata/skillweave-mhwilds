@@ -1,0 +1,21 @@
+type: object
+description: 発動しているスキルとそのレベル。
+required:
+  - skillId
+  - level
+  - rawLevel
+properties:
+  skillId:
+    type: string
+    pattern: '^sk:-?[0-9]+$'
+    description: スキル ID。
+    examples:
+      - 'sk:-397570464'
+  level:
+    type: integer
+    minimum: 1
+    description: 最大レベルで頭打ちした後のレベル。
+  rawLevel:
+    type: integer
+    minimum: 1
+    description: 頭打ち前の合計レベル。`level` 以上。
