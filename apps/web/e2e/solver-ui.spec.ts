@@ -22,6 +22,8 @@ test.describe('004 solver-ui', () => {
     // 下限は最大レベルで追加されるので、既定の条件（候補は上位だけ）で解がある Lv に下げる
     await setSkillLevel(page, master.nameOf(SKILL.taijutsu), 3)
     await setSkillLevel(page, master.nameOf(SKILL.evade), 2)
+    // 生産護石を候補に含めると下限を超える構成が出るので、護石なしの検索にする
+    await page.getByRole('checkbox', { name: '生産護石を候補に含める' }).uncheck()
 
     await searchButton(page).click()
 
