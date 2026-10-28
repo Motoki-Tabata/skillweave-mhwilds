@@ -50,6 +50,7 @@
 |---|---|---|
 | 契約 | contract-agent | ded9e6c |
 | api | api-agent | e2934b9 |
+| web | web-agent-T4 | b550f94 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
@@ -73,6 +74,7 @@
 - なし（区間 B で教訓の候補は出なかった）
 - なし（区間 C の教訓「契約のマスター ID の pattern が負の gameId を拒否していた」は tasks/lessons.md に起票済み）
 - contract-agent が Write ではなく Bash の heredoc で契約ファイルを書いた（ガードは拒否せず、手順書の指示と食い違う）。再発すれば起票する
+- 契約に新しい HTTP メソッド（PATCH）が入るとき、web の lib/http.ts の対応が plan に無く web-agent が足した（今回は追加のみで済んだ）。plan の書き方の教訓候補
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
