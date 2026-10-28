@@ -23,7 +23,7 @@ async function prepare(page: Page): Promise<void> {
 /** 部位の固定の入力欄で、名前の候補を選ぶ。 */
 async function lockPart(page: Page, partLabel: string, optionName: string): Promise<void> {
   const input = page.getByRole('combobox', { name: partLabel, exact: true })
-  await input.click()
+  await input.fill(optionName)
   await page.getByRole('option', { name: optionName, exact: true }).click()
   await expect(input).toHaveValue(optionName)
 }
