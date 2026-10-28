@@ -311,7 +311,22 @@ class CharmControllerTest {
                 "{\"target\":\"weapon\",\"level\":1},{\"target\":\"armor\",\"level\":3},{\"target\":\"armor\",\"level\":2}";
         return Stream.of(
                 "{\"rarity\":5,\"skills\":[],\"slots\":[]}",
+                // 011 D5: gameId が負のスキル ID（弱点特効など）も受け付ける。
+                "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:-397570464\",\"level\":1}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[" + three + "],\"slots\":[" + slots + "]}");
+    }
+
+    // 011 D5: 負の ID のスキルを持つ護石を更新で受け付ける。
+    @Test
+    void updateAcceptsNegativeSkillId() throws Exception {
+        UUID id = id(1);
+        create(alice, id, VALID_PAYLOAD);
+        String negative = "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:-397570464\",\"level\":1}],\"slots\":[]}";
+
+        Res res = call("PUT", CHARMS + "/" + id, alice, updateBody(negative, 0));
+
+        assertThat(res.status()).isEqualTo(200);
+        assertThat(rowPayload(id)).contains("sk:-397570464");
     }
 
     // AC-10: 構造の制約に反する内容は 400 で、保存しない（作成・更新の両方）。
@@ -353,6 +368,8 @@ class CharmControllerTest {
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"x:1\",\"level\":1}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:\",\"level\":1}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:1a\",\"level\":1}],\"slots\":[]}",
+                "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:-\",\"level\":1}],\"slots\":[]}",
+                "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:--1\",\"level\":1}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"level\":1}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:1\",\"level\":0}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:1\"}],\"slots\":[]}",
