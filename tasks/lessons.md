@@ -64,3 +64,8 @@
 - 種別: 規律昇華
 - 何が起きたか: 021 は生産護石の切り替えを既定オンにした。plan D14 は `build-save` など 3 種の追従だけを列挙し、「ほかの spec はオンのまま通る」と書いたが、`solver-ui.spec.ts` 13(a) は護石なしで必須スキルが下限ちょうどの Lv で出ることを期待していたため、生産護石で上振れして落ちた（e2e-agent の切り分け。追従は f71b813）。
 - 提案: `.claude/skills/tsod-plan/SKILL.md` の plan の作り方に「既定値・既定の候補を変える機能は、既存の単体・e2e が結果の値（レベル・件数・文言）を護石なし等の旧既定のまま期待していないかを、plan で grep して洗い出し、追従の対象を列挙する」を足す。
+
+## 2026-10-29 検索用 Combobox の入力欄が機能ごとに複製され、Enter と blur の落とし穴が部品ごとに再発する（機能020・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `CharmSkillRow.vue`・`ArmorLockRow.vue`・`ExcludeCard.vue` が reka-ui の `ComboboxInput` を Input 風のクラス列ごと別々に組んでいる（レビュー記録 1 回目 web F2）。020 では (1) `SearchView.vue` の `onEnter` が全 `HTMLInputElement` の Enter で送信し、Combobox の候補選択の Enter でも検索が走った、(2) 入力欄の blur で表示名に戻す実装が、候補の mousedown と競合して絞り込み後のクリックが選べなかった（4417e3c。jsdom では再現できず e2e で発見）。
+- 提案: `.claude/rules/web-vue.md` に「Combobox を足すときは、フォームの Enter 横取りから `role=combobox` を除く。blur でリセットするなら候補リストの `mousedown.prevent` を付け、入力して絞り込んでから候補をクリックする e2e を通す」を足す。2 箇所以上の複製は `components/common/` への共通化を別の作業で切る。
