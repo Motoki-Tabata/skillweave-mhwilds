@@ -16,6 +16,18 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '装備検索 | SkillWeave' },
   },
   {
+    path: '/builds',
+    name: 'builds',
+    component: () => import('@/views/BuildsView.vue'),
+    meta: { title: '保存した構成 | SkillWeave' },
+  },
+  {
+    path: '/builds/:id',
+    name: 'build',
+    component: () => import('@/views/BuildView.vue'),
+    meta: { title: '保存した構成 | SkillWeave' },
+  },
+  {
     path: '/charms',
     name: 'charms',
     component: () => import('@/views/CharmsView.vue'),

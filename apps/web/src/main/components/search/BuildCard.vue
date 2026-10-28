@@ -1,42 +1,50 @@
 <script setup lang="ts">
 import { computed, ref, useId } from 'vue'
 import { ChevronDown, ChevronRight } from '@lucide/vue'
-import { evaluateDamage, type SolvedBuild } from '@swv/solver'
+import { evaluateDamage } from '@swv/solver'
+import type { DamageBase, SolvedBuild } from '@swv/solver'
+import type { ConditionId } from '@swv/data'
 import SkillLevelText from '@/components/search/SkillLevelText.vue'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SKILL_KINDS } from '@/constants/labels'
 import { formatAffinityPercent, formatDamageValue, formatMultiplier } from '@/lib/format'
 import { toBuildView } from '@/lib/solver/buildView'
+import type { BuildLookup } from '@/lib/solver/buildView'
 import { useMasterStore } from '@/stores/master'
-import { useSearchStore } from '@/stores/search'
 
-const props = defineProps<{ build: SolvedBuild; index: number }>()
+/** 火力の計算の材料。`base` が null のときは、武器が無いため計算できない。 */
+export interface BuildCardDamage {
+  base: DamageBase | null
+  skills: SolvedBuild['skills']
+  conditionIds: readonly ConditionId[]
+}
 
-const master = useMasterStore()
-const search = useSearchStore()
-
-// 検索の後に武器の選択を変えても、結果は検索したときの武器で表示する
-const view = computed(() =>
-  toBuildView(props.build, {
-    charm: (id) => search.submittedCharms.get(id),
-    armor: (id) => master.armorById.get(id),
-    weaponSlots: search.summary?.weaponSlots,
-    skillKind: (skillId) => master.skillById.get(skillId)?.kind,
-    nameOf: master.nameOf,
-  }),
+const props = withDefaults(
+  defineProps<{
+    build: SolvedBuild
+    /** 見出しの文言（「構成 1」「構成の内容」） */
+    title: string
+    headingLevel?: 2 | 3
+    lookup: BuildLookup
+    /** null のときは火力の節を出さない */
+    damage: BuildCardDamage | null
+    /** 護石の節を出すか（護石を使っていないときは「護石なし」） */
+    showCharm: boolean
+  }>(),
+  { headingLevel: 3 },
 )
 
-// 火力は検索したときの写し（武器の攻撃力・会心率とオンの条件）だけから計算する。ソルバーの score は使わない
-const damage = computed(() => {
-  const basis = search.submittedBasis
-  if (master.bundle === null || basis === null) return null
-  const stats = evaluateDamage(
-    master.bundle,
-    basis.damageBase,
-    props.build.skills,
-    basis.activeConditionIds,
-  )
+const master = useMasterStore()
+
+const view = computed(() => toBuildView(props.build, props.lookup))
+
+// 火力は渡された材料（武器の攻撃力・会心率とオンの条件）だけから計算する。ソルバーの score は使わない
+const damageUnknown = computed(() => props.damage !== null && props.damage.base === null)
+const damageRows = computed(() => {
+  const input = props.damage
+  if (master.bundle === null || input === null || input.base === null) return null
+  const stats = evaluateDamage(master.bundle, input.base, input.skills, input.conditionIds)
   return [
     { label: '期待値', text: formatDamageValue(stats.expectedDamage), strong: true },
     { label: '攻撃力', text: formatDamageValue(stats.attack), strong: false },
@@ -48,7 +56,7 @@ const damage = computed(() => {
 // スキルの効果の一覧。並びはチップと同じ（種類の順、種類の中はチップの順）
 const effectSkills = computed(() =>
   SKILL_KINDS.flatMap(({ id }) =>
-    props.build.skills.filter((skill) => master.skillById.get(skill.skillId)?.kind === id),
+    props.build.skills.filter((skill) => props.lookup.skillKind(skill.skillId) === id),
   ),
 )
 const effectsOpen = ref(false)
@@ -61,21 +69,30 @@ function levelLabel(level: number | null): string {
 
 <template>
   <Card class="@container gap-3 py-4">
-    <div class="flex items-baseline justify-between gap-2 px-4">
-      <h3 class="text-base leading-snug font-semibold">構成 {{ index + 1 }}</h3>
-      <div class="flex flex-wrap justify-end gap-x-4 text-sm">
-        <p v-if="damage !== null">
-          期待値 <span class="font-num font-bold tabular-nums">{{ damage[0].text }}</span>
-        </p>
-        <p>
-          防御力 <span class="font-num font-bold tabular-nums">{{ view.defenseTotal }}</span>
-        </p>
+    <div class="flex items-center justify-between gap-2 px-4">
+      <component :is="`h${headingLevel}`" class="text-base leading-snug font-semibold">
+        {{ title }}
+      </component>
+      <div class="flex items-center gap-2">
+        <div class="flex flex-wrap justify-end gap-x-4 text-sm">
+          <p v-if="damageRows !== null">
+            期待値 <span class="font-num font-bold tabular-nums">{{ damageRows[0].text }}</span>
+          </p>
+          <p>
+            防御力 <span class="font-num font-bold tabular-nums">{{ view.defenseTotal }}</span>
+          </p>
+        </div>
+        <slot name="action" />
       </div>
     </div>
-    <section v-if="damage !== null" class="flex flex-col gap-1 px-4">
+    <section v-if="damageUnknown" class="flex flex-col gap-1 px-4">
+      <h4 class="text-sm font-bold">火力</h4>
+      <p class="text-sm">武器が現在のマスターに無いため、火力を計算できません。</p>
+    </section>
+    <section v-else-if="damageRows !== null" class="flex flex-col gap-1 px-4">
       <h4 class="text-sm font-bold">火力</h4>
       <dl class="grid grid-cols-4 gap-2">
-        <div v-for="item in damage" :key="item.label" class="flex flex-col">
+        <div v-for="item in damageRows" :key="item.label" class="flex flex-col">
           <dt class="text-muted-foreground text-xs">{{ item.label }}</dt>
           <dd
             class="font-num tabular-nums"
@@ -105,7 +122,9 @@ function levelLabel(level: number | null): string {
               <tr v-for="row in view.armors" :key="row.part" class="border-t">
                 <td class="py-1.5 pr-2 align-top">{{ row.partLabel }}</td>
                 <td class="py-1.5 pr-2 break-words">{{ row.name }}</td>
-                <td class="py-1.5 text-right align-top font-num tabular-nums">{{ row.defense }}</td>
+                <td class="py-1.5 text-right align-top font-num tabular-nums">
+                  {{ row.known ? row.defense : '−' }}
+                </td>
               </tr>
             </tbody>
             <tfoot>
@@ -117,10 +136,7 @@ function levelLabel(level: number | null): string {
           </table>
         </section>
 
-        <section
-          v-if="view.charm !== null || search.summary?.charmCount"
-          class="flex flex-col gap-1"
-        >
+        <section v-if="view.charm !== null || showCharm" class="flex flex-col gap-1">
           <h4 class="text-sm font-bold">護石</h4>
           <p v-if="view.charm === null" class="text-sm">護石なし</p>
           <dl v-else class="flex flex-col gap-1 text-sm">
@@ -219,7 +235,7 @@ function levelLabel(level: number | null): string {
             <dl v-if="effectsOpen" :id="effectsId" class="flex flex-col gap-2">
               <div v-for="skill in effectSkills" :key="skill.skillId" class="flex flex-col gap-0.5">
                 <dt class="text-sm font-bold">
-                  {{ master.nameOf(skill.skillId) }}
+                  {{ lookup.nameOf(skill.skillId) }}
                   <span class="font-num tabular-nums">Lv{{ skill.level }}</span>
                 </dt>
                 <dd class="flex flex-col gap-0.5">

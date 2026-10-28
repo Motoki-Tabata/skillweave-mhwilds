@@ -40,3 +40,10 @@ export function formatAffinityPercent(value: number): string {
 export function formatMultiplier(value: number): string {
   return formatFixed(value, 2)
 }
+
+/** 日時（ISO 8601）をブラウザのローカル時刻の `YYYY/MM/DD hh:mm` にする。 */
+export function formatDateTime(iso: string): string {
+  const date = new Date(iso)
+  const pad = (value: number): string => String(value).padStart(2, '0')
+  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+}

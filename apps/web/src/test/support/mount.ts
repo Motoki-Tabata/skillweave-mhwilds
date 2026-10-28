@@ -228,3 +228,23 @@ export async function click(element: Element): Promise<void> {
   element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
   await flushPromises()
 }
+
+/** 入力欄に文字を入れて描画を待つ。 */
+export async function typeInto(input: HTMLInputElement, text: string): Promise<void> {
+  input.value = text
+  input.dispatchEvent(new Event('input', { bubbles: true }))
+  await flushPromises()
+}
+
+/** フォーカスを外して（blur）描画を待つ。 */
+export async function blur(element: HTMLElement): Promise<void> {
+  element.dispatchEvent(new FocusEvent('blur'))
+  await flushPromises()
+}
+
+/** 認証 API の偽物（ログイン中）。 */
+export function loggedInAuth(): AuthApi {
+  return fakeAuthApi({
+    fetchCurrentUser: async () => ({ kind: 'authenticated', displayName: 'テスト' }),
+  })
+}

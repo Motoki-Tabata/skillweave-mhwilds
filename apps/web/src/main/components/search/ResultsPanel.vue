@@ -1,16 +1,79 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { ProgressIndicator, ProgressRoot } from 'reka-ui'
-import BuildCard from '@/components/search/BuildCard.vue'
+import BuildNameDialog from '@/components/builds/BuildNameDialog.vue'
+import LoginRequiredDialog from '@/components/builds/LoginRequiredDialog.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
+import ResultBuildCard from '@/components/search/ResultBuildCard.vue'
 import { Button } from '@/components/ui/button'
+import { defaultBuildName } from '@/lib/builds/name'
+import { useAuthStore } from '@/stores/auth'
+import { useBuildsStore } from '@/stores/builds'
 import { useConditionsStore } from '@/stores/conditions'
 import { useSearchStore } from '@/stores/search'
 
 defineEmits<{ pickWeapon: [] }>()
 
+const auth = useAuthStore()
+const buildsStore = useBuildsStore()
 const conditions = useConditionsStore()
 const search = useSearchStore()
+
+// 構成の保存（D5・D6）。押した「保存」の位置を覚え、ダイアログを閉じたらそこへフォーカスを戻す
+const root = ref<HTMLElement | null>(null)
+const nameOpen = ref(false)
+const loginOpen = ref(false)
+const saving = ref(false)
+const target = ref(0)
+
+const saveDescription = computed(
+  () =>
+    `構成 ${target.value + 1} に名前を付けて保存します。保存した構成は、同じアカウントでログインしたほかの端末でも開けます。`,
+)
+const initialName = computed(() =>
+  defaultBuildName(search.summary?.weaponName ?? '', target.value + 1),
+)
+
+function askSave(index: number): void {
+  target.value = index
+  if (auth.status === 'authenticated') nameOpen.value = true
+  else loginOpen.value = true
+}
+
+async function submitName(name: string): Promise<void> {
+  const build = search.response?.builds[target.value]
+  const source = search.submittedSaveSource
+  const payload = build === undefined ? null : search.buildPayload(build)
+  if (source === null || payload === null) {
+    nameOpen.value = false
+    return
+  }
+  const run = search.runCount
+  const index = target.value
+  saving.value = true
+  const result = await buildsStore.save(name, source.masterVersion, payload)
+  saving.value = false
+  // 失敗のときは入力を残して開いたままにする。それ以外は閉じる
+  if (result === 'failed') return
+  if (result === 'saved' && run === search.runCount) search.markSaved(index)
+  nameOpen.value = false
+}
+
+function onSaveDialogClosed(event: Event): void {
+  event.preventDefault()
+  const index = target.value
+  void nextTick(() =>
+    root.value?.querySelector<HTMLElement>(`[data-save-index="${index}"]`)?.focus(),
+  )
+}
+
+// ログアウト・401 でログイン中でなくなったら、保存のダイアログを閉じる
+watch(
+  () => auth.status,
+  (status) => {
+    if (status !== 'authenticated' && status !== 'checking') nameOpen.value = false
+  },
+)
 
 const heading = ref<HTMLElement | null>(null)
 
@@ -52,7 +115,7 @@ const TIMEOUT_HINT =
 </script>
 
 <template>
-  <section aria-labelledby="results-heading" class="flex min-w-0 flex-col gap-4">
+  <section ref="root" aria-labelledby="results-heading" class="flex min-w-0 flex-col gap-4">
     <h2
       id="results-heading"
       ref="heading"
@@ -109,7 +172,7 @@ const TIMEOUT_HINT =
         <p class="text-xs break-words">{{ summaryLine }}</p>
         <ul class="flex flex-col gap-4">
           <li v-for="(build, index) in search.progressBuilds" :key="`progress-${index}`">
-            <BuildCard :build="build" :index="index" />
+            <ResultBuildCard :build="build" :index="index" :saveable="false" />
           </li>
         </ul>
       </template>
@@ -163,10 +226,25 @@ const TIMEOUT_HINT =
         <p class="text-xs break-words">{{ summaryLine }}</p>
         <ul class="flex flex-col gap-4">
           <li v-for="(build, index) in builds" :key="`result-${index}`">
-            <BuildCard :build="build" :index="index" />
+            <ResultBuildCard :build="build" :index="index" saveable @save="askSave" />
           </li>
         </ul>
       </template>
     </template>
+
+    <BuildNameDialog
+      v-model:open="nameOpen"
+      title="構成を保存"
+      :description="saveDescription"
+      :initial-name="initialName"
+      :saving="saving"
+      @submit="submitName"
+      @close-auto-focus="onSaveDialogClosed"
+    />
+    <LoginRequiredDialog
+      v-model:open="loginOpen"
+      :reason="buildsStore.loginRequiredReason"
+      @close-auto-focus="onSaveDialogClosed"
+    />
   </section>
 </template>
