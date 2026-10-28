@@ -376,23 +376,23 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## HiGHS の生産護石を候補に含めた測定（021 crafted-charm・2026-10-28）
 
-**結論: 生産護石を候補に含めると、`expectedDamage` の1件目までの時間が 2928.6 ms（PASS）から 4243.7 ms（FAIL）になり、3 秒の基準を超えた。`defense` の合計時間の最大は 4370.9 ms（護石なし）と 4150.7 ms（生産護石あり）で、どちらも護石なしの時点で基準を超えていた。** 021 では高速化せず、機能 024 worker-solve-perf（`specs/feature-map.md`）で扱う（`specs/021-crafted-charm/decisions.md` Q77）。
+**結論: 生産護石を候補に含めると、`expectedDamage` の1件目までの時間の最大が 2987.8 ms（PASS）から 4522.8 ms（FAIL）になり、3 秒の基準を超えた。`defense` の合計時間の最大は 4525.9 ms（護石なし）と 4173.0 ms（生産護石あり）で、どちらも護石なしの時点で基準を超えていた。** 021 では高速化せず、機能 024 worker-solve-perf（`specs/feature-map.md`）で扱う（`specs/021-crafted-charm/decisions.md` Q77）。
 
-- 条件: 003 の `defense` と 006 の `expectedDamage` のケースをそのまま使い（実データ・マスターの先頭の武器・必須スキル 3／6／10 個 × 解あり／解なしの 6 ケース。`defense` は件数 30、`expectedDamage` は件数 10）、護石の候補だけを変えた。護石なしは各 3 回、生産護石ありは各 1 回。
+- 条件: 003 の `defense` と 006 の `expectedDamage` のケースをそのまま使い（実データ・マスターの先頭の武器・必須スキル 3／6／10 個 × 解あり／解なしの 6 ケース。`defense` は件数 30、`expectedDamage` は件数 10）、護石の候補だけを変えた。護石なし・生産護石ありとも各 3 回。
 - 候補: 生産護石 60 件（マスターの生産護石 183 件を、系統ごとの最上位ランクに絞った。`apps/web` の `craftedSolverCharms` と同じ規則）。鑑定護石は含めない。
 - 測定環境: Node v24.22.1・linux x64（WSL2）・AMD Ryzen 7 5700X・マスターの版 `2026.10.4`・HiGHS は npm `highs` 1.15.3（ハーネスが出力する版の文字列は 1.15.1）。
-- 実行: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose --silent=false src/test/solveBuilds.measure.ts`（CI では実行しない。全体で約 9 分）。
+- 実行: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose --silent=false src/test/solveBuilds.measure.ts`（CI では実行しない。全体で約 20 分）。
 
 | ケースの組 | 護石 | 合計時間の最大（ms） | 1件目までの最大（ms） | 3 秒の基準 |
 |---|---|---|---|---|
-| `defense` | なし | 4370.9 | — | FAIL（合計） |
-| `defense` | 生産護石あり | 4150.7 | — | FAIL（合計） |
-| `expectedDamage` | なし | 42041.8 | 2928.6 | 合計 FAIL・1件目 PASS |
-| `expectedDamage` | 生産護石あり | 50626.7 | 4243.7 | 合計 FAIL・1件目 FAIL |
+| `defense` | なし | 4525.9 | — | FAIL（合計） |
+| `defense` | 生産護石あり | 4173.0 | — | FAIL（合計） |
+| `expectedDamage` | なし | 42325.1 | 2987.8 | 合計 FAIL・1件目 PASS |
+| `expectedDamage` | 生産護石あり | 51949.9 | 4522.8 | 合計 FAIL・1件目 FAIL |
 
 - `defense` の最大は、どちらも k=10 のケース（護石なしは解あり、生産護石ありは「解なし」ケース）。生産護石ありの「解なし」ケースは、護石が増えて解が見つかるようになり、状態が `optimal` になった（護石なしでは `infeasible`）。このため、生産護石あり側は解あり・解なしの区別なく、解を30件（`expectedDamage` は10件）出すまでの時間である。
-- `expectedDamage` の1件目までの最大 4243.7 ms は、k=6 解ありの生産護石あり。護石なしの 3 ケース（解あり）は 2.1〜2.9 秒だった。
-- 限界: 生産護石あり側は各ケース 1 回のみ。鑑定護石を併せた候補・所持数の制限・件数 30 の `expectedDamage` は未測定。ブラウザの Worker 上の時間は測っていない（Node の値）。
+- `expectedDamage` の1件目までの最大 4522.8 ms は、k=6 解ありの生産護石あり。生産護石ありでは、1件目が 3 秒を超えたケースが 6 ケース中 3 つある（k=6 解あり 4.3〜4.5 秒、k=10 解あり 3.03〜3.05 秒、k=10 解なし 3.03〜3.09 秒。「解なし」ケースは護石が増えて解が出るようになったもの）。護石なしの解ありの 3 ケースは 2.1〜3.0 秒（最大 2987.8 ms で、基準に近い）だった。
+- 限界: 鑑定護石を併せた候補・所持数の制限・件数 30 の `expectedDamage` は未測定。ブラウザの Worker 上の時間は測っていない（Node の値）。
 
 ---
 
