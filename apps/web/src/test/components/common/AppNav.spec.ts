@@ -67,6 +67,17 @@ describe('AppNav（C1 ナビの行）', () => {
     expect(links().every((a) => a.className.includes('whitespace-nowrap'))).toBe(true)
   })
 
+  it('リンクのフォーカスリングは内側に出し、横スクロールの行で上下が切れない', async () => {
+    mounted = await mountReadyApp()
+    expect(
+      links().every(
+        (a) =>
+          a.className.includes('focus-visible:ring-inset') &&
+          a.className.includes('focus-visible:ring-3'),
+      ),
+    ).toBe(true)
+  })
+
   it('画面を移ると、右にはみ出した今のリンクが見える範囲に入るよう、行だけをスクロールする', async () => {
     mounted = await mountReadyApp()
     const ul = list()

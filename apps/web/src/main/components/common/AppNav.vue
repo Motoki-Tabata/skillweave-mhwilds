@@ -51,7 +51,7 @@ watch(
           <a
             :href="href"
             :aria-current="isCurrent(link.to) ? 'page' : undefined"
-            class="focus-visible:ring-ring/50 flex h-11 items-center border-b-[3px] border-transparent px-3 text-sm whitespace-nowrap outline-none focus-visible:ring-3 aria-[current=page]:border-primary aria-[current=page]:font-bold"
+            class="focus-visible:ring-ring/50 flex h-11 items-center border-b-[3px] border-transparent px-3 text-sm whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-inset aria-[current=page]:border-primary aria-[current=page]:font-bold"
             @click="navigate"
           >
             {{ link.label }}
