@@ -51,6 +51,7 @@
 | 契約 | contract-agent | ded9e6c |
 | api | api-agent | e2934b9 |
 | web | web-agent-T4 | b550f94 |
+| web | web-agent-T5 | 2483441 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
