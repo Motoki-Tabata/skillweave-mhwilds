@@ -346,6 +346,46 @@ describe('ResultsPanel の構成の保存', () => {
       expect(textOf(cardOf(2))).not.toContain('保存できません')
     })
 
+    it('AC-8: 鑑定護石（UUID の charmId）を使った構成は保存でき、保存できない旨を出さない', async () => {
+      const appraised: SolvedBuild = {
+        ...makeBuild(),
+        charmId: '0190c0de-0000-7000-8000-000000000001' as SolvedBuild['charmId'],
+      }
+      stubBackend()
+      mounted = await mountReadyApp({ authApi: loggedInAuth() })
+      const m = mounted
+      await vi.waitFor(() => expect(m.pinia.state.value.auth.status).not.toBe('checking'))
+      m.conditions.selectWeapon(wp('great-sword:1'))
+      await flushPromises()
+      await click(document.querySelector('button[type="submit"]')!)
+      const worker = FakeWorker.last
+      worker.emit({
+        type: 'result',
+        requestId: worker.lastSolveId,
+        response: { status: 'optimal', builds: [appraised], elapsedMs: 1 },
+      })
+      await flushPromises()
+      expect(saveButton(1).getAttribute('aria-label')).toBe('構成 1 を保存')
+      expect(textOf(cardOf(1))).not.toContain('生産護石を使った構成は保存できません。')
+    })
+
+    it('AC-8: 検索中に見つけた順に出すカードには、生産護石の構成でも保存できない旨を出さない', async () => {
+      stubBackend({
+        bundle: makeBundle({ craftedCharms: true }),
+        dictionary: makeDictionary({ craftedCharms: true }),
+      })
+      mounted = await mountReadyApp({ authApi: loggedInAuth() })
+      mounted.conditions.selectWeapon(wp('great-sword:1'))
+      await flushPromises()
+      await click(document.querySelector('button[type="submit"]')!)
+      const worker = FakeWorker.last
+      worker.emit({ type: 'progress', requestId: worker.lastSolveId, found: 1, build: crafted })
+      await flushPromises()
+      expect(document.querySelectorAll('h3')).toHaveLength(1)
+      expect(document.querySelector('[data-save-index]')).toBeNull()
+      expect(textOf(document.body)).not.toContain('生産護石を使った構成は保存できません。')
+    })
+
     it('AC-7: 護石の節に名前・レア度・スキル・スロットを出す', async () => {
       await searchCrafted(true)
       const section = Array.from(cardOf(1).querySelectorAll('section')).find(

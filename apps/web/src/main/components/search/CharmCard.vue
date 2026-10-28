@@ -64,7 +64,7 @@ const fallbackText = computed(() =>
           />
           <Label for="include-crafted-charms">生産護石を候補に含める</Label>
         </div>
-        <p id="include-crafted-charms-description" class="text-muted-foreground text-xs">
+        <p id="include-crafted-charms-description" class="text-muted-foreground pl-6 text-xs">
           素材で作れる護石を、すべて持っているとみなして候補にします（系統ごとに最上位ランクの
           <span class="font-num tabular-nums">{{ master.craftedCharms.length }}</span> 件）。
         </p>
