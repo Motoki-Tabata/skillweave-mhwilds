@@ -381,7 +381,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 - 条件: 003 の `defense` と 006 の `expectedDamage` のケースをそのまま使い（実データ・マスターの先頭の武器・必須スキル 3／6／10 個 × 解あり／解なしの 6 ケース。`defense` は件数 30、`expectedDamage` は件数 10）、護石の候補だけを変えた。護石なし・生産護石ありとも各 3 回。
 - 候補: 生産護石 60 件（マスターの生産護石 183 件を、系統ごとの最上位ランクに絞った。`apps/web` の `craftedSolverCharms` と同じ規則）。鑑定護石は含めない。
 - 測定環境: Node v24.22.1・linux x64（WSL2）・AMD Ryzen 7 5700X・マスターの版 `2026.10.4`・HiGHS は npm `highs` 1.15.3（ハーネスが出力する版の文字列は 1.15.1）。
-- 実行: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose --silent=false src/test/solveBuilds.measure.ts`（CI では実行しない。全体で約 20 分）。
+- 実行: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose --silent=false src/test/solveBuilds.measure.ts`（CI では実行しない。全体で約 17 分）。
 
 | ケースの組 | 護石 | 合計時間の最大（ms） | 1件目までの最大（ms） | 3 秒の基準 |
 |---|---|---|---|---|
