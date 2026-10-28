@@ -28,7 +28,7 @@
 | 018 | pwa-offline | アプリをインストールでき、オフラインでも閲覧とソルバー実行ができる | P2 | S | 未着手 |
 | 019 | damage-solve-perf | `maximize: expectedDamage` の検索を実データで基準の 3 秒以内に収め（Q41）、2 段目の求解が解なしのときは 1 段目の解を返す縮退を入れる | P1 | M | 済 |
 | 020 | armor-lock-exclude | 検索画面で防具の部位を固定し、使わない防具・装飾品を除外して検索できる（ソルバーは 003 で対応済み。入力 UI だけを足す） | P1 | M | 未着手 |
-| 021 | crafted-charm | 生産護石（マスターの `charms`）をソルバーの護石候補にでき、鑑定護石を入力しなくても護石込みの構成を探せる | P1 | M | 未着手 |
+| 021 | crafted-charm | 生産護石（マスターの `charms`）をソルバーの護石候補にでき、鑑定護石を入力しなくても護石込みの構成を探せる | P1 | M | 済 |
 | 022 | skill-category | スキルに攻撃系・会心系などの分類を持たせ、スキルを選ぶダイアログを分類ごとに並べる | P2 | M | 未着手 |
 | 023 | element-damage | 属性の期待値（`element_add`・`element_mul`・会心撃【属性】）を計算し、結果の火力に出し、`maximize: expectedDamage` でも使えるようにする | P2 | L | 未着手 |
 | 024 | worker-solve-perf | ブラウザの Worker 上の `expectedDamage` の1件目までの時間を基準の 3 秒以内に収める（Q50） | P2 | S | 未着手 |
