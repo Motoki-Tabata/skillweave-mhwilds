@@ -103,7 +103,7 @@ async function confirmDelete(): Promise<void> {
   const id = target.weapon.id
   const own = focusAfterDialog
   focusAfterDialog = focusTargetAfterRemove(id)
-  if (!(await weapons.remove(id))) {
+  if ((await weapons.remove(id)) !== 'saved') {
     focusAfterDialog = own
     return
   }

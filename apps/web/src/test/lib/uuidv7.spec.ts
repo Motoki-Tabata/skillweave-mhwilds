@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nowIso, uuidv7 } from '@/lib/uuidv7'
+import { byIdDescending, nowIso, uuidv7 } from '@/lib/uuidv7'
 
 // 受入基準 3（新しい護石の ID はクライアントで採番した UUIDv7）
 describe('uuidv7', () => {
@@ -38,5 +38,17 @@ describe('uuidv7', () => {
 describe('nowIso', () => {
   it('UTC の ISO 8601', () => {
     expect(nowIso()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
+  })
+})
+
+// AC-9（ID の降順の並べ替えを護石・武器・構成のストアで共有する）
+describe('byIdDescending', () => {
+  it('新しい（大きい）ID が先に並ぶ', () => {
+    const items = [{ id: 'a' }, { id: 'c' }, { id: 'b' }]
+    expect([...items].sort(byIdDescending).map((i) => i.id)).toEqual(['c', 'b', 'a'])
+  })
+
+  it('同じ ID は 0 を返す', () => {
+    expect(byIdDescending({ id: 'a' }, { id: 'a' })).toBe(0)
   })
 })

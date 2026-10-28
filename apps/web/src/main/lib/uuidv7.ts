@@ -31,6 +31,12 @@ export function uuidv7(sources: UuidSources = DEFAULT_SOURCES): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
 }
 
+/** ID の降順（新しい ID が先。UUIDv7 は先頭が時刻）。`sort` に渡す。 */
+export function byIdDescending<T extends { id: string }>(a: T, b: T): number {
+  if (a.id === b.id) return 0
+  return a.id < b.id ? 1 : -1
+}
+
 /** 保存日時（UTC の ISO 8601）。 */
 export function nowIso(): string {
   return new Date().toISOString()

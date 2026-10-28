@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { WeaponId } from '@swv/data'
 import { createMemoryWeaponRepository } from '../support/weaponRepository'
 import { loadStores, restoreStubs, stubBackend } from '../support/mount'
@@ -32,7 +32,7 @@ describe('weapons ストア', () => {
     const repo = createMemoryWeaponRepository([storedWeapon(1)])
     const { weapons, pinia } = await loadStores(undefined, repo)
     await weapons.ensureLoaded()
-    expect(await weapons.save(makePayload({ name: '新しい武器' }))).toBe(true)
+    expect(await weapons.save(makePayload({ name: '新しい武器' }))).toBe('saved')
     const saved = repo.snapshot().find((w) => w.id !== weaponId(1))!
     expect(saved.id).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
@@ -50,7 +50,7 @@ describe('weapons ストア', () => {
     const { weapons, pinia } = await loadStores(undefined, repo)
     await weapons.ensureLoaded()
     const target = weapons.weapons[1]
-    expect(await weapons.save(makePayload({ attack: 250 }), target)).toBe(true)
+    expect(await weapons.save(makePayload({ attack: 250 }), target)).toBe('saved')
     expect(weapons.weapons.map((w) => w.id)).toEqual([weaponId(2), weaponId(1)])
     const saved = repo.snapshot().find((w) => w.id === weaponId(1))!
     expect(saved.payload.attack).toBe(250)
@@ -65,7 +65,7 @@ describe('weapons ストア', () => {
     const repo = createMemoryWeaponRepository([storedWeapon(1), storedWeapon(2)])
     const { weapons, pinia } = await loadStores(undefined, repo)
     await weapons.ensureLoaded()
-    expect(await weapons.remove(weaponId(2))).toBe(true)
+    expect(await weapons.remove(weaponId(2))).toBe('saved')
     expect(repo.snapshot().map((w) => w.id)).toEqual([weaponId(1)])
     expect(weapons.weapons.map((w) => w.id)).toEqual([weaponId(1)])
     expect(useToastStore(pinia).items.map((i) => i.message)).toEqual([
@@ -79,8 +79,8 @@ describe('weapons ストア', () => {
     const { weapons, pinia } = await loadStores(undefined, repo)
     await weapons.ensureLoaded()
     repo.failWith('put', 'quota')
-    expect(await weapons.save(makePayload({ attack: 300 }), weapons.weapons[0])).toBe(false)
-    expect(await weapons.save(makePayload())).toBe(false)
+    expect(await weapons.save(makePayload({ attack: 300 }), weapons.weapons[0])).toBe('failed')
+    expect(await weapons.save(makePayload())).toBe('failed')
     expect(weapons.weapons).toHaveLength(1)
     expect(weapons.weapons[0].payload.attack).toBe(200)
     expect(repo.snapshot()).toHaveLength(1)
@@ -96,7 +96,7 @@ describe('weapons ストア', () => {
     const { weapons, pinia } = await loadStores(undefined, repo)
     await weapons.ensureLoaded()
     repo.failWith('delete', 'unknown')
-    expect(await weapons.remove(weaponId(1))).toBe(false)
+    expect(await weapons.remove(weaponId(1))).toBe('failed')
     expect(weapons.weapons).toHaveLength(1)
     expect(useToastStore(pinia).items[0].message).toContain(
       '個体差のある武器を削除できませんでした。',
@@ -105,8 +105,8 @@ describe('weapons ストア', () => {
 
   it('読み込めていないあいだは、保存も削除もしない', async () => {
     const { weapons } = await loadStores()
-    expect(await weapons.save(makePayload())).toBe(false)
-    expect(await weapons.remove(weaponId(1))).toBe(false)
+    expect(await weapons.save(makePayload())).toBe('failed')
+    expect(await weapons.remove(weaponId(1))).toBe('failed')
   })
 
   it('保存先を開けないときは unavailable になり、原因を持つ。「再読み込み」で回復する', async () => {
@@ -166,5 +166,25 @@ describe('weapons ストア', () => {
         { id: weaponId(2), reasons: ['基の武器が現行のマスターにありません。'] },
       ])
     })
+  })
+
+  // AC-8（削除の応答待ちの間は同じ武器の削除を重ねて受け付けない）
+  it('削除の応答を待つ間は、同じ武器の削除を受け付けない', async () => {
+    const repo = createMemoryWeaponRepository([storedWeapon(1)])
+    let release: () => void = () => undefined
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    const deleteSpy = vi.fn(async (id: string) => {
+      await gate
+      await repo.delete(id)
+    })
+    const { weapons } = await loadStores(undefined, { ...repo, delete: deleteSpy })
+    await weapons.ensureLoaded()
+    const first = weapons.remove(weaponId(1))
+    expect(await weapons.remove(weaponId(1))).toBe('failed')
+    release()
+    expect(await first).toBe('saved')
+    expect(deleteSpy).toHaveBeenCalledTimes(1)
   })
 })

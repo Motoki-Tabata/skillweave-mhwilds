@@ -283,9 +283,9 @@ async function onSubmit(): Promise<void> {
     return
   }
   saving.value = true
-  const ok = await weapons.save(draftToPayload(draft.value), props.editing ?? undefined)
+  const result = await weapons.save(draftToPayload(draft.value), props.editing ?? undefined)
   saving.value = false
-  if (!ok) return
+  if (result !== 'saved') return
   if (isEditing.value) {
     emit('saved')
     return

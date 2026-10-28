@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { buildsApi, BUILD_SCHEMA_VERSION } from '@/lib/api/builds'
 import type { Build, BuildPayload, BuildsApi } from '@/lib/api/builds'
 import { failureCauseText } from '@/lib/api/result'
-import { uuidv7 } from '@/lib/uuidv7'
+import { byIdDescending, uuidv7 } from '@/lib/uuidv7'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 
@@ -32,12 +32,6 @@ const MESSAGE_CONFLICT =
   'この構成は別の端末で変更されていたため、名前を変更しませんでした。一覧を読み直しました。内容を確かめて、もう一度お試しください。'
 const MESSAGE_NOT_FOUND =
   'この構成は別の端末で削除されていたため、名前を変更しませんでした。一覧を読み直しました。'
-
-/** 新しい ID が大きい（UUIDv7 は先頭が時刻）。 */
-function byIdDescending(a: Build, b: Build): number {
-  if (a.id === b.id) return 0
-  return a.id < b.id ? 1 : -1
-}
 
 /** 保存した構成の一覧と、保存・名前の変更・削除（S1・S4・S5 が共有する）。 */
 export const useBuildsStore = defineStore('builds', () => {
