@@ -2,9 +2,9 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: C
-- 次に起動するコマンド: `/tsod-plan 024-worker-solve-perf`
-- 推奨モデル: Opus
+- 区間: D
+- 次に起動するコマンド: `/tsod-build 024-worker-solve-perf`
+- 推奨モデル: Sonnet
 - ブランチ: `feat/024-worker-solve-perf`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
@@ -27,7 +27,7 @@
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-10-29 / 74fd6f2 |
 | B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | 2026-10-29 |
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-10-29 |
-| C-1 | plan.md・tasks.md | 未 | |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-10-29 / 02eed05 |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
@@ -67,6 +67,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - 区間 A では起票する教訓なし
+- 区間 C の候補（持ち越し）: 019 Q41・024 Q50 の決定と 024 の AC-8 は「区間 C で試作」と書くが、tsod-plan の手順に試作の工程は無く、019・024 とも plan で試作を区間 D の最初のタスク（024 は T3）に置いた。行き先は .claude/skills/tsod-spec/（決定に試作の区間を書くときは「区間 D の最初のタスク」と書く）か .claude/skills/tsod-plan/SKILL.md（試作が要る機能はそのタスクを区間 D の先頭に置くと明記）。C-1 の後のコミットは handoff.md だけにするため、区間 D のメインが台帳（tasks/lessons.md）へ起票し、D の成果のコミットに含める
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
