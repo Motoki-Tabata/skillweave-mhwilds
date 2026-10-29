@@ -5,10 +5,13 @@ import io.github.motokitabata.skillweave.security.DiscordOAuth2UserService;
 import io.github.motokitabata.skillweave.security.DiscordUserFetcher;
 import io.github.motokitabata.skillweave.security.ProblemDetailAuthenticationEntryPoint;
 import io.github.motokitabata.skillweave.security.SessionCookieRefreshFilter;
+import io.github.motokitabata.skillweave.security.ShortLivedAuthorizationRequestRepository;
 import io.github.motokitabata.skillweave.security.WebTopRedirectHandler;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -49,7 +52,10 @@ public class SecurityConfig {
 
     /** {@code swv.auth.*}。セッションの有効期間は application.yml で Spring のキーへ渡す。 */
     @ConfigurationProperties("swv.auth")
-    public record AuthProperties(@DefaultValue("/") String webTopUrl) {}
+    public record AuthProperties(
+            @DefaultValue("/") String webTopUrl,
+            @DefaultValue("30d") Duration sessionTimeout,
+            @DefaultValue("10m") Duration authorizationSessionTimeout) {}
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -60,7 +66,8 @@ public class SecurityConfig {
             CsrfTokenRepository csrfTokenRepository,
             CookieSerializer cookieSerializer,
             ObjectMapper objectMapper) {
-        WebTopRedirectHandler redirectHandler = new WebTopRedirectHandler(authProperties.webTopUrl());
+        WebTopRedirectHandler redirectHandler =
+                new WebTopRedirectHandler(authProperties.webTopUrl(), authProperties.sessionTimeout());
         ProblemDetailAuthenticationEntryPoint entryPoint = new ProblemDetailAuthenticationEntryPoint(objectMapper);
 
         // ERROR ディスパッチ（/error）は許可する。元の認可はすでに済んでおり、denyAll がかかると 404・500 が 403 に化けるため。
@@ -87,7 +94,9 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .requestCache(cache -> cache.requestCache(new NullRequestCache()))
                 .exceptionHandling(e -> e.authenticationEntryPoint(entryPoint))
-                .oauth2Login(login -> login.authorizationEndpoint(a -> a.baseUri(AUTHORIZATION_BASE))
+                .oauth2Login(login -> login.authorizationEndpoint(a -> a.baseUri(AUTHORIZATION_BASE)
+                                .authorizationRequestRepository(new ShortLivedAuthorizationRequestRepository(
+                                        authProperties.authorizationSessionTimeout())))
                         .redirectionEndpoint(r -> r.baseUri(CALLBACK_PATTERN))
                         .tokenEndpoint(t -> t.accessTokenResponseClient(tokenResponseClient))
                         .userInfoEndpoint(u -> u.userService(userService))
@@ -106,8 +115,14 @@ public class SecurityConfig {
     // XSRF-TOKEN は JS（Web の http.ts）が読んでヘッダーに載せるため HttpOnly にしない（二重送信 Cookie）。
     @SuppressWarnings("java:S3330")
     @Bean
-    CsrfTokenRepository csrfTokenRepository() {
-        return CookieCsrfTokenRepository.withHttpOnlyFalse();
+    CsrfTokenRepository csrfTokenRepository(
+            @Value("${server.servlet.session.cookie.secure:false}") boolean secureCookie) {
+        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        if (secureCookie) {
+            // 本番は TLS を手前で終えて要求が http に見えても Secure を付ける（SESSION と同じキーでそろえる）。
+            repository.setCookieCustomizer(cookie -> cookie.secure(true));
+        }
+        return repository;
     }
 
     @Bean

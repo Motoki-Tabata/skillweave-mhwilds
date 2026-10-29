@@ -23,6 +23,8 @@ spring:
     jdbc:
       # テーブルは Flyway の V2 が作る。
       initialize-schema: never
+      # 期限切れセッションの掃除は1日1回（毎日 3:00。JVM の既定のタイムゾーン＝UTC で解釈される）。
+      cleanup-cron: "0 0 3 * * *"
     timeout: ${swv.auth.session-timeout}
   security:
     oauth2:
@@ -77,3 +79,5 @@ swv:
     web-top-url: /
     # セッションの有効期間（Spring Session のタイムアウトと Cookie の Max-Age の両方がこのキーを参照する）。
     session-timeout: 30d
+    # 未ログインで認可を始めたセッションの有効期間。ログインに成功すると session-timeout に戻る。
+    authorization-session-timeout: 10m

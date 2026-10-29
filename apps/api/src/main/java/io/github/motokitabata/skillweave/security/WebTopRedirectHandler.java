@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.Duration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -21,14 +22,22 @@ public class WebTopRedirectHandler implements AuthenticationSuccessHandler, Auth
     private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
     private final String webTopUrl;
 
-    public WebTopRedirectHandler(String webTopUrl) {
+    private final int sessionTimeoutSeconds;
+
+    public WebTopRedirectHandler(String webTopUrl, Duration sessionTimeout) {
         this.webTopUrl = webTopUrl;
+        this.sessionTimeoutSeconds = Math.toIntExact(sessionTimeout.toSeconds());
     }
 
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
+        // 認可の開始で短くしたセッションの有効期間を、ログイン後の長さに戻す（changeSessionId は有効期間を引き継ぐ）。
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.setMaxInactiveInterval(sessionTimeoutSeconds);
+        }
         redirectStrategy.sendRedirect(request, response, webTopUrl);
     }
 

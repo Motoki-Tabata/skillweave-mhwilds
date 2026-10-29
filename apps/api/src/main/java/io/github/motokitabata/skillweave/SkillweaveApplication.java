@@ -1,5 +1,6 @@
 package io.github.motokitabata.skillweave;
 
+import io.github.motokitabata.skillweave.config.ProdEnvironmentValidator;
 import io.github.motokitabata.skillweave.constant.TimeZones;
 import java.util.TimeZone;
 import org.springframework.boot.SpringApplication;
@@ -15,6 +16,13 @@ public class SkillweaveApplication {
         // 起動直後に設定する（-Duser.timezone には依存しない）。
         TimeZone.setDefault(TimeZone.getTimeZone(TimeZones.UTC));
 
-        SpringApplication.run(SkillweaveApplication.class, args);
+        application().run(args);
+    }
+
+    /** 本番プロファイルの必須の環境変数の検証を組み込んだ起動。 */
+    public static SpringApplication application() {
+        SpringApplication application = new SpringApplication(SkillweaveApplication.class);
+        application.addInitializers(new ProdEnvironmentValidator());
+        return application;
     }
 }
