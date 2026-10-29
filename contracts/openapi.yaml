@@ -71,6 +71,8 @@ components:
       $ref: components/schemas/builds/BuildArmor.yaml
     BuildCharm:
       $ref: components/schemas/builds/BuildCharm.yaml
+    BuildCraftedCharm:
+      $ref: components/schemas/builds/BuildCraftedCharm.yaml
     BuildDecoration:
       $ref: components/schemas/builds/BuildDecoration.yaml
     BuildSlotRef:

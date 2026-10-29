@@ -1,5 +1,5 @@
 type: object
-description: 護石の参照と写し。
+description: 鑑定護石の参照と写し。
 required:
   - id
   - payload

@@ -14,9 +14,10 @@ properties:
   armor:
     $ref: BuildArmor.yaml
   charm:
-    description: 護石の参照と写し。護石を使わない構成は null。
+    description: 護石。鑑定護石は参照と写し、生産護石は参照だけ。護石を使わない構成は null。
     oneOf:
       - $ref: BuildCharm.yaml
+      - $ref: BuildCraftedCharm.yaml
       - type: 'null'
   decorations:
     type: array
