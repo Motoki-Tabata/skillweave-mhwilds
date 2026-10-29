@@ -35,7 +35,7 @@
 | 024 | worker-solve-perf | ブラウザの Worker 上の `expectedDamage` の1件目までの時間を基準の 3 秒以内に収める（Q50） | P2 | S | 未着手 |
 | 025 | shared-parts-refactor | 機能ごとに複製された部品（削除確認ダイアログ・端末保存のストアの状態機械・ダイアログのオーバーレイ・404／409 の例外とハンドラ）を共有部品にまとめ、次の保存機能が同じ複製を増やさないようにする（画面と API の挙動は変えない） | P1 | M | 済 |
 | 026 | design-system-alignment | MASTER.md と、shadcn-vue の既定・既存画面との食い違い（見出しのウェイト・影・オーバーレイの濃さ・警告の帯・outline の枠色）を、規約か実装のどちらかに揃える | P2 | M | 未着手 |
-| 027 | crafted-charm-build-save | 生産護石を使った構成を保存し、保存した構成の画面で開き直せる | P1 | S | 未着手 |
+| 027 | crafted-charm-build-save | 生産護石を使った構成を保存し、保存した構成の画面で開き直せる | P1 | S | 済 |
 | 028 | api-prod-config | API を公開できるよう、本番用の設定（Cookie の `Secure` 属性など。Q85）を入れ、認可を始めただけで作られる未ログインのセッションの行を短い有効期間にする（画面の挙動は変えない） | P1 | S | 済 |
 
 ### 依存
@@ -67,5 +67,5 @@
 | 024 worker-solve-perf | 007, 019 | `packages/solver` の性能改善か基準の見直しかは Q50 |
 | 025 shared-parts-refactor | 008, 010, 011 | `tasks/lessons.md` の 2026-10-26「削除確認ダイアログと、端末保存のストアの状態機械が護石と武器で二重になった」・2026-10-28「例外クラスと ApiExceptionHandler のハンドラが機能ごとに並行して増える」・2026-10-28「ダイアログのオーバーレイの記述が PickerDialog と BuildDialogFrame で複製された」を扱う。011 の `DeleteConfirmDialog` と既存の2つの削除ダイアログの併存（011 plan D16）も含む |
 | 026 design-system-alignment | 011 | `tasks/lessons.md` の 2026-10-26「見出しの font-semibold（600）が MASTER.md のウェイト3種と食い違う」・2026-10-28「MASTER.md の Typography／Shape と、shadcn-vue の既定・既存画面が食い違ったまま増えている」と、Q27（警告の帯）・009 handoff.md の持ち越し（ライトの outline の枠色）を扱う。どちらに揃えるかは区間 A・B で決める。025 と同じ部品を触るなら 025 の後に行う |
-| 027 crafted-charm-build-save | 011, 021 | 021 decisions.md Q78 で 021 のスコープ外にした。`BuildCharm` の契約（`id` は `format: uuid`）と API の検査を変える。`BuildCharm` の形は 027 の区間 A で決める |
+| 027 crafted-charm-build-save | 011, 021 | 021 decisions.md Q78 で 021 のスコープ外にした。`BuildCharm` の契約（`id` は `format: uuid`）と API の検査を変える。`BuildCharm` の形は鑑定護石が参照と写し、生産護石が参照だけ（027 decisions.md Q93） |
 | 028 api-prod-config | 009 | API・DB の公開（Q71）の前に行う。扱う本番の設定は Q85、この機能に切った理由は Q86、セッションの掃除の間隔は Q91。Q84 で別オリジンの経路を選ぶなら、Web の API の呼び方と CSRF の Cookie の読み方の変更も含める |
