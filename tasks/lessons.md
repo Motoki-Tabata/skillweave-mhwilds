@@ -69,3 +69,18 @@
 - 種別: 規律昇華
 - 何が起きたか: `CharmSkillRow.vue`・`ArmorLockRow.vue`・`ExcludeCard.vue` が reka-ui の `ComboboxInput` を Input 風のクラス列ごと別々に組んでいる（レビュー記録 1 回目 web F2）。020 では (1) `SearchView.vue` の `onEnter` が全 `HTMLInputElement` の Enter で送信し、Combobox の候補選択の Enter でも検索が走った、(2) 入力欄の blur で表示名に戻す実装が、候補の mousedown と競合して絞り込み後のクリックが選べなかった（4417e3c。jsdom では再現できず e2e で発見）。
 - 提案: `.claude/rules/web-vue.md` に「Combobox を足すときは、フォームの Enter 横取りから `role=combobox` を除く。blur でリセットするなら候補リストの `mousedown.prevent` を付け、入力して絞り込んでから候補をクリックする e2e を通す」を足す。2 箇所以上の複製は `components/common/` への共通化を別の作業で切る。
+
+## 2026-10-29 Jackson の DEDUCTION は複数の型に当たる値を曖昧として拒否せず、ignoreUnknown=false も効かない（機能027・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 027 の plan D3 は、`BuildPayloadCharm` を `@JsonTypeInfo(use = DEDUCTION)` にすれば、両方の形の項目を持つ値は 400 になると書いたが、実際は 1 つの型に決まって 201 になった。`@JsonIgnoreProperties(ignoreUnknown = false)` は既定値と区別できず、Spring の `FAIL_ON_UNKNOWN_PROPERTIES=false` を上書きできなかった（api-agent の報告。回避は 各 record の `@JsonIgnore @JsonAnySetter @Size(max = 0) Map<String,Object> unknown`）。
+- 提案: `.claude/rules/api-spring.md` の Jackson の項に「DEDUCTION は曖昧な値を拒否しない。型ごとに未知の項目を 400 にするには `@JsonAnySetter` の受け皿に `@Size(max = 0)` を付ける」を足す。
+
+## 2026-10-29 テストの期待値の `?? <ID>` が辞書の欠落を隠す（機能027・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `buildViewSaved.spec.ts` の期待値 `NAMES[id] ?? id` が、`savedBuildView` 用の `nameOf` に生産護石の名前が無いことを隠し、名前の検証として通ってしまっていた（レビュー記録 1 回目 web 3。固定値にしたら落ち、`nameOf` を辞書から引くよう直した）。
+- 提案: `.claude/rules/web-vue.md` に「名前・文言の期待値は固定値にする。辞書や定数にフォールバックする式を期待値に使わない」を足す。
+
+## 2026-10-29 画面設計が MASTER.md への追記を決めたのに、spec の影響範囲に載らず plan で初めて「常時許可外」になる（機能027・区間D）
+- 種別: 矛盾是正
+- 何が起きたか: 027 は区間 B（screen-design.md 5）で `design-system/skillweave/MASTER.md` への追記が決まったが、区間 A の spec.md の影響範囲は「常時許可外の変更予定: なし」のままだった。plan で常時許可外に載せ、C-1 で承認された（レビュー記録 1 回目の構成ファイル領域）。
+- 提案: `.claude/skills/tsod-screen-table/SKILL.md` に「画面設計が共有構成ファイル（MASTER.md など）の変更を決めたら、spec.md の影響範囲の『常時許可外の変更予定』も更新して `spec-check` を通す」を足す。
