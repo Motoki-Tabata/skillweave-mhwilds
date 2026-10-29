@@ -82,6 +82,7 @@
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で新しい教訓は出なかった）
 - なし（区間 C で新しい教訓は出なかった）
+- なし（区間 D で新しい教訓は出なかった。api-agent の補足: Boot 4 で JdbcSessionProperties は org.springframework.boot.session.jdbc.autoconfigure、ConfigDataApplicationContextInitializer は org.springframework.boot.test.context へ移動。api-spring.md への追記は起票せず持ち越し）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
