@@ -3,7 +3,8 @@ import { flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import type { SolverResponse } from '@swv/solver'
 import { LOADING_SKELETON_DELAY_MS } from '@/constants/search'
-import { FakeWorker, makeBuild, sk, wp } from '../support/fixtures'
+import { useLockExcludeStore } from '@/stores/lockExclude'
+import { FakeWorker, armorId, dc, makeBuild, sk, wp } from '../support/fixtures'
 import {
   click,
   findButton,
@@ -365,6 +366,70 @@ describe('SearchView', () => {
           '候補にするランクを広げる',
         ]),
       )
+    })
+
+    // AC-8
+    it('AC-8: 要約の末尾は、固定も除外も無ければ「固定なし ／ 除外なし」', async () => {
+      const m = await ready()
+      await startSearch(m)
+      m.worker.emit({ type: 'result', requestId: m.worker.lastSolveId, response: found })
+      await flushPromises()
+      expect(body()).toContain('発動条件: なし ／ 固定なし ／ 除外なし')
+    })
+
+    it('AC-8: 要約に固定した部位の数と除外した防具・装飾品の件数を出す', async () => {
+      const m = await ready()
+      const lock = useLockExcludeStore(m.pinia)
+      lock.setFixed('head', armorId('low', 'head'))
+      lock.setFixed('legs', null)
+      lock.addExcludedArmor(armorId('high', 'chest'))
+      lock.addExcludedDecoration(dc('1'))
+      await startSearch(m)
+      m.worker.emit({ type: 'result', requestId: m.worker.lastSolveId, response: found })
+      await flushPromises()
+      expect(body()).toContain('固定 2 部位 ／ 除外: 防具 1 件・装飾品 1 件')
+    })
+
+    // AC-9
+    it('AC-9: 固定も除外も無い解なしの案内は変えない', async () => {
+      const m = await ready()
+      await startSearch(m)
+      m.worker.emit({
+        type: 'result',
+        requestId: m.worker.lastSolveId,
+        response: { status: 'infeasible', builds: [], elapsedMs: 1 },
+      })
+      await flushPromises()
+      const items = Array.from(document.querySelectorAll('li')).map((li) => textOf(li))
+      expect(items.slice(-3)).toEqual([
+        '必須スキルを減らす',
+        '下限レベルを下げる',
+        '候補にするランクを広げる',
+      ])
+    })
+
+    it.each([
+      ['固定', (l: ReturnType<typeof useLockExcludeStore>) => l.setFixed('head', null)],
+      [
+        '防具の除外',
+        (l: ReturnType<typeof useLockExcludeStore>) => l.addExcludedArmor(armorId('high', 'head')),
+      ],
+      [
+        '装飾品の除外',
+        (l: ReturnType<typeof useLockExcludeStore>) => l.addExcludedDecoration(dc('1')),
+      ],
+    ])('AC-9: %sがある解なしの案内に「部位の固定や除外を減らす」を加える', async (_name, apply) => {
+      const m = await ready()
+      apply(useLockExcludeStore(m.pinia))
+      await startSearch(m)
+      m.worker.emit({
+        type: 'result',
+        requestId: m.worker.lastSolveId,
+        response: { status: 'infeasible', builds: [], elapsedMs: 1 },
+      })
+      await flushPromises()
+      const items = Array.from(document.querySelectorAll('li')).map((li) => textOf(li))
+      expect(items.at(-1)).toBe('部位の固定や除外を減らす')
     })
 
     it('Q3: 全ランクを選んでいるときは「ランクを広げる」を出さない', async () => {

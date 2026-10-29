@@ -10,6 +10,7 @@ import {
   buildMaster,
   charm,
   conditionId,
+  decorationId,
   makeRequest,
   masterSkill,
   plainArmors,
@@ -105,6 +106,10 @@ describe('[AC9] 不正な要求はエラー（解なしとは分ける）', () =
   it('マスターに無い防具の固定・除外', async () => {
     await expectInvalid({ fixedArmor: { head: armorId('nope') } }, '固定の防具')
     await expectInvalid({ excludedArmorIds: [armorId('nope')] }, '除外の防具')
+  })
+
+  it('[AC-2] マスターに無い装飾品の除外', async () => {
+    await expectInvalid({ excludedDecorationIds: [decorationId('nope')] }, '除外の装飾品')
   })
 
   it('部位の違う防具の固定', async () => {

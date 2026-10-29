@@ -1,4 +1,12 @@
-import type { ArmorId, ArmorRank, ConditionId, MasterBundle, SkillLevel } from '@swv/data'
+import type {
+  ArmorId,
+  ArmorPart,
+  ArmorRank,
+  ConditionId,
+  DecorationId,
+  MasterBundle,
+  SkillLevel,
+} from '@swv/data'
 import type { Objective, SolverCharm, SolverRequest, SolverWeapon } from '@swv/solver'
 import type { ObjectiveChoice } from '@/constants/labels'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
@@ -15,6 +23,12 @@ export interface SearchConditions {
   activeConditionIds: ConditionId[]
   /** 護石の候補（構造上の制約を満たすもの。空なら護石なしで解く） */
   charms: SolverCharm[]
+  /** 部位の固定（キーが無い部位は固定しない・null は何も付けない） */
+  fixedArmor: Partial<Record<ArmorPart, ArmorId | null>>
+  /** ユーザーが除外した防具（ランクの絞り込みで外す分は含まない） */
+  excludedArmorIds: ArmorId[]
+  /** ユーザーが除外した装飾品 */
+  excludedDecorationIds: DecorationId[]
 }
 
 export function toObjective(choice: ObjectiveChoice): Objective {
@@ -40,12 +54,23 @@ export function buildSolverRequest(
   bundle: MasterBundle,
   conditions: SearchConditions,
 ): SolverRequest {
+  const fixedIds = new Set(Object.values(conditions.fixedArmor).filter((id) => id != null))
+  const excluded = excludedArmorIds(bundle, conditions.ranks).filter((id) => !fixedIds.has(id))
+  const excludedSet = new Set(excluded)
+  for (const id of conditions.excludedArmorIds) {
+    if (!excludedSet.has(id)) excluded.push(id)
+  }
+  const hasFixed = Object.keys(conditions.fixedArmor).length > 0
   return {
     masterVersion: bundle.version,
     weapon: conditions.weapon,
     charms: conditions.charms,
     required: conditions.required.map((skill) => ({ ...skill })),
-    excludedArmorIds: excludedArmorIds(bundle, conditions.ranks),
+    excludedArmorIds: excluded,
+    ...(hasFixed ? { fixedArmor: { ...conditions.fixedArmor } } : {}),
+    ...(conditions.excludedDecorationIds.length > 0
+      ? { excludedDecorationIds: [...conditions.excludedDecorationIds] }
+      : {}),
     objective: toObjective(conditions.objective),
     activeConditionIds: [...conditions.activeConditionIds],
     maxResults: conditions.maxResults,

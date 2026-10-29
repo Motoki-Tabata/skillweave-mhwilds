@@ -53,6 +53,8 @@ export interface SolverRequest {
   /** 部位を固定する。null は「何も付けない」 */
   fixedArmor?: Partial<Record<ArmorPart, ArmorId | null>>
   excludedArmorIds?: ArmorId[]
+  /** 求解の候補から外す装飾品。省略と空配列は除外なし */
+  excludedDecorationIds?: DecorationId[]
   /** 火力計算で「発動している」とみなす条件（003 では読まない） */
   activeConditionIds?: ConditionId[]
   objective: Objective

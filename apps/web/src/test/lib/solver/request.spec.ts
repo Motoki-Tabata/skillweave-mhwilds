@@ -3,7 +3,7 @@ import type { SolverWeapon, Uuid } from '@swv/solver'
 import type { SearchConditions } from '@/lib/solver/request'
 import { buildSolverRequest, excludedArmorIds, toObjective } from '@/lib/solver/request'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
-import { VERSION, armorId, cd, makeBundle, sk, wp } from '../../support/fixtures'
+import { VERSION, armorId, cd, dc, makeBundle, sk, wp } from '../../support/fixtures'
 
 // 受入基準 6（SolverRequest への変換）
 describe('buildSolverRequest', () => {
@@ -18,6 +18,9 @@ describe('buildSolverRequest', () => {
     maxResults: 7,
     ranks: ['high'],
     activeConditionIds: [],
+    fixedArmor: {},
+    excludedArmorIds: [],
+    excludedDecorationIds: [],
     charms: [],
   }
 
@@ -103,6 +106,9 @@ describe('buildSolverRequest の護石', () => {
     maxResults: 5,
     ranks: ['high'],
     activeConditionIds: [],
+    fixedArmor: {},
+    excludedArmorIds: [],
+    excludedDecorationIds: [],
     charms: [
       {
         id: '018f0000-0000-7000-8000-000000000001' as Uuid,
@@ -119,5 +125,58 @@ describe('buildSolverRequest の護石', () => {
 
   it('護石が1つも無ければ charms は空（護石なしで解く）', () => {
     expect(buildSolverRequest(bundle, { ...conditions, charms: [] }).charms).toEqual([])
+  })
+})
+
+// 受入基準 4・6（固定した防具をランクの除外から引く・ユーザーの除外を足す）
+describe('buildSolverRequest の固定と除外', () => {
+  const bundle = makeBundle()
+  const base: SearchConditions = {
+    weapon: { kind: 'master', weaponId: wp('great-sword:1') },
+    required: [],
+    objective: 'feasible',
+    maxResults: 5,
+    ranks: ['high'],
+    activeConditionIds: [],
+    charms: [],
+    fixedArmor: {},
+    excludedArmorIds: [],
+    excludedDecorationIds: [],
+  }
+  const lowHead = armorId('low', 'head')
+  const highChest = armorId('high', 'chest')
+
+  // AC-4
+  it('AC-4: 固定した防具は、ランクで外れる指定から引く', () => {
+    const request = buildSolverRequest(bundle, { ...base, fixedArmor: { head: lowHead } })
+    expect(request.excludedArmorIds).not.toContain(lowHead)
+    expect(request.excludedArmorIds).toContain(armorId('low', 'chest'))
+    expect(request.fixedArmor).toEqual({ head: lowHead })
+  })
+
+  it('AC-4: 何も付けない（null）は fixedArmor にそのまま渡す', () => {
+    const request = buildSolverRequest(bundle, { ...base, fixedArmor: { legs: null } })
+    expect(request.fixedArmor).toEqual({ legs: null })
+  })
+
+  // AC-6
+  it('AC-6: ユーザーが除外した防具をランクの除外に足し、重複させない', () => {
+    const request = buildSolverRequest(bundle, {
+      ...base,
+      excludedArmorIds: [highChest, lowHead],
+    })
+    expect(request.excludedArmorIds).toContain(highChest)
+    expect(request.excludedArmorIds?.filter((id) => id === lowHead)).toHaveLength(1)
+  })
+
+  it('AC-6: 除外した装飾品を excludedDecorationIds に渡す', () => {
+    const request = buildSolverRequest(bundle, { ...base, excludedDecorationIds: [dc('1')] })
+    expect(request.excludedDecorationIds).toEqual([dc('1')])
+  })
+
+  it('AC-6: 固定も装飾品の除外も無ければキーを入れない', () => {
+    const request = buildSolverRequest(bundle, base)
+    expect('fixedArmor' in request).toBe(false)
+    expect('excludedDecorationIds' in request).toBe(false)
   })
 })

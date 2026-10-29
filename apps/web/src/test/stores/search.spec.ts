@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { SolverResponse } from '@swv/solver'
+import type { SolverRequest, SolverResponse } from '@swv/solver'
 import type { CharmPayload } from '@/lib/charms/types'
 import { CANCELLED_TOAST_MESSAGE } from '@/stores/search'
+import { useLockExcludeStore } from '@/stores/lockExclude'
 import { useToastStore } from '@/stores/toast'
 import { SOLVE_TIMEOUT_MS } from '@/constants/search'
-import { FakeWorker, armorId, makeBuild, makeBundle, sk, wp } from '../support/fixtures'
+import { FakeWorker, armorId, dc, makeBuild, makeBundle, sk, wp } from '../support/fixtures'
 import { flushPromises, loadStores, restoreStubs, stubBackend } from '../support/mount'
 import { createMemoryCharmRepository } from '../support/charmRepository'
 import { charmId, storedCharm } from '../support/charms'
@@ -609,5 +610,64 @@ describe('search ストアの個体差のある武器', () => {
       await flushPromises()
       expect(sentIds()).toEqual(craftedIds)
     })
+  })
+})
+
+// 受入基準 4・6・7（固定と除外を要求に渡す）・8（要約の件数）・10 は lockExclude.spec.ts
+describe('search ストアの固定と除外', () => {
+  beforeEach(() => stubBackend())
+  afterEach(restoreStubs)
+
+  async function setup() {
+    const stores = await loadStores()
+    await stores.charms.ensureLoaded()
+    stores.conditions.selectWeapon(wp('great-sword:1'))
+    const lock = useLockExcludeStore(stores.pinia)
+    return { ...stores, lock, worker: FakeWorker.last }
+  }
+
+  function sentRequest(worker: FakeWorker) {
+    return (worker.messages('solve')[0] as { request: SolverRequest }).request
+  }
+
+  it('AC-6: 固定も除外も無い検索の要求にはキーが入らず、要約の件数は 0', async () => {
+    const { search, worker } = await setup()
+    search.submit()
+    const request = sentRequest(worker)
+    expect('fixedArmor' in request).toBe(false)
+    expect('excludedDecorationIds' in request).toBe(false)
+    expect(search.summary).toMatchObject({
+      fixedPartCount: 0,
+      excludedArmorCount: 0,
+      excludedDecorationCount: 0,
+    })
+  })
+
+  it('AC-4・AC-6: 固定と除外を要求に渡し、要約に件数を持つ（ランクの除外は数えない）', async () => {
+    const { search, lock, worker } = await setup()
+    lock.setFixed('head', armorId('low', 'head'))
+    lock.setFixed('legs', null)
+    lock.addExcludedArmor(armorId('high', 'chest'))
+    lock.addExcludedDecoration(dc('1'))
+    search.submit()
+    const request = sentRequest(worker)
+    expect(request.fixedArmor).toEqual({ head: armorId('low', 'head'), legs: null })
+    expect(request.excludedArmorIds).toContain(armorId('high', 'chest'))
+    expect(request.excludedArmorIds).not.toContain(armorId('low', 'head'))
+    expect(request.excludedDecorationIds).toEqual([dc('1')])
+    expect(search.summary).toMatchObject({
+      fixedPartCount: 2,
+      excludedArmorCount: 1,
+      excludedDecorationCount: 1,
+    })
+  })
+
+  it('AC-8: 送信の後に固定・除外を変えても、要約は変わらない', async () => {
+    const { search, lock } = await setup()
+    lock.setFixed('head', null)
+    search.submit()
+    lock.setFixed('chest', null)
+    lock.addExcludedDecoration(dc('1'))
+    expect(search.summary).toMatchObject({ fixedPartCount: 1, excludedDecorationCount: 0 })
   })
 })
