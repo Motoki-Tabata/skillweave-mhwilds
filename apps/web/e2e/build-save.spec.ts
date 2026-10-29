@@ -1,34 +1,12 @@
 import { randomBytes } from 'node:crypto'
 import { expect, type Page, test } from '@playwright/test'
+import { FIXED_TIME, type FakeBuild, mockApi } from './support/buildsApi'
 import { loadMasterInfo } from './support/masterData'
 import { openSearch, searchButton, selectWeapon } from './support/search'
 
 const master = loadMasterInfo()
 
-const ME_URL = '**/api/auth/me'
-const BUILDS_URL = '**/api/builds'
-const BUILD_URL = '**/api/builds/*'
-const FIXED_TIME = '2026-01-01T00:00:00Z'
 const OLD_VERSION = '0.0.1-e2e-old'
-
-interface FakeBuild {
-  id: string
-  name: string
-  masterVersion: string
-  payload: {
-    weapon: { kind: 'master'; weaponId: string }
-    armor: Record<'head' | 'chest' | 'arms' | 'waist' | 'legs', string | null>
-    charm: null
-    decorations: []
-    skills: []
-    freeSlots: []
-    activeConditionIds: string[]
-  }
-  schemaVersion: 1
-  version: number
-  createdAt: string
-  updatedAt: string
-}
 
 /** クライアント採番の UUIDv7（値の一意性だけに使う）。 */
 function uuidV7(): string {
@@ -39,10 +17,6 @@ function uuidV7(): string {
   bytes[8] = (bytes[8]! & 0x3f) | 0x80
   const hex = bytes.toString('hex')
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
-}
-
-function json(status: number, body: unknown) {
-  return { status, contentType: 'application/json', body: JSON.stringify(body) }
 }
 
 function seededBuild(name: string, masterVersion: string): FakeBuild {
@@ -66,52 +40,6 @@ function seededBuild(name: string, masterVersion: string): FakeBuild {
   }
 }
 
-/** /api/auth/me と /api/builds/** を、テストの中のメモリ上の状態で差し替える。 */
-async function mockApi(page: Page, initial: { loggedIn: boolean; builds?: FakeBuild[] }) {
-  const state = {
-    loggedIn: initial.loggedIn,
-    builds: [...(initial.builds ?? [])],
-    /** true のあいだ、PATCH は 409 を返す */
-    conflictOnPatch: false,
-    /** PATCH が 409 を返すときに、サーバー側で行う変更 */
-    onConflict: undefined as undefined | (() => void),
-    listCalls: 0,
-    posts: [] as FakeBuild[],
-  }
-  await page.route(ME_URL, (route) =>
-    state.loggedIn
-      ? route.fulfill(json(200, { displayName: 'モンハン太郎' }))
-      : route.fulfill({ status: 401 }),
-  )
-  await page.route(BUILDS_URL, (route) => {
-    const request = route.request()
-    if (request.method() === 'GET') {
-      state.listCalls++
-      return route.fulfill(json(200, state.builds))
-    }
-    const body = request.postDataJSON() as Pick<
-      FakeBuild,
-      'id' | 'name' | 'masterVersion' | 'payload' | 'schemaVersion'
-    >
-    const build: FakeBuild = { ...body, version: 0, createdAt: FIXED_TIME, updatedAt: FIXED_TIME }
-    state.posts.push(build)
-    state.builds = [build, ...state.builds]
-    return route.fulfill(json(201, build))
-  })
-  await page.route(BUILD_URL, (route) => {
-    if (route.request().method() === 'PATCH' && state.conflictOnPatch) {
-      state.onConflict?.()
-      return route.fulfill({
-        status: 409,
-        contentType: 'application/problem+json',
-        body: JSON.stringify({ status: 409 }),
-      })
-    }
-    return route.fulfill({ status: 500 })
-  })
-  return state
-}
-
 async function openBuilds(page: Page): Promise<void> {
   await page.goto('/builds')
   await expect(
@@ -123,7 +51,7 @@ async function openBuilds(page: Page): Promise<void> {
 async function searchPlainWeapon(page: Page): Promise<void> {
   await openSearch(page)
   await selectWeapon(page, master.nameOf(master.plainWeaponId))
-  // 生産護石を候補に含めると保存できない構成が出るので、切り替えをオフにする
+  // 011 の条件（護石の候補なし）を保つため、切り替えをオフにする
   await page.getByRole('checkbox', { name: '生産護石を候補に含める' }).uncheck()
   await page.getByRole('radio', { name: '空きスロットの最大化' }).click()
   await searchButton(page).click()
