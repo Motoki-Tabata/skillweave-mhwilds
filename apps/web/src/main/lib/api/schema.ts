@@ -605,7 +605,7 @@ export interface components {
              */
             legs: string | null;
         };
-        /** @description 鑑定護石の参照と写し。 */
+        /** @description 鑑定護石の参照と写し。どちらの形にも属さない項目（生産護石の形の項目を含む）を持つ値は、サーバーが不正として 400 にする。 */
         BuildCharm: {
             /**
              * Format: uuid
@@ -614,7 +614,7 @@ export interface components {
             id: string;
             payload: components["schemas"]["CharmPayload"];
         };
-        /** @description 生産護石の参照。 */
+        /** @description 生産護石の参照。どちらの形にも属さない項目（鑑定護石の形の項目を含む）を持つ値は、サーバーが不正として 400 にする。 */
         BuildCraftedCharm: {
             /** @enum {string} */
             kind: "crafted";
