@@ -246,7 +246,10 @@ describe('[AC4] 生産護石を含む手作りのマスターで総当たりと�
   it('返した構成は、外した候補の防具・装飾品・生産護石を含まない', async () => {
     const result = await solveVerified(highs, master, request, 'optimal')
     const dropped = new Set(['h2', 'h3', 'c3', 'ch:a:1', 'ch:b:1'])
+    const droppedDecorations = new Set(['dATKb', 'dATK3'])
+    expect(result.builds.length).toBeGreaterThan(0)
     for (const b of result.builds) {
+      expect(b.decorations.some((d) => droppedDecorations.has(d.decorationId))).toBe(false)
       expect(Object.values(b.armor).some((id) => dropped.has(id ?? ''))).toBe(false)
       expect(dropped.has(b.charmId ?? '')).toBe(false)
     }
