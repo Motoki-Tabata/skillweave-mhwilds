@@ -14,8 +14,11 @@ import { searchButton, setRanks } from '../support/search'
 const REPEATS = 3
 const THRESHOLD_MS = 3000
 
+const CHARM_MODES = [false, true] as const
+
 interface Measurement {
   label: string
+  charm: boolean
   run: number
   ms: number
   state: string
@@ -24,11 +27,11 @@ interface Measurement {
 const measurements: Measurement[] = []
 
 /** 検索の条件を、画面の操作で入れる（検索は押さない）。 */
-async function fillConditions(page: Page, testCase: MeasureCase): Promise<void> {
+async function fillConditions(page: Page, testCase: MeasureCase, charm: boolean): Promise<void> {
   await fillRequiredSkills(page, testCase)
   await page.getByRole('radio', { name: '防御力の最大化' }).check()
   await setRanks(page, { low: true, high: true })
-  await page.getByRole('checkbox', { name: '生産護石を候補に含める' }).uncheck()
+  await page.getByRole('checkbox', { name: '生産護石を候補に含める' }).setChecked(charm)
 }
 
 /** 検索を押してから結果（構成の見出し・解なし・打ち切り・エラーのいずれか）が出るまでの時間と状態。 */
@@ -56,37 +59,65 @@ async function searchOnce(page: Page): Promise<{ ms: number; state: string }> {
 }
 
 const fmt = (ms: number) => ms.toFixed(1)
+const charmName = (charm: boolean) => (charm ? '生産護石オン' : '生産護石オフ')
+
+/** 状態の検査。生産護石オンの解なしは、構成あり・解なしのどちらも可（エラー表示なら失敗）。 */
+function checkState(testCase: MeasureCase, charm: boolean, state: string): void {
+  if (testCase.expected === 'found') expect(state).toMatch(/^found\([1-9]\d*\)$/)
+  else if (!charm) expect(state).toBe('infeasible')
+  else expect(state).toMatch(/^(infeasible|found\([1-9]\d*\))$/)
+}
+
+function summaryLine(name: string, list: Measurement[]): string {
+  if (list.length === 0) return `${name}: no data`
+  const maxMs = Math.max(...list.map((m) => m.ms))
+  return `[${name}] max ms: ${fmt(maxMs)} (threshold ${THRESHOLD_MS} ms): ${maxMs <= THRESHOLD_MS ? 'PASS' : 'FAIL'}`
+}
 
 test.describe.configure({ mode: 'serial' })
 test.setTimeout(300_000)
 
 test.describe('004 Worker 上の測定（実データ）', () => {
   for (const testCase of CASES) {
-    test(testCase.label, async ({ page }) => {
-      for (let run = 1; run <= REPEATS; run++) {
-        // 前の結果が残って判定が早まらないよう、毎回画面を開き直して条件を入れる
-        await fillConditions(page, testCase)
-        const { ms, state } = await searchOnce(page)
-        measurements.push({ label: testCase.label, run, ms, state })
-        if (testCase.expected === 'found') expect(state).toMatch(/^found\([1-9]\d*\)$/)
-        else expect(state).toBe('infeasible')
-      }
-    })
+    for (const charm of CHARM_MODES) {
+      test(`${testCase.label} / ${charmName(charm)}`, async ({ page }) => {
+        for (let run = 1; run <= REPEATS; run++) {
+          // 前の結果が残って判定が早まらないよう、毎回画面を開き直して条件を入れる
+          await fillConditions(page, testCase, charm)
+          const { ms, state } = await searchOnce(page)
+          measurements.push({ label: testCase.label, charm, run, ms, state })
+          checkState(testCase, charm, state)
+        }
+      })
+    }
   }
 
   test.afterAll(({ browser }) => {
     if (measurements.length === 0) return
-    const maxMs = Math.max(...measurements.map((m) => m.ms))
     console.log(
       [
         `browser: chromium ${browser.version()}`,
         `master version: ${master.version}`,
         `condition: 目的=防御力の最大化 / ランク=下位+上位 / 件数=10 / 各 ${REPEATS} 回`,
-        `max ms over all cases and runs: ${fmt(maxMs)} (threshold ${THRESHOLD_MS} ms): ${maxMs <= THRESHOLD_MS ? 'PASS' : 'FAIL'}`,
+        summaryLine(
+          '生産護石オン',
+          measurements.filter((m) => m.charm),
+        ),
+        summaryLine(
+          '生産護石オフ',
+          measurements.filter((m) => !m.charm),
+        ),
+        summaryLine('全体', measurements),
       ].join('\n'),
     )
     console.table(
-      measurements.map((m) => ({ case: m.label, run: m.run, state: m.state, ms: fmt(m.ms) })),
+      measurements.map((m) => ({
+        case: m.label,
+        charm: charmName(m.charm),
+        run: m.run,
+        state: m.state,
+        ms: fmt(m.ms),
+      })),
     )
   })
 })
