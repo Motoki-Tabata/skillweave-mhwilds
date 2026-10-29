@@ -1,0 +1,32 @@
+# 本番だけの値。DB の接続情報は書かない（環境変数 SPRING_DATASOURCE_URL・_USERNAME・_PASSWORD が spring.datasource.* になる）。
+# DISCORD_CLIENT_ID・DISCORD_CLIENT_SECRET は application.yml の受け方のまま。
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            # 未設定・空は ProdEnvironmentValidator が起動時に止める（${VAR:} で受ける）。
+            redirect-uri: ${DISCORD_REDIRECT_URI:}
+
+server:
+  servlet:
+    session:
+      cookie:
+        # TLS を手前で終えて要求が http に見えても Secure を付ける。XSRF-TOKEN も SecurityConfig がこのキーを見る。
+        secure: true
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+swv:
+  auth:
+    web-top-url: ${SWV_WEB_TOP_URL:}
