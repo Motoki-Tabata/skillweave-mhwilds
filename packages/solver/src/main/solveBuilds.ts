@@ -4,6 +4,7 @@ import { SolveCancelledError } from './errors'
 import { buildModel, readSelection, type IlpModel, type Selection } from './model'
 import { evaluateDamage } from './damage'
 import type { DamageColumns } from './damageModel'
+import { reduceCandidates } from './dominance'
 import { assembleBuild } from './placement'
 import type {
   SolveOptions,
@@ -223,7 +224,11 @@ export async function solveBuilds(
 ): Promise<SolverResponse> {
   const start = options.now()
   const weapon = validateRequest(master, request)
-  const ilp = buildModel(master, request, weapon, highs.infinity)
+  const isDamage =
+    request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
+  // 期待値のときだけ、支配される候補を外してからモデルを組む（024 D4）
+  const modelInput = isDamage ? reduceCandidates(master, request) : { master, request }
+  const ilp = buildModel(modelInput.master, modelInput.request, weapon, highs.infinity)
   const ctx: EnumerateContext = { highs, master, request, weapon, options, start }
   const { builds, timedOut } =
     ilp === null ? { builds: [], timedOut: false } : await enumerate(ctx, ilp)

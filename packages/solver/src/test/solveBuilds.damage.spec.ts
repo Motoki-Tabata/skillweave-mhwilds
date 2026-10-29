@@ -300,10 +300,10 @@ describe('[AC9][AC11] 同点の順（Q36）', () => {
       skills: [masterSkill('Q', 'armor', 2)],
       weapons: [weapon(BASE_WEAPON_ID, { slots: [slot(1, 'weapon')] })],
       armors: plainArmors({
+        // スロットの形が支配し合わない（024 D4 で除外されない）。空き Lv の合計は h-two 4・h-big 3
         head: [
-          armor('h-small', 'head', { slots: [slot(1)] }),
           armor('h-big', 'head', { slots: [slot(3)] }),
-          armor('h-q', 'head', { skills: [skill('Q')], slots: [slot(4)] }),
+          armor('h-two', 'head', { slots: [slot(2), slot(2)] }),
         ],
       }),
     })
@@ -311,8 +311,8 @@ describe('[AC9][AC11] 同点の順（Q36）', () => {
       objective: { kind: 'maximize', metric: 'expectedDamage' },
     })
     const result = await solveVerified(highs, master, request)
-    expect(result.builds.map((b) => b.armor.head)).toEqual(['h-q', 'h-big', 'h-small'])
-    expect(result.builds.map((b) => b.score)).toEqual([100, 100, 100])
+    expect(result.builds.map((b) => b.armor.head)).toEqual(['h-two', 'h-big'])
+    expect(result.builds.map((b) => b.score)).toEqual([100, 100])
   })
 })
 
