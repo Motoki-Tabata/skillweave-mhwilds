@@ -91,7 +91,7 @@ attributes:
     domain: JSON オブジェクト（jsonb_typeof = 'object'）
     used_in: [charms.payload, builds.payload]
     defined_by: specs/010-charm-save
-    note: 形は schema_version で版管理する。charms は { rarity, skills: [{ skillId, level }], slots: [{ target, level }] }（構造の検査は API。マスターに依る検査は Web）。builds は構成（武器・防具・護石の参照と写し・装飾品の配置・発動スキル・空きスロット・発動条件）。形は区間 C で契約に書く
+    note: 形は schema_version で版管理する。charms は { rarity, skills: [{ skillId, level }], slots: [{ target, level }] }（構造の検査は API。マスターに依る検査は Web）。builds は構成（武器・防具・護石（鑑定護石は参照と写し、生産護石は参照だけ）・装飾品の配置・発動スキル・空きスロット・発動条件）。形は区間 C で契約に書く
 
   スキーマ版:
     physical_name: schema_version
