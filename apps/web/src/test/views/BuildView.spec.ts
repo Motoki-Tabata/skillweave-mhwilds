@@ -4,7 +4,7 @@ import { useToastStore } from '@/stores/toast'
 import { buildId, minimalPayload, savedBuild } from '../support/builds'
 import { createMemoryBuildsApi } from '../support/buildsApi'
 import type { MemoryBuildsApi } from '../support/buildsApi'
-import { armorId, makeBuild, sk } from '../support/fixtures'
+import { armorId, makeBuild, makeBundle, makeDictionary, sk } from '../support/fixtures'
 import {
   click,
   fakeAuthApi,
@@ -66,9 +66,16 @@ describe('BuildView（S5 保存した構成）', () => {
   })
 
   async function open(
-    options: { api?: MemoryBuildsApi; id?: string; loggedIn?: boolean } = {},
+    options: { api?: MemoryBuildsApi; id?: string; loggedIn?: boolean; crafted?: boolean } = {},
   ): Promise<Mounted & { api: MemoryBuildsApi }> {
-    stubBackend()
+    if (options.crafted === true) {
+      stubBackend({
+        bundle: makeBundle({ craftedCharms: true }),
+        dictionary: makeDictionary({ craftedCharms: true }),
+      })
+    } else {
+      stubBackend()
+    }
     const api = options.api ?? createMemoryBuildsApi([savedBuild(1, { payload: fullPayload() })])
     const authApi =
       options.loggedIn === false
@@ -137,6 +144,46 @@ describe('BuildView（S5 保存した構成）', () => {
       expect(text).toContain('7')
       expect(text).toContain('攻撃 Lv2')
       expect(text).toContain('Lv1')
+    })
+
+    it('027 AC-7: 生産護石の形は、開いたときのマスターから名前・レア度・スキル・スロットを引く', async () => {
+      const api = createMemoryBuildsApi([
+        savedBuild(1, {
+          payload: fullPayload({ charm: { kind: 'crafted', charmId: 'ch:-1:2' } }),
+        }),
+      ])
+      await open({ api, crafted: true })
+      const text = textOf(section('護石'))
+      expect(text).toContain('名前攻撃の護石Ⅱ')
+      expect(text).toContain('レア度7')
+      expect(text).toContain('攻撃 Lv2')
+      expect(text).toContain('武器用 Lv1')
+    })
+
+    it('027 AC-8: マスターに無い生産護石は「不明な護石（<ID>）」と「−」を出し、ほかの内容は出す', async () => {
+      const api = createMemoryBuildsApi([
+        savedBuild(1, {
+          payload: fullPayload({ charm: { kind: 'crafted', charmId: 'ch:-9:3' } }),
+        }),
+      ])
+      await open({ api, crafted: true })
+      const text = textOf(section('護石'))
+      expect(text).toContain('名前不明な護石（ch:-9:3）')
+      expect(text).toContain('レア度−')
+      expect(text).toContain('スキル−')
+      expect(text).toContain('スロット−')
+      expect(text).not.toContain('スキルなし')
+      expect(text).not.toContain('スロットなし')
+      expect(textOf(section('火力'))).toContain('期待値')
+      expect(textOf(section('防具'))).toContain('防御力の合計')
+      expect(textOf(section('装飾品'))).toContain('攻撃珠【２】')
+      expect(textOf(section('発動スキル'))).toContain('攻撃 Lv1')
+      expect(textOf(section('空きスロット'))).toContain('武器')
+    })
+
+    it('027 AC-4: 護石なしと鑑定護石の表示は変わらない（「名前」の行を出さない）', async () => {
+      await open({ crafted: true })
+      expect(textOf(section('護石'))).toContain('護石なし')
     })
 
     it('AC-4: 個体差のある武器は写しの名前に「（個体差）」を付け、写しのスロットと攻撃力で火力を出す', async () => {

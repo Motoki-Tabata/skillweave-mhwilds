@@ -86,6 +86,22 @@ describe('search ストアの構成の保存の材料', () => {
     })
   })
 
+  it('027 AC-6: 生産護石を使う構成は、生産護石の形で ID の参照だけを送り、写しを送らない', async () => {
+    const { search, conditions, worker } = await setup()
+    conditions.selectWeapon(wp('great-sword:1'))
+    search.submit()
+    finish(worker)
+    const charm = {
+      id: 'ch:-1:2',
+      rarity: 7,
+      skills: [],
+      slots: [{ target: 'weapon' as const, level: 1 as const }],
+    }
+    search.submittedCharms = new Map([[charm.id, charm as never]])
+    const payload = search.buildPayload({ ...response.builds[0], charmId: charm.id as never })
+    expect(payload?.charm).toStrictEqual({ kind: 'crafted', charmId: 'ch:-1:2' })
+  })
+
   it('AC-1: 個体差のある武器は、検索の後に編集・削除しても送信した時点の写しのまま', async () => {
     const { search, conditions, weapons, worker } = await setup()
     conditions.selectCustomWeapon(weaponId(1))

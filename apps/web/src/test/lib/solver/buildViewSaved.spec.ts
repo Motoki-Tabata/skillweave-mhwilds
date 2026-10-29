@@ -6,6 +6,7 @@ import {
   savedBuildView,
   toBuildView,
   unknownArmorName,
+  unknownCharmName,
   unknownConditionName,
   unknownDecorationName,
   unknownSkillName,
@@ -17,6 +18,7 @@ import { minimalPayload, savedBuild } from '../../support/builds'
 import { NAMES, SKILLS, armorId, makeBuild, makeBundle, sk, wp } from '../../support/fixtures'
 
 const bundle = makeBundle()
+const crafted = makeBundle({ craftedCharms: true })
 const GONE_ARMOR = 'ar:999:head'
 const GONE_DECORATION = 'dc:999'
 const GONE_SKILL = 'sk:999'
@@ -116,6 +118,7 @@ describe('savedBuildView', () => {
     hasDecoration: (id) => bundle.decorations.some((d) => d.id === id),
     skillById: new Map(bundle.skills.map((s) => [s.id, s])),
     weaponById: new Map(bundle.weapons.map((w) => [w.id, w])),
+    charmById: new Map(crafted.charms.map((c) => [c.id, c])),
     hasCondition: (id) => bundle.conditions.some((c) => c.id === id),
   }
   const greatSword = bundle.weapons.find((w) => w.id === wp('great-sword:1'))!
@@ -134,6 +137,54 @@ describe('savedBuildView', () => {
       }),
     )
     expect(result.solved).toEqual(solvedSource)
+  })
+
+  it('027 AC-7: 生産護石の形は charmId を ID とし、全ランクの索引から引く（最上位でないランクも）', () => {
+    const rank1 = view(minimalPayload({ charm: { kind: 'crafted', charmId: 'ch:-1:1' } }))
+    expect(rank1.solved.charmId).toBe('ch:-1:1')
+    expect(toBuildView(rank1.solved, rank1.lookup).charm).toMatchObject({
+      name: NAMES['ch:-1:1'] ?? 'ch:-1:1',
+      known: true,
+      rarity: 5,
+    })
+    expect(rank1.charms.get('ch:-1:1')?.skills).toEqual([{ skillId: sk('a1'), level: 1 }])
+  })
+
+  it('027 AC-8: マスターに無い生産護石は known=false・rarity=null で、スロットの Lv は null', () => {
+    const gone = view(
+      minimalPayload({
+        charm: { kind: 'crafted', charmId: 'ch:-9:3' },
+        freeSlots: [{ owner: 'charm', index: 0 }],
+      }),
+    )
+    const rows = toBuildView(gone.solved, gone.lookup)
+    expect(rows.charm).toEqual({
+      name: unknownCharmName('ch:-9:3'),
+      known: false,
+      rarity: null,
+      skills: [],
+      slots: [],
+    })
+    expect(unknownCharmName('ch:-9:3')).toBe('不明な護石（ch:-9:3）')
+    expect(rows.freeSlots[0].slotLevel).toBeNull()
+  })
+
+  it('027 AC-4: 鑑定護石の形は known=true・name=null のまま、護石なしは charm=null', () => {
+    const appraised = view(
+      minimalPayload({
+        charm: {
+          id: '01900000-0000-7000-8000-0000000000c1',
+          payload: { rarity: 8, skills: [], slots: [] },
+        },
+      }),
+    )
+    expect(toBuildView(appraised.solved, appraised.lookup).charm).toMatchObject({
+      name: null,
+      known: true,
+      rarity: 8,
+    })
+    const none = view(minimalPayload())
+    expect(toBuildView(none.solved, none.lookup).charm).toBeNull()
   })
 
   it('AC-4: マスターの武器のスロットと火力の基は現在のマスターから引く', () => {

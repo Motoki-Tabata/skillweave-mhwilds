@@ -506,8 +506,8 @@ export interface components {
         BuildPayload: {
             weapon: components["schemas"]["BuildWeapon"];
             armor: components["schemas"]["BuildArmor"];
-            /** @description 護石の参照と写し。護石を使わない構成は null。 */
-            charm: components["schemas"]["BuildCharm"] | null;
+            /** @description 護石。鑑定護石は参照と写し、生産護石は参照だけ。護石を使わない構成は null。 */
+            charm: components["schemas"]["BuildCharm"] | components["schemas"]["BuildCraftedCharm"] | null;
             /** @description 装飾品の配置（0〜21個）。 */
             decorations: components["schemas"]["BuildDecoration"][];
             /** @description 発動スキル（0〜100個）。同じ `skillId` を重複して持てない。 */
@@ -605,7 +605,7 @@ export interface components {
              */
             legs: string | null;
         };
-        /** @description 護石の参照と写し。 */
+        /** @description 鑑定護石の参照と写し。 */
         BuildCharm: {
             /**
              * Format: uuid
@@ -613,6 +613,16 @@ export interface components {
              */
             id: string;
             payload: components["schemas"]["CharmPayload"];
+        };
+        /** @description 生産護石の参照。 */
+        BuildCraftedCharm: {
+            /** @enum {string} */
+            kind: "crafted";
+            /**
+             * @description 護石 ID。マスターデータにあるかどうかはサーバーでは検査しない。
+             * @example ch:1:1
+             */
+            charmId: string;
         };
         /** @description 装飾品1個の配置。 */
         BuildDecoration: {

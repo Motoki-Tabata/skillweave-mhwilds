@@ -9,6 +9,7 @@ export interface SavedMasterSource {
   decorationById: ReadonlyMap<string, unknown>
   skillById: SavedBuildMaster['skillById']
   weaponById: SavedBuildMaster['weaponById']
+  charmById: SavedBuildMaster['charmById']
 }
 
 /** 読み込んだマスターから `savedBuildView` に渡す形を作る。マスターが無ければ null。 */
@@ -23,6 +24,7 @@ export function savedMasterOf(source: SavedMasterSource): SavedBuildMaster | nul
     hasDecoration: (id) => source.decorationById.has(id),
     skillById: source.skillById,
     weaponById: source.weaponById,
+    charmById: source.charmById,
     hasCondition: (id) => conditionIds.has(id),
   }
 }

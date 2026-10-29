@@ -4,6 +4,7 @@ import type {
   ArmorRank,
   MasterArmor,
   MasterBundle,
+  MasterCharm,
   MasterDecoration,
   MasterDictionary,
   MasterSkill,
@@ -62,6 +63,9 @@ export const useMasterStore = defineStore('master', () => {
     indexById<MasterDecoration>(bundle.value?.decorations ?? []),
   )
 
+  /** 全ランクの生産護石を ID で引く（保存した構成の表示用。最上位ランクに限らない）。 */
+  const charmById = computed(() => indexById<MasterCharm>(bundle.value?.charms ?? []))
+
   /** 生産護石の候補（系統ごとに最上位ランクの1件）。マスターが無いときは空。 */
   const craftedCharms = computed(() => craftedSolverCharms(bundle.value?.charms ?? []))
 
@@ -106,6 +110,7 @@ export const useMasterStore = defineStore('master', () => {
     armorById,
     decorationById,
     craftedCharms,
+    charmById,
     nameOf,
     availableRanks,
     skillsByKind,

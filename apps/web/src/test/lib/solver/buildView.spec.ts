@@ -141,6 +141,7 @@ describe('toBuildView の護石', () => {
   it('使った護石のレア度・スキル（並び順）・スロットを出す', () => {
     expect(toBuildView(withCharm(makeBuild()), lookup).charm).toEqual({
       name: null,
+      known: true,
       rarity: 8,
       skills: [
         { name: NAMES[sk('a1')], level: 2 },

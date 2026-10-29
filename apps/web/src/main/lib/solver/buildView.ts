@@ -4,6 +4,7 @@ import type {
   ConditionId,
   DecorationId,
   MasterArmor,
+  MasterCharm,
   MasterSkill,
   MasterWeapon,
   SkillId,
@@ -37,6 +38,7 @@ export const UNKNOWN_SKILL_GROUP_LABEL = '不明'
 export const unknownArmorName = (id: string): string => `不明な防具（${id}）`
 export const unknownDecorationName = (id: string): string => `不明な装飾品（${id}）`
 export const unknownSkillName = (id: string): string => `不明なスキル（${id}）`
+export const unknownCharmName = (id: string): string => `不明な護石（${id}）`
 export const unknownWeaponName = (id: string): string => `不明な武器（${id}）`
 export const unknownConditionName = (id: string): string => `不明な発動条件（${id}）`
 
@@ -92,7 +94,10 @@ export interface CharmSlotView {
 export interface CharmView {
   /** 生産護石の名前（ja の辞書）。鑑定護石は null */
   name: string | null
-  rarity: number
+  /** 生産護石が現在のマスターに無いとき false（レア度・スキル・スロットは「−」にする） */
+  known: boolean
+  /** 現在のマスターに無い生産護石は null */
+  rarity: number | null
   skills: SkillChip[]
   slots: CharmSlotView[]
 }
@@ -106,9 +111,19 @@ function skillChip(skillId: string, level: number, lookup: BuildLookup): SkillCh
 function charmView(build: SolvedBuild, lookup: BuildLookup): CharmView | null {
   if (build.charmId === null) return null
   const charm = lookup.charm(build.charmId)
-  if (charm === undefined) return null
+  if (charm === undefined) {
+    if (!isCraftedCharmId(build.charmId)) return null
+    return {
+      name: unknownCharmName(build.charmId),
+      known: false,
+      rarity: null,
+      skills: [],
+      slots: [],
+    }
+  }
   return {
     name: isCraftedCharmId(build.charmId) ? lookup.nameOf(build.charmId) : null,
+    known: true,
     rarity: charm.rarity,
     skills: charm.skills.map((skill) => skillChip(skill.skillId, skill.level, lookup)),
     slots: charm.slots.map((slot) => ({
@@ -208,6 +223,8 @@ export interface SavedBuildMaster {
   hasDecoration: (id: string) => boolean
   skillById: ReadonlyMap<string, MasterSkill>
   weaponById: ReadonlyMap<string, MasterWeapon>
+  /** 全ランクの生産護石 */
+  charmById: ReadonlyMap<string, MasterCharm>
   hasCondition: (id: string) => boolean
 }
 
@@ -269,6 +286,11 @@ function savedWeaponView(weapon: BuildWeapon, master: SavedBuildMaster): SavedWe
   }
 }
 
+function savedCharmId(charm: BuildPayload['charm']): string | null {
+  if (charm === null) return null
+  return 'kind' in charm ? charm.charmId : charm.id
+}
+
 function solvedOf(payload: BuildPayload): SolvedBuild {
   const { armor, charm } = payload
   return {
@@ -279,7 +301,7 @@ function solvedOf(payload: BuildPayload): SolvedBuild {
       waist: armor.waist as ArmorId | null,
       legs: armor.legs as ArmorId | null,
     },
-    charmId: (charm?.id ?? null) as Uuid | null,
+    charmId: savedCharmId(charm) as SolvedBuild['charmId'],
     decorations: payload.decorations.map(({ slot, decorationId }) => ({
       slot: { owner: slot.owner, index: slot.index },
       decorationId: decorationId as DecorationId,
@@ -293,9 +315,26 @@ function solvedOf(payload: BuildPayload): SolvedBuild {
   }
 }
 
-function charmMap(payload: BuildPayload): Map<string, SolverCharm> {
+function craftedCharmMap(charmId: string, master: SavedBuildMaster): Map<string, SolverCharm> {
+  const found = master.charmById.get(charmId)
+  if (found === undefined) return new Map()
+  return new Map([
+    [
+      found.id,
+      {
+        id: found.id as SolverCharm['id'],
+        rarity: found.rarity,
+        skills: found.skills.map((skill) => ({ ...skill })),
+        slots: found.slots.map((slot) => ({ ...slot })),
+      },
+    ],
+  ])
+}
+
+function charmMap(payload: BuildPayload, master: SavedBuildMaster): Map<string, SolverCharm> {
   const { charm } = payload
   if (charm === null) return new Map()
+  if ('kind' in charm) return craftedCharmMap(charm.charmId, master)
   const copy: SolverCharm = {
     id: charm.id as Uuid,
     rarity: charm.payload.rarity,
@@ -318,7 +357,7 @@ function charmMap(payload: BuildPayload): Map<string, SolverCharm> {
 export function savedBuildView(build: Build, master: SavedBuildMaster): SavedBuildView {
   const { payload } = build
   const solved = solvedOf(payload)
-  const charms = charmMap(payload)
+  const charms = charmMap(payload, master)
   const weapon = savedWeaponView(payload.weapon, master)
   const lookup: BuildLookup = {
     charm: (id) => charms.get(id),
