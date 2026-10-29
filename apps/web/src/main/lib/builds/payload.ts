@@ -1,5 +1,6 @@
 import type { SolvedBuild, SolverCharm } from '@swv/solver'
 import type { BuildPayload, BuildWeapon, CustomWeaponPayload } from '@/lib/api/builds'
+import { isCraftedCharmId } from '@/lib/charms/crafted'
 import type { StoredWeapon } from '@/lib/weapons/types'
 
 /** 検索を送った時点の写し。保存する内容は、検索の後の編集・削除に影響されない。 */
@@ -47,6 +48,13 @@ function charmCopy(charm: SolverCharm | undefined): BuildPayload['charm'] {
   }
 }
 
+/** 生産護石は ID の参照だけ、鑑定護石は写し、護石なしは null。 */
+function charmOf(charmId: string | null, source: SubmittedBuildSource): BuildPayload['charm'] {
+  if (charmId === null) return null
+  if (isCraftedCharmId(charmId)) return { kind: 'crafted', charmId }
+  return charmCopy(source.charms.get(charmId))
+}
+
 /**
  * 検索結果の構成と送信した時点の写しから、構成の保存の `payload` を作る。
  * 項目を明示して素のオブジェクトを組み立てる（`score` などの契約に無い項目を送らない）。
@@ -61,7 +69,7 @@ export function buildPayloadOf(build: SolvedBuild, source: SubmittedBuildSource)
       waist: build.armor.waist,
       legs: build.armor.legs,
     },
-    charm: build.charmId === null ? null : charmCopy(source.charms.get(build.charmId)),
+    charm: charmOf(build.charmId, source),
     decorations: build.decorations.map(({ slot, decorationId }) => ({
       slot: { owner: slot.owner, index: slot.index },
       decorationId,

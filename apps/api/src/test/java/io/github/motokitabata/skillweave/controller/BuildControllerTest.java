@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -158,6 +159,10 @@ class BuildControllerTest {
                 "weapon",
                 "{\"kind\":\"custom\",\"id\":\"" + CHARM_ID + "\",\"payload\":" + obj(CUSTOM_DEFAULTS, key, value)
                         + "}");
+    }
+
+    private static String crafted(String charmId) {
+        return "{\"kind\":\"crafted\",\"charmId\":" + q(charmId) + "}";
     }
 
     private static String repeat(String item, int n) {
@@ -493,6 +498,11 @@ class BuildControllerTest {
         return Stream.of(
                 VALID_PAYLOAD,
                 payload("charm", "null"),
+                payload("charm", crafted("ch:-2057181952:1")),
+                payload("charm", crafted("ch:-1137475456:2")),
+                payload("charm", crafted("ch:-498059904:5")),
+                payload("charm", crafted("ch:1:1")),
+                payload("charm", crafted("ch:-1:1")),
                 payload("decorations", "[]"),
                 payload("decorations", repeat(DECORATION, 21)),
                 payload("freeSlots", repeat(SLOT_REF, 21)),
@@ -564,6 +574,34 @@ class BuildControllerTest {
                 payload("charm", "{\"id\":\"not-a-uuid\",\"payload\":" + CHARM_PAYLOAD + "}"),
                 payload("charm", "{\"payload\":" + CHARM_PAYLOAD + "}"),
                 payload("charm", "{\"id\":\"" + CHARM_ID + "\"}"),
+                // AC-3: 生産護石の形の違反・どちらの形でもない値・両方の形の項目を併せ持つ値
+                payload("charm", crafted("ch:-2057181952")),
+                payload("charm", crafted("ch:x:1")),
+                payload("charm", crafted("CH:-1:1")),
+                payload("charm", crafted("wp:bow:1")),
+                payload("charm", crafted(CHARM_ID)),
+                payload("charm", crafted("")),
+                payload("charm", "{\"kind\":\"master\",\"charmId\":\"ch:1:1\"}"),
+                payload("charm", "{\"kind\":null,\"charmId\":\"ch:1:1\"}"),
+                payload("charm", "{\"kind\":\"crafted\"}"),
+                payload("charm", "{\"charmId\":\"ch:1:1\"}"),
+                payload("charm", "{\"kind\":\"crafted\",\"charmId\":null}"),
+                payload("charm", "{\"kind\":\"crafted\",\"charmId\":1}"),
+                payload(
+                        "charm",
+                        "{\"kind\":\"crafted\",\"charmId\":\"ch:1:1\",\"id\":\"" + CHARM_ID + "\",\"payload\":"
+                                + CHARM_PAYLOAD + "}"),
+                // 鑑定護石の項目が先の並び（DEDUCTION は項目順に依存しないこと）
+                payload(
+                        "charm",
+                        "{\"id\":\"" + CHARM_ID + "\",\"payload\":" + CHARM_PAYLOAD
+                                + ",\"kind\":\"crafted\",\"charmId\":\"ch:1:1\"}"),
+                // 生産護石の形に鑑定護石の id だけが混ざる
+                payload("charm", "{\"kind\":\"crafted\",\"charmId\":\"ch:1:1\",\"id\":\"" + CHARM_ID + "\"}"),
+                // 余分な項目だけを持つ値も unknown の受け皿で 400 になる（ゲート D-1 で許容を決定）
+                payload("charm", "{\"id\":\"" + CHARM_ID + "\",\"payload\":" + CHARM_PAYLOAD + ",\"foo\":1}"),
+                payload("charm", "{\"kind\":\"crafted\",\"charmId\":\"ch:1:1\",\"foo\":1}"),
+                payload("charm", "{}"),
                 payload("charm", "{\"id\":\"" + CHARM_ID + "\",\"payload\":{\"rarity\":4,\"skills\":[],\"slots\":[]}}"),
                 payload(
                         "charm",
@@ -753,6 +791,60 @@ class BuildControllerTest {
         assertThat(rowName(id)).isEqualTo(NAME);
         assertThat(rowVersion(id)).isZero();
         assertThat(isDeleted(id)).isFalse();
+    }
+
+    // AC-2: 生産護石の形の構成の作成・一覧・名前の変更の往復。charm はそのまま返る（マスターに無い ID でも 201）。
+    @ParameterizedTest
+    @ValueSource(strings = {"ch:-2057181952:1", "ch:-1:1"})
+    void craftedCharmRoundTrips(String charmId) throws Exception {
+        UUID id = id(1);
+        String charm = crafted(charmId);
+
+        Res created = create(alice, id, q(NAME), payload("charm", charm));
+        assertThat(created.status()).isEqualTo(201);
+        assertThat(json(created).get("payload").get("charm")).isEqualTo(mapper.readTree(charm));
+
+        JsonNode listed = json(call("GET", BUILDS, alice, null));
+        assertThat(listed.size()).isEqualTo(1);
+        assertThat(listed.get(0).get("payload").get("charm")).isEqualTo(mapper.readTree(charm));
+
+        Res renamed = call("PATCH", BUILDS + "/" + id, alice, renameBody(q("新しい名前"), 0));
+        assertThat(renamed.status()).isEqualTo(200);
+        assertThat(json(renamed).get("payload").get("charm")).isEqualTo(mapper.readTree(charm));
+    }
+
+    // AC-2, AC-6: 生産護石の形は参照だけが jsonb に入る。
+    @Test
+    void craftedCharmIsStoredAsReferenceOnly() throws Exception {
+        UUID id = id(1);
+        create(alice, id, q(NAME), payload("charm", crafted("ch:-2057181952:1")));
+
+        assertThat(keys("payload->'charm'", id)).containsExactlyInAnyOrder("kind", "charmId");
+        assertThat(jdbc.queryForObject(SELECT_ONE.formatted("payload->'charm'->>'charmId'"), String.class, id))
+                .isEqualTo("ch:-2057181952:1");
+        assertThat(jdbc.queryForObject(SELECT_ONE.formatted("payload->'charm'->>'kind'"), String.class, id))
+                .isEqualTo("crafted");
+    }
+
+    // AC-4: 鑑定護石の形の payload を DB へ直接入れた行（版 1）が、変換されずに一覧へ出る。
+    @Test
+    void directlyInsertedAppraisedCharmRowIsListedAsIs() throws Exception {
+        UUID id = id(1);
+        String stored = payload(null, null);
+        jdbc.update(
+                "INSERT INTO builds (id, user_id, name, master_version, payload, schema_version)"
+                        + " SELECT ?, id, ?, ?, ?::jsonb, 1 FROM users WHERE discord_id = ?",
+                id,
+                NAME,
+                MASTER_VERSION,
+                stored,
+                "400000000000000001");
+
+        JsonNode listed = json(call("GET", BUILDS, alice, null));
+
+        assertThat(listed.size()).isEqualTo(1);
+        assertThat(listed.get(0).get("schemaVersion").asInt()).isEqualTo(1);
+        assertThat(listed.get(0).get("payload")).isEqualTo(mapper.readTree(stored));
     }
 
     // AC-14: payload の jsonb に書かれるキーは Web の形と一致する（省略可の element は無ければ書かない）。

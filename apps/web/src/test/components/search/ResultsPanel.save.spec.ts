@@ -314,12 +314,15 @@ describe('ResultsPanel の構成の保存', () => {
   describe('生産護石を使った構成', () => {
     const crafted: SolvedBuild = { ...makeBuild(), charmId: 'ch:-1:2' as SolvedBuild['charmId'] }
 
-    async function searchCrafted(include: boolean): Promise<void> {
+    async function searchCrafted(
+      include: boolean,
+      authApi: ReturnType<typeof loggedInAuth> = loggedInAuth(),
+    ): Promise<void> {
       stubBackend({
         bundle: makeBundle({ craftedCharms: true }),
         dictionary: makeDictionary({ craftedCharms: true }),
       })
-      mounted = await mountReadyApp({ authApi: loggedInAuth() })
+      mounted = await mountReadyApp({ authApi })
       const m = mounted
       await vi.waitFor(() => expect(m.pinia.state.value.auth.status).not.toBe('checking'))
       m.conditions.selectWeapon(wp('great-sword:1'))
@@ -338,15 +341,21 @@ describe('ResultsPanel の構成の保存', () => {
     const cardOf = (n: number) =>
       document.querySelectorAll<HTMLElement>('#results-heading ~ ul > li')[n - 1]
 
-    it('AC-8: 「保存」を出さず、保存できない旨を出す。護石なしの構成は保存できる', async () => {
+    it('027 AC-5: 生産護石を使った構成のカードにも「保存」を出し、保存できない旨は出さない', async () => {
       await searchCrafted(true)
-      expect(saveButton(1)).toBeNull()
-      expect(textOf(cardOf(1))).toContain('生産護石を使った構成は保存できません。')
+      expect(saveButton(1).getAttribute('aria-label')).toBe('構成 1 を保存')
+      expect(textOf(cardOf(1))).not.toContain('保存できません')
       expect(saveButton(2).getAttribute('aria-label')).toBe('構成 2 を保存')
-      expect(textOf(cardOf(2))).not.toContain('保存できません')
     })
 
-    it('AC-8: 鑑定護石（UUID の charmId）を使った構成は保存でき、保存できない旨を出さない', async () => {
+    it('027 AC-5: 未ログインで生産護石の構成の「保存」を押すと、ログインが必要のダイアログを出す', async () => {
+      const auth = fakeAuthApi({ fetchCurrentUser: async () => ({ kind: 'unauthenticated' }) })
+      await searchCrafted(true, auth)
+      await click(saveButton(1))
+      expect(textOf(dialog()!.querySelector('h2'))).toBe('構成の保存にはログインが必要です')
+    })
+
+    it('027 AC-5: 鑑定護石（UUID の charmId）を使った構成も保存でき、保存できない旨を出さない', async () => {
       const appraised: SolvedBuild = {
         ...makeBuild(),
         charmId: '0190c0de-0000-7000-8000-000000000001' as SolvedBuild['charmId'],
@@ -369,7 +378,7 @@ describe('ResultsPanel の構成の保存', () => {
       expect(textOf(cardOf(1))).not.toContain('生産護石を使った構成は保存できません。')
     })
 
-    it('AC-8: 検索中に見つけた順に出すカードには、生産護石の構成でも保存できない旨を出さない', async () => {
+    it('027 AC-5: 検索中に見つけた順に出すカードには、生産護石の構成でも「保存」も保存できない旨も出さない', async () => {
       stubBackend({
         bundle: makeBundle({ craftedCharms: true }),
         dictionary: makeDictionary({ craftedCharms: true }),

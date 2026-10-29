@@ -1,0 +1,16 @@
+type: object
+description: 生産護石の参照。どちらの形にも属さない項目（鑑定護石の形の項目を含む）を持つ値は、サーバーが不正として 400 にする。
+required:
+  - kind
+  - charmId
+properties:
+  kind:
+    type: string
+    enum:
+      - crafted
+  charmId:
+    type: string
+    pattern: '^ch:-?[0-9]+:[0-9]+$'
+    description: 護石 ID。マスターデータにあるかどうかはサーバーでは検査しない。
+    examples:
+      - 'ch:1:1'

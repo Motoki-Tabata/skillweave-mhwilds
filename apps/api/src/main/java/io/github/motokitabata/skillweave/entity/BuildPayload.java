@@ -18,7 +18,7 @@ import java.util.Objects;
 public record BuildPayload(
         @NotNull @Valid BuildWeapon weapon,
         @NotNull @Valid BuildArmor armor,
-        @JsonProperty(required = true) @Valid BuildCharm charm,
+        @JsonProperty(required = true) @Valid BuildPayloadCharm charm,
         @NotNull @Size(max = 21) List<@NotNull @Valid BuildDecoration> decorations,
         @NotNull @Size(max = 100) List<@NotNull @Valid BuildSkill> skills,
         @NotNull @Size(max = 21) List<@NotNull @Valid BuildSlotRef> freeSlots,

@@ -7,6 +7,7 @@ import type { components } from '@/lib/api/schema'
 export type Build = components['schemas']['Build']
 export type BuildPayload = components['schemas']['BuildPayload']
 export type BuildWeapon = components['schemas']['BuildWeapon']
+export type BuildCraftedCharm = components['schemas']['BuildCraftedCharm']
 export type CustomWeaponPayload = components['schemas']['CustomWeaponPayload']
 export type CreateBuildRequest = components['schemas']['CreateBuildRequest']
 export type RenameBuildRequest = components['schemas']['RenameBuildRequest']
@@ -82,7 +83,9 @@ function isBuildArmor(value: unknown): boolean {
 
 function isBuildCharm(value: unknown): boolean {
   if (value === null) return true
-  return isRecord(value) && typeof value.id === 'string' && toPayload(value.payload) !== null
+  if (!isRecord(value)) return false
+  if ('kind' in value) return value.kind === 'crafted' && typeof value.charmId === 'string'
+  return typeof value.id === 'string' && toPayload(value.payload) !== null
 }
 
 function isBuildDecoration(value: unknown): boolean {

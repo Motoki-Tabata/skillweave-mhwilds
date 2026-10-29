@@ -12,6 +12,7 @@ describe('savedMasterOf', () => {
     decorationById: new Map(bundle.decorations.map((d) => [d.id, d])),
     skillById: new Map(bundle.skills.map((s) => [s.id, s])),
     weaponById: new Map(bundle.weapons.map((w) => [w.id, w])),
+    charmById: new Map(bundle.charms.map((c) => [c.id, c])),
   }
 
   it('マスターが無ければ null', () => {

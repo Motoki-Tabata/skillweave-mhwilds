@@ -116,7 +116,29 @@ describe('toBuild（応答の形の検査）', () => {
     expect(toBuild(custom)).not.toBeNull()
   })
 
+  it('027 AC-9: 生産護石の形の護石を受け入れる', () => {
+    const crafted = structuredClone(row) as Record<string, unknown>
+    ;(crafted.payload as Record<string, unknown>).charm = {
+      kind: 'crafted',
+      charmId: 'ch:-1:2',
+    }
+    expect(toBuild(crafted)).not.toBeNull()
+  })
+
   const broken: [string, (b: Record<string, unknown>) => void][] = [
+    [
+      '027 AC-9: 護石の kind が crafted 以外',
+      (b) =>
+        ((b.payload as Record<string, unknown>).charm = { kind: 'appraised', charmId: 'ch:-1:2' }),
+    ],
+    [
+      '027 AC-9: 生産護石の charmId が無い',
+      (b) => ((b.payload as Record<string, unknown>).charm = { kind: 'crafted' }),
+    ],
+    [
+      '027 AC-9: 生産護石の charmId が文字列でない',
+      (b) => ((b.payload as Record<string, unknown>).charm = { kind: 'crafted', charmId: 1 }),
+    ],
     ['schemaVersion が 1 でない', (b) => (b.schemaVersion = 2)],
     ['version が負', (b) => (b.version = -1)],
     ['version が整数でない', (b) => (b.version = 0.5)],
