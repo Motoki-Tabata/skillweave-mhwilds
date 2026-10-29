@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
- * セッションの方針（028 api-prod-config の AC-3, 8, 9, 10, 11）。既定のプロファイル（本番でない）で行う。
+ * セッションの方針（028 api-prod-config の AC-3, 5, 8, 9, 10, 11）。既定のプロファイル（本番でない）で行う。
  * 実際の HTTP で行う（AuthFlowTest と同じ理由）。
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
