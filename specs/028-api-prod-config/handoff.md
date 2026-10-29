@@ -34,7 +34,7 @@
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
 
 ## コミット範囲
-- 区間 D の開始コミット: <区間 D を始めたときの HEAD>
+- 区間 D の開始コミット: 254b2b2
 - レビュー対象の範囲: `<開始コミット>..<再開点>`
 - 是正の範囲: `<前回のレビュー対象の終点>..<是正の最後のコミット>`
 <!-- 書くのは既に存在するコミットのハッシュだけ。区間 D 以外では空のまま -->
@@ -48,6 +48,7 @@
 ## 委譲の記録
 | 領域 | ワーカー | コミット |
 |---|---|---|
+| api | api-agent | 829d9c8 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
@@ -75,3 +76,4 @@
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q84・Q85・Q86・Q91
+- T2 確認済み（prod・ローカル DB で bootRun）: /actuator/health は components なし、/v3/api-docs は 404、認可開始(/api/oauth2/authorization/discord)の SESSION と XSRF-TOKEN に Secure、Location の redirect_uri は DISCORD_REDIRECT_URI の値、DISCORD_REDIRECT_URI を外すと 'Required environment variables for the prod profile are not set: DISCORD_REDIRECT_URI' で起動停止
