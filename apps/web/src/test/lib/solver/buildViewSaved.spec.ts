@@ -15,7 +15,16 @@ import {
 import type { BuildLookup, SavedBuildMaster } from '@/lib/solver/buildView'
 import type { BuildPayload } from '@/lib/api/builds'
 import { minimalPayload, savedBuild } from '../../support/builds'
-import { NAMES, SKILLS, armorId, makeBuild, makeBundle, sk, wp } from '../../support/fixtures'
+import {
+  NAMES,
+  SKILLS,
+  armorId,
+  makeBuild,
+  makeBundle,
+  makeDictionary,
+  sk,
+  wp,
+} from '../../support/fixtures'
 
 const bundle = makeBundle()
 const crafted = makeBundle({ craftedCharms: true })
@@ -111,9 +120,10 @@ describe('toBuildView の現在のマスターに無い ID', () => {
 })
 
 describe('savedBuildView', () => {
+  const dictionary = makeDictionary({ craftedCharms: true })
   const master: SavedBuildMaster = {
     version: 'test-1',
-    nameOf: (id) => NAMES[id] ?? id,
+    nameOf: (id) => dictionary.entries[id]?.name ?? id,
     armorById: new Map(bundle.armors.map((a) => [a.id, a])),
     hasDecoration: (id) => bundle.decorations.some((d) => d.id === id),
     skillById: new Map(bundle.skills.map((s) => [s.id, s])),
@@ -143,7 +153,7 @@ describe('savedBuildView', () => {
     const rank1 = view(minimalPayload({ charm: { kind: 'crafted', charmId: 'ch:-1:1' } }))
     expect(rank1.solved.charmId).toBe('ch:-1:1')
     expect(toBuildView(rank1.solved, rank1.lookup).charm).toMatchObject({
-      name: NAMES['ch:-1:1'] ?? 'ch:-1:1',
+      name: '攻撃の護石Ⅰ',
       known: true,
       rarity: 5,
     })

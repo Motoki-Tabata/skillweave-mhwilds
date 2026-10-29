@@ -15,7 +15,7 @@ async function fillConditions(page: import('@playwright/test').Page): Promise<vo
 }
 
 test.describe('021 crafted-charm', () => {
-  test('AC-11（1）: 既定（オン）で、生産護石を使った構成が出て、保存の操作が出ず、要約に「生産護石を含める」が出る', async ({
+  test('AC-11（1）: 既定（オン）で、生産護石を使った構成が出て、保存の操作が出て、保存できない旨は出ず、要約に「生産護石を含める」が出る', async ({
     page,
   }) => {
     await fillConditions(page)

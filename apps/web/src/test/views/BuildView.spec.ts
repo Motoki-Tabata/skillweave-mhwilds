@@ -182,8 +182,24 @@ describe('BuildView（S5 保存した構成）', () => {
     })
 
     it('027 AC-4: 護石なしと鑑定護石の表示は変わらない（「名前」の行を出さない）', async () => {
-      await open({ crafted: true })
-      expect(textOf(section('護石'))).toContain('護石なし')
+      const api = createMemoryBuildsApi([
+        savedBuild(1, {
+          payload: fullPayload({
+            charm: {
+              id: '01900000-0000-7000-8000-0000000000aa',
+              payload: {
+                rarity: 7,
+                skills: [{ skillId: sk('a1'), level: 2 }],
+                slots: [{ target: 'weapon', level: 1 }],
+              },
+            },
+          }),
+        }),
+      ])
+      await open({ api, crafted: true })
+      const text = textOf(section('護石'))
+      expect(text).toContain('攻撃 Lv2')
+      expect(text).not.toContain('名前')
     })
 
     it('AC-4: 個体差のある武器は写しの名前に「（個体差）」を付け、写しのスロットと攻撃力で火力を出す', async () => {
