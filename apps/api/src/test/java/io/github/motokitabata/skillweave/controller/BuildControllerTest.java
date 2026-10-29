@@ -598,6 +598,9 @@ class BuildControllerTest {
                                 + ",\"kind\":\"crafted\",\"charmId\":\"ch:1:1\"}"),
                 // 生産護石の形に鑑定護石の id だけが混ざる
                 payload("charm", "{\"kind\":\"crafted\",\"charmId\":\"ch:1:1\",\"id\":\"" + CHARM_ID + "\"}"),
+                // 余分な項目だけを持つ値も unknown の受け皿で 400 になる（ゲート D-1 で許容を決定）
+                payload("charm", "{\"id\":\"" + CHARM_ID + "\",\"payload\":" + CHARM_PAYLOAD + ",\"foo\":1}"),
+                payload("charm", "{\"kind\":\"crafted\",\"charmId\":\"ch:1:1\",\"foo\":1}"),
                 payload("charm", "{}"),
                 payload("charm", "{\"id\":\"" + CHARM_ID + "\",\"payload\":{\"rarity\":4,\"skills\":[],\"slots\":[]}}"),
                 payload(
