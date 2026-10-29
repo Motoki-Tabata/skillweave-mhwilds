@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.ConfigDataApplicationContextInitial
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.core.env.Profiles;
 
 /**
  * 本番プロファイルの必須の環境変数の検証（028 api-prod-config の AC-7）。
@@ -75,7 +76,11 @@ class ProdEnvironmentValidatorTest {
     @Test
     void prodWithBothValuesStarts() {
         runner().withPropertyValues(PROD.substring(2), REDIRECT + "=" + VALUE, WEB_TOP + "=" + VALUE)
-                .run(ctx -> assertThat(ctx).hasNotFailed());
+                .run(ctx -> {
+                    assertThat(ctx).hasNotFailed();
+                    assertThat(ctx.getEnvironment().acceptsProfiles(Profiles.of("prod")))
+                            .isTrue();
+                });
     }
 
     // AC-7: 本番でなければ、値が無くても検証しない。

@@ -91,6 +91,14 @@ class SessionPolicyTest {
         assertThat(hasAttribute(me.setCookie(XSRF), "Secure")).isFalse();
     }
 
+    // AC-5: 本番プロファイルが無効なときは、Swagger UI を今までどおり返す（404 にならない）。
+    @Test
+    void swaggerUiIsServedOutsideProd() throws Exception {
+        Res res = http.get("/swagger-ui.html", null);
+
+        assertThat(res.status()).isBetween(200, 399);
+    }
+
     // AC-8: 未ログインで認可を始めたセッションの有効期間は 10 分。
     @Test
     void anonymousAuthorizationStartShortensSession() throws Exception {
