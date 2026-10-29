@@ -591,6 +591,13 @@ class BuildControllerTest {
                         "charm",
                         "{\"kind\":\"crafted\",\"charmId\":\"ch:1:1\",\"id\":\"" + CHARM_ID + "\",\"payload\":"
                                 + CHARM_PAYLOAD + "}"),
+                // 鑑定護石の項目が先の並び（DEDUCTION は項目順に依存しないこと）
+                payload(
+                        "charm",
+                        "{\"id\":\"" + CHARM_ID + "\",\"payload\":" + CHARM_PAYLOAD
+                                + ",\"kind\":\"crafted\",\"charmId\":\"ch:1:1\"}"),
+                // 生産護石の形に鑑定護石の id だけが混ざる
+                payload("charm", "{\"kind\":\"crafted\",\"charmId\":\"ch:1:1\",\"id\":\"" + CHARM_ID + "\"}"),
                 payload("charm", "{}"),
                 payload("charm", "{\"id\":\"" + CHARM_ID + "\",\"payload\":{\"rarity\":4,\"skills\":[],\"slots\":[]}}"),
                 payload(
