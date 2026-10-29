@@ -50,6 +50,7 @@
 |---|---|---|
 | E2E | e2e-agent | d204c95 |
 | solver | solver-agent | bcfe06e |
+| solver | solver-agent | 07a1a57 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
