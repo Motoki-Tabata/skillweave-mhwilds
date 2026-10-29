@@ -2,8 +2,8 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: D
-- 次に起動するコマンド: `/tsod-build 027-crafted-charm-build-save`
+- 区間: E
+- 次に起動するコマンド: `/tsod-ship 027-crafted-charm-build-save`
 - 推奨モデル: Sonnet
 - ブランチ: `feat/027-crafted-charm-build-save`（不変）
 <!--
@@ -28,7 +28,7 @@
 | B-1 | 画面設計 screen-design.md | 承認済み | 2026-10-29 / 7a8dd8c |
 | B-2 | テーブル設計（design/・migration） | 該当なし（テーブル変更なし） | 2026-10-29 |
 | C-1 | plan.md・tasks.md | 承認済み | 2026-10-29 / 19066e2 |
-| D-1 | 実装受入 | 未 | |
+| D-1 | 実装受入 | 承認済み | 2026-10-29 / 038f4b2 |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
