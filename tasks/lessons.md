@@ -99,3 +99,8 @@
 - 種別: 規律昇華
 - 何が起きたか: 024 T3 の試作は全候補を 3 回ずつ測ると約 2.5 時間のところ、`PROTO_CANDIDATES`・`PROTO_CASES`・`PROTO_CRAFTED`・`PROTO_REPEATS` で絞り、2 段にして約 1 時間 45 分に抑えた（solver-agent の報告）。plan D2 の指示は「ふるい分けは各ケース 1 回、上位は各 3 回」だけで、所要の見込みを書いていなかった。
 - 提案: `.claude/rules/solver.md` の測定の項に、試作の測定の進め方（環境変数で絞る・2 段で回す・所要の見込みを plan に書く）を足す。
+
+## 2026-10-30 ui-design.md の「`components/ui/` は手で編集しない・web-agent は `ui/` を書かない」が、026 の決定（`ui/` のソースを直す）と食い違う（機能026・区間B）
+- 種別: 矛盾是正
+- 何が起きたか: `specs/026-design-system-alignment/decisions.md` Q97 は、MASTER.md と食い違う生成部品（Title のウェイト・Button の `outline`・オーバーレイの濃さ）を `components/ui/` のソースで直すと決めた。一方 `.claude/rules/ui-design.md` は「`ui/` は CLI 生成物で手で編集しない。追加・更新はメインが CLI で行い、web-agent は `ui/` を書かない」と定めており、026 の区間 D で `ui/` を誰が直すかが規則から決まらない。MASTER.md「Component Specs」冒頭の「生成物は手で編集しない」は 026 の AC-9 の節の追加とあわせて区間 D で直す（`screen-design.md` 6）。
+- 提案: `.claude/rules/ui-design.md` の該当の項目を、「見た目はトークンで変える。トークンで変えられないものは MASTER.md『生成部品（`components/ui`）の扱い』に列挙したうえでソースを直す。CLI で上書きしたら列挙したものを直し直す」に改め、`ui/` のソースの手直しを担当するワーカー（web-agent に許すか、メインの直接修正にするか）を明記する。
