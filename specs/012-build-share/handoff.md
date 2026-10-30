@@ -58,6 +58,15 @@
 ## レビュー記録
 | 回 | 範囲 | 所見の要約 | 区分 | 処遇 | 状態 |
 |---|---|---|---|---|---|
+| 1 | a2fdab6..9968327 | その他: MASTER.md は plan の常時許可外で承認済み・所見なし（spec 影響範囲とのずれは区間 E のドリフト材料） | 持ち越し | 持ち越し | 解消 |
+| 1 | a2fdab6..9968327 | 契約: 要修正なし。NotFound.yaml の説明「自分の削除していない行」が getSharedBuild と合わない（軽微） | 持ち越し | 持ち越し | 解消 |
+| 1 | a2fdab6..9968327 | api: 閲覧パスへの未ログイン POST・DELETE（エンコード迂回含む）の 401 テスト無し | 要修正 | 是正 | 要修正 |
+| 1 | a2fdab6..9968327 | api: ShareServiceTest.primaryKeyViolationBecomesConflict が PK/UQ_BUILD_ID 分岐を通らない（上限5回の固定も任意） | 要修正 | 是正 | 要修正 |
+| 1 | a2fdab6..9968327 | api: ShareController#revoke が service.revoke ごと IllegalArgumentException を握りつぶす（parseId 方式へ） | 要修正 | 是正 | 要修正 |
+| 1 | a2fdab6..9968327 | api: ConstraintViolations と PrimaryKeyViolations の走査ループ重複 | 持ち越し | 持ち越し | 解消 |
+| 1 | a2fdab6..9968327 | web: useSkeletonDelay が計画外の新規で、既存8か所に同じ手書き処理が残る | 起票 | 起票 | 解消 |
+| 1 | a2fdab6..9968327 | web: e2e の uuidV7() が3つ目の複製（e2e/support へ共有化） | 起票 | 起票 | 解消 |
+| 1 | a2fdab6..9968327 | web: AC-7 の確認の段の本文の後半・ログアウト時に D9/D10 が閉じる挙動のテスト無し | 持ち越し | 持ち越し | 解消 |
 <!-- 区間 D。所見1件につき1行。所見は要約で書く（差分や所見の全文を貼らない）。区分: reviewer-agent の区分（要修正 / 要判断 / 起票 / 持ち越し）。処遇: 是正 / 直接修正 / ゲートで判断 / 起票 / 持ち越し のどれか。状態: 要修正 / 是正済み / 解消。既存の行は書き換えず、是正後は同じ所見の新しい行を状態=解消で追記する。
 区分と処遇の対応: 要修正 → 是正または直接修正 / 要判断 → ゲートで判断 / 起票 → 起票 / 持ち越し → 持ち越し -->
 
