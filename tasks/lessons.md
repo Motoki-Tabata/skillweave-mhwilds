@@ -99,3 +99,18 @@
 - 種別: 矛盾是正
 - 何が起きたか: `specs/026-design-system-alignment/decisions.md` Q97 は、MASTER.md と食い違う生成部品（Title のウェイト・Button の `outline`・オーバーレイの濃さ）を `components/ui/` のソースで直すと決めた。一方 `.claude/rules/ui-design.md` は「`ui/` は CLI 生成物で手で編集しない。追加・更新はメインが CLI で行い、web-agent は `ui/` を書かない」と定めており、026 の区間 D で `ui/` を誰が直すかが規則から決まらない。MASTER.md「Component Specs」冒頭の「生成物は手で編集しない」は 026 の AC-9 の節の追加とあわせて区間 D で直す（`screen-design.md` 6）。
 - 提案: `.claude/rules/ui-design.md` の該当の項目を、「見た目はトークンで変える。トークンで変えられないものは MASTER.md『生成部品（`components/ui`）の扱い』に列挙したうえでソースを直す。CLI で上書きしたら列挙したものを直し直す」に改め、`ui/` のソースの手直しを担当するワーカー（web-agent に許すか、メインの直接修正にするか）を明記する。
+
+## 2026-10-30 Jackson 3 の record で「省略は可・明示の null は不可」を @JsonSetter(nulls = FAIL) で書くと省略まで拒否される（機能013・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 013 の plan D6 (2) は `CustomWeaponPayload.element` に `@JsonSetter(nulls = Nulls.FAIL)` を付けて明示の null だけを 400 にする設計だった。実装すると creator 引数の欠落にも nulls のハンドラが効き、`element` を省略した要求まで 400 になった。`getNullValue` で拒否し `getAbsentValue` で null を返す deserializer（`ElementDeserializer`）に変えて解消した（plan の文面と実装が食い違ったまま区間 D に入った）。
+- 提案: `.claude/rules/api-spring.md` の Jackson の項に「record の省略可能な項目で明示の null だけを拒否するときは、`@JsonSetter(nulls = FAIL)` でなく `getNullValue` で拒否し `getAbsentValue` で null を返す deserializer にする」を足す。plan で Jackson の挙動を決めるときは、区間 C で省略と null の両方を実測する。
+
+## 2026-10-30 武器系の e2e spec が登録の手順と画面移動のヘルパーを複製している（機能013・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 013 の `e2e/weapon-save.spec.ts` が、`e2e/user-weapon.spec.ts` と同一内容の `openWeapons` と、登録の手順（基の武器の選択→攻撃力→会心率→登録）を複製した（レビュー記録 1 回目 web）。2 本目で、`e2e/support/` へ切り出す基準にはまだ達していない。
+- 提案: 武器系の e2e spec が 3 本目になる機能で、`e2e/support/weapons.ts` に切り出す（2026-10-27 の護石系の教訓と同じ基準）。
+
+## 2026-10-30 契約の enum と web の内部型の string が合わず、API の要求型で payload を web の型に差し替えている（機能013・区間D）
+- 種別: 矛盾是正
+- 何が起きたか: 契約では `element.type` が列挙だが、web の `WeaponPayload` は string で、`schema.ts` の `CreateCustomWeaponRequest` をそのまま使うと型が合わなかった。`lib/api/weapons.ts` の要求型で `payload` だけを web の型に差し替えて対処した。
+- 提案: web の `WeaponPayload`（と同じ形の `CustomWeaponPayload`）の `element.type` を契約の列挙に揃えるか、契約の型を使う境界を決めて `.claude/rules/` に書く。差し替えが護石など他の API の層にも増えないよう、方針を先に決める。
