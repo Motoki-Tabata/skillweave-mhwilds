@@ -81,7 +81,8 @@ public class SecurityConfig {
                                 getOrHead("/swagger-ui/**"),
                                 getOrHead("/swagger-ui.html"),
                                 getOrHead("/actuator/health/**"),
-                                getOrHead("/actuator/info"))
+                                getOrHead("/actuator/info"),
+                                getOrHead("/api/shared-builds/*"))
                         .permitAll()
                         .requestMatchers(
                                 PathPatternRequestMatcher.withDefaults().matcher("/api/**"))

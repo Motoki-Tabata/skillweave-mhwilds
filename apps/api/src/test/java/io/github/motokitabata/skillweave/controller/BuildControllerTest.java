@@ -111,6 +111,7 @@ class BuildControllerTest {
     @BeforeEach
     void setUp() throws Exception {
         http = new DiscordHttp(port, tokenClient, fetcher);
+        jdbc.update("DELETE FROM shares");
         jdbc.update("DELETE FROM builds");
         alice = cookies(http.login("400000000000000001"));
         bob = cookies(http.login("400000000000000002"));

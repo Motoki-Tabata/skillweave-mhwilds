@@ -60,10 +60,27 @@ class AuthorizationBypassTest {
 
     // 受入基準 10: 保護されたパスの下の他のパスも、GET・HEAD とも 401。
     @ParameterizedTest
-    @ValueSource(strings = {"/api/anything-else", "/api/auth/me/extra"})
+    @ValueSource(
+            strings = {
+                "/api/anything-else",
+                "/api/auth/me/extra",
+                "/api/shared-builds",
+                "/api/shared-builds/x/extra",
+                "/api/shares",
+                "/api/shares/01900000-0001-7000-8000-000000000001"
+            })
     void otherProtectedPathsReturn401(String path) {
         assertThat(status(HttpMethod.GET, path)).isEqualTo(401);
         assertThat(status(HttpMethod.HEAD, path)).isEqualTo(401);
+    }
+
+    // 012 AC-11: 閲覧の API は GET・HEAD だけ未ログインで通り（共有が無ければ 404）、管理の API と
+    // ID なし・1 段より深いパスは未ログインでは 401。
+    @ParameterizedTest
+    @ValueSource(strings = {"/api/shared-builds/Ab3dE6gH9jK2", "/api/shared-builds/x"})
+    void sharedBuildViewIsPublicForGetAndHead(String path) {
+        assertThat(status(HttpMethod.GET, path)).isEqualTo(404);
+        assertThat(status(HttpMethod.HEAD, path)).isEqualTo(404);
     }
 
     // ファイアウォールが拒む形（%2F・/./・/../）は、認可の前に 400 で拒否される（GET・HEAD とも）。
