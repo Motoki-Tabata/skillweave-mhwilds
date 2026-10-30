@@ -1,8 +1,9 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
-import { WEAPON_LIST_LIMIT } from '@/constants/search'
+import { LOADING_SKELETON_DELAY_MS, WEAPON_LIST_LIMIT } from '@/constants/search'
 import { makeBundle, makeDictionary, wp } from '../../support/fixtures'
 import { createMemoryWeaponRepository } from '../../support/weaponRepository'
+import { accountWeapon, createMemoryWeaponsApi } from '../../support/weaponsApi'
 import type { WeaponRepository } from '@/lib/weapons/storage'
 import {
   ARTIA_BOW,
@@ -13,6 +14,7 @@ import {
 } from '../../support/weapons'
 import {
   click,
+  fakeAuthApi,
   findByLabel,
   installDomPolyfills,
   mountReadyApp,
@@ -30,6 +32,7 @@ describe('WeaponDialog（D1）と武器カード', () => {
   afterEach(() => {
     mounted?.wrapper.unmount()
     mounted = null
+    vi.useRealTimers()
     restoreStubs()
   })
 
@@ -171,6 +174,7 @@ describe('WeaponDialog（D1）の個体差のある武器', () => {
   afterEach(() => {
     mounted?.wrapper.unmount()
     mounted = null
+    vi.useRealTimers()
     restoreStubs()
     document.body.innerHTML = ''
   })
@@ -322,5 +326,62 @@ describe('WeaponDialog（D1）の個体差のある武器', () => {
     expect(customCards()).toHaveLength(0)
     expect(headings()).toEqual([])
     expect(dialog()!.querySelectorAll('ul li button').length).toBeGreaterThan(0)
+  })
+
+  // 013 AC-12・AC-1
+  it('013 AC-12: ログイン中に一覧を取得できないとき、通信の失敗を原因にした帯を出し、通常の武器を選べる', async () => {
+    stubBackend({ bundle: makeWeaponBundle(), dictionary: makeWeaponDictionary() })
+    const api = createMemoryWeaponsApi([accountWeapon(storedWeapon(1))])
+    api.failWith('list', { kind: 'failed', cause: 'network' })
+    mounted = await mountReadyApp({
+      authApi: fakeAuthApi({
+        fetchCurrentUser: async () => ({ kind: 'authenticated', displayName: 'テスト' }),
+      }),
+      weaponsApi: api,
+    })
+    const trigger = Array.from(document.querySelectorAll('button')).find((b) =>
+      textOf(b).includes('武器を選択'),
+    )!
+    await click(trigger)
+    await vi.waitFor(() => expect(mounted!.weapons.status).toBe('failed'))
+    await flushPromises()
+    expect(textOf(dialog())).toContain(
+      '個体差のある武器を読み込めませんでした（サーバーに接続できませんでした）。通常の武器から選べます。',
+    )
+    expect(customCards()).toHaveLength(0)
+    expect(dialog()!.querySelectorAll('ul li button').length).toBeGreaterThan(0)
+  })
+
+  // 013 AC-1・AC-3
+  it('013 AC-3: 認証状態の判定中は読込中を出し、判定後にアカウントの武器だけを出す', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    stubBackend({ bundle: makeWeaponBundle(), dictionary: makeWeaponDictionary() })
+    let release: (() => void) | null = null
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    mounted = await mountReadyApp({
+      authApi: fakeAuthApi({
+        fetchCurrentUser: async () => {
+          await gate
+          return { kind: 'authenticated', displayName: 'テスト' }
+        },
+      }),
+      weaponsApi: createMemoryWeaponsApi([accountWeapon(storedWeapon(1))]),
+      weaponRepository: createMemoryWeaponRepository([storedWeapon(2), storedWeapon(3)]),
+    })
+    const trigger = Array.from(document.querySelectorAll('button')).find((b) =>
+      textOf(b).includes('武器を選択'),
+    )!
+    await click(trigger)
+    expect(mounted.weapons.status).toBe('loading')
+    vi.advanceTimersByTime(LOADING_SKELETON_DELAY_MS)
+    await flushPromises()
+    expect(textOf(dialog())).toContain('個体差のある武器を読み込んでいます…')
+    release!()
+    await vi.waitFor(() => expect(mounted!.weapons.status).toBe('ready'))
+    await flushPromises()
+    expect(textOf(dialog())).not.toContain('読み込んでいます')
+    expect(customCards()).toHaveLength(1)
   })
 })
