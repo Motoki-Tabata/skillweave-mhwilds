@@ -1,0 +1,14 @@
+type: object
+description: 共有の作成の要求。
+required:
+  - id
+  - buildId
+properties:
+  id:
+    type: string
+    format: uuid
+    description: クライアントが採番した共有の ID（UUIDv7）。
+  buildId:
+    type: string
+    format: uuid
+    description: 共有する構成の ID。

@@ -1,0 +1,42 @@
+parameters:
+  - name: shortId
+    in: path
+    required: true
+    description: 共有の短縮 ID。形（base62 の 12 字）の検査は契約では行わず、形の違う値は不在と同じ扱いにする。
+    schema:
+      type: string
+get:
+  operationId: getSharedBuild
+  x-swv-status: draft
+  summary: 共有された構成を取得する
+  tags:
+    - shared-builds
+  security: []
+  description: |
+    **【機能概要】**
+
+    短縮 ID で、共有された構成の内容を返す。未ログインでも取得できる。refs specs/012-build-share/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: 不要（未ログインで取得できる）。未ログインに許すのは GET と HEAD だけ
+    - チャレンジレスポンス認証: 不採用
+    - 応答に共有の行の ID・元の構成の ID・作成者の情報は含めない
+
+    **【処理詳細】**
+
+    1. 短縮 ID で、取り消していない共有を探す。
+    2. 共有を作った時点で写した名前・マスターの版・内容・スキーマ版と作成日時を 200 で返す。元の構成を後から変更・削除していても、写しを返す。
+
+    **【異常処理詳細】**
+
+    1. 共有が取り消されている場合、短縮 ID の共有が無い場合、短縮 ID の形が違う場合（12 字でない・base62 以外の文字を含む）は、区別せず 404（`application/problem+json`）を返す。
+  responses:
+    '200':
+      description: 共有された構成。
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/shares/SharedBuild.yaml
+    '404':
+      $ref: ../../components/responses/NotFound.yaml

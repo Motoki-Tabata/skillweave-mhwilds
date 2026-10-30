@@ -20,7 +20,17 @@ tags:
     description: 構成（ログイン中のユーザーが保存する構成の一覧・作成・名前の変更・削除）
   - name: weapons
     description: 個体差のある武器（ログイン中のユーザーが保存する個体差のある武器の一覧・作成・更新・削除）
+  - name: shares
+    description: 共有（ログイン中のユーザーが作る構成の共有の一覧・作成・取り消し）
+  - name: shared-builds
+    description: 共有された構成（短縮 ID で未ログインでも閲覧できる）
 paths:
+  /api/shares:
+    $ref: paths/shares/shares.yaml
+  /api/shares/{id}:
+    $ref: paths/shares/shares-id.yaml
+  /api/shared-builds/{shortId}:
+    $ref: paths/shared-builds/shared-builds-shortId.yaml
   /api/builds:
     $ref: paths/builds/builds.yaml
   /api/builds/{id}:
@@ -95,6 +105,12 @@ components:
       $ref: components/schemas/builds/CreateBuildRequest.yaml
     RenameBuildRequest:
       $ref: components/schemas/builds/RenameBuildRequest.yaml
+    Share:
+      $ref: components/schemas/shares/Share.yaml
+    CreateShareRequest:
+      $ref: components/schemas/shares/CreateShareRequest.yaml
+    SharedBuild:
+      $ref: components/schemas/shares/SharedBuild.yaml
   responses:
     Unauthorized:
       $ref: components/responses/Unauthorized.yaml

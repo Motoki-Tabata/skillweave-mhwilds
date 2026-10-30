@@ -1,0 +1,42 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    description: 共有の ID。
+    schema:
+      type: string
+      format: uuid
+delete:
+  operationId: revokeShare
+  x-swv-status: draft
+  summary: 共有を取り消す
+  tags:
+    - shares
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    自分の共有を論理削除して取り消す。冪等で、対象の行が無くても 204 を返す。取り消すと共有の URL は閲覧できなくなる。refs specs/012-build-share/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+    2. セッション Cookie からログイン状態を判定する。
+    3. 自分の取り消していない共有があれば論理削除する。
+    4. 204 を返す。行が無い・取り消し済み・他のユーザーの行・ID の形が不正な場合も 204 で、他のユーザーの行は変えない。
+
+    **【異常処理詳細】**
+
+    1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+    2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+  responses:
+    '204':
+      description: 取り消した（または対象が無かった）。本文は無い。
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml
