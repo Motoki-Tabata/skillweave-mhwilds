@@ -1,6 +1,5 @@
 get:
   operationId: listWeapons
-  x-swv-status: draft
   summary: 自分の個体差のある武器の一覧を取得する
   tags:
     - weapons
@@ -37,7 +36,6 @@ get:
       $ref: ../../components/responses/Unauthorized.yaml
 post:
   operationId: createWeapon
-  x-swv-status: draft
   summary: 個体差のある武器を保存する
   tags:
     - weapons

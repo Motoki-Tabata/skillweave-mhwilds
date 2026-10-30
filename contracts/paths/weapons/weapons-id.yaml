@@ -8,7 +8,6 @@ parameters:
       format: uuid
 put:
   operationId: updateWeapon
-  x-swv-status: draft
   summary: 個体差のある武器を更新する
   tags:
     - weapons
@@ -62,7 +61,6 @@ put:
       $ref: ../../components/responses/Conflict.yaml
 delete:
   operationId: deleteWeapon
-  x-swv-status: draft
   summary: 個体差のある武器を削除する
   tags:
     - weapons
