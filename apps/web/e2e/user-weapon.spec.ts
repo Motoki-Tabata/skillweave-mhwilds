@@ -1,6 +1,7 @@
 import { expect, type Page, test } from '@playwright/test'
 import { loadMasterInfo } from './support/masterData'
 import { addSkills, searchButton, setRanks } from './support/search'
+import { openWeapons } from './support/weapons'
 
 const master = loadMasterInfo()
 const artiaName = master.artiaWeaponName()
@@ -14,15 +15,6 @@ async function goByNav(page: Page, linkName: NavLink): Promise<void> {
     .getByRole('navigation', { name: '画面の切り替え' })
     .getByRole('link', { name: linkName, exact: true })
     .click()
-}
-
-async function openWeapons(page: Page): Promise<void> {
-  await page.goto('/weapons')
-  await expect(page.getByRole('heading', { level: 1, name: '個体差のある武器' })).toBeVisible({
-    timeout: 60_000,
-  })
-  await expect(page.getByRole('heading', { name: '武器を登録' })).toBeVisible({ timeout: 60_000 })
-  await expect(page.getByRole('heading', { name: /^登録済みの武器（\d+）$/ })).toBeVisible()
 }
 
 /** 付与スキルの Combobox に名前を入れ、候補を選ぶ。 */

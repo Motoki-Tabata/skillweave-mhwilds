@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
+import { openCharms, pickSkillByReading } from './support/charms'
 import { loadMasterInfo } from './support/masterData'
 import { searchButton, selectWeapon } from './support/search'
 
@@ -11,27 +12,6 @@ async function goByNav(page: Page, linkName: '装備検索' | '護石'): Promise
     .getByRole('navigation', { name: '画面の切り替え' })
     .getByRole('link', { name: linkName, exact: true })
     .click()
-}
-
-/** スキル<row>に、読み（ひらがな）で検索して漢字の名前の候補を選ぶ。 */
-async function pickSkillByReading(page: Page, row: number): Promise<void> {
-  const input = page.getByRole('combobox', { name: `スキル${row}`, exact: true })
-  await input.fill(skill.reading)
-  // 候補は「<スキル名> <種類>」。ひらがなの入力で漢字の名前の候補が出る
-  // 前の行で選んだ候補の一覧が DOM に残ることがあるので、開いたばかりの最後の一覧を使う
-  const option = page.getByRole('option', { name: `${skill.name} 防具`, exact: true }).last()
-  await expect(option).toBeVisible()
-  await option.click()
-  await expect(input).toHaveValue(skill.name)
-}
-
-async function openCharms(page: Page): Promise<void> {
-  await page.goto('/charms')
-  await expect(page.getByRole('heading', { level: 1, name: '護石', exact: true })).toBeVisible({
-    timeout: 60_000,
-  })
-  await expect(page.getByRole('heading', { name: '護石を登録' })).toBeVisible({ timeout: 60_000 })
-  await expect(page.getByRole('heading', { name: /^登録済みの護石（\d+）$/ })).toBeVisible()
 }
 
 test.describe('005 charm-input', () => {

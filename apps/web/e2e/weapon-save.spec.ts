@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test'
 import { loadMasterInfo } from './support/masterData'
+import { openWeapons, registerWeapon } from './support/weapons'
 
 const master = loadMasterInfo()
 const artiaName = master.artiaWeaponName()
@@ -75,25 +76,6 @@ async function mockApi(page: Page) {
     return route.fulfill({ status: 500 })
   })
   return state
-}
-
-async function openWeapons(page: Page): Promise<void> {
-  await page.goto('/weapons')
-  await expect(page.getByRole('heading', { level: 1, name: '個体差のある武器' })).toBeVisible({
-    timeout: 60_000,
-  })
-  await expect(page.getByRole('heading', { name: '武器を登録' })).toBeVisible({ timeout: 60_000 })
-  await expect(page.getByRole('heading', { name: /^登録済みの武器（\d+）$/ })).toBeVisible()
-}
-
-/** 基の武器・攻撃力・会心率を入れて登録する。 */
-async function registerWeapon(page: Page, attack: number): Promise<void> {
-  await page.getByRole('combobox', { name: /^基の武器/ }).click()
-  await page.getByRole('option', { name: artiaName, exact: true }).click()
-  await page.getByRole('textbox', { name: /^攻撃力/ }).fill(String(attack))
-  await page.getByRole('textbox', { name: /^会心率/ }).fill('15')
-  await page.getByRole('button', { name: '登録', exact: true }).click()
-  await expect(page.getByText('個体差のある武器を登録しました。', { exact: true })).toBeVisible()
 }
 
 test.describe('013 weapon-save', () => {
