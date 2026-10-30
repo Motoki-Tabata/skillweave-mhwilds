@@ -7,7 +7,6 @@ parameters:
       type: string
 get:
   operationId: getSharedBuild
-  x-swv-status: draft
   summary: 共有された構成を取得する
   tags:
     - shared-builds

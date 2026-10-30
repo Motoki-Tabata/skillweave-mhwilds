@@ -8,7 +8,6 @@ parameters:
       format: uuid
 delete:
   operationId: revokeShare
-  x-swv-status: draft
   summary: 共有を取り消す
   tags:
     - shares

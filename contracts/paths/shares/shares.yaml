@@ -1,6 +1,5 @@
 get:
   operationId: listShares
-  x-swv-status: draft
   summary: 自分の有効な共有の一覧を取得する
   tags:
     - shares
@@ -37,7 +36,6 @@ get:
       $ref: ../../components/responses/Unauthorized.yaml
 post:
   operationId: createShare
-  x-swv-status: draft
   summary: 構成を共有する
   tags:
     - shares
