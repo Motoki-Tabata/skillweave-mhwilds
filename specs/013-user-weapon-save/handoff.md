@@ -53,17 +53,27 @@
 | web (T3) | web-agent | 1995f4a |
 | web (T4) | web-agent | 126c003 |
 | E2E | e2e-agent | d395786 |
+| api (是正) | api-agent | a5b4d6b |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
 | 回 | 範囲 | 所見の要約 | 区分 | 処遇 | 状態 |
 |---|---|---|---|---|---|
+| 1 | addaf09..d395786 | api: plan D6(2) の逸脱（ElementDeserializer）は妥当。plan の記述が実装と食い違う | 持ち越し | 持ち越し | 解消 |
+| 1 | addaf09..d395786 | api: 木経由の冗長コード・Charm/Weapon/Build の層の重複・衝突テストが version を見ない（軽微） | 持ち越し | 持ち越し | 解消 |
+| 1 | addaf09..d395786 | web: Sonar と e2e の実行結果が要約に無い（最終検証で実行） | 要判断 | ゲートで判断 | 解消 |
+| 1 | addaf09..d395786 | web: e2e の openWeapons 等が user-weapon.spec と重複（3本目で support へ切り出し） | 起票 | 起票 | 解消 |
+| 1 | addaf09..d395786 | web: 削除時の端末件数不変・409/404 後の入力破棄・登録モード 401 の入力保持が未検証、e2e の選択確認が弱い（軽微） | 持ち越し | 持ち越し | 解消 |
+| 1 | addaf09..d395786 | 契約・その他: 所見なし（T1 コミットの refs は付与済み） | 持ち越し | 持ち越し | 解消 |
+| 2 | d395786 時点の最終検証 | api: BuildControllerTest の rejectedWeaponCopyIsNotSaved が invalidPayloadIsRejectedWithBadRequest と同一実装で Sonar java:S4144 が1件 | 要修正 | 是正 | 要修正 |
+| 3 | d395786..a5b4d6b | api: S4144 の重複テストを統合。再レビューで要修正なし、最終検証は Sonar 0件・Quality Gate OK | 要修正 | 是正 | 解消 |
 <!-- 区間 D。所見1件につき1行。所見は要約で書く（差分や所見の全文を貼らない）。区分: reviewer-agent の区分（要修正 / 要判断 / 起票 / 持ち越し）。処遇: 是正 / 直接修正 / ゲートで判断 / 起票 / 持ち越し のどれか。状態: 要修正 / 是正済み / 解消。既存の行は書き換えず、是正後は同じ所見の新しい行を状態=解消で追記する。
 区分と処遇の対応: 要修正 → 是正または直接修正 / 要判断 → ゲートで判断 / 起票 → 起票 / 持ち越し → 持ち越し -->
 
 ## メインの直接修正
 | 区間 | ファイル | 内容（1行） | 理由 |
 |---|---|---|---|
+- なし
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
@@ -74,6 +84,7 @@
 - 区間 A では教訓の候補なし
 - 区間 B では教訓の候補なし
 - 区間 C では教訓を1件起票した（tasks/lessons.md の 2026-10-30「作成の catch が DataIntegrityViolationException をすべて 409 にする」）
+- 区間 D の候補: (1) Jackson 3 の record で省略可・明示 null 不可は @JsonSetter(nulls=FAIL) では省略まで拒否される。getNullValue で拒否し getAbsentValue で null を返す deserializer が要る（plan D6(2) からの逸脱）。(2) 武器系 e2e spec が 3 本目になる機能で e2e/support/weapons.ts に切り出す（レビュー web 3）。(3) 契約の enum と web の string が合わず、API の要求型で payload を web の型に差し替えた。
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
@@ -81,3 +92,4 @@
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q72・Q98・Q99・Q100
+- plan D6(2) の記述（@JsonSetter(nulls = Nulls.FAIL)）は実装（ElementDeserializer: getNullValue で拒否・getAbsentValue で null）と食い違う。区間 E のドリフト是正で plan.md を直す。
