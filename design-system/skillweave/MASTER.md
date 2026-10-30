@@ -189,7 +189,19 @@ font-variant-numeric: tabular-nums;
 
 ## Component Specs
 
-部品は shadcn-vue の生成物（`apps/web/src/main/components/ui/`）をそのまま使い、見た目はトークンで変える。生成物は手で編集しない。下の CSS は見た目の意図を示すもので、実装はトークンを介する。
+部品は shadcn-vue の生成物（`apps/web/src/main/components/ui/`）を使い、見た目はトークンで変える。トークンで変えられないものだけ、下の「生成部品（`components/ui`）の扱い」の節に列挙してソースを直す。下の CSS は見た目の意図を示すもので、実装はトークンを介する。
+
+### 生成部品（`components/ui`）の扱い
+
+- トークンで打ち消すもの（ソースは直さない）
+  - 角丸: `--radius-*` を `--radius` に揃える。
+  - 影: `--shadow-*` を `0 0 #0000` にする。生成部品の `shadow-*` のクラスは残る。
+- ソースを直したもの
+  - 見出しのウェイト: `card/CardTitle.vue`・`dialog/DialogTitle.vue`・`alert-dialog/AlertDialogTitle.vue` を `font-bold` にする。
+  - Button の `outline`: `button/index.ts` の variant を `.btn-outline` に合わせる（`border-input`・`bg-transparent`・`hover:bg-muted`）。
+  - オーバーレイの濃さ: `alert-dialog/AlertDialogContent.vue`・`dialog/DialogOverlay.vue`・`dialog/DialogScrollContent.vue` を `bg-black/60` にする。
+- 手書きの側で揃えるもの: `md` 以上で outline にするクラス列は `components/common/mdOutlineClass.ts` の `MD_OUTLINE_CLASS` にまとめてある。`outline` を直したら揃える。
+- shadcn-vue の CLI で上書きしたときは、上に列挙したものを直し直す。
 
 ### 小見出し（刻印風）
 
