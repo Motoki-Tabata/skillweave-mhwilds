@@ -18,7 +18,8 @@ properties:
   name:
     type: string
     maxLength: 30
-    description: 武器の名前（0〜30文字）。空なら Web が基の武器の名前を出す。
+    pattern: '^[^\u0000]*$'
+    description: 武器の名前（0〜30文字）。U+0000 を含まない。空なら Web が基の武器の名前を出す。
   attack:
     type: integer
     minimum: 1

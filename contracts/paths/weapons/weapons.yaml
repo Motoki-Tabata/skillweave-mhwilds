@@ -1,0 +1,88 @@
+get:
+  operationId: listWeapons
+  x-swv-status: draft
+  summary: 自分の個体差のある武器の一覧を取得する
+  tags:
+    - weapons
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    ログイン中のユーザーが保存した、削除していない個体差のある武器を全件返す。ID の降順で、ページングはしない。refs specs/013-user-weapon-save/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. セッション Cookie からログイン状態を判定する。
+    2. 自分の削除していない武器を ID の降順で並べ、200 で返す。0件なら空の配列。
+
+    **【異常処理詳細】**
+
+    1. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+  responses:
+    '200':
+      description: 自分の個体差のある武器の配列。
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/weapons/CustomWeapon.yaml
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml
+post:
+  operationId: createWeapon
+  x-swv-status: draft
+  summary: 個体差のある武器を保存する
+  tags:
+    - weapons
+  security:
+    - sessionCookie: []
+  description: |
+    **【機能概要】**
+
+    クライアントが採番した ID で個体差のある武器を新規に保存する。refs specs/013-user-weapon-save/spec.md
+
+    **【公開範囲・認証】**
+
+    - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+    - チャレンジレスポンス認証: 不採用
+
+    **【処理詳細】**
+
+    1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+    2. セッション Cookie からログイン状態を判定する。
+    3. 要求の構造（ID・スキーマ版・武器の内容）を検査する。
+    4. 武器を自分の行として保存する。行バージョン・作成日時・更新日時はサーバーが決める。
+    5. 保存後の武器を 201 で返す。
+
+    **【異常処理詳細】**
+
+    1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+    2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+    3. 要求の構造が契約に反する場合（文字列の項目が JSON の文字列でない、省略できる項目が明示の null、文字列に U+0000 を含む場合を含む）は 400（`application/problem+json`）を返し、保存しない。
+    4. ID が既存の行（他のユーザー・削除済みを含む）と衝突する場合は 409（`application/problem+json`）を返し、既存の行は変えない。
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/weapons/CreateCustomWeaponRequest.yaml
+  responses:
+    '201':
+      description: 保存した個体差のある武器。
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/weapons/CustomWeapon.yaml
+    '400':
+      $ref: ../../components/responses/BadRequest.yaml
+    '401':
+      $ref: ../../components/responses/Unauthorized.yaml
+    '409':
+      $ref: ../../components/responses/Conflict.yaml

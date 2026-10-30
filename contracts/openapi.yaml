@@ -18,6 +18,8 @@ tags:
     description: 護石（ログイン中のユーザーが保存する護石の一覧・作成・更新・削除）
   - name: builds
     description: 構成（ログイン中のユーザーが保存する構成の一覧・作成・名前の変更・削除）
+  - name: weapons
+    description: 個体差のある武器（ログイン中のユーザーが保存する個体差のある武器の一覧・作成・更新・削除）
 paths:
   /api/builds:
     $ref: paths/builds/builds.yaml
@@ -27,6 +29,10 @@ paths:
     $ref: paths/charms/charms.yaml
   /api/charms/{id}:
     $ref: paths/charms/charms-id.yaml
+  /api/weapons:
+    $ref: paths/weapons/weapons.yaml
+  /api/weapons/{id}:
+    $ref: paths/weapons/weapons-id.yaml
   /api/auth/me:
     $ref: paths/auth/auth-me.yaml
   /api/auth/logout:
@@ -67,6 +73,12 @@ components:
       $ref: components/schemas/builds/BuildCustomWeapon.yaml
     CustomWeaponPayload:
       $ref: components/schemas/builds/CustomWeaponPayload.yaml
+    CustomWeapon:
+      $ref: components/schemas/weapons/CustomWeapon.yaml
+    CreateCustomWeaponRequest:
+      $ref: components/schemas/weapons/CreateCustomWeaponRequest.yaml
+    UpdateCustomWeaponRequest:
+      $ref: components/schemas/weapons/UpdateCustomWeaponRequest.yaml
     BuildArmor:
       $ref: components/schemas/builds/BuildArmor.yaml
     BuildCharm:
