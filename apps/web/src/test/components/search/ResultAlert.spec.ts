@@ -9,6 +9,7 @@ describe('ResultAlert', () => {
 
   it('warning は左の太線（3px）と薄い背景を持つ', () => {
     const cls = mountTone('warning').find('[role="alert"]').classes()
+    expect(cls).toContain('border')
     expect(cls).toContain('border-l-warning')
     expect(cls).toContain('border-l-[3px]')
     expect(cls).toContain('bg-warning/15')
