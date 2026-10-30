@@ -64,7 +64,9 @@ class CharmServiceTest {
         service.create(userId, request(8, 1));
         doReturn(false).when(repository).existsById(ID);
 
-        assertThatThrownBy(() -> service.create(userId, request(5, 1)))
+        CreateCharmRequest second = request(5, 1);
+
+        assertThatThrownBy(() -> service.create(userId, second))
                 .isInstanceOf(ResourceConflictException.class)
                 .hasMessage(CharmService.ID_EXISTS);
         assertThat(jdbc.queryForObject("SELECT payload->>'rarity' FROM charms WHERE id = ?", String.class, ID))
@@ -75,15 +77,18 @@ class CharmServiceTest {
     void foreignKeyViolationIsNotConflict() {
         UUID unknownUser = UUID.fromString("01900000-0002-7000-8000-000000000002");
 
-        assertThatThrownBy(() -> service.create(unknownUser, request(8, 1)))
+        CreateCharmRequest request = request(8, 1);
+
+        assertThatThrownBy(() -> service.create(unknownUser, request))
                 .isInstanceOf(DataIntegrityViolationException.class);
         assertThat(rows()).isZero();
     }
 
     @Test
     void checkViolationIsNotConflict() {
-        assertThatThrownBy(() -> service.create(userId, request(8, 0)))
-                .isInstanceOf(DataIntegrityViolationException.class);
+        CreateCharmRequest request = request(8, 0);
+
+        assertThatThrownBy(() -> service.create(userId, request)).isInstanceOf(DataIntegrityViolationException.class);
         assertThat(rows()).isZero();
     }
 }
