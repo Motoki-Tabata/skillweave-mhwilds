@@ -55,6 +55,7 @@
 | E2E | e2e-agent | d395786 |
 | api (是正) | api-agent | a5b4d6b |
 | api (是正2: 作成の catch) | api-agent | cfed9c0 |
+| api (是正3: S5778) | api-agent | 8cc3194 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
@@ -70,6 +71,7 @@
 | 3 | d395786..a5b4d6b | api: S4144 の重複テストを統合。再レビューで要修正なし、最終検証は Sonar 0件・Quality Gate OK | 要修正 | 是正 | 解消 |
 | 4 | 2affbf8..cfed9c0 | api: WeaponService#create の catch が DataIntegrityViolationException を無条件に 409 にする（PR #66 と同じ形へ。main の 30b8664 を eb80101 で取り込み済み）。主キー違反以外は 409 にならない WeaponServiceTest を追加し、教訓台帳の該当項目を削除 | 要修正 | 是正 | 是正済み |
 | 5 | 2affbf8..cfed9c0 | 再検証: build・contractTest・web・packages・e2e は全段 PASS。Sonar は issue 6 件（すべて java:S5778。main に取り込んだ PR #66 の BuildServiceTest 75/86/95 行・CharmServiceTest 67/78/85 行で、013 の差分ではない。WeaponServiceTest は 0 件）。013 のブランチでは直さず main 側で扱う | 持ち越し | 持ち越し | 解消 |
+| 6 | cfed9c0..8cc3194 | api: main 取り込みの BuildServiceTest・CharmServiceTest の java:S5778 6件を解消（テストの意図・期待値は不変）。最終検証は全段 PASS・Sonar issue 0・hotspot 0・Quality Gate OK | 要修正 | 是正 | 解消 |
 <!-- 区間 D。所見1件につき1行。所見は要約で書く（差分や所見の全文を貼らない）。区分: reviewer-agent の区分（要修正 / 要判断 / 起票 / 持ち越し）。処遇: 是正 / 直接修正 / ゲートで判断 / 起票 / 持ち越し のどれか。状態: 要修正 / 是正済み / 解消。既存の行は書き換えず、是正後は同じ所見の新しい行を状態=解消で追記する。
 区分と処遇の対応: 要修正 → 是正または直接修正 / 要判断 → ゲートで判断 / 起票 → 起票 / 持ち越し → 持ち越し -->
 
@@ -97,3 +99,4 @@
 - A-1 の移設先: Q72・Q98・Q99・Q100
 - plan D6(2) の記述（@JsonSetter(nulls = Nulls.FAIL)）は実装（ElementDeserializer: getNullValue で拒否・getAbsentValue で null）と食い違う。区間 E のドリフト是正で plan.md を直す。
 - main(30b8664)の取り込み後、Sonar の全体解析は PR #66 のテスト(BuildServiceTest・CharmServiceTest)の java:S5778 6件で FAIL（013 起因ではない）。ゲート D-1 の提示時に人間が扱いを決める。
+- 上の Sonar 6件（S5778）は 8cc3194 で解消済み。8cc3194 時点の最終検証（--e2e --sonar）は全段 PASS・Sonar issue 0・hotspot 0・Quality Gate OK。
