@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { Cloud, Smartphone } from '@lucide/vue'
+import { Cloud, Loader2, Smartphone } from '@lucide/vue'
 import DeleteConfirmDialog from '@/components/common/DeleteConfirmDialog.vue'
+import DeviceImportDialog from '@/components/common/DeviceImportDialog.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -175,6 +176,24 @@ async function confirmDelete(): Promise<void> {
   conditions.releaseWeapon(id)
 }
 
+const importButton = ref<InstanceType<typeof Button> | null>(null)
+const importOpen = ref(false)
+
+/** 取り込み中は押下を無視する（`disabled` にするとフォーカスが失われるため `aria-disabled` で無効にする）。 */
+function askImport(): void {
+  if (!weapons.importing) importOpen.value = true
+}
+
+async function confirmImport(): Promise<void> {
+  await weapons.importFromDevice()
+  await focusHeadingIfLost()
+}
+
+function onImportCloseAutoFocus(event: Event): void {
+  event.preventDefault()
+  void nextTick(() => (importButton.value?.$el as HTMLElement | undefined)?.focus())
+}
+
 function onDialogCloseAutoFocus(event: Event): void {
   event.preventDefault()
   const focus = focusAfterDialog
@@ -241,6 +260,17 @@ const deleteDescription = computed(() => {
           {{ weapons.deviceWeaponCount }}
           件残っています。ログインしている間は表示せず、検索にも使いません。ログアウトすると、ふたたび表示します。
         </p>
+        <Button
+          ref="importButton"
+          type="button"
+          variant="outline"
+          class="mt-2 h-11 aria-disabled:opacity-50"
+          :aria-disabled="weapons.importing ? 'true' : undefined"
+          @click="askImport"
+        >
+          <Loader2 v-if="weapons.importing" class="size-4 animate-spin" aria-hidden="true" />
+          {{ weapons.importing ? '取り込み中…' : 'アカウントに取り込む' }}
+        </Button>
       </ResultAlert>
       <div
         class="flex flex-col gap-4 lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:items-start lg:gap-6"
@@ -318,6 +348,13 @@ const deleteDescription = computed(() => {
       </div>
     </template>
 
+    <DeviceImportDialog
+      v-model:open="importOpen"
+      noun="個体差のある武器"
+      :count="weapons.deviceWeaponCount ?? 0"
+      @confirm="confirmImport"
+      @close-auto-focus="onImportCloseAutoFocus"
+    />
     <DeleteConfirmDialog
       v-model:open="deleteOpen"
       title="個体差のある武器を削除しますか？"
