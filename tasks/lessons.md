@@ -104,3 +104,8 @@
 - 種別: 矛盾是正
 - 何が起きたか: `specs/026-design-system-alignment/decisions.md` Q97 は、MASTER.md と食い違う生成部品（Title のウェイト・Button の `outline`・オーバーレイの濃さ）を `components/ui/` のソースで直すと決めた。一方 `.claude/rules/ui-design.md` は「`ui/` は CLI 生成物で手で編集しない。追加・更新はメインが CLI で行い、web-agent は `ui/` を書かない」と定めており、026 の区間 D で `ui/` を誰が直すかが規則から決まらない。MASTER.md「Component Specs」冒頭の「生成物は手で編集しない」は 026 の AC-9 の節の追加とあわせて区間 D で直す（`screen-design.md` 6）。
 - 提案: `.claude/rules/ui-design.md` の該当の項目を、「見た目はトークンで変える。トークンで変えられないものは MASTER.md『生成部品（`components/ui`）の扱い』に列挙したうえでソースを直す。CLI で上書きしたら列挙したものを直し直す」に改め、`ui/` のソースの手直しを担当するワーカー（web-agent に許すか、メインの直接修正にするか）を明記する。
+
+## 2026-10-30 作成の catch が DataIntegrityViolationException をすべて 409 にするため、DB が拒否した値が「ID の衝突」に化ける（機能013・区間C）
+- 種別: 規律昇華
+- 何が起きたか: 013 の区間 C の実測（`specs/013-user-weapon-save/plan.md` D1）で、構成名・武器の写しの名前に U+0000 を送ると、PostgreSQL の拒否（SQLState 22021・22P05）を `BuildService#create` の `catch (DataIntegrityViolationException e)` が拾い、409「Build id already exists」を返した。`CharmService#create` も同じ形で、013 の `WeaponService` もこれに倣う（plan D5）。U+0000 は plan D6 で DB に届かなくなるが、主キー違反以外の拒否（外部キー・CHECK・文字コード）が衝突に化ける構造は残る。
+- 提案: `.claude/rules/api-spring.md` に「クライアント採番の ID の作成で主キー違反を 409 にするときは、`DataIntegrityViolationException` を丸ごと捕まえず、主キーの制約名（`pk_<table>_id`）か SQLState 23505 で主キー違反だけを 409 にする」を足す。`CharmService`・`BuildService`・`WeaponService` の catch を直す作業は別に切る。
