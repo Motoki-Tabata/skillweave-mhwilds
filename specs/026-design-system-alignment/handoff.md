@@ -2,10 +2,10 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: E
-- 次に起動するコマンド: `/tsod-ship 026-design-system-alignment`
-- 推奨モデル: Sonnet
-- ブランチ: `feat/026-design-system-alignment`（不変）
+- 区間: 完了
+- 次に起動するコマンド: なし
+- 推奨モデル: なし
+- ブランチ: なし（`feat/026-design-system-alignment`・`docs/026-design-system-alignment-drift` ともマージ・削除済み）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
@@ -29,8 +29,8 @@
 | B-2 | テーブル設計（design/・migration） | 該当なし（テーブル変更なし） | 2026-10-30 |
 | C-1 | plan.md・tasks.md | 承認済み | 2026-10-30 / e993b3d |
 | D-1 | 実装受入 | 承認済み | 2026-10-30 / 0f80859 |
-| E-1 | マージ（PR・CI 緑） | 未 | |
-| E-2 | ドリフト是正と drift PR のマージ | 未 | |
+| E-1 | マージ（PR・CI 緑） | 承認済み | 2026-10-30 / PR #62 |
+| E-2 | ドリフト是正と drift PR のマージ | 承認済み | 2026-10-30 / drift PR #63 |
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
 
 ## コミット範囲
@@ -78,6 +78,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - 新規の教訓なし。区間 E の始末へ持ち越し: components/common/README.md の「ui/ は手で編集しない」も lessons 2026-10-30 の始末の対象にする。AC-6 の単体テストが無いこと、ダークの md:dark:hover:bg-muted が ghost の dark:hover:bg-accent/50 に勝つことは実ブラウザ未確認（区間 E の目視で見る）
+- 区間 E で持ち越し: ui-design.md と components/common/README.md の「ui/ は手で編集しない」の是正は tasks/lessons.md 2026-10-30 の起票を維持し、別作業で扱う。AC-6 の単体テスト無しと ダークの hover 優先は実ブラウザ未確認のまま次の機能へ持ち越す
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
