@@ -485,27 +485,6 @@ class BuildControllerTest {
                 "[]");
     }
 
-    // 013 AC-11: 武器の写しの name に文字列以外・U+0000、element に明示の null は 400 で、保存しない。
-    @ParameterizedTest
-    @MethodSource("rejectedWeaponCopies")
-    void rejectedWeaponCopyIsNotSaved(String payload) throws Exception {
-        UUID id = id(1);
-
-        Res res = create(alice, id, q(NAME), payload);
-
-        assertThat(res.status()).as(payload).isEqualTo(400);
-        assertThat(res.header("Content-Type")).startsWith("application/problem+json");
-        assertThat(rows(id)).isZero();
-    }
-
-    static Stream<String> rejectedWeaponCopies() {
-        return Stream.of(
-                weaponPayload("name", "5"),
-                weaponPayload("name", "true"),
-                weaponPayload("name", q("a" + cp(0x0) + "b")),
-                weaponPayload("element", "null"));
-    }
-
     // AC-11: payload の構造の境界の内側は保存できる（負の ID・護石なし・属性なし・各配列の上限）。
     @ParameterizedTest
     @MethodSource("validPayloads")
@@ -653,6 +632,11 @@ class BuildControllerTest {
                 weaponPayload("baseWeaponId", "\"bow:1\""),
                 weaponPayload("baseWeaponId", null),
                 weaponPayload("name", null),
+                // 013 AC-11: 武器の写しの name に文字列以外・U+0000、element に明示の null は 400 で、保存しない。
+                weaponPayload("name", "5"),
+                weaponPayload("name", "true"),
+                weaponPayload("name", q("a" + cp(0x0) + "b")),
+                weaponPayload("element", "null"),
                 weaponPayload("name", q("あ".repeat(31))),
                 weaponPayload("name", q("😀".repeat(31))),
                 weaponPayload("attack", "0"),
