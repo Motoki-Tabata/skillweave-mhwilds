@@ -1,0 +1,8 @@
+# 014: guest-draft-import タスク
+
+順序: T1 → T2 → T3 → T4。並列にしない（plan D10）。契約の変更は無い。web は T2 と T3 の2回に分けて委譲する。
+
+- [ ] T1 [main]           委譲前の常時許可外の変更: `design-system/skillweave/MASTER.md` の Component Specs「端末内に残るデータの帯」の「中身は表示も送信もしない。」を、取り込みの操作を置ける文に替える（plan D1、screen-design.md 5）     refs spec §受入基準 AC-1, AC-2
+- [ ] T2 [web-agent]      `lib/api/result.ts` の `ApiFailure` に `badRequest`（400）を足し、既存の API の層の単体テストの 400 の期待値を直す（D2）。`stores/savedItems.ts` の `useSavedItems` に `importing` と `importFromDevice()`（アカウントの一覧の読み直し・同じ ID を送らずに消す・ID の昇順に1件ずつ送る・受け付けた1件を消す・400／409 を残して進む・401 と通信の失敗で止める・世代が変わったら知らせずに止め、応答待ちの1件は消して一覧から除く・終わり方ごとのトーストと読み直し。D3・D4）を足し、`stores/charms.ts`・`stores/weapons.ts` から公開する（D5）。`src/test/support/` の偽の API に ID ごとの作成の失敗と作成の要求の記録を、偽の端末の保存先に削除の失敗を足し（D6）、護石と武器のストアの単体テストを書く（plan D2〜D6）     refs spec §受入基準 AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9, AC-10, AC-11, AC-12
+- [ ] T3 [web-agent]      S2 `views/CharmsView.vue`・S3 `views/WeaponsView.vue` の帯に「アカウントに取り込む」と取り込み中の表示（`aria-disabled` で無効にしてフォーカスを保つ）、共通の確認のダイアログ `components/common/DeviceImportDialog.vue`（画面 D5・D6）、2.5 のフォーカスの扱いと、その単体テスト（護石と武器の両方。表示の条件・取り消しで送らない・取り込み中は重ねて受け付けない）（plan D7、screen-design.md 2・3）     refs spec §受入基準 AC-1, AC-2, AC-9, AC-10, AC-12
+- [ ] T4 [e2e-agent]      `e2e/support/charms.ts`・`e2e/support/weapons.ts` に画面移動と登録の手順を切り出して既存の4本の spec の同じ局所関数を置き換え（D9）、`e2e/guest-draft-import.spec.ts`（Chromium・ビルドした web・API なし・`page.route` で `/api/auth/**`・`/api/charms`・`/api/weapons` を差し替え）: 護石と武器をそれぞれ取り込むとアカウントの一覧に出て帯が消え、ログアウトで端末の一覧に残らないこと、取り消すと `POST` が呼ばれないこと、400 の1件が端末に残り「アカウントに取り込む」が残ること（plan D8・D9）。T4 の成果のコミットで、メインが `tasks/lessons.md` の該当の項目を消す・直す     refs spec §受入基準 AC-1, AC-2, AC-3, AC-4, AC-6, AC-9, AC-11, AC-13
