@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,10 +64,14 @@ public class ShareController {
     @ApiResponse(responseCode = "401")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void revoke(@AuthenticationPrincipal DiscordUserPrincipal principal, @PathVariable String id) {
+        parseId(id).ifPresent(shareId -> service.revoke(principal.userId(), shareId));
+    }
+
+    private static Optional<UUID> parseId(String id) {
         try {
-            service.revoke(principal.userId(), UUID.fromString(id));
+            return Optional.of(UUID.fromString(id));
         } catch (IllegalArgumentException _) {
-            // 形の違う ID は行が無いのと同じ
+            return Optional.empty();
         }
     }
 }

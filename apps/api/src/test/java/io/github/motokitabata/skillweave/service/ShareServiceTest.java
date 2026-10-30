@@ -2,12 +2,17 @@ package io.github.motokitabata.skillweave.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.github.motokitabata.skillweave.TestcontainersConfiguration;
 import io.github.motokitabata.skillweave.common.exception.ResourceConflictException;
 import io.github.motokitabata.skillweave.dto.request.CreateShareRequest;
+import io.github.motokitabata.skillweave.repository.ShareRepository;
 import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +23,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 /** 共有の作成で、短縮 ID の衝突は採番し直し、ID の衝突は 409 になること（AC-2, AC-4）。 */
 @SpringBootTest
@@ -40,6 +46,9 @@ class ShareServiceTest {
 
     @MockitoBean
     private ShortIdGenerator generator;
+
+    @MockitoSpyBean
+    private ShareRepository shares;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -102,16 +111,44 @@ class ShareServiceTest {
         var request = new CreateShareRequest(SHARE_2, BUILD_2);
 
         assertThatThrownBy(() -> service.create(userId, request)).isInstanceOf(DataIntegrityViolationException.class);
+        verify(generator, times(ShareService.MAX_SHORT_ID_ATTEMPTS)).generate();
     }
 
-    // AC-4: 判定をすり抜けた主キー違反は 409 になる。
+    // AC-4: 事前の判定（existsById）をすり抜けた主キー違反は、INSERT の制約名で分けて 409 になる。
     @Test
     void primaryKeyViolationBecomesConflict() {
         insertRevokedShare();
         when(generator.generate()).thenReturn(FRESH);
-        // 同じ ID で、別の構成の共有を作る（存在の確認が先に 409 を返す）。
+        // 事前の判定を false に固定し、INSERT の主キー違反（pk_shares_id）の分岐を通す。
+        doReturn(false).when(shares).existsById(SHARE_ID);
         var request = new CreateShareRequest(SHARE_ID, BUILD_2);
 
         assertThatThrownBy(() -> service.create(userId, request)).isInstanceOf(ResourceConflictException.class);
+        verify(shares).existsById(SHARE_ID);
+    }
+
+    // AC-2: 事前の判定をすり抜けた同時の作成（uq_shares_build_id）は、既存の共有を読み直して作成なしで返す。
+    @Test
+    void buildIdViolationReturnsExistingShare() {
+        jdbc.update(
+                "INSERT INTO shares (id, short_id, user_id, build_id, name, master_version, payload, schema_version)"
+                        + " VALUES (?, ?, ?, ?, '既存', '1.0.0', ?::jsonb, 1)",
+                SHARE_ID,
+                TAKEN,
+                userId,
+                BUILD_ID,
+                PAYLOAD);
+        when(generator.generate()).thenReturn(FRESH);
+        // 1 回目の事前の確認だけ「まだ無い」を返し、2 回目（INSERT 失敗後の読み直し）は既存の共有を返す。
+        var existing = shares.findById(SHARE_ID).orElseThrow();
+        doReturn(Optional.empty(), Optional.of(existing)).when(shares).findByBuildIdAndDeletedAtIsNull(BUILD_ID);
+
+        var result = service.create(userId, new CreateShareRequest(SHARE_2, BUILD_ID));
+
+        assertThat(result.created()).isFalse();
+        assertThat(result.share().id()).isEqualTo(SHARE_ID);
+        assertThat(result.share().shortId()).isEqualTo(TAKEN);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM shares", Integer.class))
+                .isEqualTo(1);
     }
 }

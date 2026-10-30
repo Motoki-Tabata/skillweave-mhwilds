@@ -12,6 +12,8 @@ import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
@@ -81,6 +83,30 @@ class AuthorizationBypassTest {
     void sharedBuildViewIsPublicForGetAndHead(String path) {
         assertThat(status(HttpMethod.GET, path)).isEqualTo(404);
         assertThat(status(HttpMethod.HEAD, path)).isEqualTo(404);
+    }
+
+    // 012 AC-11: 閲覧のパス（有効な短縮 ID の形・エンコードした形）への未ログインの POST・DELETE は、
+    // CSRF トークン付きなら 401（閲覧の permitAll が GET・HEAD に限られること）、トークンが無ければ
+    // CSRF フィルターが認可より先に働いて 403（どちらも通さない）。
+    @ParameterizedTest
+    @ValueSource(strings = {"/api/shared-builds/Ab3dE6gH9jK2", "/api/shared-builds/%41b3dE6gH9jK2"})
+    void sharedBuildViewRejectsMutationsWithoutLogin(String path) {
+        HttpHeaders withToken = new HttpHeaders();
+        withToken.add(HttpHeaders.COOKIE, "XSRF-TOKEN=x");
+        withToken.add("X-XSRF-TOKEN", "x");
+        for (HttpMethod method : new HttpMethod[] {HttpMethod.POST, HttpMethod.DELETE}) {
+            URI uri = URI.create(rest.getRootUri() + path);
+            assertThat(rest.exchange(uri, method, new HttpEntity<>(withToken), String.class)
+                            .getStatusCode()
+                            .value())
+                    .as("%s %s with CSRF token", method, path)
+                    .isEqualTo(401);
+            assertThat(rest.exchange(uri, method, new HttpEntity<>(new HttpHeaders()), String.class)
+                            .getStatusCode()
+                            .value())
+                    .as("%s %s without CSRF token", method, path)
+                    .isEqualTo(403);
+        }
     }
 
     // ファイアウォールが拒む形（%2F・/./・/../）は、認可の前に 400 で拒否される（GET・HEAD とも）。
