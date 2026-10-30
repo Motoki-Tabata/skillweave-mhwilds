@@ -23,6 +23,9 @@ const payload: CharmPayload = { rarity: 7, skills: [{ skillId: sk('a1'), level: 
 const loggedIn: Partial<AuthApi> = {
   fetchCurrentUser: async () => ({ kind: 'authenticated', displayName: 'テスト' }),
 }
+const unauthenticated: Partial<AuthApi> = {
+  fetchCurrentUser: async () => ({ kind: 'unauthenticated' }),
+}
 
 const body = () => textOf(document.body)
 const importButton = () =>
@@ -76,7 +79,16 @@ describe('CharmsView（014: 取り込みの操作）', () => {
     expect(importButton()).toBeNull()
     mounted!.wrapper.unmount()
     document.body.innerHTML = ''
-    await open({ device: 2 })
+    await open({ auth: unauthenticated, device: 2 })
+    expect(importButton()).toBeNull()
+  })
+
+  // AC-1
+  it('AC-1: 認証状態を取得できないときは、端末内に残っていても取り込む操作を出さない', async () => {
+    await open({
+      auth: { fetchCurrentUser: async () => ({ kind: 'unavailable' }) },
+      device: 2,
+    })
     expect(importButton()).toBeNull()
   })
 
