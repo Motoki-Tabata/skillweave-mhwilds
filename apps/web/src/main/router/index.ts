@@ -28,6 +28,18 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '保存した構成 | SkillWeave' },
   },
   {
+    path: '/shares',
+    name: 'shares',
+    component: () => import('@/views/SharesView.vue'),
+    meta: { title: '共有した構成 | SkillWeave' },
+  },
+  {
+    path: '/s/:shortId',
+    name: 'shared-build',
+    component: () => import('@/views/SharedBuildView.vue'),
+    meta: { title: '共有された構成 | SkillWeave' },
+  },
+  {
     path: '/charms',
     name: 'charms',
     component: () => import('@/views/CharmsView.vue'),

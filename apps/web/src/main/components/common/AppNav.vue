@@ -5,6 +5,7 @@ import { RouterLink, useRoute } from 'vue-router'
 const LINKS = [
   { to: '/', label: '装備検索' },
   { to: '/builds', label: '保存した構成' },
+  { to: '/shares', label: '共有した構成' },
   { to: '/charms', label: '護石' },
   { to: '/weapons', label: '個体差のある武器' },
 ] as const

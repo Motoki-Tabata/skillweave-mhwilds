@@ -136,6 +136,15 @@ describe('savedBuildView', () => {
   const view = (payload: BuildPayload, version = 'test-1') =>
     savedBuildView(savedBuild(1, { payload, masterVersion: version }), master)
 
+  it('012 AC-5, AC-6: 共有された構成（名前・版・構成の内容だけ）も同じ表示の材料にし、版の違いを示す', () => {
+    const shared = { masterVersion: 'old-0', payload: minimalPayload() }
+    const result = savedBuildView(shared, master)
+    expect(result.masterVersion).toBe('old-0')
+    expect(result.currentMasterVersion).toBe('test-1')
+    expect(result.versionDiffers).toBe(true)
+    expect(result.solved).toEqual(view(shared.payload).solved)
+  })
+
   it('AC-4: 発動スキル・空きスロット・装飾品は保存した値から SolvedBuild にする', () => {
     const solvedSource = makeBuild()
     const result = view(

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { ChevronLeft } from '@lucide/vue'
+import { ChevronLeft, Share2 } from '@lucide/vue'
 import BuildManageDialogs from '@/components/builds/BuildManageDialogs.vue'
 import BuildsGate from '@/components/builds/BuildsGate.vue'
+import ShareDialog from '@/components/shares/ShareDialog.vue'
 import BuildCard from '@/components/search/BuildCard.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import { Button } from '@/components/ui/button'
@@ -38,6 +39,33 @@ const conditionsText = computed(() => {
   const names = view.value?.conditions.map((condition) => condition.name) ?? []
   return names.length === 0 ? 'なし' : names.join('・')
 })
+
+const shareOpen = ref(false)
+/** 共有のダイアログが対象にしている構成（404 のあと一覧から消えても、閉じるまで保つ） */
+const shareTarget = ref({ id: '', name: '' })
+/** 共有のダイアログを閉じたとき、「共有」のボタンへフォーカスを戻すか */
+let restoreShareFocus = true
+
+function askShare(id: string, name: string): void {
+  shareTarget.value = { id, name }
+  restoreShareFocus = true
+  shareOpen.value = true
+}
+
+/** 元の構成が無かった。一覧の読み直しは済んでいるので、h1 へ移す。 */
+async function onShareNotFound(): Promise<void> {
+  restoreShareFocus = false
+  await nextTick()
+  heading.value?.focus()
+}
+
+function onShareClosed(event: Event): void {
+  event.preventDefault()
+  if (!restoreShareFocus) return
+  void nextTick(() =>
+    document.querySelector<HTMLElement>(`[data-share-id="${shareTarget.value.id}"]`)?.focus(),
+  )
+}
 
 function focusHeadingIfLost(): void {
   const active = document.activeElement
@@ -101,6 +129,18 @@ async function onRemoved(_id: string, result: BuildWriteResult): Promise<void> {
           <Button
             type="button"
             variant="outline"
+            class="h-10 gap-1"
+            :aria-label="`${build.name} を共有`"
+            :disabled="deleting"
+            :data-share-id="build.id"
+            @click="askShare(build.id, build.name)"
+          >
+            <Share2 class="size-4" aria-hidden="true" />
+            共有
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
             class="h-10"
             :aria-label="`${build.name} の名前を変更`"
             :disabled="deleting"
@@ -145,6 +185,13 @@ async function onRemoved(_id: string, result: BuildWriteResult): Promise<void> {
       </div>
     </BuildsGate>
 
+    <ShareDialog
+      v-model:open="shareOpen"
+      :build-id="shareTarget.id"
+      :build-name="shareTarget.name"
+      @not-found="onShareNotFound"
+      @close-auto-focus="onShareClosed"
+    />
     <BuildManageDialogs ref="dialogs" @renamed="onRenamed" @removed="onRemoved" />
   </div>
 </template>

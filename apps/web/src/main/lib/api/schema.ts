@@ -4,6 +4,152 @@
  */
 
 export interface paths {
+    "/api/shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 自分の有効な共有の一覧を取得する
+         * @description **【機能概要】**
+         *
+         *     ログイン中のユーザーの、取り消していない共有を全件返す。ID の降順で、ページングはしない。元の構成を削除した共有も含む。refs specs/012-build-share/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. セッション Cookie からログイン状態を判定する。
+         *     2. 自分の取り消していない共有を ID の降順で並べ、200 で返す。0件なら空の配列。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        get: operations["listShares"];
+        put?: never;
+        /**
+         * 構成を共有する
+         * @description **【機能概要】**
+         *
+         *     自分の構成の共有を作る。共有には作成時点の構成の写しを保存し、サーバーが短縮 ID を採番する。その構成に有効な共有が既にあれば、新しく作らずにその共有を返す。refs specs/012-build-share/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 要求の構造（共有の ID・構成の ID）を検査する。
+         *     4. 自分の削除していない構成を探す。
+         *     5. その構成に有効な共有があれば、新しく作らずにその共有を 200 で返す。
+         *     6. 無ければ、構成の名前・マスターの版・内容・スキーマ版を写して共有を保存し、201 で返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         *     3. 共有の ID・構成の ID が欠けている、または UUID の形でない場合は 400（`application/problem+json`）を返し、保存しない。
+         *     4. 元の構成が無い場合（削除済み・他のユーザーの構成を含む）は 404（`application/problem+json`）を返す。
+         *     5. 共有の ID が既存の行（他のユーザー・取り消し済みを含む）と衝突する場合、または短縮 ID が衝突する場合は 409（`application/problem+json`）を返し、既存の行は変えない。
+         */
+        post: operations["createShare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shares/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 共有の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 共有を取り消す
+         * @description **【機能概要】**
+         *
+         *     自分の共有を論理削除して取り消す。冪等で、対象の行が無くても 204 を返す。取り消すと共有の URL は閲覧できなくなる。refs specs/012-build-share/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 自分の取り消していない共有があれば論理削除する。
+         *     4. 204 を返す。行が無い・取り消し済み・他のユーザーの行・ID の形が不正な場合も 204 で、他のユーザーの行は変えない。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        delete: operations["revokeShare"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shared-builds/{shortId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 共有の短縮 ID。形（base62 の 12 字）の検査は契約では行わず、形の違う値は不在と同じ扱いにする。 */
+                shortId: string;
+            };
+            cookie?: never;
+        };
+        /**
+         * 共有された構成を取得する
+         * @description **【機能概要】**
+         *
+         *     短縮 ID で、共有された構成の内容を返す。未ログインでも取得できる。refs specs/012-build-share/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: 不要（未ログインで取得できる）。未ログインに許すのは GET と HEAD だけ
+         *     - チャレンジレスポンス認証: 不採用
+         *     - 応答に共有の行の ID・元の構成の ID・作成者の情報は含めない
+         *
+         *     **【処理詳細】**
+         *
+         *     1. 短縮 ID で、取り消していない共有を探す。
+         *     2. 共有を作った時点で写した名前・マスターの版・内容・スキーマ版と作成日時を 200 で返す。元の構成を後から変更・削除していても、写しを返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. 共有が取り消されている場合、短縮 ID の共有が無い場合、短縮 ID の形が違う場合（12 字でない・base62 以外の文字を含む）は、区別せず 404（`application/problem+json`）を返す。
+         */
+        get: operations["getSharedBuild"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/builds": {
         parameters: {
             query?: never;
@@ -873,6 +1019,65 @@ export interface components {
             /** @description クライアントが読んだ時点の行バージョン。サーバーの行と違えば 409。 */
             version: number;
         };
+        /** @description 自分の有効な共有。 */
+        Share: {
+            /**
+             * Format: uuid
+             * @description 共有の ID。クライアントが採番した UUIDv7。
+             */
+            id: string;
+            /**
+             * @description 共有の URL に使う短縮 ID。base62（`0-9`・`A-Z`・`a-z`）の 12 字。サーバーが採番する。
+             * @example Ab3dE6gH9jK2
+             */
+            shortId: string;
+            /**
+             * Format: uuid
+             * @description 共有の元にした構成の ID。
+             */
+            buildId: string;
+            /** @description 共有した時点の構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白でない。 */
+            name: string;
+            /**
+             * Format: date-time
+             * @description 作成日時（UTC）。
+             */
+            createdAt: string;
+        };
+        /** @description 共有の作成の要求。 */
+        CreateShareRequest: {
+            /**
+             * Format: uuid
+             * @description クライアントが採番した共有の ID（UUIDv7）。
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description 共有する構成の ID。
+             */
+            buildId: string;
+        };
+        /** @description 共有された構成。共有の行の ID・元の構成の ID・作成者の情報は含まない。 */
+        SharedBuild: {
+            /** @description 共有した時点の構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白でない。 */
+            name: string;
+            /**
+             * @description 構成を検索したときのマスターの版。
+             * @example 2026.10.4
+             */
+            masterVersion: string;
+            payload: components["schemas"]["BuildPayload"];
+            /**
+             * @description payload の形の版。
+             * @example 1
+             */
+            schemaVersion: number;
+            /**
+             * Format: date-time
+             * @description 共有の作成日時（UTC）。
+             */
+            createdAt: string;
+        };
     };
     responses: {
         /** @description 未ログイン、またはセッションが無効。 */
@@ -919,6 +1124,110 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listShares: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 自分の有効な共有の配列。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Share"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    createShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateShareRequest"];
+            };
+        };
+        responses: {
+            /** @description 既存の有効な共有。新しい共有は作っていない。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Share"];
+                };
+            };
+            /** @description 作った共有。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Share"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    revokeShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 共有の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 取り消した（または対象が無かった）。本文は無い。 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    getSharedBuild: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 共有の短縮 ID。形（base62 の 12 字）の検査は契約では行わず、形の違う値は不在と同じ扱いにする。 */
+                shortId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 共有された構成。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SharedBuild"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
     listBuilds: {
         parameters: {
             query?: never;

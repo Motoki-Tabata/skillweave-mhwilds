@@ -3,7 +3,13 @@ import { DialogContent, DialogPortal } from 'reka-ui'
 import AppDialogOverlay from '@/components/common/AppDialogOverlay.vue'
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
-defineProps<{ open: boolean; title: string; description: string }>()
+defineProps<{
+  open: boolean
+  title: string
+  description: string
+  /** 説明文を画面に出さず、読み上げだけにするか（本文を別の要素で出すとき） */
+  descriptionSrOnly?: boolean
+}>()
 const emit = defineEmits<{
   'update:open': [open: boolean]
   openAutoFocus: [event: Event]
@@ -22,7 +28,9 @@ const emit = defineEmits<{
       >
         <DialogHeader>
           <DialogTitle class="text-base leading-snug font-bold">{{ title }}</DialogTitle>
-          <DialogDescription class="text-sm">{{ description }}</DialogDescription>
+          <DialogDescription :class="descriptionSrOnly ? 'sr-only' : 'text-sm'">{{
+            description
+          }}</DialogDescription>
         </DialogHeader>
         <slot />
       </DialogContent>

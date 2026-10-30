@@ -50,6 +50,7 @@ class BuildServiceTest {
 
     @BeforeEach
     void setUp() {
+        jdbc.update("DELETE FROM shares");
         jdbc.update("DELETE FROM builds");
         userId = jdbc.queryForObject(
                 "INSERT INTO users (discord_id) VALUES ('400000000000000001')"

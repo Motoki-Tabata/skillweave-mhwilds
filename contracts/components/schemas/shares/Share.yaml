@@ -1,0 +1,32 @@
+type: object
+description: 自分の有効な共有。
+required:
+  - id
+  - shortId
+  - buildId
+  - name
+  - createdAt
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 共有の ID。クライアントが採番した UUIDv7。
+  shortId:
+    type: string
+    pattern: '^[0-9A-Za-z]{12}$'
+    description: 共有の URL に使う短縮 ID。base62（`0-9`・`A-Z`・`a-z`）の 12 字。サーバーが採番する。
+    examples:
+      - Ab3dE6gH9jK2
+  buildId:
+    type: string
+    format: uuid
+    description: 共有の元にした構成の ID。
+  name:
+    type: string
+    minLength: 1
+    maxLength: 50
+    description: 共有した時点の構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白でない。
+  createdAt:
+    type: string
+    format: date-time
+    description: 作成日時（UTC）。

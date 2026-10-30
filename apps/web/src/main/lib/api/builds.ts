@@ -105,7 +105,7 @@ function isString(value: unknown): boolean {
   return typeof value === 'string'
 }
 
-function isBuildPayload(value: unknown): boolean {
+export function isBuildPayload(value: unknown): boolean {
   return (
     isRecord(value) &&
     isBuildWeapon(value.weapon) &&

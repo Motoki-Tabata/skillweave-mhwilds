@@ -56,7 +56,7 @@ attributes:
     type: timestamptz
     nullable: false
     domain: DEFAULT now()・UTC
-    used_in: [users.created_at, charms.created_at, builds.created_at, weapons.created_at]
+    used_in: [users.created_at, charms.created_at, builds.created_at, weapons.created_at, shares.created_at]
     defined_by: specs/009-discord-login
 
   更新日時:
@@ -64,7 +64,7 @@ attributes:
     type: timestamptz
     nullable: false
     domain: DEFAULT now()・UTC
-    used_in: [users.updated_at, charms.updated_at, builds.updated_at, weapons.updated_at]
+    used_in: [users.updated_at, charms.updated_at, builds.updated_at, weapons.updated_at, shares.updated_at]
     defined_by: specs/009-discord-login
 
   護石ID:
@@ -81,7 +81,7 @@ attributes:
     type: uuid
     nullable: false
     domain: users (id)
-    used_in: [charms.user_id, builds.user_id, weapons.user_id]
+    used_in: [charms.user_id, builds.user_id, weapons.user_id, shares.user_id]
     defined_by: specs/010-charm-save
 
   内容:
@@ -89,18 +89,18 @@ attributes:
     type: jsonb
     nullable: false
     domain: JSON オブジェクト（jsonb_typeof = 'object'）
-    used_in: [charms.payload, builds.payload, weapons.payload]
+    used_in: [charms.payload, builds.payload, weapons.payload, shares.payload]
     defined_by: specs/010-charm-save
-    note: 形は schema_version で版管理する。charms は { rarity, skills: [{ skillId, level }], slots: [{ target, level }] }（構造の検査は API。マスターに依る検査は Web）。builds は構成（武器・防具・護石（鑑定護石は参照と写し、生産護石は参照だけ）・装飾品の配置・発動スキル・空きスロット・発動条件）。形は区間 C で契約に書く。weapons は個体差のある武器 { baseWeaponId, name, attack, affinity, element?: { type, value }, slots: [{ target, level }], seriesBonusId, groupBonusId }（契約は CustomWeaponPayload。構造の検査は API。マスターに依る検査は Web）
+    note: 形は schema_version で版管理する。charms は { rarity, skills: [{ skillId, level }], slots: [{ target, level }] }（構造の検査は API。マスターに依る検査は Web）。builds は構成（武器・防具・護石（鑑定護石は参照と写し、生産護石は参照だけ）・装飾品の配置・発動スキル・空きスロット・発動条件）。形は区間 C で契約に書く。weapons は個体差のある武器 { baseWeaponId, name, attack, affinity, element?: { type, value }, slots: [{ target, level }], seriesBonusId, groupBonusId }（契約は CustomWeaponPayload。構造の検査は API。マスターに依る検査は Web）。shares は builds の payload をそのまま写す（構成の行から写したスナップショットで、元の構成を変えても変わらない）
 
   スキーマ版:
     physical_name: schema_version
     type: integer
     nullable: false
     domain: 1 以上
-    used_in: [charms.schema_version, builds.schema_version, weapons.schema_version]
+    used_in: [charms.schema_version, builds.schema_version, weapons.schema_version, shares.schema_version]
     defined_by: specs/010-charm-save
-    note: payload の形の版。charms は 1。builds は 1。weapons は 1
+    note: payload の形の版。charms は 1。builds は 1。weapons は 1。shares は写した builds の版（スナップショットで、元の構成を変えても変わらない）
 
   行バージョン:
     physical_name: version
@@ -116,7 +116,7 @@ attributes:
     type: timestamptz
     nullable: true
     domain: UTC。NULL が未削除
-    used_in: [charms.deleted_at, builds.deleted_at, weapons.deleted_at]
+    used_in: [charms.deleted_at, builds.deleted_at, weapons.deleted_at, shares.deleted_at]
     defined_by: specs/010-charm-save
 
   構成ID:
@@ -127,6 +127,34 @@ attributes:
     used_in: [builds.id]
     defined_by: specs/011-build-save
     note: クライアント採番の UUIDv7。自分・他ユーザー・削除済みの行との衝突は 409 で拒否する
+
+  共有ID:
+    physical_name: id
+    type: uuid
+    nullable: false
+    domain: 主キー（DEFAULT uuidv7()）
+    used_in: [shares.id]
+    defined_by: specs/012-build-share
+    note: クライアント採番の UUIDv7。自分・他ユーザー・取り消し済みの行との衝突は 409 で拒否する
+
+  短縮ID:
+    physical_name: short_id
+    type: text
+    length: 12
+    nullable: false
+    domain: "^[0-9A-Za-z]{12}$"・一意（取り消し済みを含む全行）
+    used_in: [shares.short_id]
+    defined_by: specs/012-build-share
+    note: 共有の URL に使う。サーバーが SecureRandom で base62 の 12 文字を採番し、衝突したら採番し直す。取り消した共有の短縮 ID は再利用しない
+
+  元の構成ID:
+    physical_name: build_id
+    type: uuid
+    nullable: false
+    domain: builds (id)
+    used_in: [shares.build_id]
+    defined_by: specs/012-build-share
+    note: 共有の元の構成。有効な共有は build_id ごとに 1 つ（部分一意索引）。元の構成を削除しても共有は残る
 
   武器ID:
     physical_name: id
@@ -143,15 +171,15 @@ attributes:
     length: 50
     nullable: false
     domain: 1〜50 文字（char_length）。前後の空白の除去は API
-    used_in: [builds.name]
+    used_in: [builds.name, shares.name]
     defined_by: specs/011-build-save
-    note: 同じ名前の構成を複数保存してよい。空白の定義と文字数の数え方（コードポイント／UTF-16）は区間 C で契約に揃える
+    note: 同じ名前の構成を複数保存してよい。shares は構成の行から写したスナップショットで、元の構成を変えても変わらない。空白の定義と文字数の数え方（コードポイント／UTF-16）は区間 C で契約に揃える
 
   マスターの版:
     physical_name: master_version
     type: text
     nullable: false
     domain: 空でない文字列
-    used_in: [builds.master_version]
+    used_in: [builds.master_version, shares.master_version]
     defined_by: specs/011-build-save
-    note: 作成時のマスターの版。形式と長さの上限は API の構造の検査（区間 C で契約に書く）。マスターへの参照の整合はアプリ層で検証する
+    note: 作成時のマスターの版。shares は構成の行から写したスナップショットで、元の構成を変えても変わらない。形式と長さの上限は API の構造の検査（区間 C で契約に書く）。マスターへの参照の整合はアプリ層で検証する

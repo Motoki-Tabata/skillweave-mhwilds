@@ -1,0 +1,30 @@
+type: object
+description: 共有された構成。共有の行の ID・元の構成の ID・作成者の情報は含まない。
+required:
+  - name
+  - masterVersion
+  - payload
+  - schemaVersion
+  - createdAt
+properties:
+  name:
+    type: string
+    minLength: 1
+    maxLength: 50
+    description: 共有した時点の構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白でない。
+  masterVersion:
+    type: string
+    description: 構成を検索したときのマスターの版。
+    examples:
+      - 2026.10.4
+  payload:
+    $ref: ../builds/BuildPayload.yaml
+  schemaVersion:
+    type: integer
+    description: payload の形の版。
+    examples:
+      - 1
+  createdAt:
+    type: string
+    format: date-time
+    description: 共有の作成日時（UTC）。
