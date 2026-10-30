@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import type {
   ArmorRank,
@@ -116,6 +116,18 @@ export const useConditionsStore = defineStore('conditions', () => {
       stored,
     }
   }
+
+  // 一覧が確定した（loading 以外）とき、選んでいる個体差のある武器が一覧に無ければ選択を外す。
+  // loading の間は判定しない（切り替え中は一覧が空になる・読み直し前の一覧が残る）。
+  watch(
+    () => [weapons.status, weapons.weapons] as const,
+    ([status, list]) => {
+      const current = selection.value
+      if (status === 'loading' || current === null || current.kind !== 'custom') return
+      if (!list.some((item) => item.id === current.id)) selection.value = null
+    },
+    { immediate: true },
+  )
 
   /** 選んでいる武器を、表示と検索に要る形にしたもの。マスターに無い・削除済みなら null。 */
   const weapon = computed<ResolvedWeapon | null>(() => {

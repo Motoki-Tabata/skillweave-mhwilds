@@ -54,7 +54,7 @@ function isElement(value: unknown): boolean {
   return isRecord(value) && typeof value.type === 'string' && isNumber(value.value)
 }
 
-function isCustomWeaponPayload(value: unknown): boolean {
+export function isCustomWeaponPayload(value: unknown): boolean {
   return (
     isRecord(value) &&
     typeof value.baseWeaponId === 'string' &&
