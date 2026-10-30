@@ -72,7 +72,9 @@ class BuildServiceTest {
         service.create(userId, request("先"));
         doReturn(false).when(repository).existsById(ID);
 
-        assertThatThrownBy(() -> service.create(userId, request("後")))
+        CreateBuildRequest second = request("後");
+
+        assertThatThrownBy(() -> service.create(userId, second))
                 .isInstanceOf(ResourceConflictException.class)
                 .hasMessage(BuildService.ID_EXISTS);
         assertThat(jdbc.queryForObject("SELECT name FROM builds WHERE id = ?", String.class, ID))
@@ -83,7 +85,9 @@ class BuildServiceTest {
     void foreignKeyViolationIsNotConflict() {
         UUID unknownUser = UUID.fromString("01900000-0002-7000-8000-000000000002");
 
-        assertThatThrownBy(() -> service.create(unknownUser, request("構成")))
+        CreateBuildRequest request = request("構成");
+
+        assertThatThrownBy(() -> service.create(unknownUser, request))
                 .isInstanceOf(DataIntegrityViolationException.class);
         assertThat(rows()).isZero();
     }
@@ -92,8 +96,9 @@ class BuildServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"123456789012345678901234567890123456789012345678901", "名\u0000前"})
     void rejectionOtherThanPrimaryKeyIsNotConflict(String name) {
-        assertThatThrownBy(() -> service.create(userId, request(name)))
-                .isInstanceOf(DataIntegrityViolationException.class);
+        CreateBuildRequest request = request(name);
+
+        assertThatThrownBy(() -> service.create(userId, request)).isInstanceOf(DataIntegrityViolationException.class);
         assertThat(rows()).isZero();
     }
 }

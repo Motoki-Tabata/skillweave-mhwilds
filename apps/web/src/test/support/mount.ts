@@ -11,6 +11,8 @@ import { createMemoryWeaponRepository } from './weaponRepository'
 import type { AuthApi } from '@/lib/api/auth'
 import type { CharmsApi } from '@/lib/api/charms'
 import { createMemoryCharmsApi } from './charmsApi'
+import type { WeaponsApi } from '@/lib/api/weapons'
+import { createMemoryWeaponsApi } from './weaponsApi'
 import type { BuildsApi } from '@/lib/api/builds'
 import { createMemoryBuildsApi } from './buildsApi'
 import { useBuildsStore } from '@/stores/builds'
@@ -72,6 +74,13 @@ function installCharmsApi(pinia: Pinia, given?: CharmsApi): CharmsApi {
   return api
 }
 
+/** 武器の API を差し替える。既定はメモリ上の実装（サーバーに届かない）。 */
+function installWeaponsApi(pinia: Pinia, given?: WeaponsApi): WeaponsApi {
+  const api = given ?? createMemoryWeaponsApi()
+  useWeaponsStore(pinia).setApi(api)
+  return api
+}
+
 /** 構成の API を差し替える。既定はメモリ上の実装（サーバーに届かない）。 */
 function installBuildsApi(pinia: Pinia, given?: BuildsApi): BuildsApi {
   const api = given ?? createMemoryBuildsApi()
@@ -114,6 +123,8 @@ export interface MountOptions {
   authApi?: AuthApi
   /** 構成の API。既定は空のメモリ上の実装 */
   buildsApi?: BuildsApi
+  /** 武器の API。既定は空のメモリ上の実装 */
+  weaponsApi?: WeaponsApi
 }
 
 export interface Mounted {
@@ -129,6 +140,8 @@ export interface Mounted {
   charmsApi: CharmsApi
   /** 構成の API（既定のときはメモリ上の実装） */
   buildsApi: BuildsApi
+  /** アカウントの武器の API（既定のときはメモリ上の実装） */
+  weaponsApi: WeaponsApi
   builds: ReturnType<typeof useBuildsStore>
   master: ReturnType<typeof useMasterStore>
   conditions: ReturnType<typeof useConditionsStore>
@@ -142,6 +155,7 @@ export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
   const charmsApi = installCharmsApi(pinia, options.charmsApi)
   const buildsApi = installBuildsApi(pinia, options.buildsApi)
   const weaponRepository = installWeaponRepository(pinia, options.weaponRepository)
+  const weaponsApi = installWeaponsApi(pinia, options.weaponsApi)
   useAuthStore(pinia).setApi(options.authApi ?? fakeAuthApi())
   const router = newRouter()
   await router.push(options.path ?? '/')
@@ -157,6 +171,7 @@ export async function mountApp(options: MountOptions = {}): Promise<Mounted> {
     repository,
     charmsApi,
     buildsApi,
+    weaponsApi,
     builds: useBuildsStore(pinia),
     master: useMasterStore(pinia),
     conditions: useConditionsStore(pinia),
@@ -178,7 +193,12 @@ export async function mountReadyApp(options: MountOptions = {}): Promise<Mounted
 export async function loadStores(
   charmRepository?: CharmRepository,
   weaponRepositoryGiven?: WeaponRepository,
-  backends: { authApi?: AuthApi; charmsApi?: CharmsApi; buildsApi?: BuildsApi } = {},
+  backends: {
+    authApi?: AuthApi
+    charmsApi?: CharmsApi
+    buildsApi?: BuildsApi
+    weaponsApi?: WeaponsApi
+  } = {},
 ): Promise<Omit<Mounted, 'wrapper'>> {
   const pinia = newPinia()
   const repository = installRepository(pinia, charmRepository)
@@ -186,6 +206,7 @@ export async function loadStores(
   const buildsApi = installBuildsApi(pinia, backends.buildsApi)
   useAuthStore(pinia).setApi(backends.authApi ?? fakeAuthApi())
   const weaponRepository = installWeaponRepository(pinia, weaponRepositoryGiven)
+  const weaponsApi = installWeaponsApi(pinia, backends.weaponsApi)
   const master = useMasterStore(pinia)
   await master.load()
   return {
@@ -193,6 +214,7 @@ export async function loadStores(
     repository,
     charmsApi,
     buildsApi,
+    weaponsApi,
     builds: useBuildsStore(pinia),
     master,
     charms: useCharmsStore(pinia),

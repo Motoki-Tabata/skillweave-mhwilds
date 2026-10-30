@@ -15,9 +15,9 @@ properties:
     type: string
     minLength: 1
     maxLength: 50
-    pattern: '^\S(?:[\s\S]*\S)?$'
+    pattern: '^[^\s\u0000](?:[^\u0000]*[^\s\u0000])?$'
     description: |
-      構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。
+      構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。U+0000 を含まない。
       サーバーは前後を削らず、違反は 400 にする。
     examples:
       - 鉄刀【神楽】 構成3

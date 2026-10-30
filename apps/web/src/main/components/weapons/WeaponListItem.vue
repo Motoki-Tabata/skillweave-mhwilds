@@ -12,7 +12,7 @@ import {
 import type { WeaponEntry } from '@/stores/weapons'
 import { useMasterStore } from '@/stores/master'
 
-const props = defineProps<{ entry: WeaponEntry; editing: boolean }>()
+const props = defineProps<{ entry: WeaponEntry; editing: boolean; deleting?: boolean }>()
 defineEmits<{ edit: []; remove: [] }>()
 
 const master = useMasterStore()
@@ -55,6 +55,7 @@ const subtitle = computed(() => {
           variant="outline"
           class="h-11"
           :aria-label="`${displayName}を編集`"
+          :disabled="deleting"
           :data-edit-id="entry.weapon.id"
           @click="$emit('edit')"
         >
@@ -64,11 +65,12 @@ const subtitle = computed(() => {
           type="button"
           variant="outline"
           class="text-destructive border-destructive hover:text-destructive h-11"
-          :aria-label="`${displayName}を削除`"
+          :aria-label="deleting ? `${displayName}を削除中` : `${displayName}を削除`"
+          :disabled="deleting"
           :data-delete-id="entry.weapon.id"
           @click="$emit('remove')"
         >
-          削除
+          {{ deleting ? '削除中…' : '削除' }}
         </Button>
       </div>
     </div>

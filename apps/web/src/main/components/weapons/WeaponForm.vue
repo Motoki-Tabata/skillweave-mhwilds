@@ -32,7 +32,11 @@ const props = defineProps<{
   disabled: boolean
   disabledMessage: string
 }>()
-const emit = defineEmits<{ saved: []; cancel: [] }>()
+const emit = defineEmits<{
+  saved: []
+  cancel: []
+  rejected: [result: 'conflict' | 'notFound' | 'expired']
+}>()
 
 const master = useMasterStore()
 const weapons = useWeaponsStore()
@@ -285,6 +289,10 @@ async function onSubmit(): Promise<void> {
   saving.value = true
   const result = await weapons.save(draftToPayload(draft.value), props.editing ?? undefined)
   saving.value = false
+  if (result === 'conflict' || result === 'notFound' || result === 'expired') {
+    emit('rejected', result)
+    return
+  }
   if (result !== 'saved') return
   if (isEditing.value) {
     emit('saved')

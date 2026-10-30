@@ -476,6 +476,11 @@ class BuildControllerTest {
                 q(cp(0x2028) + "a"),
                 q("a" + cp(0x1680)),
                 q("a" + cp(0x202F)),
+                // 013 AC-11: 文字列でない値・U+0000 は、変換・除去せず拒否する。
+                "123",
+                "true",
+                q("a" + cp(0x0)),
+                q(cp(0x0)),
                 "null",
                 "[]");
     }
@@ -627,6 +632,11 @@ class BuildControllerTest {
                 weaponPayload("baseWeaponId", "\"bow:1\""),
                 weaponPayload("baseWeaponId", null),
                 weaponPayload("name", null),
+                // 013 AC-11: 武器の写しの name に文字列以外・U+0000、element に明示の null は 400 で、保存しない。
+                weaponPayload("name", "5"),
+                weaponPayload("name", "true"),
+                weaponPayload("name", q("a" + cp(0x0) + "b")),
+                weaponPayload("element", "null"),
                 weaponPayload("name", q("あ".repeat(31))),
                 weaponPayload("name", q("😀".repeat(31))),
                 weaponPayload("attack", "0"),

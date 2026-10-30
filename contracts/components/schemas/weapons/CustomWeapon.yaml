@@ -1,0 +1,33 @@
+type: object
+description: 保存した個体差のある武器。
+required:
+  - id
+  - payload
+  - schemaVersion
+  - version
+  - createdAt
+  - updatedAt
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 武器の ID。クライアントが採番した UUIDv7。
+  payload:
+    $ref: ../builds/CustomWeaponPayload.yaml
+  schemaVersion:
+    type: integer
+    description: payload の形の版。
+    examples:
+      - 1
+  version:
+    type: integer
+    minimum: 0
+    description: 行バージョン。更新のたびにサーバーが進める。
+  createdAt:
+    type: string
+    format: date-time
+    description: 作成日時（UTC）。
+  updatedAt:
+    type: string
+    format: date-time
+    description: 更新日時（UTC）。

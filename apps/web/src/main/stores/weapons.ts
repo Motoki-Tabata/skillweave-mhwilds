@@ -1,5 +1,6 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
+import { weaponsApi } from '@/lib/api/weapons'
 import { openWeaponRepository } from '@/lib/weapons/storage'
 import type { WeaponRepository } from '@/lib/weapons/storage'
 import { WEAPON_SCHEMA_VERSION } from '@/lib/weapons/types'
@@ -22,6 +23,15 @@ export interface WeaponEntry {
   eligibility: WeaponEligibility | null
 }
 
+const MESSAGE_CONFLICT =
+  'この個体差のある武器は別の端末で変更されていたため、保存しませんでした。一覧を読み直しました。内容を確かめて、もう一度編集してください。'
+const MESSAGE_NOT_FOUND =
+  'この個体差のある武器は別の端末で削除されていたため、保存しませんでした。一覧を読み直しました。'
+const MESSAGE_EXPIRED_WRITE =
+  'ログインの有効期限が切れたため、保存しませんでした。端末内の個体差のある武器に切り替えました。アカウントに保存するには、もう一度「Discord でログイン」を押してください。'
+const MESSAGE_EXPIRED_LIST =
+  'ログインの有効期限が切れました。端末内の個体差のある武器に切り替えました。もう一度「Discord でログイン」を押すと、アカウントの個体差のある武器を使えます。'
+
 /** リアクティブな値を、IndexedDB に渡せる（structuredClone できる）素のオブジェクトにする。 */
 function plainPayload(payload: WeaponPayload): WeaponPayload {
   return {
@@ -42,12 +52,18 @@ function plainPayload(payload: WeaponPayload): WeaponPayload {
 export const useWeaponsStore = defineStore('weapons', () => {
   const master = useMasterStore()
 
-  // API を渡さない: 認証の判定を待たずに端末の保存先を開き、ログイン・ログアウト・401 で変えない
-  const saved = useSavedItems<StoredWeapon, WeaponPayload>({
+  const saved = useSavedItems<StoredWeapon, WeaponPayload, 1>({
     plainPayload,
     schemaVersion: WEAPON_SCHEMA_VERSION,
     openDefault: () => openWeaponRepository(),
     noun: '個体差のある武器',
+    api: weaponsApi,
+    messages: {
+      conflict: MESSAGE_CONFLICT,
+      notFound: MESSAGE_NOT_FOUND,
+      expiredWrite: MESSAGE_EXPIRED_WRITE,
+      expiredList: MESSAGE_EXPIRED_LIST,
+    },
   })
   const weapons = saved.items
 
@@ -83,14 +99,18 @@ export const useWeaponsStore = defineStore('weapons', () => {
 
   return {
     status: saved.status,
+    source: saved.source,
     failureMessage: saved.failureMessage,
     weapons,
+    deviceWeaponCount: saved.deviceCount,
+    deletingIds: saved.deletingIds,
     entries,
     candidates,
     candidateCount,
     excluded,
     excludedCount,
     setRepositoryOpener: saved.setRepositoryOpener,
+    setApi: saved.setApi,
     ensureLoaded: saved.ensureLoaded,
     reload: saved.reload,
     save: saved.save,

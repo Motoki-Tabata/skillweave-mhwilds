@@ -266,6 +266,137 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/weapons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 自分の個体差のある武器の一覧を取得する
+         * @description **【機能概要】**
+         *
+         *     ログイン中のユーザーが保存した、削除していない個体差のある武器を全件返す。ID の降順で、ページングはしない。refs specs/013-user-weapon-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. セッション Cookie からログイン状態を判定する。
+         *     2. 自分の削除していない武器を ID の降順で並べ、200 で返す。0件なら空の配列。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        get: operations["listWeapons"];
+        put?: never;
+        /**
+         * 個体差のある武器を保存する
+         * @description **【機能概要】**
+         *
+         *     クライアントが採番した ID で個体差のある武器を新規に保存する。refs specs/013-user-weapon-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 要求の構造（ID・スキーマ版・武器の内容）を検査する。
+         *     4. 武器を自分の行として保存する。行バージョン・作成日時・更新日時はサーバーが決める。
+         *     5. 保存後の武器を 201 で返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         *     3. 要求の構造が契約に反する場合（文字列の項目が JSON の文字列でない、省略できる項目が明示の null、文字列に U+0000 を含む場合を含む）は 400（`application/problem+json`）を返し、保存しない。
+         *     4. ID が既存の行（他のユーザー・削除済みを含む）と衝突する場合は 409（`application/problem+json`）を返し、既存の行は変えない。
+         */
+        post: operations["createWeapon"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/weapons/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 個体差のある武器の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 個体差のある武器を更新する
+         * @description **【機能概要】**
+         *
+         *     自分の個体差のある武器の内容を、読んだ時点の行バージョンを添えて上書きする。refs specs/013-user-weapon-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 要求の構造を検査する。
+         *     4. 自分の削除していない武器を探し、要求の行バージョンが行と一致すれば内容を書き換え、行バージョンを進める。
+         *     5. 保存後の武器を 200 で返す。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         *     3. 要求の構造が契約に反する場合（文字列の項目が JSON の文字列でない、省略できる項目が明示の null、文字列に U+0000 を含む場合を含む）は 400（`application/problem+json`）を返し、保存しない。
+         *     4. 自分の削除していない行が無い場合（他のユーザーの行・削除済み・ID の形が不正を含む）は 404（`application/problem+json`）を返す。
+         *     5. 要求の行バージョンが行と一致しない場合、または同時の更新と競合した場合は 409（`application/problem+json`）を返し、上書きしない。
+         */
+        put: operations["updateWeapon"];
+        post?: never;
+        /**
+         * 個体差のある武器を削除する
+         * @description **【機能概要】**
+         *
+         *     自分の個体差のある武器を論理削除する。冪等で、対象の行が無くても 204 を返す。refs specs/013-user-weapon-save/spec.md
+         *
+         *     **【公開範囲・認証】**
+         *
+         *     - Token認証: セッション Cookie（`SESSION`）。加えて CSRF トークンを `X-XSRF-TOKEN` ヘッダーで送る必要がある
+         *     - チャレンジレスポンス認証: 不採用
+         *
+         *     **【処理詳細】**
+         *
+         *     1. CSRF トークン（`X-XSRF-TOKEN` ヘッダー）を検証する。
+         *     2. セッション Cookie からログイン状態を判定する。
+         *     3. 自分の削除していない武器があれば論理削除する。行バージョンは照合しない。
+         *     4. 204 を返す。行が無い・他のユーザーの行・ID の形が不正な場合も 204 で、他のユーザーの行は変えない。
+         *
+         *     **【異常処理詳細】**
+         *
+         *     1. CSRF トークンが無い、または一致しない場合は 403 になる。この拒否は認証より前のフィルタ段で行われる。
+         *     2. セッション Cookie が無い、またはセッションが無効な場合は 401（`application/problem+json`）を返す。
+         */
+        delete: operations["deleteWeapon"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/me": {
         parameters: {
             query?: never;
@@ -553,7 +684,7 @@ export interface components {
              * @example wp:charge-blade:22
              */
             baseWeaponId: string;
-            /** @description 武器の名前（0〜30文字）。空なら Web が基の武器の名前を出す。 */
+            /** @description 武器の名前（0〜30文字）。U+0000 を含まない。空なら Web が基の武器の名前を出す。 */
             name: string;
             /** @description 攻撃力。 */
             attack: number;
@@ -576,6 +707,57 @@ export interface components {
             seriesBonusId: string | null;
             /** @description グループスキルの ID。無ければ null。 */
             groupBonusId: string | null;
+        };
+        /** @description 保存した個体差のある武器。 */
+        CustomWeapon: {
+            /**
+             * Format: uuid
+             * @description 武器の ID。クライアントが採番した UUIDv7。
+             */
+            id: string;
+            payload: components["schemas"]["CustomWeaponPayload"];
+            /**
+             * @description payload の形の版。
+             * @example 1
+             */
+            schemaVersion: number;
+            /** @description 行バージョン。更新のたびにサーバーが進める。 */
+            version: number;
+            /**
+             * Format: date-time
+             * @description 作成日時（UTC）。
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 更新日時（UTC）。
+             */
+            updatedAt: string;
+        };
+        /** @description 個体差のある武器の作成の要求。 */
+        CreateCustomWeaponRequest: {
+            /**
+             * Format: uuid
+             * @description クライアントが採番した UUIDv7。
+             */
+            id: string;
+            payload: components["schemas"]["CustomWeaponPayload"];
+            /**
+             * @description payload の形の版。
+             * @enum {integer}
+             */
+            schemaVersion: 1;
+        };
+        /** @description 個体差のある武器の更新の要求。 */
+        UpdateCustomWeaponRequest: {
+            payload: components["schemas"]["CustomWeaponPayload"];
+            /**
+             * @description payload の形の版。
+             * @enum {integer}
+             */
+            schemaVersion: 1;
+            /** @description クライアントが読んだ時点の行バージョン。サーバーの行と違えば 409。 */
+            version: number;
         };
         /** @description 部位ごとの防具 ID。防具を着けない部位は null。部位のキーと ID の部位の一致は検査しない。 */
         BuildArmor: {
@@ -663,7 +845,7 @@ export interface components {
              */
             id: string;
             /**
-             * @description 構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。
+             * @description 構成の名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。U+0000 を含まない。
              *     サーバーは前後を削らず、違反は 400 にする。
              * @example 鉄刀【神楽】 構成3
              */
@@ -683,7 +865,7 @@ export interface components {
         /** @description 構成の名前の変更の要求。 */
         RenameBuildRequest: {
             /**
-             * @description 新しい名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。
+             * @description 新しい名前。Unicode のコードポイントで 1〜50 個。先頭と末尾は空白（ECMAScript の `String.prototype.trim()` が除く文字）でない。U+0000 を含まない。
              *     サーバーは前後を削らず、違反は 400 にする。
              * @example 鉄刀【神楽】 構成3
              */
@@ -923,6 +1105,107 @@ export interface operations {
             header?: never;
             path: {
                 /** @description 護石の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 削除した（または対象が無かった）。本文は無い。 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    listWeapons: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 自分の個体差のある武器の配列。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomWeapon"][];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    createWeapon: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCustomWeaponRequest"];
+            };
+        };
+        responses: {
+            /** @description 保存した個体差のある武器。 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomWeapon"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    updateWeapon: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 個体差のある武器の ID。 */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCustomWeaponRequest"];
+            };
+        };
+        responses: {
+            /** @description 保存後の個体差のある武器。 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomWeapon"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    deleteWeapon: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description 個体差のある武器の ID。 */
                 id: string;
             };
             cookie?: never;
