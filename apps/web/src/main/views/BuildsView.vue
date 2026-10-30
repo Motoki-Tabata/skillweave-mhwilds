@@ -52,7 +52,7 @@ async function onRemoved(_id: string, result: BuildWriteResult): Promise<void> {
 
 <template>
   <div class="mx-auto w-full px-4 py-4 md:max-w-[720px] md:px-6 lg:max-w-[1280px]">
-    <h1 ref="heading" tabindex="-1" class="mb-1 text-xl leading-snug font-semibold outline-none">
+    <h1 ref="heading" tabindex="-1" class="mb-1 text-xl leading-snug font-bold outline-none">
       保存した構成
     </h1>
 
@@ -69,9 +69,7 @@ async function onRemoved(_id: string, result: BuildWriteResult): Promise<void> {
         </Button>
       </div>
       <section v-else class="flex flex-col gap-2">
-        <h2 class="text-base leading-snug font-semibold">
-          保存した構成（{{ builds.builds.length }}）
-        </h2>
+        <h2 class="text-base leading-snug font-bold">保存した構成（{{ builds.builds.length }}）</h2>
         <ul
           :aria-label="`保存した構成（${builds.builds.length} 件）`"
           class="flex flex-col gap-2 lg:grid lg:grid-cols-2"

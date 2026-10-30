@@ -189,7 +189,7 @@ function onDialogCloseAutoFocus(event: Event): void {
 <template>
   <div class="mx-auto w-full px-4 py-4 md:max-w-[720px] md:px-6 lg:max-w-[1280px]">
     <h1
-      class="text-xl leading-snug font-semibold"
+      class="text-xl leading-snug font-bold"
       :class="loading || master.status === 'failed' || !hasSource ? 'mb-4' : 'mb-1'"
     >
       護石
@@ -239,7 +239,7 @@ function onDialogCloseAutoFocus(event: Event): void {
         />
 
         <section ref="listRoot" class="flex flex-col gap-2">
-          <h2 ref="heading" tabindex="-1" class="text-base leading-snug font-semibold outline-none">
+          <h2 ref="heading" tabindex="-1" class="text-base leading-snug font-bold outline-none">
             登録済みの護石（{{ charms.charms.length }}）
           </h2>
 

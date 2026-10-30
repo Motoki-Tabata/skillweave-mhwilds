@@ -70,7 +70,7 @@ function levelLabel(level: number | null): string {
 <template>
   <Card class="@container gap-3 py-4">
     <div class="flex items-baseline justify-between gap-2 px-4">
-      <component :is="`h${headingLevel}`" class="text-base leading-snug font-semibold">
+      <component :is="`h${headingLevel}`" class="text-base leading-snug font-bold">
         {{ title }}
       </component>
       <!-- 「保存」の slot が空なら、見出し行は変更前と同じ DOM。ある時だけボタンを縦中央に寄せる -->

@@ -25,11 +25,11 @@ const emit = defineEmits<{
     <DialogPortal>
       <AppDialogOverlay />
       <DialogContent
-        class="bg-background fixed inset-x-0 top-12 bottom-8 z-50 flex flex-col outline-none md:inset-auto md:top-1/2 md:left-1/2 md:max-h-[calc(100vh-6rem)] md:w-[720px] md:max-w-[calc(100vw-3rem)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg md:border md:shadow-lg"
+        class="bg-background fixed inset-x-0 top-12 bottom-8 z-50 flex flex-col outline-none md:inset-auto md:top-1/2 md:left-1/2 md:max-h-[calc(100vh-6rem)] md:w-[720px] md:max-w-[calc(100vw-3rem)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-lg md:border"
         @close-auto-focus="(event: Event) => emit('closeAutoFocus', event)"
       >
         <div class="flex shrink-0 items-center justify-between gap-2 border-b py-1 pr-2 pl-4">
-          <DialogTitle class="text-base leading-snug font-semibold">{{ title }}</DialogTitle>
+          <DialogTitle class="text-base leading-snug font-bold">{{ title }}</DialogTitle>
           <DialogClose as-child>
             <Button variant="ghost" size="icon" class="size-11" aria-label="閉じる">
               <X />

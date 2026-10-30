@@ -107,7 +107,7 @@ async function remove(id: string, isArmor: boolean): Promise<void> {
 <template>
   <Card class="gap-3 py-4">
     <div class="flex flex-col gap-1 px-4">
-      <h2 class="text-base leading-snug font-semibold">除外</h2>
+      <h2 class="text-base leading-snug font-bold">除外</h2>
       <p class="text-muted-foreground text-xs">除外した防具・装飾品は、検索の候補にしません。</p>
     </div>
     <CardContent class="px-4">

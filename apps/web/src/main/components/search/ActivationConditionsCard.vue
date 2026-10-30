@@ -15,7 +15,7 @@ function onChange(id: ConditionId, checked: boolean | 'indeterminate'): void {
 <template>
   <Card class="gap-3 py-4">
     <div class="flex items-baseline justify-between gap-2 px-4">
-      <h2 class="text-base leading-snug font-semibold">発動条件</h2>
+      <h2 class="text-base leading-snug font-bold">発動条件</h2>
       <span class="text-muted-foreground text-xs tabular-nums">
         オン {{ conditions.activeConditionIds.length }} 件
       </span>

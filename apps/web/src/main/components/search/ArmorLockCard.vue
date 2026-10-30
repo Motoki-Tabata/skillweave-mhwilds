@@ -9,7 +9,7 @@ const HEADING_ID = 'armor-lock-heading'
 <template>
   <Card class="gap-3 py-4">
     <div class="flex flex-col gap-1 px-4">
-      <h2 :id="HEADING_ID" class="text-base leading-snug font-semibold">部位の固定</h2>
+      <h2 :id="HEADING_ID" class="text-base leading-snug font-bold">部位の固定</h2>
       <p class="text-muted-foreground text-xs">
         固定した防具は、候補にするランクにかかわらず使います。
       </p>

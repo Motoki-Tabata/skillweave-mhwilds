@@ -1,8 +1,7 @@
-次の番号: Q94
+次の番号: Q98
 
 ## 要確認事項
 - [ ] Q6: 018 pwa-offline の導入方式。`vite-plugin-pwa` は `design/tech-stack.md`「判断 3」でサプライチェーン対策の判断待ちになっている（仮: 判断が出るまで 018 は着手しない。自前の Service Worker で置き換える案もそこで比べる）
-- [ ] Q27: 警告の帯の見た目が MASTER.md と実装でずれている。`design-system/skillweave/MASTER.md` の「警告の帯」は左端に 3px の `--warning` の線を定めているが、`ResultAlert.vue` は薄い背景だけ（仮: 026 design-system-alignment で MASTER.md に合わせる）
 - [ ] Q28: PC を主にしたレイアウトの見直し。MASTER.md の方向性は「PC を主とし、スマホでも同じ情報構造にする」だが、Layout の対応画面サイズはモバイルファーストのまま（`md` で最大幅 720px）（仮: 次に検索画面（`SearchView.vue`）のレイアウトを触る機能でブレークポイントを決め、MASTER.md の Layout を直す。005 charm-input では扱わない［005 decisions.md Q26 の検討時に、検索画面の作り直しに波及するため外した］）
 - [ ] Q40: 属性の期待値（`element_add`・`element_mul`・会心撃【属性】）を扱う機能。006 damage-model は物理の期待値だけを扱う（006 decisions.md Q35）（仮: 機能マップに 023 element-damage として追加した。扱う範囲（属性の種類・個体差のある武器の属性値・会心撃【属性】）は 023 の区間 A で決める）
 - [ ] Q70: 014 guest-draft-import の取り込みの対象に「構成」を残すか。011 build-save はゲストの端末内に構成を保存しない（011 decisions.md Q65）ので、取り込むゲストの構成が無い（仮: 014 の区間 A で、機能マップの 014 の「1行の価値」から「構成」を外すか、ゲストの構成の端末内の保存を別の機能として足すかを決める）

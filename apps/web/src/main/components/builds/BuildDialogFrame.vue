@@ -16,12 +16,12 @@ const emit = defineEmits<{
     <DialogPortal>
       <AppDialogOverlay />
       <DialogContent
-        class="bg-background fixed top-[calc(50%+8px)] left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-[480px] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border p-6 shadow-lg outline-none md:top-1/2"
+        class="bg-background fixed top-[calc(50%+8px)] left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-[480px] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border p-6 outline-none md:top-1/2"
         @open-auto-focus="(event: Event) => emit('openAutoFocus', event)"
         @close-auto-focus="(event: Event) => emit('closeAutoFocus', event)"
       >
         <DialogHeader>
-          <DialogTitle class="text-base leading-snug font-semibold">{{ title }}</DialogTitle>
+          <DialogTitle class="text-base leading-snug font-bold">{{ title }}</DialogTitle>
           <DialogDescription class="text-sm">{{ description }}</DialogDescription>
         </DialogHeader>
         <slot />

@@ -5,6 +5,8 @@ import type { SolvedBuild } from '@swv/solver'
 import BuildCard from '@/components/search/BuildCard.vue'
 import type { BuildCardDamage } from '@/components/search/BuildCard.vue'
 import { Button } from '@/components/ui/button'
+import { MD_OUTLINE_CLASS } from '@/components/common/mdOutlineClass'
+import { cn } from '@/lib/utils'
 import type { BuildLookup } from '@/lib/solver/buildView'
 import { useAuthStore } from '@/stores/auth'
 import { useMasterStore } from '@/stores/master'
@@ -65,7 +67,7 @@ const label = computed(() =>
       <Button
         type="button"
         variant="ghost"
-        class="md:bg-background md:dark:bg-input/30 md:dark:border-input md:dark:hover:bg-input/50 size-11 shrink-0 md:h-10 md:w-auto md:border md:px-4 md:shadow-xs"
+        :class="cn('size-11 shrink-0', MD_OUTLINE_CLASS)"
         :aria-label="label"
         :title="label"
         :aria-disabled="saved ? 'true' : undefined"

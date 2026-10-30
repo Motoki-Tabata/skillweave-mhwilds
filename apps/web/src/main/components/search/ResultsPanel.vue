@@ -128,12 +128,7 @@ const TIMEOUT_HINT =
 
 <template>
   <section ref="root" aria-labelledby="results-heading" class="flex min-w-0 flex-col gap-4">
-    <h2
-      id="results-heading"
-      ref="heading"
-      tabindex="-1"
-      class="text-base leading-snug font-semibold"
-    >
+    <h2 id="results-heading" ref="heading" tabindex="-1" class="text-base leading-snug font-bold">
       検索結果
     </h2>
 
@@ -225,7 +220,7 @@ const TIMEOUT_HINT =
           <p>{{ TIMEOUT_HINT }}</p>
         </ResultAlert>
         <div v-else class="flex flex-col gap-1">
-          <p class="text-base font-semibold">
+          <p class="text-base font-bold">
             <span class="tabular-nums">{{ builds.length }}</span> 件の構成が見つかりました
           </p>
           <p class="text-muted-foreground text-xs">

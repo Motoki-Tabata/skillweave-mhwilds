@@ -140,7 +140,7 @@ const deleteDescription = computed(() => {
 
 <template>
   <div class="mx-auto w-full px-4 py-4 md:max-w-[720px] md:px-6 lg:max-w-[1280px]">
-    <h1 class="mb-4 text-xl leading-snug font-semibold">個体差のある武器</h1>
+    <h1 class="mb-4 text-xl leading-snug font-bold">個体差のある武器</h1>
 
     <!-- 読込中 -->
     <div v-if="loading" class="flex flex-col gap-4">
@@ -174,7 +174,7 @@ const deleteDescription = computed(() => {
       />
 
       <section ref="listRoot" class="flex flex-col gap-2">
-        <h2 ref="heading" tabindex="-1" class="text-base leading-snug font-semibold outline-none">
+        <h2 ref="heading" tabindex="-1" class="text-base leading-snug font-bold outline-none">
           登録済みの武器（{{ weapons.weapons.length }}）
         </h2>
 

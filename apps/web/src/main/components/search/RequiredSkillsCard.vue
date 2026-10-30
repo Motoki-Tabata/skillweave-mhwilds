@@ -45,7 +45,7 @@ async function remove(skillId: SkillId): Promise<void> {
 
 <template>
   <Card class="gap-3 py-4">
-    <h2 class="px-4 text-base leading-snug font-semibold">必須スキル</h2>
+    <h2 class="px-4 text-base leading-snug font-bold">必須スキル</h2>
     <CardContent class="px-4">
       <div ref="root" class="flex flex-col gap-3">
         <Button
