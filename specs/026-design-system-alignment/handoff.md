@@ -77,6 +77,7 @@
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
+- 新規の教訓なし。区間 E の始末へ持ち越し: components/common/README.md の「ui/ は手で編集しない」も lessons 2026-10-30 の始末の対象にする。AC-6 の単体テストが無いこと、ダークの md:dark:hover:bg-muted が ghost の dark:hover:bg-accent/50 に勝つことは実ブラウザ未確認（区間 E の目視で見る）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
