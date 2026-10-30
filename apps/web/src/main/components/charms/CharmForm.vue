@@ -277,7 +277,7 @@ function onEnter(event: KeyboardEvent): void {
 
 <template>
   <Card class="gap-3 py-4">
-    <h2 class="px-4 text-base leading-snug font-semibold">
+    <h2 class="px-4 text-base leading-snug font-bold">
       {{ isEditing ? '護石を編集' : '護石を登録' }}
     </h2>
     <CardContent class="px-4">

@@ -3,6 +3,8 @@ import { nextTick, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { CircleUser, Loader2, LogIn, LogOut, User } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
+import { MD_OUTLINE_CLASS } from '@/components/common/mdOutlineClass'
+import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,11 +35,7 @@ async function onLogout(): Promise<void> {
 
 <template>
   <div v-if="auth.status === 'unauthenticated'" data-slot="auth-login" class="flex shrink-0">
-    <Button
-      as-child
-      variant="ghost"
-      class="size-11 md:bg-background md:dark:bg-input/30 md:dark:border-input md:dark:hover:bg-input/50 md:h-10 md:w-auto md:border md:px-4 md:shadow-xs"
-    >
+    <Button as-child variant="ghost" :class="cn('size-11', MD_OUTLINE_CLASS)">
       <a
         ref="loginLink"
         :href="LOGIN_PATH"
@@ -87,7 +85,7 @@ async function onLogout(): Promise<void> {
           <CircleUser v-else class="size-5" aria-hidden="true" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" class="w-60 max-w-[calc(100vw-2rem)] rounded-sm shadow-none">
+      <DropdownMenuContent align="end" class="w-60 max-w-[calc(100vw-2rem)] rounded-sm">
         <DropdownMenuLabel class="font-normal">
           <span class="text-muted-foreground block text-xs">ログイン中</span>
           <span class="block text-sm font-medium break-all">{{ auth.displayName }}</span>

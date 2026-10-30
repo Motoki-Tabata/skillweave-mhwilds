@@ -62,7 +62,7 @@ defineExpose({ focusRanks })
 
 <template>
   <Card class="gap-3 py-4">
-    <h2 class="px-4 text-base leading-snug font-semibold">検索条件</h2>
+    <h2 class="px-4 text-base leading-snug font-bold">検索条件</h2>
     <CardContent class="px-4">
       <div ref="root" class="flex flex-col gap-4">
         <div class="flex flex-col gap-1">

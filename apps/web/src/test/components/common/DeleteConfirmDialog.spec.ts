@@ -31,6 +31,13 @@ describe('DeleteConfirmDialog', () => {
     await vi.waitFor(() => expect(document.activeElement).toBe(button('キャンセル')))
   })
 
+  // 026 AC-4（オーバーレイの黒は 60%）
+  it('オーバーレイは bg-black/60 で、80 ではない', async () => {
+    await open()
+    expect(document.querySelector('.bg-black\\/60')).not.toBeNull()
+    expect(document.querySelector('.bg-black\\/80')).toBeNull()
+  })
+
   it('「削除」で confirm を、「キャンセル」で open の更新（false）を出す', async () => {
     await open()
     button('削除').click()

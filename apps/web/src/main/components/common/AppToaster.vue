@@ -17,7 +17,7 @@ function onOpenChange(id: number, open: boolean): void {
       :key="item.id"
       type="background"
       :data-tone="item.tone"
-      class="bg-card text-card-foreground data-[tone=destructive]:border-destructive data-[tone=destructive]:text-destructive rounded-md border px-4 py-3 text-sm shadow-md"
+      class="bg-card text-card-foreground data-[tone=destructive]:border-destructive data-[tone=destructive]:text-destructive rounded-md border px-4 py-3 text-sm"
       @update:open="(open: boolean) => onOpenChange(item.id, open)"
     >
       <ToastTitle>{{ item.message }}</ToastTitle>

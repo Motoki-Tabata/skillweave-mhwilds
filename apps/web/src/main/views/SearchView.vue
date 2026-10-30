@@ -86,7 +86,7 @@ function returnFocusToWeapon(event: Event): void {
 
 <template>
   <div class="mx-auto w-full px-4 py-4 md:max-w-[720px] md:px-6 lg:max-w-[1280px]">
-    <h1 class="mb-4 text-xl leading-snug font-semibold">装備検索</h1>
+    <h1 class="mb-4 text-xl leading-snug font-bold">装備検索</h1>
     <div
       class="flex flex-col gap-4 lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:items-start lg:gap-6"
     >

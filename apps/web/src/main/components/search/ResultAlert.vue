@@ -17,8 +17,9 @@ const icon = computed(() => {
 
 const alertClass = computed(() => {
   if (props.tone === 'error') return 'border-destructive'
-  // 警告は文字や枠線に色を使わず、薄い背景にする
-  if (props.tone === 'warning') return 'bg-warning/15 text-foreground'
+  // 警告は文字色を変えず、左の太線と薄い背景で示す
+  if (props.tone === 'warning')
+    return 'border-l-warning border-l-[3px] bg-warning/15 text-foreground'
   return ''
 })
 </script>

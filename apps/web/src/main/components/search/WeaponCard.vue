@@ -52,7 +52,7 @@ defineExpose({ focus: () => button.value?.focus() })
 <template>
   <div class="flex flex-col gap-3">
     <Card class="gap-3 py-4">
-      <h2 class="px-4 text-base leading-snug font-semibold">武器</h2>
+      <h2 class="px-4 text-base leading-snug font-bold">武器</h2>
       <CardContent class="px-4">
         <button
           ref="button"

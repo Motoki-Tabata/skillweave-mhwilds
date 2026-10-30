@@ -52,7 +52,7 @@ const fallbackText = computed(() =>
 
 <template>
   <Card class="gap-3 py-4">
-    <h2 class="px-4 text-base leading-snug font-semibold">護石</h2>
+    <h2 class="px-4 text-base leading-snug font-bold">護石</h2>
     <CardContent class="flex flex-col items-start gap-3 px-4">
       <div class="flex flex-col gap-1">
         <div class="flex min-h-11 items-center gap-2">

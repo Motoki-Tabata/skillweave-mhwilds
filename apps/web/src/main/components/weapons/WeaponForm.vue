@@ -309,7 +309,7 @@ const nameDescribedBy = computed(() =>
 
 <template>
   <Card class="gap-3 py-4">
-    <h2 class="px-4 text-base leading-snug font-semibold">
+    <h2 class="px-4 text-base leading-snug font-bold">
       {{ isEditing ? '武器を編集' : '武器を登録' }}
     </h2>
     <CardContent class="px-4">
