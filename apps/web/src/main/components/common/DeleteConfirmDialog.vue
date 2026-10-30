@@ -11,7 +11,10 @@ import {
 } from '@/components/ui/alert-dialog'
 
 /** 汎用の削除確認。開いたらフォーカスは「キャンセル」に置かれる。 */
-defineProps<{ open: boolean; title: string; description: string }>()
+withDefaults(
+  defineProps<{ open: boolean; title: string; description: string; confirmLabel?: string }>(),
+  { confirmLabel: '削除' },
+)
 const emit = defineEmits<{
   'update:open': [open: boolean]
   confirm: []
@@ -32,7 +35,7 @@ const emit = defineEmits<{
           class="text-destructive border-destructive hover:text-destructive h-11 border bg-transparent hover:bg-transparent"
           @click="emit('confirm')"
         >
-          削除
+          {{ confirmLabel }}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

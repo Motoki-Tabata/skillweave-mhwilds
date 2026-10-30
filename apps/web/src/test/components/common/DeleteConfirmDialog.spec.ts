@@ -31,6 +31,23 @@ describe('DeleteConfirmDialog', () => {
     await vi.waitFor(() => expect(document.activeElement).toBe(button('キャンセル')))
   })
 
+  // 012 AC-9（取り消しの確認は確定のボタンの文言を差し替える）
+  it('confirmLabel を渡すと確定のボタンの文言を替え、渡さなければ「削除」', async () => {
+    await open()
+    expect(button('削除')).toBeDefined()
+    wrapper!.unmount()
+    document.body.innerHTML = ''
+    wrapper = mount(DeleteConfirmDialog, {
+      props: { open: true, title: 't', description: 'd', confirmLabel: '共有を取り消す' },
+      attachTo: document.body,
+    })
+    await flushPromises()
+    expect(button('共有を取り消す')).toBeDefined()
+    expect(Array.from(document.querySelectorAll('button')).some((b) => textOf(b) === '削除')).toBe(
+      false,
+    )
+  })
+
   // 026 AC-4（オーバーレイの黒は 60%）
   it('オーバーレイは bg-black/60 で、80 ではない', async () => {
     await open()

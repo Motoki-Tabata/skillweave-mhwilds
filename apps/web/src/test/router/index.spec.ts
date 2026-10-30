@@ -18,6 +18,11 @@ describe('router', () => {
     expect(routes.find((route) => route.path === '/builds/:id')?.name).toBe('build')
   })
 
+  it('012: /shares（shares）と /s/:shortId（shared-build）のルートを持つ', () => {
+    expect(routes.find((route) => route.path === '/shares')?.name).toBe('shares')
+    expect(routes.find((route) => route.path === '/s/:shortId')?.name).toBe('shared-build')
+  })
+
   it('遷移のたびに meta.title を document.title に書く', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes })
     installTitleHook(router)
