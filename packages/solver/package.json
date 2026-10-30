@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@swv/data": "workspace:*",
-    "highs": "1.15.3"
+    "highs": "1.15.4"
   },
   "devDependencies": {
     "@types/node": "catalog:",
