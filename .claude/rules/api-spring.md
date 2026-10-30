@@ -40,6 +40,12 @@ import 元パッケージを都度確認する。
 `@Modifying(flushAutomatically = true, clearAutomatically = true)` を付ける。
 付けないと、0件更新の後の読み直しで永続化コンテキストの古いエンティティを見る。
 
+## クライアント採番の ID の作成で、主キー違反だけを 409 にする
+作成の `saveAndFlush` を `catch (DataIntegrityViolationException e)` で丸ごと捕まえて 409 にしない。
+外部キー・CHECK・文字コード（SQLState 22021・22P05）の拒否まで「ID の衝突」に化ける。
+主キーの制約名（`pk_<table>_id`）か SQLState 23505 で主キー違反だけを 409 にし、それ以外は投げ直す
+（判定は `common/util/PrimaryKeyViolations`）。主キー違反以外が 409 にならないことを Testcontainers のテストで固定する。
+
 ## Spring Security の独自 RequestMatcher は `PathPatternRequestMatcher` を使う
 Spring Security を導入する機能（認証の機能）から適用する。パスを照合するときは
 `PathPatternRequestMatcher` を使い、`request.getRequestURI()`（未デコード）の文字列比較をしない。

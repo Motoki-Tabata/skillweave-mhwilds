@@ -2,6 +2,7 @@ package io.github.motokitabata.skillweave.service;
 
 import io.github.motokitabata.skillweave.common.exception.ResourceConflictException;
 import io.github.motokitabata.skillweave.common.exception.ResourceNotFoundException;
+import io.github.motokitabata.skillweave.common.util.PrimaryKeyViolations;
 import io.github.motokitabata.skillweave.dto.request.CreateCharmRequest;
 import io.github.motokitabata.skillweave.dto.request.UpdateCharmRequest;
 import io.github.motokitabata.skillweave.dto.response.CharmResponse;
@@ -23,6 +24,7 @@ public class CharmService {
     public static final String NOT_FOUND = "Charm not found";
     static final String ID_EXISTS = "Charm id already exists";
     private static final String CHANGED = "Charm was changed by another request";
+    private static final String PRIMARY_KEY = "pk_charms_id";
 
     private final CharmRepository repository;
 
@@ -37,7 +39,7 @@ public class CharmService {
                 .toList();
     }
 
-    /** 衝突は、存在の確認と、同時の作成による主キー違反のどちらでも 409 にする。 */
+    /** 衝突は、存在の確認と、同時の作成による主キー違反のどちらでも 409 にする。主キー違反以外の DB の拒否は変換しない。 */
     public CharmResponse create(UUID userId, CreateCharmRequest request) {
         if (repository.existsById(request.id())) {
             throw new ResourceConflictException(ID_EXISTS);
@@ -46,7 +48,10 @@ public class CharmService {
         try {
             return CharmResponse.from(repository.saveAndFlush(charm));
         } catch (DataIntegrityViolationException e) {
-            throw new ResourceConflictException(ID_EXISTS, e);
+            if (PrimaryKeyViolations.isViolationOf(e, PRIMARY_KEY)) {
+                throw new ResourceConflictException(ID_EXISTS, e);
+            }
+            throw e;
         }
     }
 
