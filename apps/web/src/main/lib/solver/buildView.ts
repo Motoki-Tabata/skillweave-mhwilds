@@ -354,7 +354,10 @@ function charmMap(payload: BuildPayload, master: SavedBuildMaster): Map<string, 
  * 保存した構成から、`SolvedBuild` と表示の材料を作る。発動スキル・空きスロットは保存した値、
  * 護石と個体差のある武器は写し、名前と防具・マスターの武器の値は現在のマスターから引く。
  */
-export function savedBuildView(build: Build, master: SavedBuildMaster): SavedBuildView {
+export function savedBuildView(
+  build: Pick<Build, 'masterVersion' | 'payload'>,
+  master: SavedBuildMaster,
+): SavedBuildView {
   const { payload } = build
   const solved = solvedOf(payload)
   const charms = charmMap(payload, master)
