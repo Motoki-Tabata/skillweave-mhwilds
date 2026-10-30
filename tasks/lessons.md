@@ -50,11 +50,6 @@
 - 何が起きたか: MASTER.md は「ウェイトは 400・500・700」「影を使わない」と定めるが、既存の画面（SearchView・CharmsView・WeaponsView・PickerDialog）の見出しの `font-semibold`、`shadow-lg`、`ui/` の既定がこれに反し、011 の新規画面（BuildsView・BuildDialogFrame・BuildCard の見出し）も同じ書き方を引き継いだ（レビュー記録 1 回目 web 2）。D8 の AlertDialog のオーバーレイも `ui/` 既定の `bg-black/80` で MASTER の Modals（0.6）と違う（web 6）。
 - 提案: MASTER.md 側で shadcn の既定の扱い（許容するか、`ui/` を CLI で更新して合わせるか）を決め、規約か実装のどちらかを揃える専用の作業を切る。
 
-## 2026-10-28 allow-coercion-of-scalars: false は数値・真偽から String への変換を止めない（機能011・区間D）
-- 種別: 規律昇華
-- 何が起きたか: 011 の api で、構成名とカスタム武器名に JSON の数値・真偽（`5`・`true`）を送ると、文字列 "5"・"true" に変換されて 201 になる。010 の護石の文字列項目も同じ性質（レビュー記録 2 回目 api F3）。
-- 提案: `.claude/rules/api-spring.md` の Jackson の項（2026-10-27 の教訓）に「文字列の項目への数値・真偽は変換される。厳密に 400 にするには別の設定が要る」と足す。
-
 ## 2026-10-28 区間 A の終わりの B／C の判定が、見た目を変えないリファクタで文字どおりと意図の食い違いを生む（機能025・区間A）
 - 種別: 矛盾是正
 - 何が起きたか: `.claude/skills/tsod-spec/SKILL.md`「区間の終わり」は「`apps/web/src/main/**` の画面・部品を変える」なら区間 B とする。025 は部品（削除確認・オーバーレイ・ストア）を変えるが、見た目・操作・永続化を変えないため、区間 B で合意する画面設計・テーブル設計が無い。ゲート A-2 でユーザーに A→C を選んでもらった。

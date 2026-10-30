@@ -374,6 +374,10 @@ class CharmControllerTest {
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:-\",\"level\":1}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:--1\",\"level\":1}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"level\":1}],\"slots\":[]}",
+                // 013 AC-11: 文字列の項目に数値・真偽・U+0000 を含む文字列を送る。
+                "{\"rarity\":8,\"skills\":[{\"skillId\":101,\"level\":1}],\"slots\":[]}",
+                "{\"rarity\":8,\"skills\":[],\"slots\":[{\"target\":true,\"level\":1}]}",
+                "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:1\\u0000\",\"level\":1}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:1\",\"level\":0}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[{\"skillId\":\"sk:1\"}],\"slots\":[]}",
                 "{\"rarity\":8,\"skills\":[],\"slots\":[{\"target\":\"weapon\",\"level\":1},{\"target\":\"weapon\",\"level\":1},"
