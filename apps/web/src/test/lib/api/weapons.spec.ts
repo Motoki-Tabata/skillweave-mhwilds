@@ -59,7 +59,7 @@ describe('weaponsApi', () => {
     [401, { kind: 'unauthorized' }],
     [409, { kind: 'conflict' }],
     [404, { kind: 'notFound' }],
-    [400, { kind: 'failed', cause: 'server' }],
+    [400, { kind: 'badRequest' }],
     [403, { kind: 'failed', cause: 'server' }],
     [500, { kind: 'failed', cause: 'server' }],
   ])('AC-8/12: status %i は失敗の種類に分ける', async (status, expected) => {

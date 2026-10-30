@@ -17,6 +17,10 @@ export interface MemoryWeaponsApi extends WeaponsApi {
   ) => void
   /** その操作の応答を、返された関数を呼ぶまで保留する（古い応答のテスト用） */
   hold: (operation: WeaponsApiOperation) => () => void
+  /** 指定の ID の作成だけを指定の失敗で返す（null で戻す） */
+  failCreateOf: (id: string, failure: Exclude<WeaponsResult<never>, { kind: 'ok' }> | null) => void
+  /** 作成の要求の記録（送った順） */
+  createRequests: { id: string; payload: unknown; schemaVersion: number }[]
   /** 呼び出しの回数 */
   calls: Record<WeaponsApiOperation, number>
 }
@@ -25,6 +29,8 @@ export interface MemoryWeaponsApi extends WeaponsApi {
 export function createMemoryWeaponsApi(initial: AccountWeapon[] = []): MemoryWeaponsApi {
   const rows = new Map(initial.map((weapon) => [weapon.id, structuredClone(weapon)]))
   const failures = new Map<WeaponsApiOperation, Exclude<WeaponsResult<never>, { kind: 'ok' }>>()
+  const createFailures = new Map<string, Exclude<WeaponsResult<never>, { kind: 'ok' }>>()
+  const createRequests: { id: string; payload: unknown; schemaVersion: number }[] = []
   const holds = new Map<WeaponsApiOperation, Promise<void>>()
   const calls: Record<WeaponsApiOperation, number> = { list: 0, create: 0, update: 0, remove: 0 }
 
@@ -45,8 +51,11 @@ export function createMemoryWeaponsApi(initial: AccountWeapon[] = []): MemoryWea
       return failure ?? { kind: 'ok', value: snapshot() }
     },
     create: async (request) => {
+      createRequests.push(structuredClone(request))
       const failure = await enter('create')
       if (failure) return failure
+      const failureOfId = createFailures.get(request.id)
+      if (failureOfId) return failureOfId
       if (rows.has(request.id)) return { kind: 'conflict' }
       const now = new Date().toISOString()
       const row: AccountWeapon = {
@@ -105,6 +114,11 @@ export function createMemoryWeaponsApi(initial: AccountWeapon[] = []): MemoryWea
       )
       return release
     },
+    failCreateOf: (id, failure) => {
+      if (failure === null) createFailures.delete(id)
+      else createFailures.set(id, failure)
+    },
+    createRequests,
     calls,
   }
 }

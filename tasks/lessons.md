@@ -33,7 +33,7 @@
 ## 2026-10-27 トーストの文言が通知用の live region にも出るため、e2e の getByText に exact: true が要る（機能010・区間D）
 - 種別: 規律昇華
 - 何が起きたか: `e2e/charm-save.spec.ts` で、トーストの文言が Reka の通知用 live region にも重複して出て、`getByText` が strict mode 違反で落ちた（`exact: true` で解消）。同じ文言を探す将来の e2e も当たる。
-- 提案: `.claude/rules/web-vue.md` の E2E の節に、トーストの文言を `getByText` で探すときは `exact: true` を付ける、と1行足す。また、`e2e/charm-save.spec.ts` が `charm-input.spec.ts` の局所関数（`openCharms`・スキル選択・登録手順）を複製しているので、3つ目の護石系 spec を書く機能で `e2e/support/charms.ts` に切り出す。
+- 提案: `.claude/rules/web-vue.md` の E2E の節に、トーストの文言を `getByText` で探すときは `exact: true` を付ける、と1行足す。
 
 ## 2026-10-28 契約に書いたマスター ID の pattern が実データの負の ID を拒否していた（機能011・区間C）
 - 種別: 規律昇華
@@ -105,11 +105,6 @@
 - 何が起きたか: 013 の plan D6 (2) は `CustomWeaponPayload.element` に `@JsonSetter(nulls = Nulls.FAIL)` を付けて明示の null だけを 400 にする設計だった。実装すると creator 引数の欠落にも nulls のハンドラが効き、`element` を省略した要求まで 400 になった。`getNullValue` で拒否し `getAbsentValue` で null を返す deserializer（`ElementDeserializer`）に変えて解消した（plan の文面と実装が食い違ったまま区間 D に入った）。
 - 提案: `.claude/rules/api-spring.md` の Jackson の項に「record の省略可能な項目で明示の null だけを拒否するときは、`@JsonSetter(nulls = FAIL)` でなく `getNullValue` で拒否し `getAbsentValue` で null を返す deserializer にする」を足す。plan で Jackson の挙動を決めるときは、区間 C で省略と null の両方を実測する。
 
-## 2026-10-30 武器系の e2e spec が登録の手順と画面移動のヘルパーを複製している（機能013・区間D）
-- 種別: 規律昇華
-- 何が起きたか: 013 の `e2e/weapon-save.spec.ts` が、`e2e/user-weapon.spec.ts` と同一内容の `openWeapons` と、登録の手順（基の武器の選択→攻撃力→会心率→登録）を複製した（レビュー記録 1 回目 web）。2 本目で、`e2e/support/` へ切り出す基準にはまだ達していない。
-- 提案: 武器系の e2e spec が 3 本目になる機能で、`e2e/support/weapons.ts` に切り出す（2026-10-27 の護石系の教訓と同じ基準）。
-
 ## 2026-10-30 契約の enum と web の内部型の string が合わず、API の要求型で payload を web の型に差し替えている（機能013・区間D）
 - 種別: 矛盾是正
 - 何が起きたか: 契約では `element.type` が列挙だが、web の `WeaponPayload` は string で、`schema.ts` の `CreateCustomWeaponRequest` をそのまま使うと型が合わなかった。`lib/api/weapons.ts` の要求型で `payload` だけを web の型に差し替えて対処した。
@@ -124,3 +119,13 @@
 - 種別: 規律昇華
 - 何が起きたか: 012 の `e2e/build-share.spec.ts` のローカル関数 `uuidV7()` が、`build-save.spec.ts`・`charm-save.spec.ts` の同形と重複し、3 本目になった（レビュー記録 1 回目 web）。2026-10-27 の護石系の教訓の基準（3 本目で切り出す）に達している。
 - 提案: `e2e/support/` に `uuidV7` を切り出し、3 本の spec から使う。
+
+## 2026-10-31 `fakeAuthApi` の既定は未ログインでなく取得不能（`unavailable`）を返す（機能014・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 014 の画面テストが「未ログイン」を既定の `fakeAuthApi` で書いたため、実際は「認証状態を取得できない」を検証していた（レビュー記録 1 回目 web）。`unauthenticated` を明示した別ケースに分けて解消した。
+- 提案: `.claude/rules/web-vue.md` の単体テストの節に、未ログインを検証するときは `fetchCurrentUser` を `{ kind: 'unauthenticated' }` に明示する、と1行足す。
+
+## 2026-10-31 続けて複数件を登録する e2e は、前のトーストが残って `exact` の `getByText` が strict mode 違反になる（機能014・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 014 の e2e で護石を2件続けて登録すると、前の「護石を登録しました。」が残り、`getByText(exact)` が2要素に当たって落ちた。`support/charms.ts` の `registerCharm` に `.first()` を付け、spec 側では登録ごとに一覧の件数の見出しを待って解消した。
+- 提案: 2026-10-27 の `exact: true` の規則の1行に、複数件を続けて登録する場合は件数の見出しを待つ（または `.first()`）、を添える。

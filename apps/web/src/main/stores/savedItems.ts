@@ -20,6 +20,20 @@ export type SavedItemsSource = 'unknown' | 'account' | 'device'
 export type SavedWriteResult =
   'saved' | 'failed' | 'conflict' | 'notFound' | 'expired' | 'discarded'
 
+/**
+ * `importFromDevice` の結果。`done` はすべて取り込んだ、`partial` は拒否（400・409）あり、
+ * `stopped` は通信・サーバー・端末の失敗で止めた、`expired` は 401、
+ * `discarded` は保存先が変わって止めた、`ignored` は始めなかった。
+ */
+export type SavedImportResult = 'done' | 'partial' | 'stopped' | 'expired' | 'discarded' | 'ignored'
+
+/** 取り込みの1件ごとの結果。 */
+type ImportStep =
+  | { kind: 'imported' }
+  | { kind: 'rejected' }
+  | { kind: 'discarded' }
+  | { kind: 'halt'; failure: ApiFailure }
+
 /** 保存する1件。アカウントのものは、これに行バージョン（`version`）を加えた形。 */
 export interface SavedItem<P> {
   id: string
@@ -107,6 +121,8 @@ export function useSavedItems<T extends SavedItem<P>, P, V extends number = numb
   const deviceCount = ref<number | null>(null)
   /** 削除の応答待ちの ID */
   const deletingIds = ref<string[]>([])
+  /** 端末内の取り込みの最中 */
+  const importing = ref(false)
   const opener = shallowRef<SavedRepositoryOpener<T>>(options.openDefault)
   let api = options.api
   let repository: SavedRepository<T> | null = null
@@ -124,6 +140,7 @@ export function useSavedItems<T extends SavedItem<P>, P, V extends number = numb
     failureMessage.value = ''
     deviceCount.value = null
     deletingIds.value = []
+    importing.value = false
   }
 
   /** 保存先の開き方を差し替える（テスト用）。読み込み済みの状態は捨てる。 */
@@ -416,6 +433,154 @@ export function useSavedItems<T extends SavedItem<P>, P, V extends number = numb
     }
   }
 
+  async function deleteQuietly(local: SavedRepository<T>, id: string): Promise<void> {
+    try {
+      await local.delete(id)
+    } catch {
+      // 消せなくても取り込んだものとして数える。次の取り込みで AC-5 のとおり扱う
+    }
+  }
+
+  /** 受け付けた1件を端末から消す。応答の時点で保存先が変わっていたら、切り替えの読み込みの後に一覧からも除く。 */
+  async function afterAccepted(
+    local: SavedRepository<T>,
+    id: string,
+    gen: number,
+  ): Promise<ImportStep> {
+    await deleteQuietly(local, id)
+    if (gen === generation) return { kind: 'imported' }
+    await loading
+    items.value = items.value.filter((item) => item.id !== id)
+    return { kind: 'discarded' }
+  }
+
+  async function importOne(
+    account: SavedItemsApi<T, P, V>,
+    local: SavedRepository<T>,
+    row: T,
+    known: Set<string>,
+    gen: number,
+  ): Promise<ImportStep> {
+    if (gen !== generation) return { kind: 'discarded' }
+    if (known.has(row.id)) {
+      await deleteQuietly(local, row.id)
+      return { kind: 'imported' }
+    }
+    const result = await account.create({
+      id: row.id,
+      payload: row.payload,
+      schemaVersion: row.schemaVersion as V,
+    })
+    if (result.kind === 'ok') return afterAccepted(local, row.id, gen)
+    if (gen !== generation) return { kind: 'discarded' }
+    if (result.kind === 'badRequest' || result.kind === 'conflict') return { kind: 'rejected' }
+    return { kind: 'halt', failure: result }
+  }
+
+  function importDoneMessage(imported: number, kept: number): string {
+    return kept === 0
+      ? `${noun}を ${imported} 件アカウントに取り込みました。`
+      : `${noun}の取り込みが終わりました。取り込んだのは ${imported} 件で、${kept} 件はアカウントに保存できなかったため、この端末に残しています。`
+  }
+
+  function importHaltMessage(failure: ApiFailure, imported: number, kept: number): string {
+    const counts = `取り込んだのは ${imported} 件で、${kept} 件はこの端末に残しています。`
+    return failure.kind === 'unauthorized'
+      ? `ログインの有効期限が切れたため、取り込みを止めました。${counts}端末内の${noun}に切り替えました。もう一度「Discord でログイン」を押すと、続きを取り込めます。`
+      : `${noun}の取り込みを途中で止めました。${causeText(failure)} ${counts}通信の状態を確かめて、もう一度「アカウントに取り込む」を押してください。`
+  }
+
+  /** 最後まで送った。拒否があれば destructive。 */
+  async function finishCompleted(imported: number, kept: number): Promise<SavedImportResult> {
+    toast.push(importDoneMessage(imported, kept), kept === 0 ? undefined : 'destructive')
+    await loadAccount(true)
+    return kept === 0 ? 'done' : 'partial'
+  }
+
+  /** 401 または通信・サーバーの失敗で止めた。 */
+  async function finishHalted(
+    failure: ApiFailure,
+    imported: number,
+    kept: number,
+  ): Promise<SavedImportResult> {
+    toast.push(importHaltMessage(failure, imported, kept), 'destructive')
+    if (failure.kind !== 'unauthorized') {
+      await loadAccount(true)
+      return 'stopped'
+    }
+    auth?.expire()
+    if (source.value === 'account') switchToDevice()
+    await loading
+    return 'expired'
+  }
+
+  async function finishDeviceFailure(error: unknown): Promise<SavedImportResult> {
+    toast.push(
+      `${noun}を取り込めませんでした。${failureText(error)} もう一度お試しください。`,
+      'destructive',
+    )
+    await loadAccount(true)
+    return 'stopped'
+  }
+
+  /** 端末の一覧を送る順（ID の昇順）で読む。 */
+  async function readDeviceRows(): Promise<{ local: SavedRepository<T>; rows: T[] }> {
+    const local = await opener.value()
+    return { local, rows: (await local.list()).sort(byIdDescending).reverse() }
+  }
+
+  async function sendAll(
+    account: SavedItemsApi<T, P, V>,
+    local: SavedRepository<T>,
+    rows: T[],
+    known: Set<string>,
+    gen: number,
+  ): Promise<SavedImportResult> {
+    let imported = 0
+    let rejected = 0
+    for (const [index, row] of rows.entries()) {
+      const step = await importOne(account, local, row, known, gen)
+      if (step.kind === 'discarded') return 'discarded'
+      if (step.kind === 'halt') {
+        return finishHalted(step.failure, imported, rejected + rows.length - index)
+      }
+      if (step.kind === 'imported') imported += 1
+      else rejected += 1
+    }
+    return finishCompleted(imported, rejected)
+  }
+
+  async function runImport(
+    account: SavedItemsApi<T, P, V>,
+    gen: number,
+  ): Promise<SavedImportResult> {
+    let device: { local: SavedRepository<T>; rows: T[] }
+    try {
+      device = await readDeviceRows()
+    } catch (error) {
+      return finishDeviceFailure(error)
+    }
+    const listed = await account.list()
+    if (gen !== generation) return 'discarded'
+    if (listed.kind !== 'ok') return finishHalted(listed, 0, device.rows.length)
+    const known = new Set(listed.value.map((item) => item.id))
+    return sendAll(account, device.local, device.rows, known, gen)
+  }
+
+  /**
+   * 端末内の一覧を、アカウントへ1件ずつ順に送って取り込む。アカウントの保存先で、取り込み中でないときだけ始める。
+   * 終わり方ごとにトーストを1回出し、読み直すまで `importing` を立てる。
+   */
+  async function importFromDevice(): Promise<SavedImportResult> {
+    if (api === undefined || source.value !== 'account' || importing.value) return 'ignored'
+    importing.value = true
+    try {
+      return await runImport(api, generation)
+    } finally {
+      importing.value = false
+    }
+  }
+
   return {
     status,
     source,
@@ -423,6 +588,8 @@ export function useSavedItems<T extends SavedItem<P>, P, V extends number = numb
     items,
     deviceCount,
     deletingIds,
+    importing,
+    importFromDevice,
     setRepositoryOpener,
     setApi,
     ensureLoaded,

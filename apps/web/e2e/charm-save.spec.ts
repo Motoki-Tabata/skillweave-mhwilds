@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { expect, type Page, test } from '@playwright/test'
+import { openCharms, registerCharm } from './support/charms'
 import { loadMasterInfo } from './support/masterData'
 import { searchButton, selectWeapon } from './support/search'
 
@@ -90,37 +91,6 @@ async function mockApi(page: Page, initial: { loggedIn: boolean; charms?: FakeCh
     return route.fulfill({ status: 500 })
   })
   return state
-}
-
-async function openCharms(page: Page): Promise<void> {
-  await page.goto('/charms')
-  await expect(page.getByRole('heading', { level: 1, name: '護石', exact: true })).toBeVisible({
-    timeout: 60_000,
-  })
-  await expect(page.getByRole('heading', { name: '護石を登録' })).toBeVisible({ timeout: 60_000 })
-  await expect(page.getByRole('heading', { name: /^登録済みの護石（\d+）$/ })).toBeVisible()
-}
-
-/** スキル1に、読み（ひらがな）で検索して漢字の名前の候補を選ぶ。 */
-async function pickSkill1(page: Page): Promise<void> {
-  const input = page.getByRole('combobox', { name: 'スキル1', exact: true })
-  await input.fill(skill.reading)
-  const option = page.getByRole('option', { name: `${skill.name} 防具`, exact: true }).last()
-  await expect(option).toBeVisible()
-  await option.click()
-  await expect(input).toHaveValue(skill.name)
-}
-
-/** レア8・スキル1つ・スロット3つ（防具用 Lv3）の護石をフォームから登録する。 */
-async function registerCharm(page: Page): Promise<void> {
-  await page.getByRole('radio', { name: '8', exact: true }).click()
-  await pickSkill1(page)
-  for (const i of [1, 2, 3]) {
-    await page.getByRole('combobox', { name: `スロット${i}`, exact: true }).click()
-    await page.getByRole('option', { name: '防具用 Lv3', exact: true }).click()
-  }
-  await page.getByRole('button', { name: '登録', exact: true }).click()
-  await expect(page.getByText('護石を登録しました。', { exact: true })).toBeVisible()
 }
 
 function accountCharm(rarity: number): FakeCharm {

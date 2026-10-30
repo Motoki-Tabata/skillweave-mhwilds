@@ -80,7 +80,7 @@ describe('sharesApi', () => {
     [401, { kind: 'unauthorized' }],
     [404, { kind: 'notFound' }],
     [409, { kind: 'conflict' }],
-    [400, { kind: 'failed', cause: 'server' }],
+    [400, { kind: 'badRequest' }],
     [500, { kind: 'failed', cause: 'server' }],
   ])('AC-10, AC-12: status %i は %o にする', async (status, expected) => {
     stubFetch(new Response('', { status }))

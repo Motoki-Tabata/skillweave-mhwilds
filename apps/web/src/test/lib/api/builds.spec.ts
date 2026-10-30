@@ -83,7 +83,7 @@ describe('buildsApi', () => {
     [401, { kind: 'unauthorized' }],
     [409, { kind: 'conflict' }],
     [404, { kind: 'notFound' }],
-    [400, { kind: 'failed', cause: 'server' }],
+    [400, { kind: 'badRequest' }],
     [500, { kind: 'failed', cause: 'server' }],
   ])('AC-9, AC-12: status %i は %o にする', async (status, expected) => {
     stubFetch(new Response('', { status }))

@@ -104,6 +104,8 @@ export const useWeaponsStore = defineStore('weapons', () => {
     weapons,
     deviceWeaponCount: saved.deviceCount,
     deletingIds: saved.deletingIds,
+    importing: saved.importing,
+    importFromDevice: saved.importFromDevice,
     entries,
     candidates,
     candidateCount,
