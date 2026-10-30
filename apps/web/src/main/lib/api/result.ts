@@ -11,6 +11,7 @@ export const API_FAILURE_MESSAGES: Record<ApiFailureCause, string> = {
 
 export type ApiFailure =
   | { kind: 'unauthorized' }
+  | { kind: 'badRequest' }
   | { kind: 'conflict' }
   | { kind: 'notFound' }
   | { kind: 'failed'; cause: ApiFailureCause }
@@ -31,6 +32,7 @@ export function isNumber(value: unknown): value is number {
 export function failureOf(error: unknown): ApiFailure {
   if (error instanceof HttpError) {
     if (error.status === 401) return { kind: 'unauthorized' }
+    if (error.status === 400) return { kind: 'badRequest' }
     if (error.status === 409) return { kind: 'conflict' }
     if (error.status === 404) return { kind: 'notFound' }
     return SERVER_FAILURE

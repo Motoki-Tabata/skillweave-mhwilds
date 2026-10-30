@@ -112,6 +112,8 @@ export const useCharmsStore = defineStore('charms', () => {
     charms,
     deviceCharmCount: saved.deviceCount,
     deletingIds: saved.deletingIds,
+    importing: saved.importing,
+    importFromDevice: saved.importFromDevice,
     entries,
     candidates,
     candidateCount,
