@@ -119,3 +119,13 @@
 - 種別: 規律昇華
 - 何が起きたか: 012 の `e2e/build-share.spec.ts` のローカル関数 `uuidV7()` が、`build-save.spec.ts`・`charm-save.spec.ts` の同形と重複し、3 本目になった（レビュー記録 1 回目 web）。2026-10-27 の護石系の教訓の基準（3 本目で切り出す）に達している。
 - 提案: `e2e/support/` に `uuidV7` を切り出し、3 本の spec から使う。
+
+## 2026-10-31 `fakeAuthApi` の既定は未ログインでなく取得不能（`unavailable`）を返す（機能014・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 014 の画面テストが「未ログイン」を既定の `fakeAuthApi` で書いたため、実際は「認証状態を取得できない」を検証していた（レビュー記録 1 回目 web）。`unauthenticated` を明示した別ケースに分けて解消した。
+- 提案: `.claude/rules/web-vue.md` の単体テストの節に、未ログインを検証するときは `fetchCurrentUser` を `{ kind: 'unauthenticated' }` に明示する、と1行足す。
+
+## 2026-10-31 続けて複数件を登録する e2e は、前のトーストが残って `exact` の `getByText` が strict mode 違反になる（機能014・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 014 の e2e で護石を2件続けて登録すると、前の「護石を登録しました。」が残り、`getByText(exact)` が2要素に当たって落ちた。`support/charms.ts` の `registerCharm` に `.first()` を付け、spec 側では登録ごとに一覧の件数の見出しを待って解消した。
+- 提案: 2026-10-27 の `exact: true` の規則の1行に、複数件を続けて登録する場合は件数の見出しを待つ（または `.first()`）、を添える。
