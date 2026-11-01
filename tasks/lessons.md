@@ -129,3 +129,8 @@
 - 種別: 規律昇華
 - 何が起きたか: 014 の e2e で護石を2件続けて登録すると、前の「護石を登録しました。」が残り、`getByText(exact)` が2要素に当たって落ちた。`support/charms.ts` の `registerCharm` に `.first()` を付け、spec 側では登録ごとに一覧の件数の見出しを待って解消した。
 - 提案: 2026-10-27 の `exact: true` の規則の1行に、複数件を続けて登録する場合は件数の見出しを待つ（または `.first()`）、を添える。
+
+## 2026-11-01 web 単体テストの補助ファイルの置き場が規約に無い（機能015・区間D）
+- 種別: 規律昇華
+- 何が起きたか: 015 で web-agent が実マスターを読む補助 `src/test/lib/ocr/masterFixture.ts` を spec と同じフォルダに置いた。既存の補助は `src/test/support/`（`charms.ts`・`fixtures.ts` など）にあるが、`conventions.md`「テスト配置・命名規約」節の web 単体の項は補助の置き場を定めておらず、reviewer が指摘した。
+- 提案: `conventions.md` の web 単体の項に、spec でない補助は `src/test/support/` に置く、と1行足す。あわせて `masterFixture.ts` を移すかを次に lib/ocr を触る機能（016 など）で決める。
