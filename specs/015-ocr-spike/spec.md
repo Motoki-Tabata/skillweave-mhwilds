@@ -46,6 +46,7 @@
 - `pnpm-workspace.yaml`（tesseract.js の postinstall（opencollective-postinstall）を allowBuilds で遮断する旨を明記する）
 - `apps/web/vite.config.ts`（Tesseract.js の worker・WASM コア・言語データを自オリジンから配信できるようにビルドに含める）
 - `.gitignore`（測定用の画像の置き場を除外する）
+- `apps/web/playwright.config.ts`（測定用の webServer に環境変数 SWV_OCR_MEASURE=1 を足す）
 - `design/tech-stack.md`（測定結果と Tesseract.js の採否を記録する）
 
 ## 依存する機能ID
