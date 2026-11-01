@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { buildCandidates } from '@/lib/ocr/match'
 import { parseSkillLines } from '@/lib/ocr/parse'
-import { bundle, dictionary, skillByName } from './masterFixture'
+import { bundle, dictionary, skillByName } from '../../support/masterFixture'
 
 const candidates = buildCandidates(bundle, dictionary)
 const id = (name: string) => skillByName(name).id

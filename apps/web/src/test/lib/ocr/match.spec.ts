@@ -7,7 +7,7 @@ import {
   normalizeText,
   type SkillCandidate,
 } from '@/lib/ocr/match'
-import { bundle, dictionary, skillByName } from './masterFixture'
+import { bundle, dictionary, skillByName } from '../../support/masterFixture'
 
 const candidates = buildCandidates(bundle, dictionary)
 

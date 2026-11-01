@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { bundle, dictionary, skillByName } from './masterFixture'
+import { bundle, dictionary, skillByName } from '../../support/masterFixture'
 
 const mocks = vi.hoisted(() => ({
   createWorker: vi.fn(),

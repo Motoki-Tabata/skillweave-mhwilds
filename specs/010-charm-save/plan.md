@@ -30,7 +30,7 @@
   - `entity/Charm`（`@Version` の `version`。`payload` は型付きの record を `@JdbcTypeCode(SqlTypes.JSON)` で jsonb に写す）と `repository/CharmRepository`。Hibernate 7.4 は `Jackson3JsonFormatMapper` を同梱している。jsonb に書かれるキー（`rarity`・`skills[].skillId`・`skills[].level`・`slots[].target`・`slots[].level`）が Web の形と一致することをテストで確かめる。
   - `created_at`・`updated_at`・`version` はサーバーが決め、要求から受け取らない（要求の DTO にこれらの項目を持たない）。`updated_at` は更新のたびに進める。時刻は UTC（憲法）。
   - クライアント採番の ID の受け取り方（`persist` を使い `merge` を避ける等）は、`design/data-model-standard.md`「主キー・採番方針」の末尾のとおり、Hibernate の一次情報（javadoc・実機）で確かめて決める。
-- D4: 4つの API の処理（decisions.md Q59・Q62。controller は `controller/CharmController`、処理は `service/` に置く）。主体は `@AuthenticationPrincipal DiscordUserPrincipal` の `userId`。
+- D4: 4つの API の処理（decisions.md Q59・Q62。controller は `controller/CharmController`、処理は `service/` に置く）。主体は `@AuthenticationPrincipal DiscordUserPrincipal` の `userId`。削除は行バージョンを照合しないが進める（7ae46af）。
   - 一覧: 自分の `deleted_at IS NULL` の行を `id` の降順で全件返す。
   - 作成: ID が既存の行（自分・他のユーザー・削除済みを問わない）と衝突したら 409。存在の確認だけに頼らず、同時の作成で主キー違反になったときも 409 にする。応答は 201 と保存後の護石。
   - 更新: `id`・自分の `user_id`・`deleted_at IS NULL` で行を探し、無ければ 404（他のユーザーの行も 404）。要求の `version` が行と違えば 409。一致すれば `payload`・`schema_version` を書き換え、`version` を進めて保存後の護石を返す。読んでから書くまでの間に別の要求が更新した場合（`@Version` の楽観ロックの失敗）も 409。
