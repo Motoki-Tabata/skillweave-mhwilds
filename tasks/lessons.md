@@ -134,3 +134,13 @@
 - 種別: 規律昇華
 - 何が起きたか: 015 で web-agent が実マスターを読む補助 `src/test/lib/ocr/masterFixture.ts` を spec と同じフォルダに置いた。既存の補助は `src/test/support/`（`charms.ts`・`fixtures.ts` など）にあるが、`conventions.md`「テスト配置・命名規約」節の web 単体の項は補助の置き場を定めておらず、reviewer が指摘した。
 - 提案: `conventions.md` の web 単体の項に、spec でない補助は `src/test/support/` に置く、と1行足す。あわせて `masterFixture.ts` を移すかを次に lib/ocr を触る機能（016 など）で決める。
+
+## 2026-11-02 Boot 4 で移動したパッケージが api-spring.md に載っていない（申し送りの整理・区間外）
+- 種別: 規律昇華
+- 何が起きたか: 028 の api-agent が、`JdbcSessionProperties` は `org.springframework.boot.session.jdbc.autoconfigure`、`ConfigDataApplicationContextInitializer` は `org.springframework.boot.test.context` へ移動したと報告したが、起票されず handoff に残っていた（028 handoff.md「未起票の教訓」）。
+- 提案: `.claude/rules/api-spring.md` の Boot 4 の落とし穴の節に、この2つの移動先を1行で足す。
+
+## 2026-11-02 検証の下限に、bootRun のダミー値と web の prettier のパスの指定が無い（申し送りの整理・区間外）
+- 種別: 規律昇華
+- 何が起きたか: 025 で、bootRun の起動確認に `DISCORD_CLIENT_ID`・`DISCORD_CLIENT_SECRET` のダミー値が要ることと、web ワーカーの prettier は `pnpm --filter @swv/web exec prettier` で `apps/web` からの相対パスを指定することが分かった。次の機能の区間 C で扱うとされたが、未反映のまま残っていた（025 handoff.md「未起票の教訓」）。
+- 提案: `.claude/skills/tsod-build/SKILL.md`「検証の下限」節の api-agent と web-agent の行に、それぞれ1行で足す。
