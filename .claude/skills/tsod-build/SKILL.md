@@ -38,7 +38,7 @@ handoff の更新（コミット範囲・委譲の記録・再開点・レビュ
 3. プロンプトは [delegation-template.md](./references/delegation-template.md) の定型で作る。
 4. **並列にしてよい条件（唯一の正）**: 次をすべて満たすときだけ。満たさなければ直列にする。
    - tasks.md のタスクごとの担当領域と書込フォルダが重ならない。
-   - タスク間に依存が無い（一方の出力を他方が前提にしない。同じ契約ファイルを前提にしない）。
+   - タスク間に依存が無い（一方の出力を他方が前提にしない。同じ契約ファイルを前提にしない。ただし、先行タスクでコミット済みの契約を両者が読むだけなら依存に当たらない）。
    - 両者の検証が、同じ共有物を含まない。このプロジェクトの共有物は次の2つ。
      - **Gradle プロジェクト `apps/api`**: 同じ build ディレクトリでの Gradle の同時実行を避けるため、`apps/api` を検証する役割（api-agent）は、ほかの `apps/api` を検証する起動と並列にしない。
      - **pnpm workspace**: リポジトリ直下の同じ lockfile・同じルート scripts を使い、`apps/web` が `packages/*` のソースを型検査で読む。編集中のファイルによる `format:check`・`type-check` の失敗を避けるため、pnpm workspace を検証する役割どうし（web・solver・data の各役割と e2e-agent）は並列にしない。
@@ -66,8 +66,8 @@ api-agent の完了直後（data-agent・solver-agent・web-agent・e2e-agent �
 | ワーカー | 実行するコマンド |
 |---|---|
 | contract-agent | `pnpm contract:lint` |
-| api-agent | `node .claude/skills/tsod-verify/scripts/verify.mjs --only api --allow-draft`（draft の回収前だけ。contractTest の失敗は XFAIL と表示される）と bootRun の起動確認（`/actuator/health`）、`node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area api` |
-| web-agent | `pnpm --filter @swv/web run test:coverage`（Sonar と同じ計測経路。`test:unit` だけで完了にしない）と `node .claude/skills/tsod-verify/scripts/verify.mjs --only web` と `node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area web` |
+| api-agent | `node .claude/skills/tsod-verify/scripts/verify.mjs --only api --allow-draft`（draft の回収前だけ。contractTest の失敗は XFAIL と表示される）と bootRun の起動確認（`/actuator/health`。`DISCORD_CLIENT_ID`・`DISCORD_CLIENT_SECRET` にダミー値が要る）、`node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area api` |
+| web-agent | `pnpm --filter @swv/web run test:coverage`（Sonar と同じ計測経路。`test:unit` だけで完了にしない）と `node .claude/skills/tsod-verify/scripts/verify.mjs --only web` と `node .claude/skills/tsod-verify/scripts/verify.mjs --sonar-area web`。整形は `pnpm --filter @swv/web exec prettier` で、`apps/web` からの相対パスを指定する |
 | e2e-agent | `verify.mjs --only e2e`（e2e が未設定の間は SKIP）と `pnpm --filter @swv/web run lint:check`・`pnpm --filter @swv/web run format:check` と `--sonar-area web` |
 | solver-agent | `pnpm --filter @swv/solver run test:coverage` と `verify.mjs --only packages` と `--sonar-area packages` |
 | data-agent | `pnpm --filter @swv/data run test:coverage` と `verify.mjs --only packages` と `--sonar-area packages` |
