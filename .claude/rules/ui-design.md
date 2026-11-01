@@ -10,7 +10,7 @@ paths:
 
 - フォントサイズ・色などの値の正は MASTER.md にある。本ファイルには値を書かず、`.vue` の実装・レビュー時にここから正へ辿れるようにする。
 - UI コンポーネントは shadcn-vue + Reka UI を用いる（`CLAUDE.md` の憲法を参照）。
-- `apps/web/src/main/components/ui/` は shadcn-vue の CLI 生成物で、**手で編集しない**。追加・更新は、宣言駆動の例外としてメインが CLI で行う（web-agent の書込許可 `apps/web/src/main/**` は `ui/` を含むが、web-agent は `ui/` を書かない）。
+- `apps/web/src/main/components/ui/` は shadcn-vue の CLI 生成物で、見た目はトークンで変える。トークンで変えられないものだけ、MASTER.md の「生成部品（`components/ui`）の扱い」節に列挙してソースを直す。ソースの手直しは web-agent が行い、列挙に無いものは直さない。CLI での追加・更新は、宣言駆動の例外としてメインが行い、上書きしたら列挙したものを直し直す。
 - `reviewer-agent` は `.vue` 差分の文字サイズのクラスを MASTER.md の「Typography」節の「Type Scale」と、色の直書きを「Color Palette」節と突合する。許容値の一覧は MASTER.md に任せ、本ファイルに重複して書かない。
 - 画面設計（`/tsod-screen-table` の画面設計の工程）で標準を読むときも、MASTER.md（と、あれば `pages/<page>.md`）を直接参照する。
 - 表の見出しセル（`<th scope="col">`）の書き方は `web-vue.md` の「Sonar で繰り返し出たルールの避け方（web）」節を参照する。

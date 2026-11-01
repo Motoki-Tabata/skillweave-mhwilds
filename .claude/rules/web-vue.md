@@ -23,6 +23,19 @@ vue-tsc の project references（composite）はコンポーネントの型
 セットで行う（素の `vi.fn()` は undefined を返し、`.catch` 呼出しで TypeError になる）。
 契約に追加があるタスクは、web-agent による既存テストの追従を計画に含める。
 
+## スケルトンの 300ms 遅延は `useSkeletonDelay` を使う
+新しい画面は `lib/useSkeletonDelay.ts` を使い、遅延を手書きしない。
+
+## Combobox を足すとき
+- フォームの Enter の横取りから `role=combobox` を除く（候補を選ぶ Enter で送信しない）。
+- 入力欄の blur で表示名に戻すなら、候補リストに `mousedown.prevent` を付ける。
+  jsdom では再現しないので、入力して絞り込んでから候補をクリックする e2e を通す。
+
+## テストの期待値と既定のモック
+- 名前・文言の期待値は固定値にする。`NAMES[id] ?? id` のように辞書や定数へフォールバックする式を期待値に使わない（欠落を隠す）。
+- `fakeAuthApi` の既定は未ログインでなく取得不能（`unavailable`）を返す。未ログインを検証するときは
+  `fetchCurrentUser` を `{ kind: 'unauthenticated' }` に明示する。
+
 ## テスト（Vitest・Playwright）の失敗・flake は推定で直さない
 切り分けの手順の正は `.claude/skills/tsod-build/references/triage.md`。
 
@@ -59,7 +72,7 @@ Dialog 系 spec が `document.body.innerHTML = ''` の後に自動 unmount し�
 - **`role="group"`・`role="status"`・`role="region"`（S6819）**: これらの role はこのルールに当たるので、
   `<fieldset>`・`<output>` で書く。`role="region"` は `<section aria-label>` に代える（暗黙の role が region になる）。
 - **`Web:InputWithoutLabelCheck`・`Web:S6853`**: Reka UI の SelectTrigger と shadcn-vue の汎用
-  Input・Label への指摘は誤検知である。`ui/` は編集禁止なので、抑止するときは
+  Input・Label への指摘は誤検知である。`ui/` はこの指摘のために直さない（直してよいものは `ui-design.md` のとおり）。抑止するときは
   `sonar-project.properties` の `sonar.issue.ignore.multicriteria` の抑止の規約（同ファイルのコメント）に従う。
   ユーザーの承認を得て、理由を付けて1件ずつ追記する。`// NOSONAR` は使わない。
 
@@ -76,3 +89,5 @@ Dialog 系 spec が `document.body.innerHTML = ''` の後に自動 unmount し�
   `new URL(..., import.meta.url)` は vitest 内で `/@fs/` になり、ファイルパスとして使えない。
 - Playwright の `getByRole('heading', { name })` は部分一致である。連番の見出しなど、
   部分一致で別の見出しにも当たるものには `exact: true` を付ける。
+- トーストの文言は Reka の通知用 live region にも重複して出るので、`getByText` で探すときは `exact: true` を付ける。
+  複数件を続けて登録する e2e は前のトーストが残るので、一覧の件数の見出しを待つか `.first()` を付ける。
