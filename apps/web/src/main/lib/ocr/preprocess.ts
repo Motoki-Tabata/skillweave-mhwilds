@@ -39,6 +39,8 @@ const LEVEL: RefRect = { x: 1465, y: 31, width: 50, height: 22 }
 /** 並べ直した画像の1行の高さ・名前と Lv の間の余白（基準の画素） */
 const ROW_HEIGHT = 36
 const GAP = 16
+/** 認識用の画像の拡大率（D14。小さい文字を読みやすくする） */
+export const UPSCALE = 2
 
 export interface SkillRowPlan {
   source: Rect
@@ -52,6 +54,9 @@ export function planSkillRows(
 ): { rows: SkillRowPlan[][]; width: number; height: number } {
   const sx = imageWidth / REF_WIDTH
   const sy = imageHeight / REF_HEIGHT
+  // 貼り付け先だけ UPSCALE 倍にする（切り出し元は画像の実際の画素のまま）
+  const dx = sx * UPSCALE
+  const dy = sy * UPSCALE
   const rows: SkillRowPlan[][] = []
   for (let k = 0; k < SKILL_COUNT_MAX; k++) {
     const top = (SKILL_TOP + SKILL_PITCH * k) * REF_HEIGHT
@@ -61,24 +66,24 @@ export function planSkillRows(
         source: scaleRect({ ...NAME, y: top + NAME.y }, sx, sy),
         destination: scaleRect(
           { x: 0, y: rowY + 4, width: NAME.width, height: NAME.height },
-          sx,
-          sy,
+          dx,
+          dy,
         ),
       },
       {
         source: scaleRect({ ...LEVEL, y: top + LEVEL.y }, sx, sy),
         destination: scaleRect(
           { x: NAME.width + GAP, y: rowY + 7, width: LEVEL.width, height: LEVEL.height },
-          sx,
-          sy,
+          dx,
+          dy,
         ),
       },
     ])
   }
   return {
     rows,
-    width: Math.round((NAME.width + GAP + LEVEL.width) * sx),
-    height: Math.round(ROW_HEIGHT * SKILL_COUNT_MAX * sy),
+    width: Math.round((NAME.width + GAP + LEVEL.width) * dx),
+    height: Math.round(ROW_HEIGHT * SKILL_COUNT_MAX * dy),
   }
 }
 
@@ -97,7 +102,7 @@ export function planSlotRegion(imageWidth: number, imageHeight: number): Rect {
 }
 
 export interface PreparedImage {
-  /** スキル欄をグレースケールにして並べ直した画像（PSM 6 で認識する） */
+  /** スキル欄を2倍に拡大し、グレースケール・二値化（文字が黒）にして並べ直した画像（PSM 6 で認識する） */
   skillImage: Blob
   slotPixels: Uint8ClampedArray
   slotWidth: number
@@ -111,6 +116,50 @@ function toGrayscale(data: ImageData): void {
     px[i] = l
     px[i + 1] = l
     px[i + 2] = l
+  }
+}
+
+/** 0〜255 の度数分布から、大津の方法で二値化のしきい値を求める（しきい値以下が暗い側）。 */
+export function otsuThreshold(histogram: ArrayLike<number>): number {
+  let total = 0
+  let sum = 0
+  for (let i = 0; i < histogram.length; i++) {
+    total += histogram[i]
+    sum += i * histogram[i]
+  }
+  let weightBack = 0
+  let sumBack = 0
+  let best = 0
+  let bestVariance = -1
+  for (let t = 0; t < histogram.length; t++) {
+    weightBack += histogram[t]
+    if (weightBack === 0) continue
+    const weightFore = total - weightBack
+    if (weightFore === 0) break
+    sumBack += t * histogram[t]
+    const diff = sumBack / weightBack - (sum - sumBack) / weightFore
+    const variance = weightBack * weightFore * diff * diff
+    if (variance > bestVariance) {
+      bestVariance = variance
+      best = t
+    }
+  }
+  return best
+}
+
+/**
+ * グレースケール化済みの RGBA を、大津の方法で二値化する。明るい文字（白）を黒、暗い背景を白に反転する
+ * （Tesseract は白地に黒文字を想定している）。
+ */
+export function binarize(px: Uint8ClampedArray): void {
+  const histogram = Array.from<number>({ length: 256 }).fill(0)
+  for (let i = 0; i < px.length; i += 4) histogram[px[i]]++
+  const threshold = otsuThreshold(histogram)
+  for (let i = 0; i < px.length; i += 4) {
+    const v = px[i] > threshold ? 0 : 255
+    px[i] = v
+    px[i + 1] = v
+    px[i + 2] = v
   }
 }
 
@@ -131,6 +180,7 @@ async function buildSkillImage(bitmap: ImageBitmap): Promise<Blob> {
   }
   const data = ctx.getImageData(0, 0, plan.width, plan.height)
   toGrayscale(data)
+  binarize(data.data)
   ctx.putImageData(data, 0, 0)
   return canvas.convertToBlob({ type: 'image/png' })
 }

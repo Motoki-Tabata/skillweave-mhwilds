@@ -51,7 +51,10 @@ describe('createCharmReader の Tesseract.js の配線', () => {
     for (const key of ['workerPath', 'corePath', 'langPath']) {
       expect(options[key]).not.toMatch(/^[a-z]+:\/\//i)
     }
-    expect(mocks.setParameters).toHaveBeenCalledWith({ tessedit_pageseg_mode: '6' })
+    expect(mocks.setParameters).toHaveBeenCalledWith({
+      tessedit_pageseg_mode: '6',
+      tessedit_char_whitelist: expect.stringContaining('Lv0123456789'),
+    })
   })
 
   it('認識した文字列を解釈して、スキル・スロット・生の行を返す（AC-1・AC-2・AC-3）', async () => {

@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { planSkillRows, planSlotRegion, prepareImage } from '@/lib/ocr/preprocess'
+import {
+  UPSCALE,
+  binarize,
+  otsuThreshold,
+  planSkillRows,
+  planSlotRegion,
+  prepareImage,
+} from '@/lib/ocr/preprocess'
 
 describe('読み取り範囲の計画（AC-1）', () => {
   it('1920x1080 では、スキルの枠が 60px 間隔で3つ並び、名前と Lv を1行に並べ直す', () => {
@@ -64,5 +71,35 @@ describe('prepareImage', () => {
     // スキル欄の6か所とスロット欄の1か所を描く
     expect(draws).toHaveLength(7)
     expect(close).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('前処理の改善（AC-12）', () => {
+  it('貼り付け先と画像の寸法は 2 倍になる（切り出し元は変わらない）', () => {
+    const plan = planSkillRows(1920, 1080)
+    expect(UPSCALE).toBe(2)
+    expect(plan.width).toBe((200 + 16 + 50) * 2)
+    expect(plan.height).toBe(36 * 3 * 2)
+    const [name0] = plan.rows[0]
+    expect(name0.destination.width).toBe(name0.source.width * 2)
+    expect(name0.destination.height).toBe(name0.source.height * 2)
+  })
+
+  it('大津の方法は、2つの山の間にしきい値を置く', () => {
+    const h = Array.from<number>({ length: 256 }).fill(0)
+    h[20] = 50
+    h[220] = 50
+    const t = otsuThreshold(h)
+    expect(t).toBeGreaterThanOrEqual(20)
+    expect(t).toBeLessThan(220)
+  })
+
+  it('二値化すると明るい文字が黒、暗い背景が白になる', () => {
+    const px = new Uint8ClampedArray([
+      10, 10, 10, 255, 240, 240, 240, 255, 12, 12, 12, 255, 250, 250, 250, 255,
+    ])
+    binarize(px)
+    expect([px[0], px[4], px[8], px[12]]).toEqual([255, 0, 255, 0])
+    expect([px[1], px[2], px[3]]).toEqual([255, 255, 255])
   })
 })

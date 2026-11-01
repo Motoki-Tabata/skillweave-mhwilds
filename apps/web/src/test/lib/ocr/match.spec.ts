@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildCandidates,
+  buildCharWhitelist,
   editDistance,
   matchSkillName,
   normalizeText,
@@ -58,5 +59,20 @@ describe('matchSkillName（AC-2）', () => {
     ]
     expect(matchSkillName('あいうか', tied)).toBeNull()
     expect(matchSkillName('あいうえ', tied)?.id).toBe('a')
+  })
+})
+
+describe('buildCharWhitelist（AC-12 前処理の改善）', () => {
+  it('候補名の文字と L・v・数字だけを重複なく含む', () => {
+    const list = buildCharWhitelist([
+      { id: 'a' as SkillCandidate['id'], name: '見切り', maxLevel: 3 },
+      { id: 'b' as SkillCandidate['id'], name: '見破り', maxLevel: 3 },
+    ])
+    expect([...list].sort()).toEqual([...'Lv0123456789見切り破'].sort())
+  })
+
+  it('実データの候補の全文字を含む', () => {
+    const list = buildCharWhitelist(candidates)
+    for (const c of candidates) for (const ch of c.name) expect(list).toContain(ch)
   })
 })

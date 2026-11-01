@@ -1,5 +1,5 @@
 import type { MasterBundle, MasterDictionary } from '@swv/data'
-import { buildCandidates } from '@/lib/ocr/match'
+import { buildCandidates, buildCharWhitelist } from '@/lib/ocr/match'
 import { parseSkillLines } from '@/lib/ocr/parse'
 import { prepareImage } from '@/lib/ocr/preprocess'
 import { readSlots } from '@/lib/ocr/slots'
@@ -20,7 +20,7 @@ function tesseractPaths(): { workerPath: string; corePath: string; langPath: str
  * Blob の URL を経由せず（workerBlobURL: false）、言語データは IndexedDB に保存しない（cacheMethod: 'none'）。
  * tesseract.js は動的 import にして、既存の画面のバンドルに入れない。
  */
-async function createRecognizer(): Promise<{
+async function createRecognizer(whitelist: string): Promise<{
   recognize: (image: Blob) => Promise<string>
   terminate: () => Promise<void>
 }> {
@@ -31,7 +31,10 @@ async function createRecognizer(): Promise<{
     gzip: true,
     cacheMethod: 'none',
   })
-  await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK })
+  await worker.setParameters({
+    tessedit_pageseg_mode: PSM.SINGLE_BLOCK,
+    tessedit_char_whitelist: whitelist,
+  })
   return {
     recognize: async (image) => (await worker.recognize(image)).data.text,
     terminate: async () => {
@@ -46,7 +49,7 @@ export async function createCharmReader(
   dictionary: MasterDictionary,
 ): Promise<CharmReader> {
   const candidates = buildCandidates(bundle, dictionary)
-  const recognizer = await createRecognizer()
+  const recognizer = await createRecognizer(buildCharWhitelist(candidates))
   return {
     async read(image: Blob): Promise<CharmReadResult> {
       const prepared = await prepareImage(image)

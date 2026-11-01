@@ -27,6 +27,15 @@ export function buildCandidates(
   return candidates
 }
 
+/** 認識で許す文字（D14）。候補のスキル名に現れる文字と、Lv の `L`・`v`・数字。重複は除く。 */
+export function buildCharWhitelist(candidates: SkillCandidate[]): string {
+  const chars = new Set<string>('Lv0123456789')
+  for (const candidate of candidates) {
+    for (const ch of candidate.name) chars.add(ch)
+  }
+  return Array.from(chars).join('')
+}
+
 /** 編集距離（Levenshtein）。 */
 export function editDistance(a: string, b: string): number {
   const x = Array.from(a)
