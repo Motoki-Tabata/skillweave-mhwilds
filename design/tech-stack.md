@@ -86,9 +86,9 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
-| tesseract.js | 7.0.0（2025-12-15） | `apps/web` の dependencies。完全一致の版。Apache-2.0。護石の画像の文字認識（015 ocr-spike）。ブラウザ内で動かし、画像を送らない。postinstall（寄付の案内の表示だけ）は `allowBuilds` で遮断 |
-| tesseract.js-core | 7.0.0（2025-12-15） | `apps/web` の dependencies。完全一致の版。Apache-2.0。tesseract.js の要求 `^7.0.0` と同じ版。WASM コアを `vite.config.ts` のプラグインが自オリジンの固定のパスで配信するために直接の依存にする |
-| @tesseract.js-data/jpn | 1.0.0（2023-09-04） | `apps/web` の dependencies。完全一致の版。MIT。言語データは `4.0.0_best_int/jpn.traineddata.gz`（約 2.0 MB）だけを使う |
+| tesseract.js | 7.0.0（2025-12-15） | **015 の測定は不合格（採否は Q117 で決める。決めるまで測定用に残す）**。`apps/web` の dependencies。完全一致の版。Apache-2.0。護石の画像の文字認識（015 ocr-spike）。ブラウザ内で動かし、画像を送らない。postinstall（寄付の案内の表示だけ）は `allowBuilds` で遮断 |
+| tesseract.js-core | 7.0.0（2025-12-15） | **015 の測定は不合格（採否は Q117 で決める。決めるまで測定用に残す）**。`apps/web` の dependencies。完全一致の版。Apache-2.0。tesseract.js の要求 `^7.0.0` と同じ版。WASM コアを `vite.config.ts` のプラグインが自オリジンの固定のパスで配信するために直接の依存にする |
+| @tesseract.js-data/jpn | 1.0.0（2023-09-04） | **015 の測定は不合格（採否は Q117 で決める。決めるまで測定用に残す）**。`apps/web` の dependencies。完全一致の版。MIT。言語データは `4.0.0_best_int/jpn.traineddata.gz`（約 2.0 MB）だけを使う |
 
 ### 後の機能で導入するもの（今回は入れない）
 
