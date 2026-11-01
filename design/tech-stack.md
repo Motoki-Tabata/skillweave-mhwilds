@@ -481,6 +481,31 @@ API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm worksp
 （`pnpm test:coverage`）で計測し、Sonar の全体解析が取り込む。閾値は置かず、CI でも計測しない（数値を目標にせず、テストの漏れを見つける材料として使うため）。
 ブートストラップ・生成物・shadcn-vue のコピー部品は、`sonar-project.properties` と各 `vitest.config.ts` で同じものを除外する。
 
+## Tesseract.js の護石の読み取りの測定（015 ocr-spike・2026-11-01）
+
+結論（改善の前）: **不合格**（完全一致率 10.0%、基準は 90% 以上）。認識時間と初期化の時間は基準内。前処理の改善（plan D14）を1回加えて再測定する。採否は再測定の後にこの節の結論へ書く。
+
+- 条件: 対象は PC 版の護石の詳細画面。画像 20 枚（すべて 1920x1080）。正解は `apps/web/e2e/measure/charm-ocr/labels.json`。完全一致は、スキル（ID と Lv）・スロット（別と Lv）の並びと数が正解と一致し、`null` を含まないこと。前処理は切り出し（名前と Lv を1枠1行に並べ直す）とグレースケール化だけ。PSM 6。
+- 基準: 完全一致率 90% 以上かつ認識時間の最大 3000 ms 以下。
+- 測定環境: Node 24.22.2・Linux 6.18.54.1-microsoft-standard-WSL2・AMD Ryzen 7 5700X（12 論理コア）・メモリ 19 GB・Chromium 156.0.8078.4（Playwright）。
+- 版: tesseract.js 7.0.0・tesseract.js-core 7.0.0・言語データ `@tesseract.js-data/jpn` 1.0.0 の `4.0.0_best_int`。言語データは IndexedDB に保存しない（`cacheMethod: 'none'`）。
+- 結果（改善の前）:
+
+  | 項目 | 値 |
+  |---|---|
+  | 完全一致率 | 2/20 = 10.0%（一致は charm-009・charm-012） |
+  | 認識時間の最大 | 123 ms（1 枚あたり 56〜123 ms） |
+  | 初期化の時間 | 319 ms（マスターの取得を含まない。言語データの保存なし） |
+  | 通信 | 自オリジン以外へのリクエストなし。worker・core・lang の3種を記録した |
+
+- 不一致の傾向（18 枚）:
+  - スロットの不一致は 0 件。不一致はすべてスキル欄。
+  - 主因は Lv の誤認。`Lv` が `mv`・`II`・`INZ】` に化け、Lv の部分が読めずに行が `null` になる（charm-002・003・004・005・006・007・008・010・011・013・014・015・016・017・020 など）。スキル名自体は読めている行が多い。
+  - 字形の誤認が少数ある（「弱点特効」→「細点特効」、「渾身」→「澤身」、charm-018 の「ランナー」→「ジテーー [5 の 4」）。
+  - 文字の間に空白が入る。照合は空白を除くので原因ではない。
+  - 認識時間が短いのは、画像が小さい切り出し1枚だけを認識するため。
+- 生の出力: 測定コマンドの標準出力（画像ごとの不一致の項目と認識した生の行）。再現は `pnpm --filter @swv/web exec playwright test --project=measure e2e/measure/charm-ocr.measure.ts`。
+
 ## 既知の警告
 
 - `pnpm --filter @swv/web test:unit` で Vite が「`vitest.config.ts` の `import './vite.config'` に拡張子が無い
