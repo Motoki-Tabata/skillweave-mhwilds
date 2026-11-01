@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>護石の OCR の測定用ページ</title>
+  </head>
+  <body>
+    <p>護石の OCR の測定用ページ（配備しない。画面なしで lib/ocr を呼ぶ）</p>
+    <script type="module">
+      import { createCharmReader } from '@/lib/ocr'
+      import { fetchMasterData } from '@/lib/solver/masterData'
+
+      let reader = null
+      let data = null
+
+      window.swvCharmOcr = {
+        // マスターと辞書を取得した後、createCharmReader の呼び出しから完了までを測る。
+        async init() {
+          data ??= await fetchMasterData()
+          const start = performance.now()
+          reader = await createCharmReader(data.bundle, data.dictionary)
+          return { initMs: performance.now() - start }
+        },
+        // Blob を作った後、reader.read の呼び出しから完了までを測る。
+        async read(base64, mime) {
+          if (reader === null) throw new Error('init() を先に呼ぶ')
+          const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0))
+          const blob = new Blob([bytes], { type: mime })
+          const bitmap = await createImageBitmap(blob)
+          const { width, height } = bitmap
+          bitmap.close()
+          const start = performance.now()
+          const result = await reader.read(blob)
+          return { result, ms: performance.now() - start, width, height }
+        },
+      }
+      window.swvCharmOcrReady = true
+    </script>
+  </body>
+</html>
