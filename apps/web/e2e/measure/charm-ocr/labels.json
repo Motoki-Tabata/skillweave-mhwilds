@@ -13,7 +13,7 @@
   "charm-002.png": {
     "skills": [
       { "name": "雷属性攻撃強化", "level": 3 },
-      { "name": "弱点特攻", "level": 1 }
+      { "name": "弱点特効", "level": 1 }
     ],
     "slots": [
       { "target": "weapon", "level": 1 },
@@ -63,14 +63,14 @@
   "charm-007.png": {
     "skills": [
       { "name": "会心撃【特殊】", "level": 3 },
-      { "name": "弱点特攻", "level": 1 }
+      { "name": "弱点特効", "level": 1 }
     ],
     "slots": [{ "target": "weapon", "level": 1 }]
   },
   "charm-008.png": {
     "skills": [
       { "name": "雷属性攻撃強化", "level": 3 },
-      { "name": "弱点特攻", "level": 1 }
+      { "name": "弱点特効", "level": 1 }
     ],
     "slots": [
       { "target": "weapon", "level": 1 },
