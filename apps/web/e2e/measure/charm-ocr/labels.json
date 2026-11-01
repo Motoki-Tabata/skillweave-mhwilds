@@ -1,0 +1,185 @@
+{
+  "charm-001.png": {
+    "skills": [
+      { "name": "見切り", "level": 3 },
+      { "name": "渾身", "level": 1 },
+      { "name": "精霊の加護", "level": 1 }
+    ],
+    "slots": [
+      { "target": "weapon", "level": 1 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-002.png": {
+    "skills": [
+      { "name": "雷属性攻撃強化", "level": 3 },
+      { "name": "弱点特攻", "level": 1 }
+    ],
+    "slots": [
+      { "target": "weapon", "level": 1 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-003.png": {
+    "skills": [
+      { "name": "抜刀術【技】", "level": 3 },
+      { "name": "納刀術", "level": 2 },
+      { "name": "気絶耐性", "level": 1 }
+    ],
+    "slots": [{ "target": "weapon", "level": 1 }]
+  },
+  "charm-004.png": {
+    "skills": [
+      { "name": "弾導強化", "level": 3 },
+      { "name": "力の解放", "level": 1 }
+    ],
+    "slots": [
+      { "target": "weapon", "level": 1 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-005.png": {
+    "skills": [
+      { "name": "攻撃", "level": 3 },
+      { "name": "早食い", "level": 2 },
+      { "name": "龍耐性", "level": 1 }
+    ],
+    "slots": [
+      { "target": "weapon", "level": 1 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-006.png": {
+    "skills": [
+      { "name": "達人芸", "level": 1 },
+      { "name": "拘束耐性", "level": 2 },
+      { "name": "火耐性", "level": 1 }
+    ],
+    "slots": [
+      { "target": "weapon", "level": 1 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-007.png": {
+    "skills": [
+      { "name": "会心撃【特殊】", "level": 3 },
+      { "name": "弱点特攻", "level": 1 }
+    ],
+    "slots": [{ "target": "weapon", "level": 1 }]
+  },
+  "charm-008.png": {
+    "skills": [
+      { "name": "雷属性攻撃強化", "level": 3 },
+      { "name": "弱点特攻", "level": 1 }
+    ],
+    "slots": [
+      { "target": "weapon", "level": 1 },
+      { "target": "armor", "level": 1 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-009.png": {
+    "skills": [
+      { "name": "貫通弾・竜の矢強化", "level": 1 },
+      { "name": "挑戦者", "level": 1 }
+    ],
+    "slots": [{ "target": "weapon", "level": 1 }]
+  },
+  "charm-010.png": {
+    "skills": [
+      { "name": "匠", "level": 3 },
+      { "name": "スタミナ急速回復", "level": 1 },
+      { "name": "龍耐性", "level": 1 }
+    ],
+    "slots": [
+      { "target": "weapon", "level": 1 },
+      { "target": "armor", "level": 1 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-011.png": {
+    "skills": [
+      { "name": "会心撃【属性】", "level": 2 },
+      { "name": "業物", "level": 1 },
+      { "name": "広域化", "level": 4 }
+    ],
+    "slots": [{ "target": "armor", "level": 2 }]
+  },
+  "charm-012.png": {
+    "skills": [
+      { "name": "会心撃【属性】", "level": 2 },
+      { "name": "攻撃", "level": 1 },
+      { "name": "フルチャージ", "level": 1 }
+    ],
+    "slots": [{ "target": "armor", "level": 2 }]
+  },
+  "charm-013.png": {
+    "skills": [
+      { "name": "火属性攻撃強化", "level": 1 },
+      { "name": "睡眠属性強化", "level": 1 },
+      { "name": "龍耐性", "level": 3 }
+    ],
+    "slots": [
+      { "target": "armor", "level": 2 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-014.png": {
+    "skills": [
+      { "name": "火属性攻撃強化", "level": 2 },
+      { "name": "キノコ大好き", "level": 2 }
+    ],
+    "slots": [
+      { "target": "armor", "level": 2 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-015.png": {
+    "skills": [
+      { "name": "抜刀術【技】", "level": 1 },
+      { "name": "環境適応", "level": 2 },
+      { "name": "無我の境地", "level": 2 }
+    ],
+    "slots": [{ "target": "armor", "level": 3 }]
+  },
+  "charm-016.png": {
+    "skills": [
+      { "name": "スタミナ奪取", "level": 1 },
+      { "name": "回復速度", "level": 2 },
+      { "name": "体力回復量ＵＰ", "level": 2 }
+    ],
+    "slots": [{ "target": "armor", "level": 3 }]
+  },
+  "charm-017.png": {
+    "skills": [
+      { "name": "龍属性攻撃強化", "level": 1 },
+      { "name": "力の解放", "level": 1 }
+    ],
+    "slots": [{ "target": "armor", "level": 3 }]
+  },
+  "charm-018.png": {
+    "skills": [
+      { "name": "抜刀術【技】", "level": 1 },
+      { "name": "防御", "level": 3 },
+      { "name": "ランナー", "level": 2 }
+    ],
+    "slots": [
+      { "target": "armor", "level": 2 },
+      { "target": "armor", "level": 1 }
+    ]
+  },
+  "charm-019.png": {
+    "skills": [
+      { "name": "剛刃研磨", "level": 1 },
+      { "name": "爆破やられ耐性", "level": 3 }
+    ],
+    "slots": [{ "target": "armor", "level": 3 }]
+  },
+  "charm-020.png": {
+    "skills": [
+      { "name": "見切り", "level": 3 },
+      { "name": "巧撃", "level": 1 }
+    ],
+    "slots": [{ "target": "armor", "level": 2 }]
+  }
+}
