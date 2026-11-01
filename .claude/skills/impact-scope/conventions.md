@@ -5,7 +5,7 @@
 ## テスト配置・命名規約
 
 - **api**（api-agent）: `apps/api/src/test/java/` に置く。テストは、検証対象の main クラスと同一パッケージに置く。例外は `contract/`・`support/`・ルート直下の `SmokeTest`・`TestcontainersConfiguration` の4種。列挙外の置き場所が必要なら、停止してユーザーの判断を仰ぐ。
-- **web 単体**（web-agent）: `apps/web/src/test/<main と同じ相対パス>/<名前>.spec.ts`。`*.test.ts` は使わない。import は `@/` 別名。
+- **web 単体**（web-agent）: `apps/web/src/test/<main と同じ相対パス>/<名前>.spec.ts`。`*.test.ts` は使わない。import は `@/` 別名。spec でない補助は `apps/web/src/test/support/` に置く。
 - **solver・data**（solver-agent・data-agent）: `packages/<solver|data>/src/test/<main と同じ相対パス>/<名前>.spec.ts`。`*.test.ts` は使わない。
   - **solver だけの例外**（この節が正。data には適用しない）:
     1. テスト用の補助（合成データの生成器・検算の補助など）は `packages/solver/src/test/support/` に置く。

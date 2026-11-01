@@ -87,7 +87,7 @@ effects:                    # 任意。スキル ID → レベルごとの効果
     - …
   sk:422666624:             # 効果の無いレベルは空の配列
     - []
-    - - { stat: attack_mul, value: 1.05, conditionId: cd:adrenaline_rush }
+    - - { stat: attack_mul, value: 1.05, conditionId: cd:heroics }
 ```
 
 存在しない ID・存在しない項目・未知のキー・同じ `id` と `field` の重複・YAML の構文エラーは、ファイル名と行番号を示して生成を失敗させる。

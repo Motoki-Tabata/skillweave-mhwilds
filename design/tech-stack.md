@@ -70,7 +70,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | @vue/eslint-config-typescript | 14.9.0 | |
 | @vue/eslint-config-prettier | 10.2.0 | |
 | Prettier | 3.9.9 | catalog |
-| @types/node | 24.13.6 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。24.19.0 はクールダウン中。`packages/solver` の devDependencies（テストと測定が Node の型を使う） |
+| @types/node | 24.19.2 | catalog。メジャーは Node 本体に合わせる（下記「更新の方針」）。`packages/solver` の devDependencies（テストと測定が Node の型を使う） |
 | highs（HiGHS の WASM 版） | 1.15.3（2026-09-11） | `packages/solver` の dependencies。完全一致の版。MIT。採用（下記「HiGHS の測定結果」） |
 | yaml | 2.9.1（2026-09-11） | `packages/data` の devDependencies。完全一致の版。ISC・依存0。パイプラインがオーバーレイ（`overlays/*.yaml`）を読むときだけ使い、ブラウザへは配信しない。provenance は 2.9.0 以前にも無く、`trustPolicy: no-downgrade` に抵触しない |
 | `@swv/solver`・`@swv/data` | `workspace:*` | `apps/web` の dependencies。ソルバーの入口と型、マスターの型（`import type` だけ） |
@@ -204,7 +204,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 | vitest / @vitest/coverage-v8 | 5.0.1 | 5.0.3 で `why-is-node-running` が provenance のある 3.2.1 に固定され、上記「判断 2」の理由は解消する見込み | 週次のまとめ PR で取り込み、CI で確かめる |
 | pnpm | 11.25.0 | 12 系は見送り | 次の棚卸し |
 | Node | 24 LTS | Node 26 は 2026-10-28 に LTS 入り | 2027-04 以降の棚卸し（24 のサポート終了は 2028-04-30） |
-| Spring Boot | 4.1.1 | 4.2 は 2026-09 時点でマイルストーン | 4.2.1 が出た後の棚卸し（4.1 の OSS サポート終了は 2027-07-31） |
+| Spring Boot | 4.1.2 | 4.2 は 2026-09 時点でマイルストーン | 4.2.1 が出た後の棚卸し（4.1 の OSS サポート終了は 2027-07-31） |
 
 ---
 

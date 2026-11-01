@@ -13,11 +13,26 @@ Boot 3.x は暗黙で bean 登録されていたが、Boot 4 では
 （`org.springframework.boot.resttestclient.autoconfigure` パッケージ）を
 明示しないと `NoSuchBeanDefinitionException` になる。
 
+## Boot 4 で移動したパッケージ
+`JdbcSessionProperties` は `org.springframework.boot.session.jdbc.autoconfigure`、
+`ConfigDataApplicationContextInitializer` は `org.springframework.boot.test.context` にある。
+
 ## Jackson 3（`tools.jackson.databind.ObjectMapper`）へのパッケージ移行
 旧 `com.fasterxml.jackson.databind.ObjectMapper` ではなく
 `tools.jackson.databind.ObjectMapper` を使う。`com.fasterxml.jackson.*` の
 コピペ import は静かに旧世代の互換パッケージへ解決されることがあるため、
 import 元パッケージを都度確認する。
+
+## Jackson 3 の要求の読み方
+- 既定では `"rarity":"8"` や `8.5` を 8 に変換する。`application.yml` の
+  `spring.jackson.mapper.allow-coercion-of-scalars: false` と
+  `spring.jackson.deserialization.accept-float-as-int: false` で 400 にしている。全 API に効く。
+- `@JsonTypeInfo(use = DEDUCTION)` は、複数の型に当たる値を曖昧として拒否しない。
+  `@JsonIgnoreProperties(ignoreUnknown = false)` は既定値と区別できず、`FAIL_ON_UNKNOWN_PROPERTIES=false` を上書きできない。
+  型ごとに未知の項目を 400 にするには、record に `@JsonIgnore @JsonAnySetter @Size(max = 0) Map<String, Object> unknown` を持たせる。
+- record の省略可能な項目で明示の null だけを拒否するときは、`@JsonSetter(nulls = FAIL)` を使わない（省略まで拒否される）。
+  `getNullValue` で拒否し `getAbsentValue` で null を返す deserializer にする。
+- plan で Jackson の挙動を決めるときは、区間 C で省略と null の両方を実測する。
 
 ## application*.yml のキーは spring-configuration-metadata.json で実在・非推奨を確認する
 `application.yml`・`application-*.yml` のキーを追加・変更するときは、該当 jar の
@@ -39,6 +54,15 @@ import 元パッケージを都度確認する。
 一括 UPDATE の後、同じトランザクションで読み直すときは
 `@Modifying(flushAutomatically = true, clearAutomatically = true)` を付ける。
 付けないと、0件更新の後の読み直しで永続化コンテキストの古いエンティティを見る。
+
+## `@Version` 付きエンティティの一括 UPDATE と getter
+一括 UPDATE は `@Version` を進めないので、`version = version + 1` を明示する。
+進めないと、同時の更新が古いスナップショットで削除を上書きし、行を生き返らせる。
+`@Version` の getter は `Integer` にする（`int` にすると Spring Data の新規判定で NPE になる）。
+
+## 404・409 の例外は機能名を付けず共有する
+機能ごとに例外クラスと `ApiExceptionHandler` のハンドラを足さない。
+`common/exception` の `ResourceNotFoundException`・`ResourceConflictException` を使う。
 
 ## クライアント採番の ID の作成で、主キー違反だけを 409 にする
 作成の `saveAndFlush` を `catch (DataIntegrityViolationException e)` で丸ごと捕まえて 409 にしない。

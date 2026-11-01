@@ -25,6 +25,8 @@ effort: high
 3. あれば、同じセッションでユーザーと壁打ちして決める。決定を `specs/NNN-<slug>/decisions.md` に、Q 番号と本文のまま移し、`open-questions.md` から該当項目を削除する（運用の正は `.claude/rules/specs-authoring.md`）。
 4. 決定内容を提示して AskUserQuestion を1回取る（ゲート A-1）。承認されたら、decisions.md の変更をコミットし、成果物をコミットした直後の HEAD の短縮ハッシュで、`handoff.mjs finish NNN A-1 <短縮ハッシュ> --note 区間メモ "A-1 の移設先: Q…"` を実行する（ゲートの記録と、移設先（Q 番号の一覧）の区間メモを1回で書く）。続けて、handoff.md だけをコミットする（1回）。
 
+決定に試作の時期を書くときは「区間 D の最初のタスク」と書く（区間 C に試作の工程は無い。`.claude/skills/tsod-plan/SKILL.md` の「tasks.md」節）。
+
 ## 工程2: 薄仕様（ゲート A-2）
 
 ### 前提確認
@@ -99,8 +101,8 @@ effort: high
 
 ゲート A-2 の承認の直後に、handoff の「現在地」を A→B（画面・テーブルの変更が無いときは A→C）にする。上の `finish ... --move` で書き済み。「未起票の教訓」を起票するか、持ち越す理由を書いて、handoff.md をコミットする。
 
-- 画面かテーブルの変更がある（`apps/web/src/main/**` の画面・部品を変える、または新しい永続化がある）: 区間 B（移行は `A→B`）。`/tsod-screen-table NNN`（推奨モデル: Opus）。
-- 画面もテーブルも変えない（`触る領域:` に `web` を含んでも、テストの追従だけならこちら）: 区間 C（移行は `A→C`）。`handoff.mjs gate NNN B-1 --na "UI・テーブル変更なし"` と `handoff.mjs gate NNN B-2 --na "UI・テーブル変更なし"` でゲート B-1・B-2 を該当なしにする。`/tsod-plan NNN`（推奨モデル: Opus）。
+- 画面かテーブルの変更がある（画面の見た目・操作を変える、または新しい永続化がある）: 区間 B（移行は `A→B`）。`/tsod-screen-table NNN`（推奨モデル: Opus）。
+- 画面もテーブルも変えない（`触る領域:` に `web` を含んでも、テストの追従や、見た目と操作を変えない部品の作り替えならこちら）: 区間 C（移行は `A→C`）。`handoff.mjs gate NNN B-1 --na "UI・テーブル変更なし"` と `handoff.mjs gate NNN B-2 --na "UI・テーブル変更なし"` でゲート B-1・B-2 を該当なしにする。`/tsod-plan NNN`（推奨モデル: Opus）。
 
 このセッションでは次の区間に進まない。次の定型の案内文を出して停止する。
 

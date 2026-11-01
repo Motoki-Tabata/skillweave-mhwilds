@@ -316,6 +316,8 @@ Attribute／Entity／Column の三層と `attributes.yaml` を SSoT とする運
 | OCR スパイクの実施時期 | フェーズ②の前 |
 | ホスティング費用の上限 | 無料枠を超えたときの方針 |
 
+> 卒業記録: 「OCR スパイクの実施時期」は機能015で実施済み。結果は `design/tech-stack.md` の測定の節、代替の選定は `specs/open-questions.md` の Q117 が正。
+
 ---
 
 ## 12. 憲法（CLAUDE.md）の案

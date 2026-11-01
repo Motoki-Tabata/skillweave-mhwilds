@@ -36,7 +36,7 @@ hooks:
 |---|---|---|
 | web-agent | `apps/web/src/main/**`・`apps/web/src/test/**` | `apps/web/src/main/lib/api/schema.ts` の再生成を含む |
 
-- `apps/web/src/main/components/ui/` は書かない（共有部品の置き場で、手で編集しない）。常設の範囲に含まれるが、書く前の3分類では「どちらでもない」として扱う。
+- `apps/web/src/main/components/ui/` は、`design-system/skillweave/MASTER.md`「生成部品（`components/ui`）の扱い」節に列挙したソースの手直しだけを書く（CLI の実行はメインの担当）。それ以外は、常設の範囲に含まれるが、書く前の3分類では「どちらでもない」として扱う。
 - E2E（`apps/web/e2e/`）は書かない（担当は e2e-agent）。
 
 書く前の3分類（常設の範囲・共有する構成ファイル・どちらでもない）と、停止して報告する手順は `.claude/skills/impact-scope/SKILL.md` の「停止規律」に従う。共有する構成ファイルの列挙と扱いは同 SKILL.md の「共有する構成ファイル」節。
