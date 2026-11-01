@@ -21,5 +21,7 @@ export default defineConfig({
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // 護石の OCR の測定用ページ（e2e/measure/charm-ocr）をビルドの入力に足す。
+    env: { SWV_OCR_MEASURE: '1' },
   },
 })

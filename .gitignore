@@ -70,3 +70,6 @@ docker/volumes/
 
 # ===== Playwright MCP の出力（スナップショット・コンソールログ） =====
 .playwright-mcp/
+
+# ===== 護石の OCR の測定用の画像（オーナーが用意する。正解ラベルの labels.json はコミットする） =====
+apps/web/e2e/measure/charm-ocr/images/
