@@ -4,6 +4,7 @@
 020〜026 の入力（2026-10-28）: 実装済みの機能（001〜011・019）の `decisions.md`・`handoff.md`・`spec.md` のスコープ外で後で機能マップに足すとした事項と、`tasks/lessons.md` で専用の作業として切るとした共通化。
 027 の入力（2026-10-28）: 021 crafted-charm の区間 A で分けた事項（021 decisions.md Q78）。
 028 の入力（2026-10-29）: API・DB の公開（区間外の運用作業。open-questions.md Q71）の整理で、コードの変更が要るものとして分けた事項（Q86）。
+029 の入力（2026-11-02）: 実装済みの機能の `handoff.md` に持ち越しとして残った事項のうち、現行のコードで残っていることを確かめたもの。
 機能 ID は実装順に振る（依存の表を満たす順で、同じ段では優先度の高いものを先にする）。初回の分解の後に追加した機能は、既存の ID を振り直さず末尾に採番する。その場合の実装順は依存の表が正である。
 
 ### 機能マップ
@@ -37,6 +38,7 @@
 | 026 | design-system-alignment | MASTER.md と、shadcn-vue の既定・既存画面との食い違い（見出しのウェイト・影・オーバーレイの濃さ・警告の帯・outline の枠色）を、規約か実装のどちらかに揃える | P2 | M | 済 |
 | 027 | crafted-charm-build-save | 生産護石を使った構成を保存し、保存した構成の画面で開き直せる | P1 | S | 済 |
 | 028 | api-prod-config | API を公開できるよう、本番用の設定（Cookie の `Secure` 属性など。Q85）を入れ、認可を始めただけで作られる未ログインのセッションの行を短い有効期間にする（画面の挙動は変えない） | P1 | S | 済 |
+| 029 | review-carryover | レビューで持ち越した未テストの分岐と検査の抜け（楽観ロックの 409・除外した装飾品の検査・`MD_OUTLINE_CLASS` の適用）を埋め、設計文書の取り残しを直す（画面と API の挙動は変えない） | P2 | S | 未着手 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
@@ -56,7 +58,7 @@
 | 013 user-weapon-save | 008, 009, 025 | サーバー保存の3つ目の機能。例外とハンドラ・端末保存のストアの共通化（025）の後に行う |
 | 014 guest-draft-import | 010, 013 | 一般公開段階で行う（§2.1）。ゲストの構成は端末内に保存しないので取り込みの対象から外した（014 decisions.md Q70）。件数の上限とページングの見直し（010 decisions.md Q62）は 014 に含めず Q107 として残した（014 decisions.md Q106） |
 | 015 ocr-spike | なし | フェーズ②の前に行う |
-| 016 charm-ocr | 005, 015 | |
+| 016 charm-ocr | 005, 015 | 着手の前に Q117 を決める。015 handoff.md の持ち越しを含める: `parse.ts` が空行を落とすため枠が空だと以降のスキルが上に詰まる・`reader.ts` の `setParameters` の失敗で worker が残る・測定の通信検査が同一オリジンへの POST を検出しない |
 | 017 reverse-lookup | 003, 005 | フェーズ③ |
 | 018 pwa-offline | 004 | 導入方式の判断待ち（Q6） |
 | 019 damage-solve-perf | 006 | `packages/solver` だけを触る。対策の中身は 019 の区間 A で Q41 として決める。ID は追加順で末尾だが、実装は 007 の区間 B より前に行う |
@@ -69,3 +71,4 @@
 | 026 design-system-alignment | 011 | `tasks/lessons.md` の 2026-10-26「見出しの font-semibold（600）が MASTER.md のウェイト3種と食い違う」・2026-10-28「MASTER.md の Typography／Shape と、shadcn-vue の既定・既存画面が食い違ったまま増えている」と、Q27（警告の帯）・009 handoff.md の持ち越し（ライトの outline の枠色）を扱う。どちらに揃えるかは区間 A・B で決める。025 と同じ部品を触るなら 025 の後に行う |
 | 027 crafted-charm-build-save | 011, 021 | 021 decisions.md Q78 で 021 のスコープ外にした。`BuildCharm` の契約（`id` は `format: uuid`）と API の検査を変える。`BuildCharm` の形は鑑定護石が参照と写し、生産護石が参照だけ（027 decisions.md Q93） |
 | 028 api-prod-config | 009 | API・DB の公開（Q71）の前に行う。扱う本番の設定は Q85、この機能に切った理由は Q86、セッションの掃除の間隔は Q91。Q84 で別オリジンの経路を選ぶなら、Web の API の呼び方と CSRF の Cookie の読み方の変更も含める |
+| 029 review-carryover | 011, 020, 026 | 楽観ロックの 409 の未テスト（010・011 handoff.md。護石・武器・構成）、`verifyBuild.ts` が除外した装飾品を検査しない（020）、`MD_OUTLINE_CLASS` の単体テストが無くダークの hover も実ブラウザで未確認（026）、`damageModel.ts` の `thetaCol` が未使用（019）を扱う。あわせて `design/tech-stack.md` の `@types/node`（表 24.13.6・catalog 24.19.2。015 handoff.md）と、`temp/initial-design.md` §11 の「OCR スパイクの実施時期」の卒業記録を直す |
