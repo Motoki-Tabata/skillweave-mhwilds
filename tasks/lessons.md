@@ -25,3 +25,8 @@
 - 何が起きたか: `canon-boundary.md` の経路 (b) の条件「複数の Skill にまたがる手順の変更」に、試作の位置と B／C の判定の文面の修正が当たった。手順を増やさない各 1〜2 行の修正で、ユーザーの確認のうえ例外として経路 (a) で直した（3b1052e）。
 - 提案: 同文書の経路の表で、(a) の条件を「手順を増減しない文面の修正（複数ファイルでも可）」に、(b) の条件を「手順の増減を伴う変更」に改める。
 
+## 2026-11-02 契約の型を使う境界が規約に書かれていない（機能029・区間A）
+- 種別: 規律昇華
+- 何が起きたか: `lib/weapons/types.ts` の `WeaponPayload.element.type` が `string` のままで契約の列挙とずれ、`lib/api/weapons.ts` の `Omit` の差し替えと `lib/builds/payload.ts` のキャストで吸収していた。`lib/api/schema` の import は事実として `lib/api/` の中だけだが、規約に書かれていない（029 decisions.md Q120）。
+- 提案: 029 のマージの後に、`.claude/rules/web-vue.md` に節を足す（経路 (a)）。`lib/api/schema.ts` を import するのは `lib/api/` の中だけにする。端末に保存する型などの web の型は自前で持ち、`lib/api/` の要求の型は差し替えずに契約の型を使って、ずれを型検査で検出する。直す前に `.claude/**` の同じ文面を grep する。
+
