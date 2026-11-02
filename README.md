@@ -27,8 +27,6 @@
 | 項目 | メモ |
 |---|---|
 | ライセンス | 公開リポジトリだが未定。マスターデータの入力に MHDB（GPL-3.0 のリポジトリの出力 JSON）を使う点も踏まえて決める |
-| 独自ドメイン | フロント（Cloudflare Pages）と API（Cloud Run）の Cookie を同一サイトにするために必要 |
-| マネージド DB | Neon が PostgreSQL 18 を提供済み（[`design/tech-stack.md`](design/tech-stack.md) の §3.3 確認結果） |
 
 ---
 
