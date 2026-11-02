@@ -50,3 +50,13 @@
 - 種別: 規律昇華
 - 何が起きたか: `locator.filter({ hasNot })` に `dialog.getByRole(...)` のような親起点のロケーターを渡すと、要素の内側を起点に探されて何も除外されなかった。`getByRole('button', { pressed: false }).first()` を変数に持つと、クリック後に別のボタンへ解決し直された。どちらも `apps/web/e2e/skill-category.spec.ts` の初回の実行で落ちて分かった（e2e-agent の完了報告）。
 - 提案: `.claude/rules/web-vue.md` の E2E の項に、`hasNot` には `page` 起点のロケーターを渡す、状態で絞ったロケーターはクリック後の確認に使い回さない、の2行を足す。
+
+## 2026-11-03 未登録のビルドスクリプトを持つ依存があると、allowBuilds がマップ形式でも pnpm add が pnpm-workspace.yaml を書き足す（公開作業・区間外）
+- 種別: 規律昇華
+- 何が起きたか: wrangler 4.153.0 を `pnpm add` したとき、`allowBuilds` が正しいマップ形式でも、ビルドスクリプトを持つ未登録の依存（`esbuild`・`workerd`）について、pnpm が `pnpm-workspace.yaml` に `set this to true or false` を書き足した。`pnpm-workspace.md` の「`allowBuilds` はマップ形式」節は、リスト形式で書いたときの現象としてしか書いていない。確認して両方を `false` にした（PR #82）。
+- 提案: `.claude/rules/pnpm-workspace.md` の「`allowBuilds` はマップ形式」節に、形式が正しくても、依存の追加で未登録のビルドスクリプトを持つ依存が入ると書き足されることがある、と足す。`pnpm add` の後に `git diff pnpm-workspace.yaml` で確かめ、`set this to true or false` が残っていれば、依存ごとに真偽を決める（経路 (a)）。
+
+## 2026-11-03 test:e2e のビルドには OCR の測定ページが入るので、その後の dist はデプロイに使えない（公開作業・区間外）
+- 種別: 規律昇華
+- 何が起きたか: `apps/web/playwright.config.ts` の `webServer` は `SWV_OCR_MEASURE=1` でビルドし、`apps/web/vite.config.ts` がこのとき測定用のページ（`e2e/measure/charm-ocr/index.html`）を入力に足す。`pnpm --filter @swv/web run test:e2e` の後の `apps/web/dist` には、そのページが入っている。
+- 提案: 公開の手順（Q88 で `design/` に記録する）に、デプロイの直前に `pnpm build` をやり直す、を入れる。`.claude/rules/web-vue.md` の E2E の項にも、`test:e2e` の後の `dist` は配備物でない、と足す（経路 (a)）。
