@@ -45,3 +45,8 @@
 - 種別: 矛盾是正
 - 何が起きたか: `design-system/skillweave/MASTER.md`「小見出し（刻印風）」は角と線の付いた形を定めるが、`apps/web/src/main` に実装は無く、既存の h3（`RequiredSkillsCard.vue`・`SkillDialog.vue` のフッター・`ExcludeCard.vue`）は `text-xs font-bold` の文字だけである。026 の整合でも対象にならなかった。022 の画面設計は分類の見出しに標準の形を採ったので、同じダイアログのフッターの h3 と形が違う状態になる。
 - 提案: 既存の h3 を標準の形へ揃えるか、MASTER.md の節を「区切りが要る一覧の見出しだけに使う」と狭めるかを決める（行き先: `design-system/skillweave/MASTER.md`「小見出し（刻印風）」、揃えるなら別の機能として起票する）。022 ではどちらも変えない。
+
+## 2026-11-02 Playwright の `hasNot` と `pressed: false` のロケーターで E2E の期待が空振りした（機能022・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `locator.filter({ hasNot })` に `dialog.getByRole(...)` のような親起点のロケーターを渡すと、要素の内側を起点に探されて何も除外されなかった。`getByRole('button', { pressed: false }).first()` を変数に持つと、クリック後に別のボタンへ解決し直された。どちらも `apps/web/e2e/skill-category.spec.ts` の初回の実行で落ちて分かった（e2e-agent の完了報告）。
+- 提案: `.claude/rules/web-vue.md` の E2E の項に、`hasNot` には `page` 起点のロケーターを渡す、状態で絞ったロケーターはクリック後の確認に使い回さない、の2行を足す。
