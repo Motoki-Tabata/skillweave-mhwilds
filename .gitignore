@@ -49,9 +49,13 @@ apps/web/blob-report/
 # openapi.yaml から再生成できるため管理対象外。
 contracts/dist/
 
+# ===== wrangler のローカル状態 =====
+.wrangler/
+
 # ===== 環境変数・秘匿情報 =====
 .env
 .env.*
+.dev.vars*
 !.env.example
 *.pem
 *.key
