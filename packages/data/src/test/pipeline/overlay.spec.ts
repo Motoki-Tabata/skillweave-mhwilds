@@ -200,7 +200,8 @@ describe('オーバーレイの失敗（受入基準 7・plan 決定事項 12）
 
 describe('スキルの分類 categories（022 AC-2・AC-3・AC-4）', () => {
   it('categories を読み、スキルの category に入れる。元の bundle は変えない（AC-2）', () => {
-    const result = apply(file('c.yaml', CATEGORIES_YAML))
+    const { bundle, mismatches } = base()
+    const result = applyOverlays([file('c.yaml', CATEGORIES_YAML)], bundle, mismatches)
     if (!result.ok) throw new Error('失敗')
     expect(result.bundle.skills.map((s) => s.category)).toEqual([
       'attack',
@@ -208,7 +209,7 @@ describe('スキルの分類 categories（022 AC-2・AC-3・AC-4）', () => {
       'support',
       'defense',
     ])
-    expect(base().bundle.skills[0]?.category).toBe(UNASSIGNED_CATEGORY)
+    expect(bundle.skills[0]?.category).toBe(UNASSIGNED_CATEGORY)
   })
 
   it('9 つの分類 ID をすべて受け付ける（AC-2）', () => {
