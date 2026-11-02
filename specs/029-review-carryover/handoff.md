@@ -74,6 +74,7 @@
 ## メインの直接修正
 | 区間 | ファイル | 内容（1行） | 理由 |
 |---|---|---|---|
+- なし
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
@@ -84,6 +85,7 @@
 - @MockitoSpyBean の Spring Data リポジトリでは doAnswer 内の callRealMethod() が使えない（Cannot call abstract real method）。楽観ロックの競合テストは doThrow で代替した（plan D1 の許容した代替）
 - apps/web/tsconfig.e2e.json には DOM 型が無い。locator.evaluate 内で window・getComputedStyle を使うと vue-tsc が落ち webServer が起動せず e2e 全体が走らない（e2e-agent の報告）
 - 訂正: 上の callRealMethod の件は、detach 済みの実体を finder に doReturn で差し替えれば本物の楽観ロックの失敗を起こせると分かり、T1 を doThrow から本物の競合に是正した（lessons 起票の価値あり）
+- 上の2件は tasks/lessons.md へ起票済み（D-1 承認後）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
