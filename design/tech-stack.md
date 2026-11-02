@@ -83,6 +83,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | tw-animate-css | 1.4.0（2025-09-24） | Dialog などの開閉アニメーションのクラス |
 | @lucide/vue | 1.48.0（2026-09-24） | アイコン。`lucide-vue-next` は deprecated。1.49.0 以降はクールダウン中 |
 | @playwright/test | 1.63.0（2026-09-04） | `apps/web` の devDependencies。e2e と測定。Chromium だけ |
+| wrangler | 4.153.0（2026-10-26） | `apps/web` の devDependencies。Worker の手元の実行とデプロイ。推移的依存の `esbuild`・`workerd` のビルドスクリプトは `allowBuilds` で遮断 |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |

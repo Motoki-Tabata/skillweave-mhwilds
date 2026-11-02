@@ -54,9 +54,14 @@ allowBuilds:
   # swagger-ui-dist（生成時のみの devDependency）の推移的依存。postinstall は
   # 利用状況テレメトリの送信のみで生成物の正しさに寄与しないため、既定どおり遮断する。
   '@scarf/scarf': false
+  # wrangler の推移的依存。postinstall は本体のバイナリの確認と最適化で、バイナリ自体は別の
+  # optional の依存で入る。遮断しても wrangler dev と deploy --dry-run が動くことを確かめた（2026-11-03）。
+  esbuild: false
   # tesseract.js 自身の postinstall（opencollective-postinstall。寄付の案内を表示するだけ）。
   # 動作に寄与しないため遮断する。
   tesseract.js: false
   # reka-ui → @floating-ui/vue の推移的依存。postinstall は Vue のバージョン別の切り替えファイルを
   # 作るだけで、0.14.x の既定の出力は Vue 3 向けなので、既定どおり遮断する。
   vue-demi: false
+  # wrangler の推移的依存。esbuild と同じ理由で遮断する。
+  workerd: false

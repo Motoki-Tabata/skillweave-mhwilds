@@ -67,6 +67,7 @@
     "typescript": "catalog:",
     "vite": "8.3.5",
     "vitest": "catalog:",
-    "vue-tsc": "3.3.13"
+    "vue-tsc": "3.3.13",
+    "wrangler": "4.153.0"
   }
 }
