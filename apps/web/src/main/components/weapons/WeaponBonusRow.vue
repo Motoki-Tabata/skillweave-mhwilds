@@ -12,6 +12,7 @@ import {
   ComboboxViewport,
 } from '@/components/ui/combobox'
 import { Label } from '@/components/ui/label'
+import { COMBOBOX_FIELD_CLASS } from '@/components/common/comboboxFieldClass'
 import { compareJa, matchesSkillQuery } from '@/lib/text'
 import { useMasterStore } from '@/stores/master'
 
@@ -103,7 +104,7 @@ function onBlur(): void {
             :placeholder="`${label}を検索`"
             :aria-invalid="error !== null"
             :aria-describedby="error === null ? undefined : errorId"
-            class="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-destructive h-11 w-full min-w-0 truncate rounded-md border px-3 text-base outline-none focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+            :class="[COMBOBOX_FIELD_CLASS, 'truncate']"
             @blur="onBlur"
           />
         </ComboboxAnchor>

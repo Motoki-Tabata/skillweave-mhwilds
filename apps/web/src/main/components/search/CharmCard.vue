@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import { buttonVariants } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { LOADING_SKELETON_DELAY_MS } from '@/constants/search'
+import { useSkeletonDelay } from '@/lib/useSkeletonDelay'
 import { cn } from '@/lib/utils'
 import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
@@ -17,31 +17,11 @@ const conditions = useConditionsStore()
 const master = useMasterStore()
 
 // 読み込みが 300ms 未満で終わるときは、何も出さない（ちらつきを避ける）
-const showLoading = ref(false)
-let timer: ReturnType<typeof setTimeout> | undefined
-
-function clearTimer(): void {
-  if (timer !== undefined) clearTimeout(timer)
-  timer = undefined
-}
-
-watch(
-  () => charms.status,
-  (status) => {
-    clearTimer()
-    showLoading.value = false
-    if (status !== 'loading') return
-    timer = setTimeout(() => {
-      showLoading.value = true
-    }, LOADING_SKELETON_DELAY_MS)
-  },
-  { immediate: true },
-)
+const showLoading = useSkeletonDelay(() => charms.status === 'loading')
 
 onMounted(() => {
   void charms.ensureLoaded()
 })
-onBeforeUnmount(clearTimer)
 
 const fallbackText = computed(() =>
   conditions.includeCraftedCharms

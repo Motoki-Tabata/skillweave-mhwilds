@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { Cloud, Loader2, Smartphone } from '@lucide/vue'
 import CharmForm from '@/components/charms/CharmForm.vue'
 import CharmListItem from '@/components/charms/CharmListItem.vue'
@@ -8,7 +8,7 @@ import DeviceImportDialog from '@/components/common/DeviceImportDialog.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { LOADING_SKELETON_DELAY_MS } from '@/constants/search'
+import { useSkeletonDelay } from '@/lib/useSkeletonDelay'
 import { charmSummary } from '@/lib/charms/format'
 import type { CharmEntry } from '@/stores/charms'
 import { useCharmsStore } from '@/stores/charms'
@@ -53,32 +53,14 @@ const showDeviceBand = computed(
 )
 
 // 読み込みが 300ms 未満で終わるときは、スケルトンを出さない（ちらつきを避ける）
-const showSkeleton = ref(false)
-let skeletonTimer: ReturnType<typeof setTimeout> | undefined
-
-function clearSkeletonTimer(): void {
-  if (skeletonTimer !== undefined) clearTimeout(skeletonTimer)
-  skeletonTimer = undefined
-}
-
-watch(
+const showSkeleton = useSkeletonDelay(
   () => master.status === 'loading' || charms.status === 'loading',
-  (isLoading) => {
-    clearSkeletonTimer()
-    showSkeleton.value = false
-    if (!isLoading) return
-    skeletonTimer = setTimeout(() => {
-      showSkeleton.value = true
-    }, LOADING_SKELETON_DELAY_MS)
-  },
-  { immediate: true },
 )
 
 onMounted(() => {
   if (master.bundle === null) void master.load()
   void charms.ensureLoaded()
 })
-onBeforeUnmount(clearSkeletonTimer)
 
 const formDisabled = computed(() => charms.status !== 'ready')
 const formDisabledMessage = computed(() => {

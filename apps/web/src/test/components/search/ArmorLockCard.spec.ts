@@ -3,6 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import { useLockExcludeStore } from '@/stores/lockExclude'
 import { armorId } from '../../support/fixtures'
 import {
+  expectComboboxFieldClass,
   installDomPolyfills,
   mountReadyApp,
   restoreStubs,
@@ -49,6 +50,13 @@ describe('ArmorLockCard', () => {
     await vi.waitFor(() => expect(options()).toHaveLength(0))
     await flushPromises()
   }
+
+  it('AC-8: 各部位の入力欄は共通の入力欄のクラスと truncate を持つ', async () => {
+    await ready()
+    for (const part of ['head', 'chest', 'arms', 'waist', 'legs']) {
+      expectComboboxFieldClass(input(part), true)
+    }
+  })
 
   it(
     'AC-3: 見出しと補助文があり、5 部位の入力欄が頭・胴・腕・腰・脚の順で、既定は「固定しない」',

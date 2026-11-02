@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import ActivationConditionsCard from '@/components/search/ActivationConditionsCard.vue'
 import ArmorLockCard from '@/components/search/ArmorLockCard.vue'
 import CharmCard from '@/components/search/CharmCard.vue'
@@ -14,7 +14,7 @@ import WeaponCard from '@/components/search/WeaponCard.vue'
 import WeaponDialog from '@/components/search/WeaponDialog.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { LOADING_SKELETON_DELAY_MS } from '@/constants/search'
+import { useSkeletonDelay } from '@/lib/useSkeletonDelay'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
 import { useSearchStore } from '@/stores/search'
@@ -29,32 +29,11 @@ const weaponCard = ref<InstanceType<typeof WeaponCard> | null>(null)
 const conditionsCard = ref<InstanceType<typeof ConditionsCard> | null>(null)
 
 // 読み込みが 300ms 未満で終わるときは、スケルトンを出さない（ちらつきを避ける）
-const showSkeleton = ref(false)
-let skeletonTimer: ReturnType<typeof setTimeout> | undefined
-
-function clearSkeletonTimer(): void {
-  if (skeletonTimer !== undefined) clearTimeout(skeletonTimer)
-  skeletonTimer = undefined
-}
-
-watch(
-  () => master.status,
-  (status) => {
-    clearSkeletonTimer()
-    showSkeleton.value = false
-    if (status !== 'loading') return
-    skeletonTimer = setTimeout(() => {
-      showSkeleton.value = true
-    }, LOADING_SKELETON_DELAY_MS)
-  },
-  { immediate: true },
-)
+const showSkeleton = useSkeletonDelay(() => master.status === 'loading')
 
 onMounted(() => {
   if (master.bundle === null) void master.load()
 })
-
-onBeforeUnmount(clearSkeletonTimer)
 
 function focusFirstInvalid(): void {
   if (conditions.selection === null) weaponCard.value?.focus()

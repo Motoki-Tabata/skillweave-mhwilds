@@ -13,6 +13,7 @@ import {
   ComboboxViewport,
 } from '@/components/ui/combobox'
 import { Label } from '@/components/ui/label'
+import { COMBOBOX_FIELD_CLASS } from '@/components/common/comboboxFieldClass'
 import { armorHint, decorationHint, excludeCandidates } from '@/lib/search/lockExclude'
 import { useLockExcludeStore } from '@/stores/lockExclude'
 import { useMasterStore } from '@/stores/master'
@@ -22,7 +23,6 @@ const INPUT_ID = 'exclude-search'
 const master = useMasterStore()
 const store = useLockExcludeStore()
 
-const root = ref<HTMLElement | null>(null)
 const text = ref('')
 const open = ref(false)
 
@@ -111,7 +111,7 @@ async function remove(id: string, isArmor: boolean): Promise<void> {
       <p class="text-muted-foreground text-xs">除外した防具・装飾品は、検索の候補にしません。</p>
     </div>
     <CardContent class="px-4">
-      <div ref="root" class="flex flex-col gap-3">
+      <div class="flex flex-col gap-3">
         <div class="flex flex-col gap-1">
           <Label :for="INPUT_ID" class="text-sm">防具・装飾品を探す</Label>
           <Combobox
@@ -127,7 +127,7 @@ async function remove(id: string, isArmor: boolean): Promise<void> {
                 :id="INPUT_ID"
                 v-model="text"
                 placeholder="名前の一部を入力"
-                class="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 h-11 w-full min-w-0 rounded-md border px-3 text-base outline-none focus-visible:ring-3 md:text-sm"
+                :class="COMBOBOX_FIELD_CLASS"
               />
             </ComboboxAnchor>
             <ComboboxList v-if="query !== ''" class="w-(--reka-combobox-trigger-width) min-w-60">

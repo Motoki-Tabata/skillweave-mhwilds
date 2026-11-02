@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { Cloud, Loader2, Smartphone } from '@lucide/vue'
 import DeleteConfirmDialog from '@/components/common/DeleteConfirmDialog.vue'
 import DeviceImportDialog from '@/components/common/DeviceImportDialog.vue'
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import WeaponForm from '@/components/weapons/WeaponForm.vue'
 import WeaponListItem from '@/components/weapons/WeaponListItem.vue'
-import { LOADING_SKELETON_DELAY_MS } from '@/constants/search'
+import { useSkeletonDelay } from '@/lib/useSkeletonDelay'
 import { weaponDisplayName, weaponTypeLabel } from '@/lib/weapons/convert'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
@@ -49,32 +49,14 @@ const showDeviceBand = computed(
 )
 
 // 読み込みが 300ms 未満で終わるときは、スケルトンを出さない（ちらつきを避ける）
-const showSkeleton = ref(false)
-let skeletonTimer: ReturnType<typeof setTimeout> | undefined
-
-function clearSkeletonTimer(): void {
-  if (skeletonTimer !== undefined) clearTimeout(skeletonTimer)
-  skeletonTimer = undefined
-}
-
-watch(
+const showSkeleton = useSkeletonDelay(
   () => master.status === 'loading' || weapons.status === 'loading',
-  (isLoading) => {
-    clearSkeletonTimer()
-    showSkeleton.value = false
-    if (!isLoading) return
-    skeletonTimer = setTimeout(() => {
-      showSkeleton.value = true
-    }, LOADING_SKELETON_DELAY_MS)
-  },
-  { immediate: true },
 )
 
 onMounted(() => {
   if (master.bundle === null) void master.load()
   void weapons.ensureLoaded()
 })
-onBeforeUnmount(clearSkeletonTimer)
 
 const formDisabled = computed(() => weapons.status !== 'ready')
 const formDisabledMessage = computed(() =>

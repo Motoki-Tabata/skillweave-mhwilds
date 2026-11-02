@@ -1,4 +1,5 @@
 import { ELEMENT_DISPLAY_FACTOR } from '@/constants/weapons'
+import type { ElementType } from '@/constants/weapons'
 import { normalizeForSearch } from '@/lib/text'
 import type { WeaponDraft, WeaponPayload } from '@/lib/weapons/types'
 
@@ -22,7 +23,12 @@ export function draftToPayload(draft: WeaponDraft): WeaponPayload {
     attack: readInteger(draft.attack)!,
     affinity: readInteger(draft.affinity)!,
     ...(draft.elementType !== null && elementValue !== null
-      ? { element: { type: draft.elementType, value: elementValue / ELEMENT_DISPLAY_FACTOR } }
+      ? {
+          element: {
+            type: draft.elementType as ElementType,
+            value: elementValue / ELEMENT_DISPLAY_FACTOR,
+          },
+        }
       : {}),
     slots: draft.slots.flatMap((level) =>
       level === null ? [] : [{ target: 'weapon' as const, level: level as 1 | 2 | 3 }],

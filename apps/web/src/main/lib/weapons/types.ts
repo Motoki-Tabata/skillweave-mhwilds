@@ -1,4 +1,5 @@
 import type { SetBonusId, SlotLevel, WeaponId } from '@swv/data'
+import type { ElementType } from '@/constants/weapons'
 
 export type { NameOf } from '@/lib/charms/types'
 
@@ -16,7 +17,7 @@ export interface WeaponPayload {
   name: string
   attack: number
   affinity: number
-  element?: { type: string; value: number }
+  element?: { type: ElementType; value: number }
   slots: WeaponSlot[]
   seriesBonusId: SetBonusId | null
   groupBonusId: SetBonusId | null

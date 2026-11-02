@@ -21,7 +21,7 @@ export interface ElementTypeLabel {
 }
 
 /** 属性の種類の表示名と並び。 */
-export const ELEMENT_TYPES: readonly ElementTypeLabel[] = [
+export const ELEMENT_TYPES = [
   { id: 'fire', name: '火属性' },
   { id: 'water', name: '水属性' },
   { id: 'thunder', name: '雷属性' },
@@ -31,7 +31,10 @@ export const ELEMENT_TYPES: readonly ElementTypeLabel[] = [
   { id: 'paralysis', name: '麻痺属性' },
   { id: 'sleep', name: '睡眠属性' },
   { id: 'blastblight', name: '爆破属性' },
-]
+] as const satisfies readonly ElementTypeLabel[]
+
+/** 属性の種類の ID。契約の属性の種類の列挙と一致する（`lib/api/weapons.ts` で型検査する）。 */
+export type ElementType = (typeof ELEMENT_TYPES)[number]['id']
 
 /** 属性の種類の表示名。定数に無い値は種類の文字列をそのまま返す。 */
 export function elementTypeName(id: string): string {

@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { MD_OUTLINE_CLASS } from '@/components/common/mdOutlineClass'
 import { useToastStore } from '@/stores/toast'
 import { createMemoryBuildsApi } from '../../support/buildsApi'
 import type { MemoryBuildsApi } from '../../support/buildsApi'
@@ -67,6 +68,13 @@ describe('ResultsPanel の構成の保存', () => {
       expect(saveButton(1).getAttribute('aria-label')).toBe('構成 1 を保存')
       expect(saveButton(1).getAttribute('title')).toBe('構成 1 を保存')
       expect(saveButton(2).getAttribute('aria-label')).toBe('構成 2 を保存')
+    })
+
+    it('AC-4: 保存のボタンに MD_OUTLINE_CLASS の各トークンがある', async () => {
+      await search()
+      for (const token of MD_OUTLINE_CLASS.split(/\s+/)) {
+        expect(saveButton(1).classList.contains(token), token).toBe(true)
+      }
     })
 
     it('検索中に見つけた順に出すカードには出さない', async () => {

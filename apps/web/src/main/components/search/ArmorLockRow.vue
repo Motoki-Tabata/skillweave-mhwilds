@@ -13,6 +13,7 @@ import {
   ComboboxViewport,
 } from '@/components/ui/combobox'
 import { Label } from '@/components/ui/label'
+import { COMBOBOX_FIELD_CLASS } from '@/components/common/comboboxFieldClass'
 import { fixedCandidates } from '@/lib/search/lockExclude'
 import { useLockExcludeStore } from '@/stores/lockExclude'
 import { useMasterStore } from '@/stores/master'
@@ -93,8 +94,11 @@ function onBlur(): void {
           :id="inputId"
           v-model="text"
           :display-value="displayValue"
-          class="border-input bg-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 h-11 w-full min-w-0 truncate rounded-md border px-3 text-base outline-none focus-visible:ring-3 md:text-sm"
-          :class="{ 'text-muted-foreground': current === UNLOCKED && text === selectedName }"
+          :class="[
+            COMBOBOX_FIELD_CLASS,
+            'truncate',
+            { 'text-muted-foreground': current === UNLOCKED && text === selectedName },
+          ]"
           @blur="onBlur"
         />
       </ComboboxAnchor>
