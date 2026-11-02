@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { toAccountWeapon, weaponsApi } from '@/lib/api/weapons'
+import type { CreateWeaponRequest, MatchesContractElementType } from '@/lib/api/weapons'
+import type { ElementType } from '@/constants/weapons'
+import type { WeaponPayload } from '@/lib/weapons/types'
 
 const row = {
   id: '01900000-0000-7000-8000-000000000001',
@@ -105,5 +108,30 @@ describe('toAccountWeapon', () => {
     ['slots が配列でない', { ...row, payload: { ...row.payload, slots: 1 } }],
   ])('AC-12: %s は形の不正として null', (_label, value) => {
     expect(toAccountWeapon(value)).toBeNull()
+  })
+})
+
+// AC-9〜11: 型の検査（`pnpm type-check` が検査する）。判定が壊れると、ここが型エラーになる。
+describe('属性の種類の型（AC-9・AC-10・AC-11）', () => {
+  it('AC-11: ELEMENT_TYPES と契約の列挙の過不足を両方向で検出する', () => {
+    const same: MatchesContractElementType<ElementType> = true
+    const extra: MatchesContractElementType<ElementType | 'extra'> = false
+    const missing: MatchesContractElementType<Exclude<ElementType, 'fire'>> = false
+    expect([same, extra, missing]).toEqual([true, false, false])
+  })
+
+  it('AC-9・AC-10: WeaponPayload は契約の要求の payload へキャストなしで代入できる', () => {
+    const payload: WeaponPayload = {
+      baseWeaponId: 'wp:great-sword:artia2' as WeaponPayload['baseWeaponId'],
+      name: '巨戟ブレイド',
+      attack: 200,
+      affinity: 15,
+      element: { type: 'fire', value: 30 },
+      slots: [],
+      seriesBonusId: null,
+      groupBonusId: null,
+    }
+    const request: CreateWeaponRequest = { id: row.id, payload, schemaVersion: 1 }
+    expect(request.payload.element?.type).toBe('fire')
   })
 })

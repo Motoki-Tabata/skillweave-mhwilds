@@ -41,7 +41,6 @@ export interface TargetSkill {
 }
 
 export interface DamageColumns {
-  thetaCol: number
   /** 1 段目の目的（θ だけ 1） */
   stage1Cost: number[]
 }
@@ -432,6 +431,6 @@ export function extendWithDamage(
     colUpper: b.colUpper.map(swapInfinity),
     colInteger: b.colInteger,
     rows: b.rows.map((r) => ({ ...r, lower: swapInfinity(r.lower), upper: swapInfinity(r.upper) })),
-    damage: { thetaCol, stage1Cost },
+    damage: { stage1Cost },
   }
 }

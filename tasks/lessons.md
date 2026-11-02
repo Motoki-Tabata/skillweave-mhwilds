@@ -25,3 +25,18 @@
 - 何が起きたか: `canon-boundary.md` の経路 (b) の条件「複数の Skill にまたがる手順の変更」に、試作の位置と B／C の判定の文面の修正が当たった。手順を増やさない各 1〜2 行の修正で、ユーザーの確認のうえ例外として経路 (a) で直した（3b1052e）。
 - 提案: 同文書の経路の表で、(a) の条件を「手順を増減しない文面の修正（複数ファイルでも可）」に、(b) の条件を「手順の増減を伴う変更」に改める。
 
+## 2026-11-02 契約の型を使う境界が規約に書かれていない（機能029・区間A）
+- 種別: 規律昇華
+- 何が起きたか: `lib/weapons/types.ts` の `WeaponPayload.element.type` が `string` のままで契約の列挙とずれ、`lib/api/weapons.ts` の `Omit` の差し替えと `lib/builds/payload.ts` のキャストで吸収していた。`lib/api/schema` の import は事実として `lib/api/` の中だけだが、規約に書かれていない（029 decisions.md Q120）。
+- 提案: 029 のマージの後に、`.claude/rules/web-vue.md` に節を足す（経路 (a)）。`lib/api/schema.ts` を import するのは `lib/api/` の中だけにする。端末に保存する型などの web の型は自前で持ち、`lib/api/` の要求の型は差し替えずに契約の型を使って、ずれを型検査で検出する。直す前に `.claude/**` の同じ文面を grep する。
+
+
+## 2026-11-02 @MockitoSpyBean の Spring Data リポジトリでは callRealMethod が使えず、楽観ロックの競合テストの作り方が規約に無い（機能029・区間D）
+- 種別: 規律昇華
+- 何が起きたか: plan D1 の主案（`doAnswer` で `saveAndFlush` の直前に `version` を進めて `callRealMethod()`）は、リポジトリがインターフェースのプロキシのため `Cannot call abstract real method on java object!` で動かなかった。レビューで、detach 済みの実体を finder から取り、jdbc で `version` を進め、finder を `doReturn(Optional.of(古い実体))` で差し替える形なら本物の楽観ロックの失敗を起こせると分かった（078c7c5）。
+- 提案: `.claude/rules/api-spring.md` に、楽観ロックの競合は `doThrow` で模擬せず、finder 差し替えで本物の失敗を起こす（`callRealMethod` は使えない）、と足す（経路 (a)）。直す前に `.claude/**` の同じ文面を grep する。
+
+## 2026-11-02 apps/web/tsconfig.e2e.json に DOM 型が無く、evaluate 内のブラウザ API で e2e 全体が起動しない（機能029・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `locator.evaluate` の中で `window`・`getComputedStyle` を使うと `vue-tsc` が落ち、webServer が exit 2 で起動せず e2e が全件走らない。029 の `md-outline-hover.spec.ts` は `globalThis` を最小の型にキャストして回避した。
+- 提案: `.claude/rules/web-vue.md` の E2E の節に、`evaluate` 内でブラウザ API を使うときは最小の型で受ける（`tsconfig.e2e.json` に DOM 型は無い）と足す。型の置き場を `e2e/support/` の補助にするか `lib: ["DOM"]` を足すかは、次に必要になった機能で決める。

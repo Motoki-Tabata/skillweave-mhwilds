@@ -18,9 +18,6 @@ export type AccountCharm = StoredCharm & { version: number }
 /** 失敗の原因。`network` は fetch が届かない、`server` はそれ以外（status・応答の形の不正）。 */
 export type CharmsFailureCause = ApiFailureCause
 
-/** 画面に出す原因の文言。 */
-export { API_FAILURE_MESSAGES as CHARMS_FAILURE_MESSAGES } from '@/lib/api/result'
-
 export type CharmsFailure = ApiFailure
 
 /** API の結果。例外にせず、成功と失敗の種類で返す。 */

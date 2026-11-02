@@ -25,7 +25,7 @@ export function customWeaponSnapshot(stored: StoredWeapon): BuildWeapon {
       ? {}
       : {
           element: {
-            type: payload.element.type as NonNullable<CustomWeaponPayload['element']>['type'],
+            type: payload.element.type,
             value: payload.element.value,
           },
         }),

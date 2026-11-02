@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import LoginRequiredCard from '@/components/builds/LoginRequiredCard.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { LOADING_SKELETON_DELAY_MS } from '@/constants/search'
+import { useSkeletonDelay } from '@/lib/useSkeletonDelay'
 import { useBuildsStore } from '@/stores/builds'
 import { useMasterStore } from '@/stores/master'
 
@@ -26,32 +26,12 @@ const phase = computed<Phase>(() => {
 })
 
 // 読み込みが 300ms 未満で終わるときは、スケルトンを出さない（ちらつきを避ける）
-const showSkeleton = ref(false)
-let skeletonTimer: ReturnType<typeof setTimeout> | undefined
-
-function clearSkeletonTimer(): void {
-  if (skeletonTimer !== undefined) clearTimeout(skeletonTimer)
-  skeletonTimer = undefined
-}
-
-watch(
-  () => phase.value === 'loading',
-  (isLoading) => {
-    clearSkeletonTimer()
-    showSkeleton.value = false
-    if (!isLoading) return
-    skeletonTimer = setTimeout(() => {
-      showSkeleton.value = true
-    }, LOADING_SKELETON_DELAY_MS)
-  },
-  { immediate: true },
-)
+const showSkeleton = useSkeletonDelay(() => phase.value === 'loading')
 
 onMounted(() => {
   if (master.bundle === null) void master.load()
   void builds.ensureLoaded()
 })
-onBeforeUnmount(clearSkeletonTimer)
 </script>
 
 <template>

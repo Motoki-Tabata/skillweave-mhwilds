@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { MasterWeapon, WeaponId } from '@swv/data'
 import PickerDialog from '@/components/search/PickerDialog.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { WEAPON_TYPES, weaponTypeName } from '@/constants/weaponTypes'
-import { LOADING_SKELETON_DELAY_MS, WEAPON_LIST_LIMIT } from '@/constants/search'
+import { WEAPON_LIST_LIMIT } from '@/constants/search'
 import { formatWeaponStats } from '@/lib/format'
 import { matchesQuery } from '@/lib/text'
+import { useSkeletonDelay } from '@/lib/useSkeletonDelay'
 import { weaponBonusLabels, weaponDisplayName, weaponSpecLine } from '@/lib/weapons/convert'
 import type { StoredWeapon } from '@/lib/weapons/types'
 import { useConditionsStore } from '@/stores/conditions'
@@ -44,27 +45,7 @@ watch(
 )
 
 // 個体差のある武器の読み込みが 300ms 未満で終わるときは、読込中の表示を出さない
-const showLoading = ref(false)
-let loadingTimer: ReturnType<typeof setTimeout> | undefined
-
-function clearLoadingTimer(): void {
-  if (loadingTimer !== undefined) clearTimeout(loadingTimer)
-  loadingTimer = undefined
-}
-
-watch(
-  [() => props.open, () => weapons.status],
-  ([open, status]) => {
-    clearLoadingTimer()
-    showLoading.value = false
-    if (!open || status !== 'loading') return
-    loadingTimer = setTimeout(() => {
-      showLoading.value = true
-    }, LOADING_SKELETON_DELAY_MS)
-  },
-  { immediate: true },
-)
-onBeforeUnmount(clearLoadingTimer)
+const showLoading = useSkeletonDelay(() => props.open && weapons.status === 'loading')
 
 const weaponsFailed = computed(() => weapons.status === 'failed')
 

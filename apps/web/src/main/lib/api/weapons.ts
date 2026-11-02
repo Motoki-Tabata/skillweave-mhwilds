@@ -3,22 +3,29 @@ import { isRecord, run } from '@/lib/api/result'
 import type { ApiResult } from '@/lib/api/result'
 import { isCustomWeaponPayload } from '@/lib/api/builds'
 import type { components } from '@/lib/api/schema'
+import type { ElementType } from '@/constants/weapons'
 import { WEAPON_SCHEMA_VERSION } from '@/lib/weapons/types'
 import type { StoredWeapon, WeaponPayload } from '@/lib/weapons/types'
 
-/** 契約の要求の形。payload は端末の武器と同じ `WeaponPayload`（属性の種類は契約では列挙、web では文字列）。 */
-export type CreateWeaponRequest = Omit<
-  components['schemas']['CreateCustomWeaponRequest'],
-  'payload'
-> & {
-  payload: WeaponPayload
-}
-export type UpdateWeaponRequest = Omit<
-  components['schemas']['UpdateCustomWeaponRequest'],
-  'payload'
-> & {
-  payload: WeaponPayload
-}
+/** 契約の要求の形。`WeaponPayload` は契約の payload へそのまま代入できる。 */
+export type CreateWeaponRequest = components['schemas']['CreateCustomWeaponRequest']
+export type UpdateWeaponRequest = components['schemas']['UpdateCustomWeaponRequest']
+
+type ContractElementType = NonNullable<
+  components['schemas']['CustomWeaponPayload']['element']
+>['type']
+
+/** T が契約の属性の種類と過不足なく一致すれば true。 */
+export type MatchesContractElementType<T> = [T] extends [ContractElementType]
+  ? [ContractElementType] extends [T]
+    ? true
+    : false
+  : false
+
+type AssertTrue<T extends true> = T
+
+/** `ELEMENT_TYPES` と契約の列挙がずれると、ここが型検査で失敗する。 */
+export type ElementTypesInSync = AssertTrue<MatchesContractElementType<ElementType>>
 
 /** アカウントの個体差のある武器。端末の `StoredWeapon` に行バージョンを加えた形。 */
 export type AccountWeapon = StoredWeapon & { version: number }

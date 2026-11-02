@@ -18,6 +18,7 @@ import {
 } from '../support/weapons'
 import {
   click,
+  expectComboboxFieldClass,
   findButton,
   findByLabel,
   installDomPolyfills,
@@ -121,6 +122,12 @@ describe('WeaponsView（S3・D4）', () => {
 
   // 受入基準 1・3（入力して登録し、端末に保存する）
   describe('登録', () => {
+    it('AC-8: 付与スキルの入力欄は共通の入力欄のクラスと truncate を持つ', async () => {
+      await ready()
+      expectComboboxFieldClass(input('weapon-series'), true)
+      expectComboboxFieldClass(input('weapon-group'), true)
+    })
+
     it(
       '基の武器・名前・攻撃力・会心率・属性・スロット・付与スキルを入力して登録すると、端末に保存し一覧に出す',
       async () => {

@@ -5,6 +5,7 @@ import { useLockExcludeStore } from '@/stores/lockExclude'
 import { armorId, dc, makeBundle, makeDictionary } from '../../support/fixtures'
 import {
   click,
+  expectComboboxFieldClass,
   findByLabel,
   installDomPolyfills,
   mountReadyApp,
@@ -79,6 +80,11 @@ describe('ExcludeCard', () => {
     },
     SLOW,
   )
+
+  it('AC-8: 探す欄は共通の入力欄のクラスを持ち、truncate は付けない', async () => {
+    await ready()
+    expectComboboxFieldClass(search(), false)
+  })
 
   it(
     'AC-5: 候補は件数・防具→装飾品の群・補助の文言つきで出る',

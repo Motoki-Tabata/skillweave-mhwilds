@@ -6,6 +6,7 @@ import {
   armorId,
   buildMaster,
   decoration,
+  decorationId,
   makeRequest,
   masterSkill,
   plainArmors,
@@ -80,5 +81,15 @@ describe('[AC13] 検算 verifyBuild は違反を検出する', () => {
     const build = await validBuild()
     const withExcluded = makeRequest(master, { ...request, excludedArmorIds: [armorId('h1')] })
     expect(verifyBuild(master, withExcluded, build).join('\n')).toContain('除外')
+  })
+
+  // AC-2: 除外した装飾品の使用
+  it('除外した装飾品の使用', async () => {
+    const build = await validBuild()
+    const withExcluded = makeRequest(master, {
+      ...request,
+      excludedDecorationIds: [decorationId('d1')],
+    })
+    expect(verifyBuild(master, withExcluded, build).join('\n')).toContain('除外された装飾品')
   })
 })

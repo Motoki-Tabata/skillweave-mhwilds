@@ -117,6 +117,14 @@ function checkPlacement(
   return used
 }
 
+/** 除外した装飾品を付けていないこと */
+function checkExcludedDecorations(request: SolverRequest, build: SolvedBuild, problems: string[]) {
+  const excluded = new Set<string>(request.excludedDecorationIds ?? [])
+  for (const { decorationId } of build.decorations) {
+    if (excluded.has(decorationId)) problems.push(`除外された装飾品 ${decorationId} を付けている`)
+  }
+}
+
 /** 通常のスキルの合計（rawLevel）。除く装飾品の位置を指定できる */
 function ordinaryLevels(
   master: MasterBundle,
@@ -304,6 +312,7 @@ export function verifyBuild(
   const problems: string[] = []
   const equipped = checkEquipment(master, request, build, problems)
   checkPlacement(master, build, equipped, problems)
+  checkExcludedDecorations(request, build, problems)
   checkSkills(master, request, build, equipped, problems)
   checkObjective(master, request, build, equipped, problems)
   return problems

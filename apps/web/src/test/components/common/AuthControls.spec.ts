@@ -8,6 +8,7 @@ import {
   stubBackend,
 } from '../../support/mount'
 import type { Mounted } from '../../support/mount'
+import { MD_OUTLINE_CLASS } from '@/components/common/mdOutlineClass'
 import type { AuthApi } from '@/lib/api/auth'
 import { LOGIN_RETURN_KEY } from '@/lib/auth/loginReturn'
 
@@ -49,6 +50,13 @@ describe('AuthControls（ヘッダーの認証の部品）', () => {
     mounted = await mountApp({ authApi: fakeAuthApi(), path: '/charms' })
     expect(document.querySelector('main')).not.toBeNull()
     expect(document.title).toBe('護石 | SkillWeave')
+  })
+
+  it('AC-4: ログインのリンクに MD_OUTLINE_CLASS の各トークンがある', async () => {
+    mounted = await mountApp({ authApi: fakeAuthApi(loggedOut), path: '/weapons' })
+    for (const token of MD_OUTLINE_CLASS.split(/\s+/)) {
+      expect(loginLink()?.classList.contains(token), token).toBe(true)
+    }
   })
 
   it('[12] 未ログインでもゲストの画面が使え、ログインのリンクだけが出る', async () => {

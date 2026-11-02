@@ -9,6 +9,7 @@ import { charmId, storedCharm } from '../support/charms'
 import { makeTableBundle, sk } from '../support/fixtures'
 import {
   click,
+  expectComboboxFieldClass,
   findButton,
   findByLabel,
   installDomPolyfills,
@@ -103,6 +104,11 @@ describe('CharmsView（S2・D3）', () => {
 
   // 受入基準 1（入力して登録）・3（端末に保存し、再読み込みの後も残る）
   describe('登録', () => {
+    it('AC-8: スキルの入力欄は共通の入力欄のクラスと truncate を持つ', async () => {
+      await ready()
+      expectComboboxFieldClass(skillInput(1), true)
+    })
+
     // 受入基準 1（レア度の各選択肢がラベルで名前を持つ）
     it('レア度の各選択肢は、ラベルの数字をアクセシブルネームに持つ', async () => {
       await ready()

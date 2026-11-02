@@ -2,7 +2,8 @@ import { flushPromises, mount } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import type { Pinia } from 'pinia'
-import { vi } from 'vitest'
+import { expect, vi } from 'vitest'
+import { COMBOBOX_FIELD_CLASS } from '@/components/common/comboboxFieldClass'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import App from '@/App.vue'
 import { installTitleHook, routes } from '@/router'
@@ -252,6 +253,15 @@ export { flushPromises }
 /** 余分な空白をたたんだ本文。 */
 export function textOf(element: Element | null): string {
   return (element?.textContent ?? '').replace(/\s+/g, ' ').trim()
+}
+
+/** Combobox の入力欄に COMBOBOX_FIELD_CLASS の各トークンがあり、`truncate` の有無が期待どおりかを検証する。 */
+export function expectComboboxFieldClass(input: Element | null, truncate: boolean): void {
+  expect(input).not.toBeNull()
+  for (const token of COMBOBOX_FIELD_CLASS.split(/\s+/)) {
+    expect(input!.classList.contains(token), token).toBe(true)
+  }
+  expect(input!.classList.contains('truncate')).toBe(truncate)
 }
 
 /** body 全体（ダイアログ・トーストを含む）から、本文が一致するボタンを探す。 */
