@@ -1,6 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
-import { sk } from '../../support/fixtures'
+import { makeBundle, makeDictionary, sk } from '../../support/fixtures'
 import {
   click,
   findButton,
@@ -254,8 +254,18 @@ describe('SkillDialog（D2）', () => {
       expect(categoryHeadings()).toEqual(['攻撃', '会心'])
     })
 
-    it('[AC-7] 各見出しの下に、その分類のスキルだけを名前順で並べる', async () => {
-      await open()
+    it('[AC-7] 各見出しの下に、その分類のスキルだけを名前順で並べる（入力順と逆の 2 件を含む）', async () => {
+      // 攻撃の分類の防具スキルを、名前順（アーマー → ガード）と逆の入力順（ガード → アーマー）で足す
+      const bundle = makeBundle()
+      bundle.skills = [
+        ...bundle.skills,
+        { id: sk('a3'), kind: 'armor', maxLevel: 2, category: 'attack', effectsByLevel: [] },
+      ]
+      const dictionary = makeDictionary()
+      dictionary.entries[sk('a3')] = { name: 'アーマー' }
+      stubBackend({ bundle, dictionary })
+      mounted = await mountReadyApp()
+      await click(findButton('スキルを選ぶ'))
       await selectTab('防具')
       const sections = Array.from(
         dialog()!.querySelectorAll('[role="tabpanel"] section'),
@@ -267,7 +277,7 @@ describe('SkillDialog（D2）', () => {
         ),
       ])
       expect(rows).toEqual([
-        ['攻撃', 'ガード'],
+        ['攻撃', 'アーマー', 'ガード'],
         ['会心', '攻撃'],
       ])
     })
