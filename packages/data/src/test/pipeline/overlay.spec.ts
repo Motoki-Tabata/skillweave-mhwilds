@@ -9,7 +9,9 @@ import {
   readOverlayFiles,
   type OverlayFile,
 } from '../../main/pipeline/overlay.ts'
-import { CONFIG, makeInput, useTempDirs } from '../support/fixtures.ts'
+import { SKILL_CATEGORIES, UNASSIGNED_CATEGORY } from '../../main/pipeline/categories.ts'
+import { formatViolation, validate } from '../../main/pipeline/validate.ts'
+import { CATEGORIES_YAML, CONFIG, makeInput, useTempDirs } from '../support/fixtures.ts'
 
 const makeTempDir = useTempDirs()
 const base = () => convert(makeInput(), CONFIG)
@@ -193,5 +195,71 @@ describe('オーバーレイの失敗（受入基準 7・plan 決定事項 12）
   it('失敗が1件でもあれば結果に bundle を返さない', () => {
     const result = apply(file('x.yaml', 'foo: 1\n'))
     expect(result).not.toHaveProperty('bundle')
+  })
+})
+
+describe('スキルの分類 categories（022 AC-2・AC-3・AC-4）', () => {
+  it('categories を読み、スキルの category に入れる。元の bundle は変えない（AC-2）', () => {
+    const result = apply(file('c.yaml', CATEGORIES_YAML))
+    if (!result.ok) throw new Error('失敗')
+    expect(result.bundle.skills.map((s) => s.category)).toEqual([
+      'attack',
+      'weapon_specific',
+      'support',
+      'defense',
+    ])
+    expect(base().bundle.skills[0]?.category).toBe(UNASSIGNED_CATEGORY)
+  })
+
+  it('9 つの分類 ID をすべて受け付ける（AC-2）', () => {
+    expect(SKILL_CATEGORIES).toHaveLength(9)
+    for (const id of SKILL_CATEGORIES) {
+      expect(apply(file('c.yaml', `categories:\n  sk:100: ${id}\n`)).ok, id).toBe(true)
+    }
+  })
+
+  it('存在しない ID・sk: 以外の ID・9 つに無い分類 ID は、ファイル名と行・桁を示して失敗する（AC-3）', () => {
+    expect(errorsOf(file('x.yaml', 'categories:\n  sk:999: attack\n'))).toEqual([
+      expect.stringMatching(/^x\.yaml:2:3: .*sk:999.*存在しません/),
+    ])
+    expect(errorsOf(file('x.yaml', 'categories:\n  sb:200: attack\n'))).toEqual([
+      expect.stringMatching(/^x\.yaml:2:3: .*sb:200.*スキル（sk:）ではありません/),
+    ])
+    expect(errorsOf(file('x.yaml', 'categories:\n  sk:100: unknown\n'))).toEqual([
+      expect.stringMatching(/^x\.yaml:2:3: .*sk:100.*unknown/),
+    ])
+  })
+
+  it('同じスキルの重複は失敗する（同一ファイル内・ファイルをまたぐ）（AC-3）', () => {
+    const [within] = errorsOf(file('x.yaml', 'categories:\n  sk:100: attack\n  sk:100: affinity\n'))
+    expect(within).toMatch(/^x\.yaml:3:3: /) // 同一ファイル内は YAML の読み込みが重複キーとして示す
+    const entry = 'categories:\n  sk:100: attack\n'
+    const [across] = errorsOf(file('a.yaml', entry), file('b.yaml', entry))
+    expect(across).toMatch(/^b\.yaml:2:3: .*sk:100.*複数.*a\.yaml:2/)
+  })
+
+  it('categories の形が不正なら失敗する（AC-3）', () => {
+    expect(errorsOf(file('x.yaml', 'categories:\n  sk:100: 5\n'))[0]).toMatch(
+      /^x\.yaml:2:11: .*文字列/,
+    )
+    expect(errorsOf(file('x.yaml', 'categories: 1\n'))[0]).toMatch(/^x\.yaml:1:13: /)
+  })
+
+  it('replace で category を置き換えると失敗する（AC-2）', () => {
+    const text = 'replace:\n  - id: sk:100\n    field: category\n    value: attack\n'
+    expect(errorsOf(file('x.yaml', text))).toEqual([
+      expect.stringMatching(/^x\.yaml:2:5: .*sk:100.*category.*categories/),
+    ])
+  })
+
+  it('分類の無いスキルが残ると、変換の結果は未割当で、検証が skill-category で ID を示す（AC-4）', () => {
+    const { bundle, dictionaries, mismatches } = base()
+    const violations = validate({ bundle, dictionaries, mismatches })
+    expect(violations.filter((v) => v.rule === 'skill-category').map(formatViolation)).toEqual([
+      '[skill-category] sk:100: 分類がありません',
+      '[skill-category] sk:101: 分類がありません',
+      '[skill-category] sk:200: 分類がありません',
+      '[skill-category] sk:201: 分類がありません',
+    ])
   })
 })

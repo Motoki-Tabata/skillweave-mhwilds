@@ -2,12 +2,13 @@ import { describe, expect, it } from 'vitest'
 import type { MasterBundle } from '../../main/index.ts'
 import { convert } from '../../main/pipeline/convert.ts'
 import { formatViolation, validate, type Violation } from '../../main/pipeline/validate.ts'
-import { CONFIG, READINGS, makeInput } from '../support/fixtures.ts'
+import { CONFIG, READINGS, assignCategories, makeInput } from '../support/fixtures.ts'
 import { applyReadings } from '../../main/pipeline/overlay.ts'
 
 /** 変換の結果に、フィクスチャの読みを ja の辞書へ重ねたもの */
 function load(input = makeInput()) {
   const converted = convert(input, CONFIG)
+  assignCategories(converted.bundle)
   return {
     ...converted,
     dictionaries: {
@@ -28,6 +29,18 @@ const rules = (violations: Violation[]): string[] => violations.map((v) => v.rul
 describe('検証（受入基準 8）', () => {
   it('正しい入力は違反が0件', () => {
     expect(check()).toEqual([])
+  })
+
+  it('スキルの category が 9 つの分類に無いと、skill-category の違反にする（022 AC-4）', () => {
+    const violations = check((b) => {
+      b.skills[1]!.category = 'unknown' as never
+      delete (b.skills[2] as { category?: string }).category
+    })
+    expect(rules(violations)).toEqual(['skill-category', 'skill-category'])
+    expect(violations.map((v) => v.message)).toEqual([
+      'sk:101: 分類がありません',
+      'sk:200: 分類がありません',
+    ])
   })
 
   it('防具の rank が low・high・master 以外なら armor-rank の違反にする（12）', () => {

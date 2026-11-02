@@ -1,4 +1,5 @@
 import type { MasterBundle, MasterDictionary, Slot, SkillLevel } from '../index.ts'
+import { SKILL_CATEGORIES } from './categories.ts'
 import type { SetBonusMismatch } from './convert.ts'
 import { CONDITION_ID_PATTERN, effectProblem } from './effects.ts'
 
@@ -261,6 +262,14 @@ function checkSkillEffects(bundle: MasterBundle, out: Violation[]): void {
   }
 }
 
+function checkSkillCategories(bundle: MasterBundle, out: Violation[]): void {
+  for (const skill of bundle.skills) {
+    if (!(SKILL_CATEGORIES as readonly unknown[]).includes(skill.category)) {
+      out.push({ rule: 'skill-category', message: `${skill.id}: 分類がありません` })
+    }
+  }
+}
+
 /** 出力の `MasterBundle` と辞書を検証する。違反は全件を返す（0件なら空配列） */
 export function validate(input: ValidateInput): Violation[] {
   const { bundle } = input
@@ -334,6 +343,7 @@ export function validate(input: ValidateInput): Violation[] {
   ].map((entry) => entry.id as string)
   checkConditions(bundle, out)
   checkSkillEffects(bundle, out)
+  checkSkillCategories(bundle, out)
   checkDictionaries(input, ids, out)
   checkReadings(input, out)
   checkAppraisedCharm(bundle, out)
