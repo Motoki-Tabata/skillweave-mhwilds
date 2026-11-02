@@ -27,7 +27,7 @@
 
 ## Q83（決定: 2026-11-02）
 - 問い: 独自ドメイン（`temp/initial-design.md` §11）をどう取るか。Cookie の同一サイト化の前提（`design/tech-stack.md`「§3.3 の確認結果」の表）。ドメイン名・取得先・DNS の置き場所と、同じく §11 で未決のホスティング費用の上限（無料枠を超えたときの方針）を合わせて決める（仮: Cloudflare で取得して DNS も Cloudflare に置く。費用の上限は Cloud Run・Neon・Cloudflare の無料枠の範囲とし、超えそうなら公開を止めて見直す）
-- 決定: 公開の最初から `skillweave.app` を使い、`workers.dev` で先に出さない（2026-11-02 時点で未購入）。Cloudflare Registrar で取得し、DNS も Cloudflare に置く。費用は無料枠の範囲内とする。Cloud Run に `max-instances=1` と予算アラートを設定し、超えそうなら公開を止めて見直す。
+- 決定: 公開の最初から `skillweave.app` を使い、`workers.dev` で先に出さない。Cloudflare Registrar で取得済み（初年度 $9.02・有効期限 2027-11-02 UTC・更新料 $14.20/年・自動更新は有効・DNSSEC は無効・RDAP に登録者情報は出ない。2026-11-03 に確認）。DNS も Cloudflare に置く。費用は無料枠の範囲内とする。Cloud Run に `max-instances=1` と予算アラートを設定し、超えそうなら公開を止めて見直す。
 - 理由: 後からオリジンを変えると、共有 URL・端末内の下書き・Discord の redirect URI に影響する。`.com`・`.net`・`.org` は登録済みで、`.app` は RDAP で登録が無かった（2026-11-02。空きと価格は購入画面で確かめる）。Workers の独自ドメインは DNS が Cloudflare にあることを要する。Google Cloud の通常の予算は通知だけで支出を止めないので、インスタンス数の上限で最悪の費用を抑える。
 
 ## Q87（決定: 2026-11-02）

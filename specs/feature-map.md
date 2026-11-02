@@ -39,6 +39,7 @@
 | 027 | crafted-charm-build-save | 生産護石を使った構成を保存し、保存した構成の画面で開き直せる | P1 | S | 済 |
 | 028 | api-prod-config | API を公開できるよう、本番用の設定（Cookie の `Secure` 属性など。Q85）を入れ、認可を始めただけで作られる未ログインのセッションの行を短い有効期間にする（画面の挙動は変えない） | P1 | S | 済 |
 | 029 | review-carryover | レビューで持ち越した未テストの分岐と検査の抜け（楽観ロックの 409・除外した装飾品の検査・`MD_OUTLINE_CLASS` の適用）を埋め、重複と未使用のコードを整理する（画面と API の挙動は変えない） | P2 | S | 済 |
+| 030 | privacy-notice | 公開（フレンド公開）の前に、利用者のデータがどこへ送られ何が保存されるか（Google Fonts への IP アドレスの送信・Discord のログインで保存する情報・Cloudflare と Google Cloud のアクセスログ・端末内に保存するデータ）を、画面から読めるようにする | P0 | S | 未着手 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
@@ -72,3 +73,4 @@
 | 027 crafted-charm-build-save | 011, 021 | 021 decisions.md Q78 で 021 のスコープ外にした。`BuildCharm` の契約（`id` は `format: uuid`）と API の検査を変える。`BuildCharm` の形は鑑定護石が参照と写し、生産護石が参照だけ（027 decisions.md Q93） |
 | 028 api-prod-config | 009 | API・DB の公開（Q71）の前に行う。扱う本番の設定は Q85、この機能に切った理由は Q86、セッションの掃除の間隔は Q91。Q84 で別オリジンの経路を選ぶなら、Web の API の呼び方と CSRF の Cookie の読み方の変更も含める |
 | 029 review-carryover | 011, 020, 026 | 楽観ロックの 409 の未テスト（010・011 handoff.md。護石・武器・構成）、`verifyBuild.ts` が除外した装飾品を検査しない（020）、`MD_OUTLINE_CLASS` の単体テストが無くダークの hover も実ブラウザで未確認（026）、`damageModel.ts` の `thetaCol` が未使用（019）を扱う。あわせて、e2e の `uuidV7()` の `e2e/support/` への切り出し（3 本の spec）、スケルトンの手書きの遅延を `useSkeletonDelay` へ寄せる（`BuildsGate`・`SearchView`・`CharmsView`・`WeaponsView`・`WeaponDialog`・`CharmCard`）、Combobox の入力欄の共通化（`CharmSkillRow`・`ArmorLockRow`・`ExcludeCard`・`WeaponBonusRow`）、`WeaponPayload.element.type` を契約の列挙に揃える（`lib/api/weapons.ts` の差し替えを解消する。契約の型を使う境界を `.claude/rules/web-vue.md` に書く作業は、`tasks/lessons.md` に起票してマージの後に区間の外で行う）、`lib/api/charms.ts` の未使用の `CHARMS_FAILURE_MESSAGES` の再エクスポート（025）、`ExcludeCard.vue` の未使用の `root` ref（020）を扱う。`NotFound.yaml` の説明が `getSharedBuild` と合わない点（012）は、触る領域が 4 つになるので外した（029 decisions.md Q119・open-questions.md Q123） |
+| 030 privacy-notice | 004, 009 | `design/tech-stack.md` 判断 6（Google Fonts で IP アドレスが Google に送られる。「公開前にプライバシーの表記へ含める」）が出どころ。入力文書は無く、公開作業の依頼（2026-11-03）が入力。URL をフレンドへ配る前（Q88 の公開作業の段階 3 以降）にマージしておく。扱う範囲・置き場所・連絡先は Q132〜Q135 |
