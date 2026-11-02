@@ -2,17 +2,17 @@ package io.github.motokitabata.skillweave.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 
 import io.github.motokitabata.skillweave.TestcontainersConfiguration;
 import io.github.motokitabata.skillweave.common.exception.ResourceConflictException;
 import io.github.motokitabata.skillweave.dto.request.CreateBuildRequest;
 import io.github.motokitabata.skillweave.dto.request.RenameBuildRequest;
+import io.github.motokitabata.skillweave.entity.Build;
 import io.github.motokitabata.skillweave.entity.BuildPayload;
 import io.github.motokitabata.skillweave.repository.BuildRepository;
 import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,13 +86,17 @@ class BuildServiceTest {
                 .isEqualTo("先");
     }
 
-    /** AC-1: 行バージョンの確認の後、保存で楽観ロックの失敗（同時の更新）が起きたときは 409 になる。 */
+    /**
+     * AC-1: 行バージョンの確認の後、保存で本物の楽観ロックの失敗（同時の更新）が起きたときは 409 になる。
+     * 取得済みの実体（detach 済み）を finder の戻りに差し替え、確認の前に別の要求が行を更新した状況を作る。
+     * 行バージョンの確認は通り、本物の saveAndFlush が Hibernate の失敗を ObjectOptimisticLockingFailureException にする。
+     */
     @Test
     void optimisticLockFailureOnRenameBecomesConflict() {
         int version = service.create(userId, request("先")).version();
-        doThrow(new ObjectOptimisticLockingFailureException("Build", ID))
-                .when(repository)
-                .saveAndFlush(any());
+        Build stale = repository.findByIdAndUserIdAndDeletedAtIsNull(ID, userId).orElseThrow();
+        jdbc.update("UPDATE builds SET version = version + 1, name = ? WHERE id = ?", "相手", ID);
+        doReturn(Optional.of(stale)).when(repository).findByIdAndUserIdAndDeletedAtIsNull(ID, userId);
 
         RenameBuildRequest rename = new RenameBuildRequest("後", version);
 
@@ -100,7 +104,7 @@ class BuildServiceTest {
                 .isInstanceOf(ResourceConflictException.class)
                 .hasCauseInstanceOf(ObjectOptimisticLockingFailureException.class);
         assertThat(jdbc.queryForObject("SELECT name FROM builds WHERE id = ?", String.class, ID))
-                .isEqualTo("先");
+                .isEqualTo("相手");
     }
 
     @Test
