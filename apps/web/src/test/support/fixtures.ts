@@ -14,6 +14,7 @@ import type {
   MasterSkill,
   MasterVersion,
   MasterWeapon,
+  SkillCategory,
   SkillId,
   SkillKind,
   Slot,
@@ -60,26 +61,33 @@ function skill(
   kind: SkillKind,
   maxLevel: number,
   effectsByLevel: Effect[][] = [],
+  category: SkillCategory = 'attack',
 ): MasterSkill {
-  return { id: sk(id), kind, maxLevel, effectsByLevel }
+  return { id: sk(id), kind, maxLevel, category, effectsByLevel }
 }
 
 export const SKILLS: MasterSkill[] = [
   // 剛刃: Lv1〜5。効果は Lv5 だけ（効果が無いレベルの確認用）
   skill('w1', 'weapon', 5, [[], [], [], [], [{ stat: 'attack_add', value: 10 }]]),
-  // 攻撃: Lv1〜3。常時の効果と、条件付きの効果
-  skill('a1', 'armor', 3, [
-    [{ stat: 'attack_add', value: 3 }],
-    [{ stat: 'attack_add', value: 6 }],
+  // 攻撃: Lv1〜3。常時の効果と、条件付きの効果。分類は会心（防具のタブを 2 つの分類に分けるため。ガードは既定の攻撃）
+  skill(
+    'a1',
+    'armor',
+    3,
     [
-      { stat: 'attack_mul', value: 1.04 },
-      { stat: 'attack_add', value: 9 },
-      { stat: 'affinity_add', value: 20, conditionId: cd('weak_point') },
+      [{ stat: 'attack_add', value: 3 }],
+      [{ stat: 'attack_add', value: 6 }],
+      [
+        { stat: 'attack_mul', value: 1.04 },
+        { stat: 'attack_add', value: 9 },
+        { stat: 'affinity_add', value: 20, conditionId: cd('weak_point') },
+      ],
     ],
-  ]),
+    'affinity',
+  ),
   skill('a2', 'armor', 4),
   skill('s1', 'series', 2),
-  skill('g1', 'group', 1),
+  skill('g1', 'group', 1, [], 'support'),
 ]
 
 const slot = (target: Slot['target'], level: Slot['level']): Slot => ({ target, level })

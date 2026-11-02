@@ -27,6 +27,12 @@ describe('SkillDialog（D2）', () => {
   const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]')
   const skillButtons = () => Array.from(dialog()?.querySelectorAll('ul button[aria-pressed]') ?? [])
   const skillNames = () => skillButtons().map((b) => textOf(b.querySelector('span')))
+  const headings = () => Array.from(dialog()?.querySelectorAll('h3') ?? [])
+  /** 分類の見出し（フッターの h3 を除く、タブの中の section の h3） */
+  const categoryHeadings = () =>
+    Array.from(dialog()?.querySelectorAll('[role="tabpanel"] section > h3') ?? []).map((h) =>
+      textOf(h),
+    )
   const tabs = () => Array.from(dialog()?.querySelectorAll('[role="tab"]') ?? [])
 
   async function open(): Promise<Mounted> {
@@ -134,8 +140,9 @@ describe('SkillDialog（D2）', () => {
     await selectTab('防具')
     await click(skillButtons()[1]) // 攻撃
     await click(skillButtons()[0]) // ガード
-    const footer = dialog()!.querySelector('h3')!.parentElement!
-    expect(textOf(footer.querySelector('h3'))).toBe('選択中のスキル（4）')
+    const footerHeading = headings().find((h) => textOf(h).startsWith('選択中のスキル'))!
+    const footer = footerHeading.parentElement!
+    expect(textOf(footerHeading)).toBe('選択中のスキル（4）')
     const rows = Array.from(footer.querySelectorAll(':scope > div:has(ul)')).map((row) => [
       textOf(row.querySelector('span')),
       ...Array.from(row.querySelectorAll('li')).map((li) => textOf(li)),
@@ -231,6 +238,76 @@ describe('SkillDialog（D2）', () => {
       await vi.waitFor(() => expect(dialog()).toBeNull())
       await click(findButton('スキルを選ぶ'))
       expect(dialog()!.querySelector('section[aria-label]')).toBeNull()
+    })
+  })
+
+  // 受入基準 6・7・8・9・10（分類の見出し）。フィクスチャ: 武器=攻撃、防具=ガード(攻撃)・攻撃(会心)、シリーズ=攻撃、グループ=探索・支援
+  describe('分類の見出し', () => {
+    const infoButton = (name: string) =>
+      dialog()!.querySelector<HTMLButtonElement>(`button[aria-label="${name}の説明"]`)!
+
+    it('[AC-6] 空の検索語では、タブの中を分類の見出しで区切り、見出しを用語の順に並べる', async () => {
+      await open()
+      expect(tabs().map((t) => textOf(t))).toEqual(['武器', '防具', 'シリーズ', 'グループ'])
+      expect(categoryHeadings()).toEqual(['攻撃'])
+      await selectTab('防具')
+      expect(categoryHeadings()).toEqual(['攻撃', '会心'])
+    })
+
+    it('[AC-7] 各見出しの下に、その分類のスキルだけを名前順で並べる', async () => {
+      await open()
+      await selectTab('防具')
+      const sections = Array.from(
+        dialog()!.querySelectorAll('[role="tabpanel"] section'),
+      ) as HTMLElement[]
+      const rows = sections.map((s) => [
+        textOf(s.querySelector('h3')),
+        ...Array.from(s.querySelectorAll('ul button[aria-pressed]')).map((b) =>
+          textOf(b.querySelector('span')),
+        ),
+      ])
+      expect(rows).toEqual([
+        ['攻撃', 'ガード'],
+        ['会心', '攻撃'],
+      ])
+    })
+
+    it('[AC-8] その種類に 1 件も無い分類の見出しは出さない', async () => {
+      await open()
+      await selectTab('グループ')
+      expect(categoryHeadings()).toEqual(['探索・支援'])
+      await selectTab('シリーズ')
+      expect(categoryHeadings()).toEqual(['攻撃'])
+    })
+
+    it('[AC-9] 検索語があるあいだは、分類の見出しの無い一覧を出す', async () => {
+      await open()
+      await selectTab('防具')
+      await setQuery('の')
+      expect(categoryHeadings()).toEqual([])
+      expect(headings().map((h) => textOf(h))).toEqual(['選択中のスキル（0）'])
+      expect(skillNames()).toEqual(['火竜の力', '不屈の極み'])
+    })
+
+    it('[AC-10] 別の分類の説明を開くと、先に開いていた説明は閉じる（開くのは 1 つだけ）', async () => {
+      await open()
+      await selectTab('防具')
+      await click(infoButton('ガード'))
+      await click(infoButton('攻撃'))
+      const regions = dialog()!.querySelectorAll('section[aria-label$="の説明"]')
+      expect(regions).toHaveLength(1)
+      expect(regions[0].getAttribute('aria-label')).toBe('攻撃の説明')
+    })
+
+    it('[AC-10] 分類の見出しがあっても、追加・削除とフッターの選択中は変わらない', async () => {
+      const m = await open()
+      await selectTab('防具')
+      await click(skillButtons()[1]) // 攻撃（会心）
+      expect(m.conditions.required).toEqual([{ skillId: sk('a1'), level: 3 }])
+      const footerHeading = headings().find((h) => textOf(h).startsWith('選択中のスキル'))!
+      expect(textOf(footerHeading)).toBe('選択中のスキル（1）')
+      await click(skillButtons()[1])
+      expect(m.conditions.required).toEqual([])
     })
   })
 
