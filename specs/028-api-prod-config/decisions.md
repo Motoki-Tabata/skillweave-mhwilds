@@ -24,3 +24,13 @@
 - 問い: 028 api-prod-config で、Spring Session JDBC の期限切れのセッションの掃除の間隔を変えるか。既定は毎分（`0 * * * * *`。`spring-session-jdbc` 4.1.1 の `JdbcIndexedSessionRepository` で確認）で、リポジトリは `cleanup-cron` を設定していない。API が起きている間は Neon が 5 分使われずに停止する条件を満たせず、最小の 0.25 CU で常時動くと月に約 180 CU 時間となり、Neon Free の 100 CU 時間を超えうる（試算。実測していない）。Cloud Run の最小インスタンス数（0 なら費用はほぼ 0 だが、JVM の起動と Neon の復帰の待ちが重なる。1 なら常駐の料金が出る）とも関わる。
 - 決定: 掃除の間隔（`spring.session.jdbc.cleanup-cron`）を1日1回（UTC 3:00）にし、プロファイル共通の `application.yml` に置く。最小インスタンス数は Q88 の手順を決めるときに見積もって決める。
 - 理由: 期限の切れたセッションは読み出しのときにも無効として扱われるので、掃除の間隔を延ばしても挙動は変わらない。ローカルと本番で間隔を分ける理由は無い。Neon が実際に止まれるかは、接続プールの keepalive や Cloud Run の CPU の割り当てにも左右されるため、公開の作業（Q87・Q88）で実測する。
+
+## Q83（決定: 2026-11-02）
+- 問い: 独自ドメイン（`temp/initial-design.md` §11）をどう取るか。Cookie の同一サイト化の前提（`design/tech-stack.md`「§3.3 の確認結果」の表）。ドメイン名・取得先・DNS の置き場所と、同じく §11 で未決のホスティング費用の上限（無料枠を超えたときの方針）を合わせて決める（仮: Cloudflare で取得して DNS も Cloudflare に置く。費用の上限は Cloud Run・Neon・Cloudflare の無料枠の範囲とし、超えそうなら公開を止めて見直す）
+- 決定: 公開の最初から `skillweave.app` を使い、`workers.dev` で先に出さない（2026-11-02 時点で未購入）。Cloudflare Registrar で取得し、DNS も Cloudflare に置く。費用は無料枠の範囲内とする。Cloud Run に `max-instances=1` と予算アラートを設定し、超えそうなら公開を止めて見直す。
+- 理由: 後からオリジンを変えると、共有 URL・端末内の下書き・Discord の redirect URI に影響する。`.com`・`.net`・`.org` は登録済みで、`.app` は RDAP で登録が無かった（2026-11-02。空きと価格は購入画面で確かめる）。Workers の独自ドメインは DNS が Cloudflare にあることを要する。Google Cloud の通常の予算は通知だけで支出を止めないので、インスタンス数の上限で最悪の費用を抑える。
+
+## Q87（決定: 2026-11-02）
+- 問い: マネージド DB（`temp/initial-design.md` §11）を Neon に確定するか。Neon は PostgreSQL 18 を提供している（`design/tech-stack.md`「§3.3 の確認結果」）。あわせて、地域（Cloud Run との距離）、無料枠、マイグレーションを流す時機（いまは API の起動時に Flyway が流す）と、`design/tech-stack.md`「更新の方針」の PostgreSQL のメジャーの見送りの解除を決める（仮: Neon に確定し、Cloud Run に近い地域を選ぶ。マイグレーションは今と同じく API の起動時に流す）
+- 決定: Neon の無料プランに確定する。地域は `aws-ap-southeast-1`（Singapore）で、コンピュートの最大は 0.25 CU にする。マイグレーションを流す時機と PostgreSQL のメジャーの見送りの解除は、Q129 に分けた。
+- 理由: 無料枠はカードが不要で、枠を超えても課金されず停止するので費用が増えない。長く使わなくてもプロジェクトは一時停止されない。Neon に東京の地域は無く、最も近いのは Singapore である（地域は作成後に変えられない）。Supabase は東京を選べるが、無料枠は 1 週間使わないと一時停止し、自動バックアップも無い。0.25 CU は月 100 CU 時間で 400 時間動かせる。

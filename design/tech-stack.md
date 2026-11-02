@@ -194,7 +194,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
   - **@types/node**: メジャーは Node 本体のメジャーに合わせる。
   - **vitest と @vitest/coverage-v8**: 同じ版にそろえて、1本の PR で上げる。
   - **pnpm**: 上記「版の選び方」1 に従う。
-  - **PostgreSQL**: メジャーは、本番のマネージド DB（Neon が第一候補）の方針が決まるまで見送る。
+  - **PostgreSQL**: 本番のマネージド DB は Neon に決めた（`specs/028-api-prod-config/decisions.md` Q87）。メジャーは、見送りの解除を決めるまで見送る（`specs/open-questions.md` Q129）。
 
 ### 見送り・是正待ちの一覧（2026-10-02 時点）
 
@@ -216,7 +216,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 | vite-plugin-pwa と Vite のメジャー版 | peer は適合。導入はサプライチェーン上の理由で保留（上記「判断 3」） |
 | HiGHS WASM（npm `highs`） | 1.15.3（2026-09-11）。MIT。ESM（`build/highs.mjs`）と型定義あり、peer 依存なし。WASM は `highs/runtime` で取り出せる。採用（性能は下記「HiGHS の測定結果」） |
 | TypeScript 7 と typescript-eslint | 不適合のまま（上記「判断 1」） |
-| Cookie の同一サイト化 | 独自ドメインが未決のため未対応。dev では Vite の proxy で同一オリジンに見せている |
+| Cookie の同一サイト化 | Web と API を同一オリジンにする（`specs/028-api-prod-config/decisions.md` Q84）。ドメインは `skillweave.app`（同 Q83）。dev では Vite の proxy で同一オリジンに見せている |
 
 ---
 
@@ -453,6 +453,20 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 次の対策は起票していない（`expectedDamage` は 5 秒に読み替えて合格・`defense` は 3 秒に合格のため）。オフの k=3 解ありの 3 秒超（3.35 秒）を縮める必要が出たら、(b) で縮まなかった定式化の見直しを新しい Q として起票する。
 
 ---
+
+## 本番の構成（2026-11-02）
+
+未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+
+| 用途 | 採用 | 無料枠と設定 |
+|---|---|---|
+| ドメイン・DNS | Cloudflare Registrar（`skillweave.app`） | ドメイン代だけ費用がかかる |
+| Web・マスターデータ | Cloudflare Workers Static Assets | 静的配信は無料で無制限。Worker の実行は 10 万回/日で、`/api/*` の転送がこれを消費する |
+| API | Cloud Run（Singapore を第一候補に、東京とも測って決める） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト。課金アカウントが要り、超えると課金される。`max-instances=1` と予算アラートを設定する |
+| DB | Neon（`aws-ap-southeast-1`。最大 0.25 CU） | 月 100 CU 時間・1 GB・転送量 5 GB。超えると課金されず止まる |
+| イメージの保管 | Artifact Registry | 0.5 GiB。最新版だけを残す |
+
+Web は Pages でなく Workers にする。どちらも静的配信は無料で、`/api/*` の転送は同じ Workers の枠を消費する。Cloudflare の資料は Workers を機能の広い基盤とし、Pages からの移行手順を示している（Pages の廃止の告知は確認していない）。
 
 ## CI
 
