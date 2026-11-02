@@ -2,6 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach } from 'vitest'
+import type { MasterBundle, SkillCategory } from '../../main/index.ts'
 import type { MhdbArmorSet, MhdbInput } from '../../main/pipeline/mhdb.ts'
 
 export const CONFIG = { repository: 'owner/repo', commit: 'abc123', version: '9.9.9' }
@@ -156,4 +157,25 @@ export function useTempDirs(): () => Promise<string> {
     dirs.push(dir)
     return dir
   }
+}
+
+/** makeInput() の4スキルの分類（overlay の categories の YAML） */
+export const CATEGORIES_YAML = `categories:
+  sk:100: attack
+  sk:101: weapon_specific
+  sk:200: support
+  sk:201: defense
+`
+
+/** makeInput() の4スキルの分類 */
+export const CATEGORIES: Record<string, SkillCategory> = {
+  'sk:100': 'attack',
+  'sk:101': 'weapon_specific',
+  'sk:200': 'support',
+  'sk:201': 'defense',
+}
+
+/** 変換の結果の bundle に、フィクスチャの分類を入れる（overlay を通さない検証のテスト用） */
+export function assignCategories(bundle: MasterBundle): void {
+  for (const skill of bundle.skills) skill.category = CATEGORIES[skill.id] ?? skill.category
 }

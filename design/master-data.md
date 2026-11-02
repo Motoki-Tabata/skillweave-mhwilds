@@ -62,7 +62,7 @@ MHDB 自身の `id` は取り込み直しで変わりうるので使わず、gam
 
 ## 6. overlay の書式と検証
 
-overlay の最上位のキーは `replace`・`appraisedCharm`・`readings`・`conditions`・`effects` だけ。
+overlay の最上位のキーは `replace`・`appraisedCharm`・`readings`・`conditions`・`effects`・`categories` だけ。
 
 ```yaml
 replace:
@@ -88,6 +88,9 @@ effects:                    # 任意。スキル ID → レベルごとの効果
   sk:422666624:             # 効果の無いレベルは空の配列
     - []
     - - { stat: attack_mul, value: 1.05, conditionId: cd:heroics }
+categories:                 # 任意。スキル ID → 分類 ID。全ファイルを通じて同じ ID は1回だけ書ける
+  sk:1: attack              # 攻撃
+  sk:1425756032: resistance # 火耐性
 ```
 
 存在しない ID・存在しない項目・未知のキー・同じ `id` と `field` の重複・YAML の構文エラーは、ファイル名と行番号を示して生成を失敗させる。
@@ -107,6 +110,12 @@ effects:                    # 任意。スキル ID → レベルごとの効果
 
 条件の名前は ja・en の辞書の項目（`{ name }`）に出す。
 
+`categories` は、スキルの分類（`MasterSkill.category`）を定める。分類 ID は `attack`・`affinity`・`element`・`sharpness`・`weapon_specific`・`defense`・`resistance`・`mobility`・`support` のどれか（値の一覧の正は `packages/data/src/main/pipeline/categories.ts` の `SKILL_CATEGORIES`。表示の順と表示名の正は Web の定数）。`replace` で `category` を置き換えることは禁止する（定義の経路を1つにするため）。次は、ファイル名と行・桁を示して生成を失敗させる。
+
+- `categories` がキーと値の組でない・値が文字列でない。
+- 存在しない ID・スキル（`sk:`）以外の ID・同じスキルの重複（ファイルをまたぐものを含む）・一覧に無い分類 ID。
+- `replace` での `category` の置き換え。
+
 出力の前に、次を検証する。
 
 - ID の重複がない。
@@ -119,6 +128,7 @@ effects:                    # 任意。スキル ID → レベルごとの効果
 - ja の辞書のすべてのスキル（武器・防具・シリーズ・グループ）が `reading` を持ち、その文字種が上の規則に合う（規則名 `dictionary-reading`）。en の辞書とスキル以外の項目には `reading` が無い。MHDB の更新でスキルが増えたときは、読みを足すまで生成が失敗する。
 - 効果（規則名 `skill-effects`）: すべてのスキルの `effectsByLevel` の長さが 0 か最大レベルで、`stat` と値の規則が上の overlay の規則と同じで、`conditionId` が `conditions` にある。
 - 発動条件（規則名 `conditions`）: ID の形式が §4 に合い、重複がない。
+- スキルの分類（規則名 `skill-category`）: すべてのスキルの `category` が分類 ID の一覧のどれかである。`categories` に書かれていないスキル（変換が未割当の値を入れる）は違反になる。
 - 抽選テーブル（`appraisedCharm`。規則名 `appraised-charm`）: `groups` の `group` の名前が重複しない。`patterns[].skillGroups` の要素が null か `groups` にある名前で、長さが 3 以下。`slotPatterns` の要素（スロットの並び）の長さが 3 以下。`groups[].skills` が武器スキル・防具スキルだけ。鑑定護石のレア度の範囲（5〜8）は検証しない。
 
 MHDB の誤りで防具セットの間の定義が食い違うときは、overlay が `thresholds` を置き換えることで解消する（検証は、解消していない不一致を違反にする）。
@@ -128,6 +138,7 @@ MHDB の誤りで防具セットの間の定義が食い違うときは、overla
 - `dist/master-<版>.json`・`master-<版>.ja.json`・`master-<版>.en.json`。ja・en 以外の言語は出さない。
 - `MasterBundle.conditions`（`{ id }` の配列）は `id` の昇順に出す。
 - ja の辞書のスキルの項目だけが、任意の `reading`（`readings` の値）を持つ。en の辞書とスキル以外の項目には出さない。`@swv/data` のエントリの `DictionaryEntry` は `reading?: string` を持つ。
+- すべてのスキル（`MasterSkill`）が必須の `category`（`categories` の値）を持つ。辞書には出さない。
 - キーは再帰的に昇順、インデント2・末尾に改行1つ。配列は各集合を `id` の昇順、`skills` を `skillId` の昇順、`thresholds` を `pieces` の昇順にする。文字列の比較はコードユニット順で行い、実行環境のロケールに依存させない。
 - 出力しようとする版のファイルが既にあり中身が異なるときは、版を上げるよう示して失敗し、既存のファイルを上書きしない。
 - 新しい版を出力したら、`dist/` から旧版のファイルを削除し、現行の版だけを残す。

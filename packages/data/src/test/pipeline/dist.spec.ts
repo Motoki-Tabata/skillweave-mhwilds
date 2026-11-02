@@ -2,6 +2,7 @@ import { readFile, readdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import type { Effect, MasterBundle, MasterDictionary } from '../../main/index.ts'
+import { SKILL_CATEGORIES } from '../../main/pipeline/categories.ts'
 import { MASTER_VERSION, MHDB_COMMIT, MHDB_REPOSITORY } from '../../main/pipeline/config.ts'
 import { formatViolation, validate } from '../../main/pipeline/validate.ts'
 
@@ -32,10 +33,10 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
     expect([ja.version, en.version]).toEqual([MASTER_VERSION, MASTER_VERSION])
   })
 
-  it('全防具に rank があり、版が 2026.10.4 である（12。006 受入基準 3）', async () => {
+  it('全防具に rank があり、版が 2026.10.5 である（12。006 受入基準 3）', async () => {
     const bundle = await readJson<MasterBundle>(BUNDLE)
-    expect(bundle.version).toBe('2026.10.4')
-    expect(MASTER_VERSION).toBe('2026.10.4')
+    expect(bundle.version).toBe('2026.10.5')
+    expect(MASTER_VERSION).toBe('2026.10.5')
     expect(bundle.armors.length).toBeGreaterThan(0)
     for (const armor of bundle.armors) {
       expect(['low', 'high', 'master'], armor.id).toContain(armor.rank)
@@ -61,6 +62,18 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
       },
     })
     expect(violations.map(formatViolation)).toEqual([])
+  })
+
+  it('すべてのスキルが 9 つの分類のどれか 1 つを持ち、代表のスキルの割当が正しい（022 AC-1）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    expect(bundle.skills.length).toBeGreaterThan(0)
+    for (const skill of bundle.skills) {
+      expect(SKILL_CATEGORIES, skill.id).toContain(skill.category)
+    }
+    const category = (id: string) => bundle.skills.find((s) => s.id === id)?.category
+    expect(category('sk:1')).toBe('attack') // 攻撃
+    expect(category('sk:-2096489472')).toBe('affinity') // 見切り
+    expect(category('sk:1425756032')).toBe('resistance') // 火耐性
   })
 
   it('発動条件の一覧が id の昇順で、ja・en の辞書に名前がある（006 受入基準 1）', async () => {

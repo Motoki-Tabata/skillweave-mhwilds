@@ -36,6 +36,18 @@ export interface SkillLevel {
 
 export type SkillKind = 'weapon' | 'armor' | 'series' | 'group'
 
+/** スキルの効果による分類。overlay の `categories` で 1 スキルに 1 つ割り当てる */
+export type SkillCategory =
+  | 'attack'
+  | 'affinity'
+  | 'element'
+  | 'sharpness'
+  | 'weapon_specific'
+  | 'defense'
+  | 'resistance'
+  | 'mobility'
+  | 'support'
+
 /** 火力計算用の効果。データ駆動にして、スキル追加でコードを変えずに済むようにする */
 export type EffectStat =
   | 'attack_add'
@@ -60,6 +72,8 @@ export interface MasterCondition {
 export interface MasterSkill {
   id: SkillId
   kind: SkillKind
+  /** 効果による分類（スキルを選ぶ画面の見出し）。overlay の `categories` で定義する */
+  category: SkillCategory
   maxLevel: number
   /** index 0 = Lv1 の効果。火力に関係しないスキルは空配列。手作業のオーバーレイで埋める */
   effectsByLevel: Effect[][]

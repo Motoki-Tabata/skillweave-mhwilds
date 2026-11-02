@@ -10,7 +10,7 @@ import {
 } from '../../main/pipeline/overlay.ts'
 import { serializeBundle } from '../../main/pipeline/serialize.ts'
 import { formatViolation, validate, type Violation } from '../../main/pipeline/validate.ts'
-import { CONFIG, READINGS, makeInput } from '../support/fixtures.ts'
+import { CONFIG, READINGS, assignCategories, makeInput } from '../support/fixtures.ts'
 
 const file = (name: string, text: string): OverlayFile => ({ name, text })
 const base = () => convert(makeInput(), CONFIG)
@@ -270,6 +270,7 @@ describe('出力前の検証の効果と発動条件（受入基準 2・3）', (
   function load(): { bundle: MasterBundle; dictionaries: ReturnType<typeof base>['dictionaries'] } {
     const result = apply(file('effects.yaml', VALID))
     if (!result.ok) throw new Error('失敗')
+    assignCategories(result.bundle)
     const { dictionaries } = base()
     return {
       bundle: result.bundle,

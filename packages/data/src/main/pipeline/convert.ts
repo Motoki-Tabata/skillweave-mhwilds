@@ -18,6 +18,7 @@ import type {
   SlotLevel,
   SlotTarget,
 } from '../index.ts'
+import { UNASSIGNED_CATEGORY } from './categories.ts'
 import { ARMOR_RANK_BY_RARITY } from './config.ts'
 import { formatList } from './format.ts'
 import { armorId, charmId, decorationId, setBonusId, skillId, weaponId } from './ids.ts'
@@ -294,6 +295,7 @@ function buildSkills(input: MhdbInput, errors: string[]): MasterSkill[] {
       kind: SKILL_KINDS[skill.kind] ?? 'armor',
       maxLevel: Math.max(0, ...skill.ranks.map((rank) => rank.level)),
       effectsByLevel: [],
+      category: UNASSIGNED_CATEGORY,
     }
   })
 }

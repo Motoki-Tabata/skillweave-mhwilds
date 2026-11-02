@@ -1,0 +1,8 @@
+# 022 skill-category タスク
+
+- [ ] T1 [main]           委譲の前の常時許可外の変更: `design/master-data.md` の §6 に overlay の `categories` の書式と検証規則・`replace` での `category` の置き換えの禁止・出力の前の検証の規則 `skill-category` を、§7 にスキルの分類の出力を足す（plan D3〜D6）     refs spec §受入基準 AC-1, AC-2, AC-3, AC-4
+- [ ] T2 [data-agent]     `SkillCategory` の型と `MasterSkill.category`（D1）、`pipeline/categories.ts`（D2）、overlay の `categories` の読み込みとファイル名・行・桁つきのエラー（D4）、`replace` の禁止（D5）、未割当の値と規則 `skill-category`（D6）、`MASTER_VERSION` を `2026.10.5` に上げて `dist.spec.ts` の版を追従（D7）、`overlays/categories.yaml` に全 179 件の割当（D3・D8。迷ったものは完了報告に列挙）、テスト（D9）。`dist/` は書かない（T3 でメインが再生成する）。このタスクの検証で想定内の失敗は plan D16 のとおり     refs spec §受入基準 AC-1, AC-2, AC-3, AC-4, AC-5
+- [ ] T3 [main]           `pnpm --filter @swv/data run generate` で `dist/` を `2026.10.5` に再生成する（旧版の 3 ファイルは生成のコマンドが削除する）。`generate:check` の一致・`pnpm --filter @swv/data run test:unit` の成功・`2026.10.4` との比較（版と `category` を除いて一致）を確かめる（plan D7）     refs spec §受入基準 AC-1, AC-5
+- [ ] T4 [solver-agent]   `src/test/support/builders.ts` の `masterSkill()` に `category` を足し、テストの `MasterSkill` のリテラルを型検査で洗い出して追従する。`src/main/**` は変えない。`apps/web` の型検査の失敗は想定内（plan D14・D16）     refs spec §受入基準 AC-11
+- [ ] T5 [web-agent]      `constants/labels.ts` の `SKILL_CATEGORIES` とその検査（plan D10）、`SkillDialog.vue` の分類の区切りと見出し（plan D11・D12。`SkillPickerList.vue` と `stores/master.ts` の `skillsByKind` は変えない）、`fixtures.ts` と `SkillDialog.spec.ts` の既存のフッターの h3 の取得の追従と新しいテスト（plan D13）     refs spec §受入基準 AC-6, AC-7, AC-8, AC-9, AC-10, AC-11
+- [ ] T6 [e2e-agent]      新しい `e2e/skill-category.spec.ts` と `e2e/support/masterData.ts` の `category`（plan D15）     refs spec §受入基準 AC-12

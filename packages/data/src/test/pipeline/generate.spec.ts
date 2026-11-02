@@ -5,7 +5,7 @@ import type { MasterBundle, MasterDictionary } from '../../main/index.ts'
 import { MASTER_VERSION, MHDB_COMMIT, MHDB_REPOSITORY } from '../../main/pipeline/config.ts'
 import type { FetchFn } from '../../main/pipeline/fetch.ts'
 import { run } from '../../main/pipeline/generate.ts'
-import { READINGS_YAML, makeInput, useTempDirs } from '../support/fixtures.ts'
+import { CATEGORIES_YAML, READINGS_YAML, makeInput, useTempDirs } from '../support/fixtures.ts'
 
 const makeTempDir = useTempDirs()
 const quiet = (): void => undefined
@@ -35,6 +35,7 @@ async function packageDir(): Promise<string> {
   const dir = `${await makeTempDir()}/`
   await mkdir(join(dir, 'overlays'))
   await writeFile(join(dir, 'overlays', 'readings.yaml'), READINGS_YAML)
+  await writeFile(join(dir, 'overlays', 'categories.yaml'), CATEGORIES_YAML)
   return dir
 }
 
@@ -89,6 +90,34 @@ describe('生成の入口（受入基準 1・2・10）', () => {
     await writeFile(join(dir, 'overlays', 'readings.yaml'), 'readings:\n  sk:100: こうげき\n')
     await expect(generate(dir, false)).rejects.toThrow(/dictionary-reading[\s\S]*sk:101/)
     await expect(readdir(join(dir, 'dist'))).rejects.toThrow()
+  })
+
+  it('分類の無いスキルが残ると、スキル ID を示し、出力を書かずに失敗する（022 AC-4）', async () => {
+    const dir = await packageDir()
+    await writeFile(join(dir, 'overlays', 'categories.yaml'), 'categories:\n  sk:100: attack\n')
+    await expect(generate(dir, false)).rejects.toThrow(
+      /skill-category[\s\S]*sk:101: 分類がありません/,
+    )
+    await expect(readdir(join(dir, 'dist'))).rejects.toThrow()
+  })
+
+  it('categories の不正は、ファイル名と行・桁を示し、出力を書かずに失敗する（022 AC-3）', async () => {
+    const dir = await packageDir()
+    await writeFile(join(dir, 'overlays', 'categories.yaml'), 'categories:\n  sk:999: attack\n')
+    await expect(generate(dir, false)).rejects.toThrow(/categories\.yaml:2:3: .*sk:999/)
+    await expect(readdir(join(dir, 'dist'))).rejects.toThrow()
+  })
+
+  it('分類は dist/ のスキルの category に出る（022 AC-1）', async () => {
+    const dir = await packageDir()
+    await generate(dir, false)
+    const bundle = JSON.parse(await readFile(bundlePath(dir), 'utf8')) as MasterBundle
+    expect(bundle.skills.map((s) => [s.id, s.category])).toEqual([
+      ['sk:100', 'attack'],
+      ['sk:101', 'weapon_specific'],
+      ['sk:200', 'support'],
+      ['sk:201', 'defense'],
+    ])
   })
 
   it('2回目はキャッシュを使ってネットワークに接続せず、同じ内容になる', async () => {

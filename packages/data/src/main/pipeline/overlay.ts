@@ -2,8 +2,16 @@ import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { LineCounter, isMap, isScalar, isSeq, parseDocument } from 'yaml'
 import type { Node, YAMLMap } from 'yaml'
-import type { ConditionId, Effect, EffectStat, MasterBundle, MasterDictionary } from '../index.ts'
+import type {
+  ConditionId,
+  Effect,
+  EffectStat,
+  MasterBundle,
+  MasterDictionary,
+  SkillCategory,
+} from '../index.ts'
 import type { SetBonusMismatch } from './convert.ts'
+import { SKILL_CATEGORIES } from './categories.ts'
 import { CONDITION_ID_PATTERN, effectProblem } from './effects.ts'
 import { compareCodeUnits } from './sort.ts'
 
@@ -83,6 +91,11 @@ interface ReadingEntry {
   value: string
 }
 
+interface CategoryEntry extends Position {
+  id: string
+  value: string
+}
+
 interface Position {
   file: string
   line: number
@@ -109,6 +122,7 @@ interface EffectsEntry extends Position {
 interface Parsed {
   replacements: Replacement[]
   readings: ReadingEntry[]
+  categories: CategoryEntry[]
   conditions: ConditionEntry[]
   effects: EffectsEntry[]
   appraisedCharm?: {
@@ -142,7 +156,7 @@ function parseFile(file: OverlayFile, errors: OverlayError[], parsed: Parsed): v
   if (!isMap(root)) {
     fail(
       root,
-      '最上位はキーと値の組（replace・appraisedCharm・readings・conditions・effects）でなければなりません',
+      '最上位はキーと値の組（replace・appraisedCharm・readings・categories・conditions・effects）でなければなりません',
     )
     return
   }
@@ -155,6 +169,8 @@ function parseFile(file: OverlayFile, errors: OverlayError[], parsed: Parsed): v
       parseAppraisedCharm(value, file.name, at, fail, parsed)
     } else if (key === 'readings') {
       parseReadings(value, file.name, at, fail, parsed)
+    } else if (key === 'categories') {
+      parseCategories(value, file.name, at, fail, parsed)
     } else if (key === 'conditions') {
       parseConditions(value, file.name, at, fail, parsed)
     } else if (key === 'effects') {
@@ -162,7 +178,7 @@ function parseFile(file: OverlayFile, errors: OverlayError[], parsed: Parsed): v
     } else {
       fail(
         pair.key as Node,
-        `未知のキー ${key} です（replace・appraisedCharm・readings・conditions・effects だけを許します）`,
+        `未知のキー ${key} です（replace・appraisedCharm・readings・categories・conditions・effects だけを許します）`,
       )
     }
   }
@@ -212,6 +228,29 @@ function parseReadings(node: Node | null, file: string, at: At, fail: Fail, pars
       continue
     }
     parsed.readings.push({ file, ...at(keyNode), id, value: valueNode.value })
+  }
+}
+
+function parseCategories(
+  node: Node | null,
+  file: string,
+  at: At,
+  fail: Fail,
+  parsed: Parsed,
+): void {
+  if (!isMap(node)) {
+    fail(node, 'categories はスキル ID と分類 ID の組でなければなりません')
+    return
+  }
+  for (const pair of node.items) {
+    const keyNode = pair.key as Node
+    const valueNode = pair.value as Node | null
+    const id = keyName(keyNode)
+    if (!isScalar(valueNode) || typeof valueNode.value !== 'string') {
+      fail(valueNode ?? keyNode, `categories の ${id} の値は文字列でなければなりません`)
+      continue
+    }
+    parsed.categories.push({ file, ...at(keyNode), id, value: valueNode.value })
   }
 }
 
@@ -390,6 +429,11 @@ function applyReplacement(
       `${id} の effectsByLevel は replace で置き換えられません（effects で定義してください）`,
     )
   }
+  if (field === 'category') {
+    return fail(
+      `${id} の category は replace で置き換えられません（categories で定義してください）`,
+    )
+  }
   if (field === 'id' || !Object.hasOwn(target, field)) {
     return fail(`項目 ${field} が ${id} に存在しないか、置き換えられない項目です`)
   }
@@ -412,7 +456,13 @@ export function applyOverlays(
   baseMismatches: SetBonusMismatch[],
 ): OverlayResult {
   const errors: OverlayError[] = []
-  const parsed: Parsed = { replacements: [], readings: [], conditions: [], effects: [] }
+  const parsed: Parsed = {
+    replacements: [],
+    readings: [],
+    categories: [],
+    conditions: [],
+    effects: [],
+  }
   const sorted = [...files].sort((a, b) => compareCodeUnits(a.name, b.name))
   for (const file of sorted) parseFile(file, errors, parsed)
 
@@ -431,6 +481,7 @@ export function applyOverlays(
   }
 
   const readings = collectReadings(parsed.readings, bundle, errors)
+  applyCategories(parsed.categories, bundle, errors)
   const conditionNames = collectConditions(parsed.conditions, errors)
   applyEffects(
     parsed.effects,
@@ -548,6 +599,48 @@ function toEffect(effect: ParsedEffect, conditionIds: ReadonlySet<string>): Effe
   }
   result.conditionId = effect.conditionId as ConditionId
   return result
+}
+
+/** `categories` を検査して、スキルの `category` に入れる */
+function applyCategories(
+  entries: CategoryEntry[],
+  bundle: MasterBundle,
+  errors: OverlayError[],
+): void {
+  const skills = new Map(bundle.skills.map((skill) => [skill.id as string, skill]))
+  const known = new Set<string>(
+    Object.values(COLLECTIONS).flatMap((name) =>
+      (bundle[name] as unknown as { id: string }[]).map((entry) => entry.id),
+    ),
+  )
+  const seen = new Map<string, CategoryEntry>()
+  for (const entry of entries) {
+    const { file, line, col, id, value } = entry
+    const fail = (message: string): void => {
+      errors.push({ file, line, col, message })
+    }
+    const skill = skills.get(id)
+    const previous = seen.get(id)
+    if (previous) {
+      fail(
+        `categories の ${id} が複数の箇所にあります（先の定義: ${previous.file}:${previous.line}）`,
+      )
+    } else if (!skill) {
+      fail(
+        known.has(id)
+          ? `categories の ${id} はスキル（sk:）ではありません`
+          : `categories の ID ${id} が存在しません`,
+      )
+    } else if (!(SKILL_CATEGORIES as readonly string[]).includes(value)) {
+      seen.set(id, entry)
+      fail(
+        `categories の ${id} の分類 ${JSON.stringify(value)} は ${SKILL_CATEGORIES.join('・')} のどれでもありません`,
+      )
+    } else {
+      seen.set(id, entry)
+      skill.category = value as SkillCategory
+    }
+  }
 }
 
 /** 読みの ID を検査して、スキル ID → 読みの組にする */

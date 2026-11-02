@@ -3,7 +3,13 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { MasterBundle } from '@swv/data'
 import { WEAPON_TYPES, weaponTypeName, weaponTypeOrder } from '@/constants/weaponTypes'
-import { ARMOR_RANKS, SKILL_KINDS, armorRankLabel, skillKindLabel } from '@/constants/labels'
+import {
+  ARMOR_RANKS,
+  SKILL_CATEGORIES,
+  SKILL_KINDS,
+  armorRankLabel,
+  skillKindLabel,
+} from '@/constants/labels'
 
 // 受入基準 3・4・5（定数が現行マスターを覆う）。現行の版は vite.config.ts が埋め込む __SWV_MASTER__ が正。
 const master = JSON.parse(
@@ -38,6 +44,25 @@ describe('定数が現行のマスターを覆う', () => {
     const kinds = new Set(master.skills.map((s) => s.kind))
     const defined = new Set(SKILL_KINDS.map((k) => k.id))
     for (const kind of kinds) expect(defined, `スキルの種類 ${kind}`).toContain(kind)
+  })
+
+  // 受入基準 6（分類の表示名と順。定数に無い分類のスキルは一覧から消える）
+  it('[AC-6] マスターのすべてのスキルの分類に表示名がある。表示の順は固定', () => {
+    const defined = new Set(SKILL_CATEGORIES.map((c) => c.id))
+    const categories = new Set(master.skills.map((s) => s.category))
+    expect(categories.size).toBeGreaterThan(0)
+    for (const category of categories) expect(defined, `分類 ${category}`).toContain(category)
+    expect(SKILL_CATEGORIES.map((c) => [c.id, c.label])).toEqual([
+      ['attack', '攻撃'],
+      ['affinity', '会心'],
+      ['element', '属性・状態異常'],
+      ['sharpness', '斬れ味'],
+      ['weapon_specific', '武器種固有'],
+      ['defense', '防御・回復'],
+      ['resistance', '耐性'],
+      ['mobility', '行動・スタミナ'],
+      ['support', '探索・支援'],
+    ])
   })
 })
 

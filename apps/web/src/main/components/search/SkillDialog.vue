@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { DialogClose } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SKILL_KINDS } from '@/constants/labels'
+import { SKILL_CATEGORIES, SKILL_KINDS } from '@/constants/labels'
 import { matchesSkillQuery } from '@/lib/text'
 import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
@@ -52,6 +52,21 @@ const searchResults = computed<MasterSkill[]>(() =>
       query.value,
     ),
   ),
+)
+
+/** 種類ごとに、分類の順で区切ったスキル（0 件の分類は出さない。分類の中は名前順のまま）。 */
+const sectionsByKind = computed(
+  () =>
+    new Map(
+      SKILL_KINDS.map((kind) => {
+        const skills = master.skillsByKind.get(kind.id) ?? []
+        const sections = SKILL_CATEGORIES.map((category) => ({
+          ...category,
+          skills: skills.filter((skill) => skill.category === category.id),
+        })).filter((section) => section.skills.length > 0)
+        return [kind.id, sections] as const
+      }),
+    ),
 )
 
 /** フッターに出す選択中のスキル（種類ごと）。 */
@@ -103,10 +118,20 @@ function onOpenChange(open: boolean): void {
           </TabsTrigger>
         </TabsList>
         <TabsContent v-for="kind in SKILL_KINDS" :key="kind.id" :value="kind.id">
-          <SkillPickerList
-            v-model:open-id="openSkillId"
-            :skills="master.skillsByKind.get(kind.id) ?? []"
-          />
+          <div class="flex flex-col gap-4">
+            <section
+              v-for="section in sectionsByKind.get(kind.id) ?? []"
+              :key="section.id"
+              class="flex flex-col gap-2"
+            >
+              <h3
+                class="text-muted-foreground flex items-center gap-2 text-xs font-bold tracking-[0.12em] before:size-1.5 before:shrink-0 before:bg-primary before:content-[''] after:h-px after:flex-1 after:bg-border after:content-['']"
+              >
+                {{ section.label }}
+              </h3>
+              <SkillPickerList v-model:open-id="openSkillId" :skills="section.skills" />
+            </section>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
