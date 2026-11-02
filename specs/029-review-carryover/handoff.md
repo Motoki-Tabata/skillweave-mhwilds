@@ -50,6 +50,8 @@
 |---|---|---|
 | solver | solver-agent | 0396e68 |
 | api | api-agent | 4a0e226 |
+| web | web-agent | 5141b67 |
+| E2E | e2e-agent | ce032ee |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
@@ -69,6 +71,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - @MockitoSpyBean の Spring Data リポジトリでは doAnswer 内の callRealMethod() が使えない（Cannot call abstract real method）。楽観ロックの競合テストは doThrow で代替した（plan D1 の許容した代替）
+- apps/web/tsconfig.e2e.json には DOM 型が無い。locator.evaluate 内で window・getComputedStyle を使うと vue-tsc が落ち webServer が起動せず e2e 全体が走らない（e2e-agent の報告）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
