@@ -2,11 +2,14 @@ package io.github.motokitabata.skillweave.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import io.github.motokitabata.skillweave.TestcontainersConfiguration;
 import io.github.motokitabata.skillweave.common.exception.ResourceConflictException;
 import io.github.motokitabata.skillweave.dto.request.CreateCharmRequest;
+import io.github.motokitabata.skillweave.dto.request.UpdateCharmRequest;
 import io.github.motokitabata.skillweave.entity.CharmPayload;
 import io.github.motokitabata.skillweave.repository.CharmRepository;
 import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
@@ -19,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 /** 護石の作成で、主キー違反だけが 409 になり、ほかの DB の拒否は ID の衝突に化けないこと。 */
@@ -69,6 +73,23 @@ class CharmServiceTest {
         assertThatThrownBy(() -> service.create(userId, second))
                 .isInstanceOf(ResourceConflictException.class)
                 .hasMessage(CharmService.ID_EXISTS);
+        assertThat(jdbc.queryForObject("SELECT payload->>'rarity' FROM charms WHERE id = ?", String.class, ID))
+                .isEqualTo("8");
+    }
+
+    /** AC-1: 行バージョンの確認の後、保存で楽観ロックの失敗（同時の更新）が起きたときは 409 になる。 */
+    @Test
+    void optimisticLockFailureOnUpdateBecomesConflict() {
+        int version = service.create(userId, request(8, 1)).version();
+        doThrow(new ObjectOptimisticLockingFailureException("Charm", ID))
+                .when(repository)
+                .saveAndFlush(any());
+
+        UpdateCharmRequest update = new UpdateCharmRequest(new CharmPayload(5, List.of(), List.of()), 1, version);
+
+        assertThatThrownBy(() -> service.update(userId, ID, update))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasCauseInstanceOf(ObjectOptimisticLockingFailureException.class);
         assertThat(jdbc.queryForObject("SELECT payload->>'rarity' FROM charms WHERE id = ?", String.class, ID))
                 .isEqualTo("8");
     }

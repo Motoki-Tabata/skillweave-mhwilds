@@ -2,11 +2,14 @@ package io.github.motokitabata.skillweave.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import io.github.motokitabata.skillweave.TestcontainersConfiguration;
 import io.github.motokitabata.skillweave.common.exception.ResourceConflictException;
 import io.github.motokitabata.skillweave.dto.request.CreateBuildRequest;
+import io.github.motokitabata.skillweave.dto.request.RenameBuildRequest;
 import io.github.motokitabata.skillweave.entity.BuildPayload;
 import io.github.motokitabata.skillweave.repository.BuildRepository;
 import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
@@ -20,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import tools.jackson.databind.ObjectMapper;
 
@@ -78,6 +82,23 @@ class BuildServiceTest {
         assertThatThrownBy(() -> service.create(userId, second))
                 .isInstanceOf(ResourceConflictException.class)
                 .hasMessage(BuildService.ID_EXISTS);
+        assertThat(jdbc.queryForObject("SELECT name FROM builds WHERE id = ?", String.class, ID))
+                .isEqualTo("先");
+    }
+
+    /** AC-1: 行バージョンの確認の後、保存で楽観ロックの失敗（同時の更新）が起きたときは 409 になる。 */
+    @Test
+    void optimisticLockFailureOnRenameBecomesConflict() {
+        int version = service.create(userId, request("先")).version();
+        doThrow(new ObjectOptimisticLockingFailureException("Build", ID))
+                .when(repository)
+                .saveAndFlush(any());
+
+        RenameBuildRequest rename = new RenameBuildRequest("後", version);
+
+        assertThatThrownBy(() -> service.rename(userId, ID, rename))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasCauseInstanceOf(ObjectOptimisticLockingFailureException.class);
         assertThat(jdbc.queryForObject("SELECT name FROM builds WHERE id = ?", String.class, ID))
                 .isEqualTo("先");
     }

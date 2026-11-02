@@ -2,11 +2,14 @@ package io.github.motokitabata.skillweave.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import io.github.motokitabata.skillweave.TestcontainersConfiguration;
 import io.github.motokitabata.skillweave.common.exception.ResourceConflictException;
 import io.github.motokitabata.skillweave.dto.request.CreateCustomWeaponRequest;
+import io.github.motokitabata.skillweave.dto.request.UpdateCustomWeaponRequest;
 import io.github.motokitabata.skillweave.entity.CustomWeaponPayload;
 import io.github.motokitabata.skillweave.repository.CustomWeaponRepository;
 import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
@@ -19,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 /** 武器の作成で、主キー違反だけが 409 になり、ほかの DB の拒否は ID の衝突に化けないこと。 */
@@ -73,6 +77,23 @@ class WeaponServiceTest {
         assertThatThrownBy(() -> service.create(userId, duplicate))
                 .isInstanceOf(ResourceConflictException.class)
                 .hasMessage(WeaponService.ID_EXISTS);
+        assertThat(jdbc.queryForObject("SELECT payload->>'attack' FROM weapons WHERE id = ?", String.class, ID))
+                .isEqualTo("100");
+    }
+
+    /** AC-1: 行バージョンの確認の後、保存で楽観ロックの失敗（同時の更新）が起きたときは 409 になる。 */
+    @Test
+    void optimisticLockFailureOnUpdateBecomesConflict() {
+        int version = service.create(userId, request(payload(100), 1)).version();
+        doThrow(new ObjectOptimisticLockingFailureException("CustomWeapon", ID))
+                .when(repository)
+                .saveAndFlush(any());
+
+        UpdateCustomWeaponRequest update = new UpdateCustomWeaponRequest(payload(200), 1, version);
+
+        assertThatThrownBy(() -> service.update(userId, ID, update))
+                .isInstanceOf(ResourceConflictException.class)
+                .hasCauseInstanceOf(ObjectOptimisticLockingFailureException.class);
         assertThat(jdbc.queryForObject("SELECT payload->>'attack' FROM weapons WHERE id = ?", String.class, ID))
                 .isEqualTo("100");
     }
