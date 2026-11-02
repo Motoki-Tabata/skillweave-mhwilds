@@ -1,4 +1,4 @@
-次の番号: Q132
+次の番号: Q137
 
 ## 要確認事項
 - [ ] Q6: 018 pwa-offline の導入方式。`vite-plugin-pwa` は `design/tech-stack.md`「判断 3」でサプライチェーン対策の判断待ちになっている（仮: 判断が出るまで 018 は着手しない。自前の Service Worker で置き換える案もそこで比べる）
@@ -12,3 +12,8 @@
 - [ ] Q129: 本番のマイグレーションを流す時機と、`design/tech-stack.md`「更新の方針」の PostgreSQL のメジャーの見送りの解除（028 decisions.md Q87 から分けた）（仮: マイグレーションは今と同じく API の起動時に流す。見送りの解除は Neon の版の方針を確かめて決める）
 - [ ] Q130: ゲストの訪問でも API が起きる点をどう扱うか。`App.vue` の起動処理（`lib/auth/loginReturn.ts` の `restoreAfterLogin`）が毎回 `GET /api/auth/me` を呼ぶので、Cloud Run の起動と Workers の無料枠の消費が訪問ごとに起きる（Neon まで起きるかは未確認）（仮: `SESSION` の Cookie が無ければ、Worker が Cloud Run へ転送せず未ログインの応答を返す。Cookie の扱いと応答の形を確かめて Q88 の手順で決める）
 - [ ] Q131: 本番の DB のバックアップをどうするか。Neon の無料プランの復元期間は 6 時間で、手動のスナップショットは 1 つだけ。リポジトリは public なので、ダンプをそのまま Actions の成果物に置けない（仮: `pg_dump` を定期的に取り、暗号化してリポジトリの外に保存する。頻度と保存先は公開の作業で決める）
+- [ ] Q132: プライバシーの表記の置き場所と経路。いまのフッター（`CreditBar.vue`）はマスターの出典だけで、二次創作の表記はヘッダーのバッジ（`AppHeader.vue`）にある。ルートは `apps/web/src/main/router/index.ts` に 7 つあり、`wrangler.jsonc` は `not_found_handling: single-page-application` なので、`/privacy` を足せば `run_worker_first` に入れなくても `index.html` で届く（デプロイして確かめていない）（仮: 専用ページ `/privacy` を足し、フッターとログインの前から辿れるリンクを置く。ダイアログにしない理由は、URL で直接示せることと、Discord の同意画面の前に案内できること。030 の区間 A で決める）
+- [ ] Q133: プライバシーの表記の言語。UI は日本語のみで（`vue-i18n` 等の依存が無い。en の辞書があるのはマスターデータだけ）、英語の画面は無い（仮: 日本語のみにする。英語は UI の多言語化と合わせて別に扱う）
+- [ ] Q134: プライバシーの表記に運営者の連絡先を載せるか。ドメインの RDAP には登録者情報を出していない（028 decisions.md Q83）。載せないと、利用者が削除などを頼む先が無い。載せると運営者が特定されうる（仮: 030 の区間 A でユーザーが決める。載せる場合の候補は GitHub のリポジトリの issue。連絡先を載せないなら、データの削除をどう扱うかの文面を合わせて決める）
+- [ ] Q135: プライバシーの表記に書く事実の確認。次を一次情報で確かめてから書き、確かめられないものは書かずに保留する。(a) Discord のログインで保存する項目と、要求する scope（`apps/api` の保存コードと `application.yml` を読む）。(b) 端末内に保存するデータ（`apps/web` の IndexedDB・localStorage のキーを列挙する）。(c) Cloudflare（Workers のアクセスログ）と Google Cloud（Cloud Run のログ）が記録する項目と保持期間（公式の資料で確かめる）。(d) Google Fonts の CDN への IP アドレスの送信（`design/tech-stack.md` 判断 6）。(e) Neon に保存する項目と期間（セッションの行の保持を含む）（仮: 030 の区間 A の最初の工程で表にまとめる。(c) は公開の作業で実際の設定を見てから確定する）
+- [ ] Q136: 存在しない URL の扱い。`router/index.ts` に一致しない経路の定義が無く、存在しない URL を開くと空の画面になる。また `wrangler.jsonc` の `not_found_handling: single-page-application` により、存在しないファイル（例: デプロイで消えたハッシュ付きの JS）にも `index.html` が 200 で返る。デプロイの後に古いタブが `import()` で旧チャンクを読むと、JS として HTML を受け取って読み込みに失敗する可能性がある（未検証。手元の `wrangler dev` で旧チャンクの URL を叩いて確かめる）（仮: 経路の定義に「見つかりません」の画面を足す。チャンクの読み込み失敗は再読み込みを案内する。デプロイの後に確かめてから、機能として起票するか決める）
