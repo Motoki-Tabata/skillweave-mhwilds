@@ -31,6 +31,7 @@ describe('変換（受入基準 3・4）', () => {
       kind: 'armor',
       maxLevel: 2,
       effectsByLevel: [],
+      category: '',
     })
   })
 

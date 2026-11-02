@@ -41,7 +41,7 @@ export function masterSkill(
   maxLevel = 3,
   effectsByLevel: Effect[][] = [],
 ): MasterSkill {
-  return { id: id as SkillId, kind, maxLevel, effectsByLevel }
+  return { id: id as SkillId, kind, category: 'attack', maxLevel, effectsByLevel }
 }
 
 export const conditionId = (id: string) => id as ConditionId

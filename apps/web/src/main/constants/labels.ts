@@ -1,4 +1,4 @@
-import type { ArmorPart, ArmorRank, SkillKind } from '@swv/data'
+import type { ArmorPart, ArmorRank, SkillCategory, SkillKind } from '@swv/data'
 import type { SlotOwner } from '@swv/solver'
 
 /** 防具の部位。並びは頭・胴・腕・腰・脚。 */
@@ -34,6 +34,19 @@ export const SKILL_KINDS: readonly { id: SkillKind; label: string }[] = [
   { id: 'armor', label: '防具' },
   { id: 'series', label: 'シリーズ' },
   { id: 'group', label: 'グループ' },
+]
+
+/** スキルの分類。並びはスキルを選ぶダイアログの見出しの順（辞書には入れない）。 */
+export const SKILL_CATEGORIES: readonly { id: SkillCategory; label: string }[] = [
+  { id: 'attack', label: '攻撃' },
+  { id: 'affinity', label: '会心' },
+  { id: 'element', label: '属性・状態異常' },
+  { id: 'sharpness', label: '斬れ味' },
+  { id: 'weapon_specific', label: '武器種固有' },
+  { id: 'defense', label: '防御・回復' },
+  { id: 'resistance', label: '耐性' },
+  { id: 'mobility', label: '行動・スタミナ' },
+  { id: 'support', label: '探索・支援' },
 ]
 
 export function skillKindLabel(kind: SkillKind): string {

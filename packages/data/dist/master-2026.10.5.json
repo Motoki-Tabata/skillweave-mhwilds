@@ -25525,48 +25525,56 @@
   ],
   "skills": [
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-1073401280",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-1121468544",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-1235658624",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-1237438336",
       "kind": "weapon",
       "maxLevel": 2
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-1304512512",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-1305836672",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-1432692352",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -25588,24 +25596,28 @@
       "maxLevel": 2
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-1475134080",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-1507579776",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-160562336",
       "kind": "weapon",
       "maxLevel": 2
     },
     {
+      "category": "affinity",
       "effectsByLevel": [
         [
           {
@@ -25643,24 +25655,28 @@
       "maxLevel": 5
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-1629629184",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-1642078720",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-1648695680",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "resistance",
       "effectsByLevel": [
         [
           {
@@ -25689,48 +25705,56 @@
       "maxLevel": 3
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-1664678272",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-1674114176",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-1684613760",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-168922880",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-1689391744",
       "kind": "armor",
       "maxLevel": 5
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-1700743296",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-1716324608",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -25759,18 +25783,21 @@
       "maxLevel": 3
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-1768553344",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-1769550080",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -25799,24 +25826,28 @@
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-181774400",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-1863702144",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:-193031552",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -25845,36 +25876,42 @@
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-1961116288",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-1961297152",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-201445760",
       "kind": "armor",
       "maxLevel": 2
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-2022542848",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:-2041451904",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "affinity",
       "effectsByLevel": [
         [
           {
@@ -25912,54 +25949,63 @@
       "maxLevel": 5
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-2123993856",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:-2125233152",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:-215826112",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-257693696",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-283334048",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-307644128",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-315492576",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-3666104",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "affinity",
       "effectsByLevel": [
         [
           {
@@ -26027,72 +26073,84 @@
       "maxLevel": 5
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-403054144",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:-411441344",
       "kind": "armor",
       "maxLevel": 2
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-418246240",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-420608864",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-481419552",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-555494336",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-562534336",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:-568838336",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-593005376",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-596764096",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:-609509888",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -26114,42 +26172,49 @@
       "maxLevel": 2
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-632440576",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:-676967744",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-682586176",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:-692636288",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-776946176",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:-844978880",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "affinity",
       "effectsByLevel": [
         [
           {
@@ -26193,42 +26258,49 @@
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:-856322816",
       "kind": "armor",
       "maxLevel": 5
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-857543744",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:-893407296",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:-895828480",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:-911441792",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:-964369920",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -26274,42 +26346,49 @@
       "maxLevel": 5
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:10503",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "sharpness",
       "effectsByLevel": [],
       "id": "sk:1050520384",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:1077686656",
       "kind": "armor",
       "maxLevel": 7
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:11481",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "sharpness",
       "effectsByLevel": [],
       "id": "sk:1160639488",
       "kind": "weapon",
       "maxLevel": 5
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:11709",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -26352,24 +26431,28 @@
       "maxLevel": 5
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:1268070400",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:12877",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:1346775424",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -26412,150 +26495,175 @@
       "maxLevel": 5
     },
     {
+      "category": "sharpness",
       "effectsByLevel": [],
       "id": "sk:1389859584",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:13941",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:1425756032",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "sharpness",
       "effectsByLevel": [],
       "id": "sk:1444935552",
       "kind": "weapon",
       "maxLevel": 2
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:144660544",
       "kind": "armor",
       "maxLevel": 5
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:1452140672",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:1459579264",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:1470960256",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:1472632704",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:1484575872",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:1487598336",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:1489568384",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "sharpness",
       "effectsByLevel": [],
       "id": "sk:1500129152",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:1522518528",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "sharpness",
       "effectsByLevel": [],
       "id": "sk:1594792704",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:1613139840",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:1639440000",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:166057120",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:16835",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:1685697920",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:16931",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:169998480",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:1711950720",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:1758661504",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "affinity",
       "effectsByLevel": [
         [
           {
@@ -26598,18 +26706,21 @@
       "maxLevel": 5
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:1826",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:1845834112",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -26677,66 +26788,77 @@
       "maxLevel": 5
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:192746944",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:1934955136",
       "kind": "armor",
       "maxLevel": 5
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:1940820864",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:1966172160",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:1968728576",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:1980404096",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:1998066176",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:2045149568",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:2083363072",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:2104075392",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -26779,36 +26901,42 @@
       "maxLevel": 5
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:2107855744",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:2143068800",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:2237",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:24531",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "sharpness",
       "effectsByLevel": [],
       "id": "sk:25070",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -26871,6 +26999,7 @@
       "maxLevel": 5
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -26899,96 +27028,112 @@
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:28385",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:30201",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:30554",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:30815",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:30828",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:30992",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:313598432",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:31540",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:31998",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:3504",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:353114912",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:3813",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:383104832",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "sharpness",
       "effectsByLevel": [],
       "id": "sk:397306144",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:402237312",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [],
         [
@@ -27025,84 +27170,98 @@
       "maxLevel": 5
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:424768352",
       "kind": "armor",
       "maxLevel": 2
     },
     {
+      "category": "affinity",
       "effectsByLevel": [],
       "id": "sk:451472896",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:4554",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:469540352",
       "kind": "armor",
       "maxLevel": 5
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:508916704",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:522288832",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "affinity",
       "effectsByLevel": [],
       "id": "sk:539707072",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:552982656",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:5590",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:565867136",
       "kind": "armor",
       "maxLevel": 5
     },
     {
+      "category": "element",
       "effectsByLevel": [],
       "id": "sk:576193792",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:583598144",
       "kind": "group",
       "maxLevel": 1
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:595870656",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "affinity",
       "effectsByLevel": [
         [
           {
@@ -27131,24 +27290,28 @@
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:634068352",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:652161472",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "mobility",
       "effectsByLevel": [],
       "id": "sk:673822976",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "affinity",
       "effectsByLevel": [
         [
           {
@@ -27177,90 +27340,105 @@
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:691199232",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:705317568",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:722735744",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "attack",
       "effectsByLevel": [],
       "id": "sk:741102208",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:742695104",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:7506",
       "kind": "weapon",
       "maxLevel": 1
     },
     {
+      "category": "defense",
       "effectsByLevel": [],
       "id": "sk:78208296",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:802725120",
       "kind": "weapon",
       "maxLevel": 2
     },
     {
+      "category": "resistance",
       "effectsByLevel": [],
       "id": "sk:820385792",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:850626240",
       "kind": "armor",
       "maxLevel": 3
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:860517760",
       "kind": "armor",
       "maxLevel": 4
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:8694",
       "kind": "series",
       "maxLevel": 2
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:894530496",
       "kind": "armor",
       "maxLevel": 5
     },
     {
+      "category": "support",
       "effectsByLevel": [],
       "id": "sk:898284480",
       "kind": "armor",
       "maxLevel": 1
     },
     {
+      "category": "attack",
       "effectsByLevel": [
         [
           {
@@ -27282,6 +27460,7 @@
       "maxLevel": 2
     },
     {
+      "category": "weapon_specific",
       "effectsByLevel": [],
       "id": "sk:919683456",
       "kind": "weapon",
@@ -27292,7 +27471,7 @@
     "commit": "c50a1eb892f4a1ad9bb35c147801658804be2cc2",
     "repository": "LartTyler/mhdb-wilds-data"
   },
-  "version": "2026.10.4",
+  "version": "2026.10.5",
   "weapons": [
     {
       "affinity": 0,

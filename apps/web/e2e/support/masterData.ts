@@ -12,7 +12,7 @@ const DICTIONARY_FILE = /\.(ja|en)\.json$/
 interface RawMaster {
   version: string
   weapons: { id: string; skills: unknown[]; setBonusIds: unknown[] }[]
-  skills: { id: string; kind: string; maxLevel: number }[]
+  skills: { id: string; kind: string; maxLevel: number; category: string }[]
   armors: {
     id: string
     part: string
@@ -49,6 +49,8 @@ export interface MasterInfo {
   artiaWeaponName: () => string
   /** 上位の防具だけではシリーズ Lv2 とグループ Lv1 を両方は満たせず、武器の付与スキルを部位数に数えると満たせる組 */
   grantPair: () => GrantPair
+  /** 武器スキルが属する分類の ID（重複なし） */
+  weaponSkillCategoryIds: () => string[]
 }
 
 /** 防具の部位ごとの (シリーズの部位数, グループの部位数) の選び方で、必要部位数に届く組合せがあるか。 */
@@ -172,5 +174,8 @@ export function loadMasterInfo(): MasterInfo {
       return skill.maxLevel
     },
     plainWeaponId: plain.id,
+    weaponSkillCategoryIds: () => [
+      ...new Set(master.skills.filter((s) => s.kind === 'weapon').map((s) => s.category)),
+    ],
   }
 }
