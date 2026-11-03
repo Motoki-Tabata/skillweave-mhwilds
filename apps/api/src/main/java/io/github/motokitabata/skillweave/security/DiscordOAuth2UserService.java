@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Discord のユーザー情報から {@code users} の行を作成または再利用し、セッションに入れる主体を返す。
- * メールアドレスと表示名は DB に書かない。
+ * メールアドレスは受け取らない。表示名は {@code users} に書かないが、主体に入ってセッションの行に保存される。
  */
 @Service
 public class DiscordOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {

@@ -95,7 +95,9 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .requestCache(cache -> cache.requestCache(new NullRequestCache()))
                 .exceptionHandling(e -> e.authenticationEntryPoint(entryPoint))
-                .oauth2Login(login -> login.authorizationEndpoint(a -> a.baseUri(AUTHORIZATION_BASE)
+                // セッションに接続元のアドレスを入れないため、認証の詳細（WebAuthenticationDetails）を作らない。
+                .oauth2Login(login -> login.authenticationDetailsSource(request -> null)
+                        .authorizationEndpoint(a -> a.baseUri(AUTHORIZATION_BASE)
                                 .authorizationRequestRepository(new ShortLivedAuthorizationRequestRepository(
                                         authProperties.authorizationSessionTimeout())))
                         .redirectionEndpoint(r -> r.baseUri(CALLBACK_PATTERN))
