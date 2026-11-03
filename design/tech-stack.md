@@ -457,7 +457,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## 本番の構成（2026-11-02）
 
-未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+Web は 2026-11-03 にデプロイした（`/api/*` は未接続で 503 を返す）。API と DB は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
 
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
@@ -468,6 +468,43 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 | イメージの保管 | Artifact Registry | 0.5 GiB。最新版だけを残す |
 
 Web は Pages でなく Workers にする。どちらも静的配信は無料で、`/api/*` の転送は同じ Workers の枠を消費する。Cloudflare の資料は Workers を機能の広い基盤とし、Pages からの移行手順を示している（Pages の廃止の告知は確認していない）。
+
+### Web のデプロイ手順
+
+手元から手動で出す。`wrangler login` は運営者が行う。
+
+1. 配備するコミットをチェックアウトし、リポジトリ直下で依存を入れてビルドし直す。`test:e2e` の後の `apps/web/dist` には OCR の測定ページが入っているので、配備に使わない。
+
+   ```bash
+   pnpm install --frozen-lockfile
+   pnpm --filter @swv/web run build
+   ```
+
+2. `apps/web/dist` に `charm-ocr` のパスが無いことを確かめる。
+
+   ```bash
+   find apps/web/dist -ipath '*charm-ocr*'
+   ```
+
+3. 内容を確かめてからデプロイする。
+
+   ```bash
+   pnpm --filter @swv/web exec wrangler deploy --dry-run
+   pnpm --filter @swv/web exec wrangler deploy
+   ```
+
+4. 本番の応答を確かめる。
+
+   | 確認 | 期待する結果 |
+   |---|---|
+   | `/`・`/privacy`・`/builds` | 200 の `text/html`。ブラウザで画面と「非公式の二次創作」のバッジが出る |
+   | `/` で武器を選んで検索 | 構成が表示される（ログインは不要） |
+   | `/master-<版>.json` | 200 の `application/json` |
+   | `/api/auth/me` | API の接続前は 503 の `application/problem+json` |
+
+戻すときは `wrangler rollback` で前の版へ戻す。
+
+Cloudflare の Web Analytics は残す（2026-11-03 にユーザーが決定）。Cloudflare が、HTML を受け付ける要求の応答にビーコン（`static.cloudflareinsights.com/beacon.min.js`）を挿入し、ブラウザが `/cdn-cgi/rum` へ計測値を送る。リポジトリと `dist` にはこのスクリプトが無く、`Accept: text/html` を付けない `curl` の応答にも入らないので、ブラウザか、この `Accept` を付けた要求で確かめる。`/privacy` の記載は、この挙動に合わせる。
 
 ## CI
 

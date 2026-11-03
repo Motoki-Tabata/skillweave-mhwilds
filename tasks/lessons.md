@@ -65,3 +65,8 @@
 - 種別: 規律昇華
 - 何が起きたか: `OAuth2LoginAuthenticationFilter` が `WebAuthenticationDetails`（`remoteAddress` を含む）を認証に付けるので、Spring Session JDBC では `spring_session_attributes` の `SPRING_SECURITY_CONTEXT` に入る。一時テストで実際の行を確認した（`specs/030-privacy-notice/decisions.md` Q137）。「DB に書かない」は `users` だけを見ると誤り、`DiscordOAuth2UserService` のコメントも表示名について同じ誤りをしていた。
 - 提案: `.claude/rules/api-spring.md` に、セッションへ入れる主体と認証の詳細はそのまま DB に直列化されるので、DB に何が残るかを述べるときはセッションの行も確かめる、と足す（経路 (a)）。
+
+## 2026-11-03 配信経路が挿入するスクリプトは、リポジトリの検索では見つからない（公開作業・区間外）
+- 種別: 規律昇華
+- 何が起きたか: 030 は「アクセス解析を入れていない」を `apps/web` の検索で確かめて `/privacy` に書いたが、デプロイすると Cloudflare がビーコン（`static.cloudflareinsights.com/beacon.min.js`）を HTML に挿入し、ブラウザが `/cdn-cgi/rum` へ計測値を送った。`Accept: text/html` を付けない `curl` の応答には入らず、ブラウザの通信先を見て分かった。
+- 提案: 外部への送信について表記するときは、配信経路を通した本番の画面で、ブラウザの通信先を確かめる、を行き先のルールに足す（行き先: `.claude/rules/web-vue.md`。経路 (a)）。
