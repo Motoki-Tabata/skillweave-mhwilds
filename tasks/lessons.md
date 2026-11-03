@@ -60,3 +60,13 @@
 - 種別: 規律昇華
 - 何が起きたか: `apps/web/playwright.config.ts` の `webServer` は `SWV_OCR_MEASURE=1` でビルドし、`apps/web/vite.config.ts` がこのとき測定用のページ（`e2e/measure/charm-ocr/index.html`）を入力に足す。`pnpm --filter @swv/web run test:e2e` の後の `apps/web/dist` には、そのページが入っている。
 - 提案: 公開の手順（Q88 で `design/` に記録する）に、デプロイの直前に `pnpm build` をやり直す、を入れる。`.claude/rules/web-vue.md` の E2E の項にも、`test:e2e` の後の `dist` は配備物でない、と足す（経路 (a)）。
+
+## 2026-11-03 oauth2Login は接続元のアドレスを認証の詳細としてセッションの行に保存する（機能030・区間A）
+- 種別: 規律昇華
+- 何が起きたか: `OAuth2LoginAuthenticationFilter` が `WebAuthenticationDetails`（`remoteAddress` を含む）を認証に付けるので、Spring Session JDBC では `spring_session_attributes` の `SPRING_SECURITY_CONTEXT` に入る。一時テストで実際の行を確認した（`specs/030-privacy-notice/decisions.md` Q137）。「DB に書かない」は `users` だけを見ると誤り、`DiscordOAuth2UserService` のコメントも表示名について同じ誤りをしていた。
+- 提案: `.claude/rules/api-spring.md` に、セッションへ入れる主体と認証の詳細はそのまま DB に直列化されるので、DB に何が残るかを述べるときはセッションの行も確かめる、と足す（経路 (a)）。
+
+## 2026-11-03 Dependabot が上げた @lucide/vue の版が design/tech-stack.md に反映されていない（機能030・区間C）
+- 種別: 矛盾是正
+- 何が起きたか: `apps/web/package.json` の `@lucide/vue` は 1.61.0（90f60ed の Dependabot の更新）だが、`design/tech-stack.md` の表は 1.48.0 のまま。2026-10-27 の項と同じ取り残しが、Dependabot の経路でも起きている。
+- 提案: `design/tech-stack.md` の `@lucide/vue` の行を現行の版に直す。ほかの行もまとめて確かめるなら、2026-10-27 の項の drift-scan の機械検査で扱う。

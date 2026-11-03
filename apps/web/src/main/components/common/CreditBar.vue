@@ -17,5 +17,12 @@ const fullText = `マスターデータの出典: MHDB ${repository} コミッ�
     <span class="shrink-0 whitespace-pre">{{ prefix }}</span>
     <span class="min-w-20 truncate">{{ repository }}</span>
     <span class="shrink-0 whitespace-pre">{{ suffix }}</span>
+    <RouterLink
+      to="/privacy"
+      title="プライバシーの表記を開く"
+      class="focus-visible:ring-ring -mr-2 ml-auto flex h-full shrink-0 items-center px-2 whitespace-nowrap text-foreground underline outline-none focus-visible:ring-2 focus-visible:ring-inset"
+    >
+      プライバシー
+    </RouterLink>
   </footer>
 </template>

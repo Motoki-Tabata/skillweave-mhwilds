@@ -51,6 +51,12 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/views/WeaponsView.vue'),
     meta: { title: '個体差のある武器 | SkillWeave' },
   },
+  {
+    path: '/privacy',
+    name: 'privacy',
+    component: () => import('@/views/PrivacyView.vue'),
+    meta: { title: 'プライバシー | SkillWeave' },
+  },
 ]
 
 /** 遷移のたびに、ルートの `meta.title` を `document.title` に書く。 */

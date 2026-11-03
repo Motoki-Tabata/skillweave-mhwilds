@@ -11,6 +11,7 @@ import io.github.motokitabata.skillweave.support.FakeDiscordCredentials;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,10 @@ import org.springframework.boot.session.jdbc.autoconfigure.JdbcSessionProperties
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -131,6 +135,39 @@ class SessionPolicyTest {
 
         assertThat(res.status()).isEqualTo(302);
         assertThat(maxInactiveInterval(session)).isEqualTo(THIRTY_DAYS);
+    }
+
+    // 030 privacy-notice AC-12: ログイン成功後のセッションの行に、接続元のアドレスを保存しない。
+    @Test
+    void sessionRowDoesNotStoreRemoteAddress() throws Exception {
+        http.stubDiscord(Map.of("id", "280000000000000012", "username", "hunter", "global_name", "狩人花子"));
+        Started started = http.startAuthorization();
+        Res callback = http.callback(started, "code=abc&state=" + started.state());
+        String cookie = cookieValue(callback.setCookie(SESSION));
+        String id = new String(Base64.getDecoder().decode(cookie), StandardCharsets.UTF_8);
+
+        List<Map<String, Object>> rows = jdbc.queryForList(
+                "SELECT a.attribute_name, a.attribute_bytes FROM spring_session s"
+                        + " JOIN spring_session_attributes a ON a.session_primary_id = s.primary_id"
+                        + " WHERE s.session_id = ?",
+                id);
+
+        StringBuilder all = new StringBuilder();
+        Object context = null;
+        DeserializingConverter converter = new DeserializingConverter();
+        for (Map<String, Object> row : rows) {
+            byte[] bytes = (byte[]) row.get("attribute_bytes");
+            all.append(new String(bytes, StandardCharsets.ISO_8859_1));
+            if ("SPRING_SECURITY_CONTEXT".equals(row.get("attribute_name"))) {
+                context = converter.convert(bytes);
+            }
+        }
+        assertThat(context).isInstanceOf(SecurityContext.class);
+        Authentication authentication = ((SecurityContext) context).getAuthentication();
+        assertThat(authentication.getDetails()).isNull();
+        assertThat(((DiscordUserPrincipal) authentication.getPrincipal()).displayName())
+                .isEqualTo("狩人花子");
+        assertThat(all.toString()).doesNotContain("remoteAddress").doesNotContain("WebAuthenticationDetails");
     }
 
     // AC-11: 期限切れセッションの掃除は毎日 3:00（UTC）の1回。
