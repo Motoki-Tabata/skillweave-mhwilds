@@ -6,7 +6,8 @@
     "src/main/**/*.vue",
     "../../packages/solver/src/main/**/*.ts",
     "../../packages/data/src/main/index.ts",
-    "src/test/**/*"
+    "src/test/**/*",
+    "worker/index.ts"
   ],
   "compilerOptions": {
     "composite": true,

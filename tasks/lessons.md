@@ -75,3 +75,18 @@
 - 種別: 規律昇華
 - 何が起きたか: e2e で `getByRole('link', { name, exact: true })` を使ったところ、`ExternalTextLink.vue` が末尾に sr-only の「（新しいタブで開く）」を付けるためアクセシブルネームが完全一致せず落ちた。部分一致に直して通った。
 - 提案: `.claude/rules/web-vue.md` の Playwright の `exact: true` の注意に、`ExternalTextLink` のリンクは例外（アクセシブルネームに「（新しいタブで開く）」が付く）、と足す（経路 (a)）。直す前に `.claude/**` の同じ文面を grep する。
+
+## 2026-11-03 apps/web/worker/** が Sonar の解析対象と coverage に入っていない（機能031・区間A）
+- 種別: 矛盾是正
+- 何が起きたか: `apps/web/worker/index.ts` は区間の外の作業（e342489）で足されたので、Sonar の解析対象（`sonar-project.properties` の `sonar.sources`）と vitest の coverage に入っていない。
+- 提案: `sonar.sources` に `apps/web/worker` を足す（検査機構なので人間の明示指示を要する）。`apps/web/vitest.config.ts` の coverage の `include` にも足す。
+
+## 2026-11-03 テスト配置の規約が apps/web/worker のテストに当てはまらない（機能031・区間C）
+- 種別: 矛盾是正
+- 何が起きたか: `.claude/skills/impact-scope/conventions.md` の web 単体の規約は、`src/main` と同じ相対パスに置くことと `@/` での import を前提にしている。`apps/web/worker/**` は `src/main` の外で `@/` が届かない。031 は `specs/031-api-proxy/plan.md` の D8 で、`apps/web/src/test/worker/` に置いて相対パスで import すると決めた。
+- 提案: `conventions.md` の web 単体の項に、`apps/web/worker/**` のテストの置き場所と import の形を足す（経路 (a)）。
+
+## 2026-11-03 apps/web の format:check は worker/ を検査しない（機能031・区間C）
+- 種別: 矛盾是正
+- 何が起きたか: `apps/web/package.json` の `format`・`format:check` は `src/ e2e/` だけを対象にするので、`apps/web/worker/index.ts` は整形されず、CI でも検査されない。lint（`oxlint .`・`eslint .`）と型検査（`tsconfig.node.json`）は対象に入っている。031 は `specs/031-api-proxy/plan.md` の D10 で、手で prettier を実行して凌ぐ。
+- 提案: `apps/web/package.json` の `format`・`format:check` の対象に `worker/` を足す（共有構成ファイルなので、機能の spec か区間の外の `chore/*` で行う）。
