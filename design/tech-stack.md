@@ -195,7 +195,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
   - **@types/node**: メジャーは Node 本体のメジャーに合わせる。
   - **vitest と @vitest/coverage-v8**: 同じ版にそろえて、1本の PR で上げる。
   - **pnpm**: 上記「版の選び方」1 に従う。
-  - **PostgreSQL**: 本番のマネージド DB は Neon に決めた（`specs/028-api-prod-config/decisions.md` Q87）。メジャーは、見送りの解除を決めるまで見送る（`specs/open-questions.md` Q129）。
+  - **PostgreSQL**: 本番のマネージド DB は Neon に決めた（`specs/028-api-prod-config/decisions.md` Q87）。本番も 18 で動かす（同 Q129）。メジャーを上げるには Neon の新しいプロジェクトへ移す必要があるので、次のメジャーへは手元と本番の移行の手順を決めてから上げる。
 
 ### 見送り・是正待ちの一覧（2026-10-02 時点）
 
@@ -457,14 +457,14 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## 本番の構成（2026-11-02）
 
-Web は 2026-11-03 にデプロイした（`/api/*` は未接続で 503 を返す）。API と DB は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+Web は 2026-11-03 にデプロイした（`/api/*` は未接続で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った（テーブルはまだ無い）。API は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
 
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
 | ドメイン・DNS | Cloudflare Registrar（`skillweave.app`） | ドメイン代だけ費用がかかる |
 | Web・マスターデータ | Cloudflare Workers Static Assets | 静的配信は無料で無制限。Worker の実行は 10 万回/日で、`/api/*` の転送がこれを消費する |
 | API | Cloud Run（Singapore を第一候補に、東京とも測って決める） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト。課金アカウントが要り、超えると課金される。`max-instances=1` と予算アラートを設定する |
-| DB | Neon（`aws-ap-southeast-1`。最大 0.25 CU） | 月 100 CU 時間・1 GB・転送量 5 GB。超えると課金されず止まる |
+| DB | Neon（`aws-ap-southeast-1`。PostgreSQL 18。最大 0.25 CU） | 月 100 CU 時間・1 GB・転送量 5 GB。課金はされず、CU 時間か転送量を超えるとコンピュートが止まり、ストレージを超えると書き込みが止まる |
 | イメージの保管 | Artifact Registry | 0.5 GiB。最新版だけを残す |
 
 Web は Pages でなく Workers にする。どちらも静的配信は無料で、`/api/*` の転送は同じ Workers の枠を消費する。Cloudflare の資料は Workers を機能の広い基盤とし、Pages からの移行手順を示している（Pages の廃止の告知は確認していない）。
@@ -505,6 +505,76 @@ Web は Pages でなく Workers にする。どちらも静的配信は無料で
 戻すときは `wrangler rollback` で前の版へ戻す。
 
 Cloudflare の Web Analytics は残す（2026-11-03 にユーザーが決定）。Cloudflare が、HTML を受け付ける要求の応答にビーコン（`static.cloudflareinsights.com/beacon.min.js`）を挿入し、ブラウザが `/cdn-cgi/rum` へ計測値を送る。リポジトリと `dist` にはこのスクリプトが無く、`Accept: text/html` を付けない `curl` の応答にも入らないので、ブラウザか、この `Accept` を付けた要求で確かめる。`/privacy` の記載は、この挙動に合わせる。
+
+### DB の設定とバックアップ
+
+Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固定で、無操作が 5 分続くと止まる（無料プランでは変更できない）。
+
+- **版**: PostgreSQL 18 を使う。マイグレーションの既定値の `uuidv7()` は 17 に無い。
+- **接続**: API も手作業も direct（ホスト名に `-pooler` が付かないもの）を使う。pooled では `pg_dump` と Flyway を使わない。
+- **マイグレーション**: API の起動時に Flyway が流す。`neondb` に手でテーブルを作らない。試すときは使い捨てのデータベースを作る。
+- **接続文字列**: パスワードを含むので、チャット・リポジトリ・スクリーンショットに残さない。
+
+`DROP DATABASE` が `being accessed by other users` で失敗したら、ダッシュボードでそのデータベースを開いていないか確かめる。ダッシュボードで開いた後に、アプリ名が空の idle 接続が 8 本残り、コンピュートの設定を保存した後で消せた例がある（2026-11-04）。接続元は確定していない。
+
+#### バックアップ
+
+週 1 回とマイグレーションを含む版のデプロイの前に、運営者が手元で取る。ダンプには利用者のデータが入るので、平文でディスクに置かず、リポジトリの外に保存する。4 世代を残して古いものを消す。パスフレーズはダンプと別の場所で管理する。
+
+1. 同じターミナルで、接続文字列とパスフレーズを読み込む。どちらも画面に出ず、履歴にも残らない。
+
+   ```bash
+   read -rs NEON_DIRECT_URL && export NEON_DIRECT_URL
+   ```
+
+   ```bash
+   read -rs SWV_BACKUP_PASSPHRASE
+   ```
+
+2. ダンプを取って暗号化する。`<保存先>` はリポジトリの外のディレクトリ。
+
+   ```bash
+   set -o pipefail
+   F="<保存先>/swv-$(date -u +%Y%m%d).dump.gpg"
+   docker run --rm -e NEON_DIRECT_URL postgres:18.6-trixie sh -c 'pg_dump "$NEON_DIRECT_URL" -Fc --no-owner --no-acl --exclude-table-data="spring_session*"' | gpg --batch --pinentry-mode loopback --passphrase-fd 3 --symmetric --cipher-algo AES256 -o "$F" 3<<<"$SWV_BACKUP_PASSPHRASE"; echo "exit=$?"
+   ```
+
+3. `exit=0` と、復号して目次を読めることを確かめる。接続に失敗してもファイルは残る（70 バイトの例がある）ので、ファイルの有無では判断しない。失敗したらファイルを消す。
+
+   ```bash
+   gpg --batch --quiet --pinentry-mode loopback --passphrase-fd 3 -d "$F" 3<<<"$SWV_BACKUP_PASSPHRASE" | docker run --rm -i postgres:18.6-trixie pg_restore --list | grep -c 'TABLE DATA'
+   ```
+
+4. 変数を消す。
+
+   ```bash
+   unset NEON_DIRECT_URL SWV_BACKUP_PASSPHRASE
+   ```
+
+#### 復元
+
+6 時間以内の誤操作なら、先に Neon の復元（無料プランは 6 時間・変更 1 GB まで）を検討する。それより前に戻すときは、ダンプを空のデータベースへ入れる。
+
+1. API を止める。
+2. 接続文字列（`NEON_DIRECT_URL`）とパスフレーズを上の手順で読み込む。ダッシュボードか次のコマンドで空のデータベースを作る。
+
+   ```bash
+   docker run --rm -e NEON_DIRECT_URL postgres:18.6-trixie sh -c 'psql "$NEON_DIRECT_URL" -c "create database swv_restore"'
+   ```
+
+3. 接続文字列のデータベース名を `swv_restore` に変えたものを `NEON_RESTORE_URL` に入れ、復元する。`F` は復元するファイル。
+
+   ```bash
+   read -rs NEON_RESTORE_URL && export NEON_RESTORE_URL
+   ```
+
+   ```bash
+   gpg --batch --quiet --pinentry-mode loopback --passphrase-fd 3 -d "$F" 3<<<"$SWV_BACKUP_PASSPHRASE" | docker run --rm -i -e NEON_RESTORE_URL postgres:18.6-trixie sh -c 'pg_restore -d "$NEON_RESTORE_URL" --no-owner --no-acl --single-transaction --exit-on-error'
+   ```
+
+4. 行数を確かめ、API の `SPRING_DATASOURCE_URL` を `swv_restore` へ向けて起動する。セッションは復元されないので、利用者は再ログインする。
+
+確認の範囲（2026-11-04）: Neon の使い捨てのデータベースでは、ファイルを介した同じ指定の往復を確かめた。パイプの形は手元の PostgreSQL 18.6 で確かめた。Flyway が作る本物の `flyway_schema_history` を含む復元と、パイプの形の Neon での実行は、API のデプロイの後の最初のバックアップで確かめる。
 
 ## CI
 
