@@ -8,7 +8,7 @@
       "apps/api/src/main/resources/application*.yml",
       "apps/api/src/test/**"
     ],
-    "web-agent": ["apps/web/src/main/**", "apps/web/src/test/**"],
+    "web-agent": ["apps/web/src/main/**", "apps/web/src/test/**", "apps/web/worker/**"],
     "e2e-agent": ["apps/web/e2e/**"],
     "data-model-agent": [
       "apps/api/src/main/resources/db/migration/**",
