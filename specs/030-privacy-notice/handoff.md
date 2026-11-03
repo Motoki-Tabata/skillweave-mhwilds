@@ -2,8 +2,8 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: D
-- 次に起動するコマンド: `/tsod-build 030-privacy-notice`
+- 区間: E
+- 次に起動するコマンド: `/tsod-ship 030-privacy-notice`
 - 推奨モデル: Sonnet
 - ブランチ: `feat/030-privacy-notice`（不変）
 <!--
@@ -28,7 +28,7 @@
 | B-1 | 画面設計 screen-design.md | 承認済み | 2026-11-03 / 1fe85c1 |
 | B-2 | テーブル設計（design/・migration） | 該当なし（テーブル変更なし） | 2026-11-03 |
 | C-1 | plan.md・tasks.md | 承認済み | 2026-11-03 / 28ee56f |
-| D-1 | 実装受入 | 未 | |
+| D-1 | 実装受入 | 承認済み | 2026-11-03 / 09f76cc |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
@@ -41,7 +41,7 @@
 
 ## 区間の再開点
 - 一括検証が緑になった時点のコミット: 7fb6ff9
-- その時点の verify の要約行: <総合結果の行と Sonar 件数行>
+- その時点の verify の要約行: 総合結果: PASS / Sonar 件数: issue 0 / hotspot 0 / Quality Gate OK
 - レビューの進捗: <何回目まで済み・未解決の所見>
 <!-- 区間 D の文脈が膨らんで中断するときに書く。再開した区間 D はここからレビュー（または是正）を始める -->
 
@@ -63,6 +63,7 @@
 | 1 | 03ee18d..f19e5e0 | その他: 範囲外の変更なし | 持ち越し | 持ち越し | 解消 |
 | 2 | f19e5e0..57428f1 | web: PrivacyView.spec の AC-10 の assertion を直した（数字を足すと落ちることを確認） | 要修正 | 是正 | 解消 |
 | 2 | f19e5e0..79db101 | web: 外部リンク2か所を共有部品 ExternalTextLink に切り出した（D-1 でユーザーが部品化を選択） | 要判断 | 是正 | 解消 |
+| 3 | f19e5e0..79db101 | web 再レビュー: 要修正・要判断なし。plan D8（外部リンクを部品にしない）が D-1 の部品化で古くなった（drift-scan で拾う） | 持ち越し | 持ち越し | 解消 |
 <!-- 区間 D。所見1件につき1行。所見は要約で書く（差分や所見の全文を貼らない）。区分: reviewer-agent の区分（要修正 / 要判断 / 起票 / 持ち越し）。処遇: 是正 / 直接修正 / ゲートで判断 / 起票 / 持ち越し のどれか。状態: 要修正 / 是正済み / 解消。既存の行は書き換えず、是正後は同じ所見の新しい行を状態=解消で追記する。
 区分と処遇の対応: 要修正 → 是正または直接修正 / 要判断 → ゲートで判断 / 起票 → 起票 / 持ち越し → 持ち越し -->
 
@@ -79,6 +80,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - 候補（起票するか持ち越すかは D-1 後に決める）: (1) フルの test:coverage で CharmsView.import.spec.ts・WeaponsView.import.spec.ts の AC-1 が 5000ms を超える flake が web-agent の実行で2回出た（単独・test:unit・最終検証の Sonar では再現せず）。(2) master.load() を呼ばない画面では mountApp 後に master.status が failed にならない。(3) window.scrollTo を呼ぶ画面の spec は jsdom で vi.stubGlobal が要る。(4) e2e の tsconfig に DOM 型が無く、page.evaluate 内の document/window は globalThis 経由にする。(5) テストで indexOf により本文を切り出すときは、終端の検索に起点を渡し、切り出した中身を assert する
+- 上の候補 (1)〜(5) は台帳へ起票せず区間 E へ持ち越す（(1) は最終検証2回と部品化後の web-agent の test:coverage で再発せず、再発したら test-investigator で切り分ける）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
@@ -89,3 +91,4 @@
 - A-1 の移設先: Q132, Q133, Q134, Q135, Q137, Q138
 - 区間 B で spec.md の常時許可外に MASTER.md を足し、A-2 を取り直した（decisions.md「区間 B での spec.md の変更」）。フッターのリンクの高さは 32px に決めた（screen-design.md）
 - T5: build やり直し後の wrangler dev で /privacy は 200 text/html で、/ と同じ index.html（cmp 一致）を返した。本物の Discord と、デプロイした環境は未確認（Q140）
+- D-1 で外部リンク2か所を共有部品 ExternalTextLink にした（plan D8 の「部品にしない」は古い。区間 E の drift-scan で plan を直す）
