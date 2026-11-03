@@ -65,8 +65,3 @@
 - 種別: 規律昇華
 - 何が起きたか: `OAuth2LoginAuthenticationFilter` が `WebAuthenticationDetails`（`remoteAddress` を含む）を認証に付けるので、Spring Session JDBC では `spring_session_attributes` の `SPRING_SECURITY_CONTEXT` に入る。一時テストで実際の行を確認した（`specs/030-privacy-notice/decisions.md` Q137）。「DB に書かない」は `users` だけを見ると誤り、`DiscordOAuth2UserService` のコメントも表示名について同じ誤りをしていた。
 - 提案: `.claude/rules/api-spring.md` に、セッションへ入れる主体と認証の詳細はそのまま DB に直列化されるので、DB に何が残るかを述べるときはセッションの行も確かめる、と足す（経路 (a)）。
-
-## 2026-11-03 Dependabot が上げた @lucide/vue の版が design/tech-stack.md に反映されていない（機能030・区間C）
-- 種別: 矛盾是正
-- 何が起きたか: `apps/web/package.json` の `@lucide/vue` は 1.61.0（90f60ed の Dependabot の更新）だが、`design/tech-stack.md` の表は 1.48.0 のまま。2026-10-27 の項と同じ取り残しが、Dependabot の経路でも起きている。
-- 提案: `design/tech-stack.md` の `@lucide/vue` の行を現行の版に直す。ほかの行もまとめて確かめるなら、2026-10-27 の項の drift-scan の機械検査で扱う。

@@ -81,7 +81,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | tailwind-merge | 3.7.0（2026-09-12） | `cn()` |
 | @vueuse/core | 14.4.0（2026-07-29） | shadcn-vue の部品が import する。reka-ui 2.10.5 の要求 `^14.1.0` に合わせ、15.0.0 は採らない |
 | tw-animate-css | 1.4.0（2025-09-24） | Dialog などの開閉アニメーションのクラス |
-| @lucide/vue | 1.48.0（2026-09-24） | アイコン。`lucide-vue-next` は deprecated。1.49.0 以降はクールダウン中 |
+| @lucide/vue | 1.61.0（2026-10-21） | アイコン。`lucide-vue-next` は deprecated |
 | @playwright/test | 1.63.0（2026-09-04） | `apps/web` の devDependencies。e2e と測定。Chromium だけ |
 | wrangler | 4.153.0（2026-10-26） | `apps/web` の devDependencies。Worker の手元の実行とデプロイ。推移的依存の `esbuild`・`workerd` のビルドスクリプトは `allowBuilds` で遮断 |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
@@ -147,7 +147,7 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
 `pnpm-workspace.yaml` のサプライチェーン対策（クールダウン・provenance）の対象外で、版の固定もない。
 
 - 和文は文字の範囲ごとに分割して配信され、使う文字の分だけが読み込まれる。セルフホストより軽い。
-- 利用者の IP アドレスが Google に送られる。公開前にプライバシーの表記へ含める。
+- 利用者の IP アドレスが Google に送られる。プライバシーの表記（`/privacy`。030 privacy-notice）に書いてある。
 - オフラインでは読み込めずフォールバックのシステムフォントになる。018 pwa-offline で、`fonts.googleapis.com`・
   `fonts.gstatic.com` を実行時にキャッシュする設定を足す。
 - CSP を導入するときは、`style-src` に `https://fonts.googleapis.com`、`font-src` に `https://fonts.gstatic.com` を許可する。
