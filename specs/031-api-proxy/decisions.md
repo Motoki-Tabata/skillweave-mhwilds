@@ -29,3 +29,7 @@
   - 上流へ届かないとき: `fetch` が `Error: Network connection lost.` を投げた。
   - `/api` は `/api/*` に当たらず Worker を通らない（SPA の `index.html` が返る。API に `/api` の経路は無い）。
 - 公式資料に記載が無く未確認の点: 本番で Cloudflare が `X-Forwarded-For` を付け直すか、応答の最初のバイトまでの待ちの上限。Q88 の手順で、本番の次を確かめる（ログインの往復、`Set-Cookie` が分かれて届くこと、Cloud Run のログに利用者の IP が残るか）。残るかどうかは Q140 (b) の表記の照合に使う。
+
+## spec.md の変更（2026-11-03・区間 C）
+- 内容: 影響範囲の「常時許可外の変更予定」から `apps/web/worker/index.ts` を外した。
+- 理由: 区間 C で、`apps/web/worker/**` を web-agent の常設の書込範囲へ足すと決めた（区間の外の `chore/*` で、区間 D の前に行う）。転送の本体はロジックなので、`direct-edit.md` の基準どおりワーカーが書く。足した後も行を残すと、`spec-check.mjs` の項目6（常時許可外の妥当性）が「不要な記載」で NG になる。

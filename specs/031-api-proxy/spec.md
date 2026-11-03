@@ -36,7 +36,6 @@
 ## 影響範囲
 触る領域: web
 常時許可外の変更予定:
-- `apps/web/worker/index.ts`（転送の本体。どのワーカーの書込範囲にも入っていない。教訓台帳の 2026-11-03 の項目）
 - `apps/web/tsconfig.vitest.json`（単体テストの spec から Worker のコードを読むため include に足す。足さないと TS6307 で失敗する）
 
 ## 依存する機能ID
