@@ -1,6 +1,6 @@
 ---
 name: web-agent
-description: 薄仕様（specs/NNN-<slug>/spec.md）の受入基準を満たす画面・状態管理・API 結線を apps/web/src/main/** に実装し、受入基準ごとの Web の単体テストを apps/web/src/test/** に書く Web ワーカー。tsod-build から、担当タスクが Web の実装または単体テストを含むときに委譲される。契約は contract-agent、E2E は e2e-agent の担当で、本エージェントは書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。
+description: 薄仕様（specs/NNN-<slug>/spec.md）の受入基準を満たす画面・状態管理・API 結線を apps/web/src/main/** に、配信の Worker を apps/web/worker/** に実装し、受入基準ごとの Web の単体テストを apps/web/src/test/** に書く Web ワーカー。tsod-build から、担当タスクが Web の実装または単体テストを含むときに委譲される。契約は contract-agent、E2E は e2e-agent の担当で、本エージェントは書かない。再委譲は新規起動で行われ、差分と修正指示だけが渡される（前回の会話は前提にしない）。
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
 effort: medium
@@ -26,7 +26,7 @@ hooks:
 
 ## 責務
 
-薄仕様の受入基準を満たす画面・状態管理・API 結線を `apps/web/src/main/**` に実装し、受入基準（EARS 形式）1件につき最低1テストを対応させて Web の単体テストを `apps/web/src/test/**` に書く。spec の受入基準の ID（`AC-N`）をテスト名かコメントに残す。契約定義（`contracts/**`）・API・E2E には触れない。
+薄仕様の受入基準を満たす画面・状態管理・API 結線を `apps/web/src/main/**` に、配信の Worker を `apps/web/worker/**` に実装し、受入基準（EARS 形式）1件につき最低1テストを対応させて Web の単体テストを `apps/web/src/test/**` に書く。spec の受入基準の ID（`AC-N`）をテスト名かコメントに残す。契約定義（`contracts/**`）・API・E2E には触れない。
 
 ## 書込範囲
 
@@ -34,7 +34,7 @@ hooks:
 
 | 役割 | 許可 glob | 備考 |
 |---|---|---|
-| web-agent | `apps/web/src/main/**`・`apps/web/src/test/**` | `apps/web/src/main/lib/api/schema.ts` の再生成を含む |
+| web-agent | `apps/web/src/main/**`・`apps/web/src/test/**`・`apps/web/worker/**` | `apps/web/src/main/lib/api/schema.ts` の再生成を含む |
 
 - `apps/web/src/main/components/ui/` は、`design-system/skillweave/MASTER.md`「生成部品（`components/ui`）の扱い」節に列挙したソースの手直しだけを書く（CLI の実行はメインの担当）。それ以外は、常設の範囲に含まれるが、書く前の3分類では「どちらでもない」として扱う。
 - E2E（`apps/web/e2e/`）は書かない（担当は e2e-agent）。

@@ -39,7 +39,7 @@ effort: medium
 |---|---|---|
 | contract-agent | `contracts/**` | |
 | api-agent | `apps/api/src/main/java/**`・`apps/api/src/main/resources/application*.yml`・`apps/api/src/test/**` | |
-| web-agent | `apps/web/src/main/**`・`apps/web/src/test/**` | `apps/web/src/main/lib/api/schema.ts` の再生成を含む |
+| web-agent | `apps/web/src/main/**`・`apps/web/src/test/**`・`apps/web/worker/**` | `apps/web/src/main/lib/api/schema.ts` の再生成を含む |
 | e2e-agent | `apps/web/e2e/**` | |
 | data-model-agent | `apps/api/src/main/resources/db/migration/**`・`design/data-model-standard.md`・`design/attributes.yaml` | migration は予約の場所（最初のマイグレーションを足す機能で作られる） |
 | solver-agent | `packages/solver/src/main/**`・`packages/solver/src/test/**` | |
