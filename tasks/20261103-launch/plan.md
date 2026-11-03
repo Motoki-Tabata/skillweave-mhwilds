@@ -21,8 +21,9 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] A1 「A1 で記録する内容」を `specs/open-questions.md` に反映する（`docs/*` ブランチ。PR #87 でマージ、`09bf299`）
 
 ### B. TSOD で進めるもの
-- [ ] B1 `/privacy` に Web Analytics の説明を足し、030 の AC-9 を取り消す。依存: A1、A2。機能名の案は `privacy-analytics`
-- [ ] B2 031 api-proxy。依存: なし。「B2 の論点」を `/tsod-discover` に渡す
+- [x] B1 `/privacy` に Web Analytics の説明を足し、030 の AC-9 を取り消す（032 privacy-analytics。PR #89・#90 でマージ。本番への反映は C5）
+- [x] B2 031 api-proxy（PR #92・#93 でマージ。本番での転送の確認は Q88・031 decisions.md Q142 へ持ち越し。デプロイは C5）
+- [ ] B3 `/privacy` にバックアップの説明を足す（消去の依頼の後も最大約 4 週間、暗号化したダンプに残る）。依存: C1。C8 の前にマージしてデプロイする
 
 ### C. 運用作業
 - [ ] C1 Neon: Q129・Q131 の案を示して決め、ユーザーがプロジェクトを作り、バックアップとリストアの手順を `design/` に書く。依存: なし
