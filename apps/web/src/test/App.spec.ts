@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   installDomPolyfills,
   mountApp,
@@ -33,6 +33,11 @@ describe('App（共通レイアウト C1）', () => {
       `マスターデータの出典: MHDB ${repository} コミット ${commit}`,
     )
     expect(footer.attributes('title')).toBe(footer.attributes('aria-label'))
+    // 030 AC-2: どの画面でもフッターに /privacy へのリンクがある
+    const privacy = footer.get('a')
+    expect(privacy.text()).toBe('プライバシー')
+    expect(privacy.attributes('href')).toBe('/privacy')
+    expect(privacy.attributes('title')).toBe('プライバシーの表記を開く')
   }
 
   it('読込前（P1）でもバッジとクレジットが出る', async () => {
@@ -47,6 +52,13 @@ describe('App（共通レイアウト C1）', () => {
     mounted = await mountApp()
     await expect.poll(() => mounted?.master.status).toBe('failed')
     expectCommonLayout(mounted)
+  })
+
+  it('030 AC-2: /privacy ではリンクに aria-current="page" が付く', async () => {
+    stubBackend({ hang: true })
+    vi.stubGlobal('scrollTo', vi.fn()) // jsdom に window.scrollTo の実装が無い
+    mounted = await mountApp({ path: '/privacy' })
+    expect(mounted.wrapper.get('footer a').attributes('aria-current')).toBe('page')
   })
 
   describe('準備完了（P3）', () => {

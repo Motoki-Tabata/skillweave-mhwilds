@@ -23,6 +23,14 @@ describe('router', () => {
     expect(routes.find((route) => route.path === '/s/:shortId')?.name).toBe('shared-build')
   })
 
+  it('030 AC-1: /privacy（privacy）のルートを持ち、タイトルを書く', async () => {
+    expect(routes.find((route) => route.path === '/privacy')?.name).toBe('privacy')
+    const router = createRouter({ history: createMemoryHistory(), routes })
+    installTitleHook(router)
+    await router.push('/privacy')
+    expect(document.title).toBe('プライバシー | SkillWeave')
+  })
+
   it('遷移のたびに meta.title を document.title に書く', async () => {
     const router = createRouter({ history: createMemoryHistory(), routes })
     installTitleHook(router)
