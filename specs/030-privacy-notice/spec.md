@@ -37,7 +37,7 @@
 ## 影響範囲
 触る領域: web, api
 常時許可外の変更予定:
-- `design-system/skillweave/MASTER.md`（画面骨格のクレジットのバーに、`/privacy` へのリンクとその高さを足す）
+- `design-system/skillweave/MASTER.md`（画面骨格のクレジットのバーに、プライバシーの画面へのリンクとその高さを足す）
 
 ## 依存する機能ID
 - 004, 009
