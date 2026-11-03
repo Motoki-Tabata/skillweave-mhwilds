@@ -70,3 +70,8 @@
 - 種別: 規律昇華
 - 何が起きたか: 030 は「アクセス解析を入れていない」を `apps/web` の検索で確かめて `/privacy` に書いたが、デプロイすると Cloudflare がビーコン（`static.cloudflareinsights.com/beacon.min.js`）を HTML に挿入し、ブラウザが `/cdn-cgi/rum` へ計測値を送った。`Accept: text/html` を付けない `curl` の応答には入らず、ブラウザの通信先を見て分かった。
 - 提案: 外部への送信について表記するときは、配信経路を通した本番の画面で、ブラウザの通信先を確かめる、を行き先のルールに足す（行き先: `.claude/rules/web-vue.md`。経路 (a)）。
+
+## 2026-11-03 ExternalTextLink のリンクは exact: true で探すと見つからない（機能032・区間D）
+- 種別: 規律昇華
+- 何が起きたか: e2e で `getByRole('link', { name, exact: true })` を使ったところ、`ExternalTextLink.vue` が末尾に sr-only の「（新しいタブで開く）」を付けるためアクセシブルネームが完全一致せず落ちた。部分一致に直して通った。
+- 提案: `.claude/rules/web-vue.md` の Playwright の `exact: true` の注意に、`ExternalTextLink` のリンクは例外（アクセシブルネームに「（新しいタブで開く）」が付く）、と足す（経路 (a)）。直す前に `.claude/**` の同じ文面を grep する。
