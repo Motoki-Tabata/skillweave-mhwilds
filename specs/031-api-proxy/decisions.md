@@ -33,3 +33,13 @@
 ## spec.md の変更（2026-11-03・区間 C）
 - 内容: 影響範囲の「常時許可外の変更予定」から `apps/web/worker/index.ts` を外した。
 - 理由: 区間 C で、`apps/web/worker/**` を web-agent の常設の書込範囲へ足すと決めた（区間の外の `chore/*` で、区間 D の前に行う）。転送の本体はロジックなので、`direct-edit.md` の基準どおりワーカーが書く。足した後も行を残すと、`spec-check.mjs` の項目6（常時許可外の妥当性）が「不要な記載」で NG になる。
+
+## 実装後の実測（2026-11-04・区間 D・T4）
+- 手元の `wrangler dev --var API_ORIGIN:http://127.0.0.1:18080`（wrangler 4.153.0）と Node の偽の上流で、`apps/web/worker/index.ts` を実際の経路で確かめた。本番の Cloudflare と Cloud Run では未確認（Q88）。
+  - AC-1・AC-2・AC-3: `/api/oauth2/authorization/discord` の 302 は `Location` がそのまま返り、`Set-Cookie`（`SESSION`・`XSRF-TOKEN`）が 2 本に分かれて届いた。
+  - AC-8: `/api/login/oauth2/code/discord?code=a%2Fb+c&state=d` がパスもクエリも変わらず上流へ届いた。
+  - AC-1・AC-9: POST の本文・`Cookie`・`X-XSRF-TOKEN` は届き、クライアントが付けた `X-Forwarded-For`・`X-Real-IP`・`Forwarded` は上流へ届かなかった。
+  - AC-5: Cookie の無い `GET /api/auth/me` は 401（`application/problem+json`・`Cache-Control: no-store`）で、上流への要求は増えなかった。`SESSION=abc` 付きは上流へ届いた。
+  - AC-10: 上流を止めると 502。
+  - AC-4: `API_ORIGIN` なしで起動すると 503。
+  - 静的ファイル（`/builds`）は 200 で、Worker を通らず配信された。
