@@ -42,7 +42,7 @@
 | 028 | api-prod-config | API を公開できるよう、本番用の設定（Cookie の `Secure` 属性など。Q85）を入れ、認可を始めただけで作られる未ログインのセッションの行を短い有効期間にする（画面の挙動は変えない） | P1 | S | 済 |
 | 029 | review-carryover | レビューで持ち越した未テストの分岐と検査の抜け（楽観ロックの 409・除外した装飾品の検査・`MD_OUTLINE_CLASS` の適用）を埋め、重複と未使用のコードを整理する（画面と API の挙動は変えない） | P2 | S | 済 |
 | 030 | privacy-notice | 公開（フレンド公開）の前に、利用者のデータがどこへ送られ何が保存されるか（Google Fonts への IP アドレスの送信・Discord のログインで保存する情報・Cloudflare と Google Cloud のアクセスログ・端末内に保存するデータ）を、画面から読めるようにする | P0 | S | 済 |
-| 031 | api-proxy | Web の Worker が `/api/*` を Cloud Run へ転送し、同じオリジンのまま本番でログイン・保存・共有 URL を使えるようにする（今は 503 を返す） | P0 | M | 未着手 |
+| 031 | api-proxy | Web の Worker が `/api/*` を Cloud Run へ転送し、同じオリジンのまま本番でログイン・保存・共有 URL を使えるようにする（今は 503 を返す） | P0 | M | 済 |
 | 032 | privacy-analytics | `/privacy` の表記を本番の事実に合わせ、Cloudflare Web Analytics で何が送られ何に使われるかを画面から読めるようにする | P0 | S | 済 |
 
 ### 依存
