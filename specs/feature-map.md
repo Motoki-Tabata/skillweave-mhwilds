@@ -5,6 +5,8 @@
 027 の入力（2026-10-28）: 021 crafted-charm の区間 A で分けた事項（021 decisions.md Q78）。
 028 の入力（2026-10-29）: API・DB の公開（区間外の運用作業。open-questions.md Q71）の整理で、コードの変更が要るものとして分けた事項（Q86）。
 029 の入力（2026-11-02）: 実装済みの機能の `handoff.md` に持ち越しとして残った事項と、`tasks/lessons.md` のコードの部分のうち、現行のコードで残っていることを確かめたもの。
+031 の入力（2026-11-03）: 公開の構成（`design/tech-stack.md`「本番の構成」）で、Web の Worker が `/api/*` を Cloud Run へ転送する部分のうち、コードの変更が要るもの（open-questions.md Q130・Q142）。
+032 の入力（2026-11-03）: 公開作業で本番を実測して分かった `/privacy` の表記と事実の食い違い（open-questions.md Q141）。
 機能 ID は実装順に振る（依存の表を満たす順で、同じ段では優先度の高いものを先にする）。初回の分解の後に追加した機能は、既存の ID を振り直さず末尾に採番する。その場合の実装順は依存の表が正である。
 
 ### 機能マップ
@@ -40,6 +42,8 @@
 | 028 | api-prod-config | API を公開できるよう、本番用の設定（Cookie の `Secure` 属性など。Q85）を入れ、認可を始めただけで作られる未ログインのセッションの行を短い有効期間にする（画面の挙動は変えない） | P1 | S | 済 |
 | 029 | review-carryover | レビューで持ち越した未テストの分岐と検査の抜け（楽観ロックの 409・除外した装飾品の検査・`MD_OUTLINE_CLASS` の適用）を埋め、重複と未使用のコードを整理する（画面と API の挙動は変えない） | P2 | S | 済 |
 | 030 | privacy-notice | 公開（フレンド公開）の前に、利用者のデータがどこへ送られ何が保存されるか（Google Fonts への IP アドレスの送信・Discord のログインで保存する情報・Cloudflare と Google Cloud のアクセスログ・端末内に保存するデータ）を、画面から読めるようにする | P0 | S | 済 |
+| 031 | api-proxy | Web の Worker が `/api/*` を Cloud Run へ転送し、同じオリジンのまま本番でログイン・保存・共有 URL を使えるようにする（今は 503 を返す） | P0 | M | 未着手 |
+| 032 | privacy-analytics | `/privacy` の表記を本番の事実に合わせ、Cloudflare Web Analytics で何が送られ何に使われるかを画面から読めるようにする | P0 | S | 未着手 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
@@ -74,3 +78,5 @@
 | 028 api-prod-config | 009 | API・DB の公開（Q71）の前に行う。扱う本番の設定は Q85、この機能に切った理由は Q86、セッションの掃除の間隔は Q91。Q84 で別オリジンの経路を選ぶなら、Web の API の呼び方と CSRF の Cookie の読み方の変更も含める |
 | 029 review-carryover | 011, 020, 026 | 楽観ロックの 409 の未テスト（010・011 handoff.md。護石・武器・構成）、`verifyBuild.ts` が除外した装飾品を検査しない（020）、`MD_OUTLINE_CLASS` の単体テストが無くダークの hover も実ブラウザで未確認（026）、`damageModel.ts` の `thetaCol` が未使用（019）を扱う。あわせて、e2e の `uuidV7()` の `e2e/support/` への切り出し（3 本の spec）、スケルトンの手書きの遅延を `useSkeletonDelay` へ寄せる（`BuildsGate`・`SearchView`・`CharmsView`・`WeaponsView`・`WeaponDialog`・`CharmCard`）、Combobox の入力欄の共通化（`CharmSkillRow`・`ArmorLockRow`・`ExcludeCard`・`WeaponBonusRow`）、`WeaponPayload.element.type` を契約の列挙に揃える（`lib/api/weapons.ts` の差し替えを解消する。契約の型を使う境界を `.claude/rules/web-vue.md` に書く作業は、`tasks/lessons.md` に起票してマージの後に区間の外で行う）、`lib/api/charms.ts` の未使用の `CHARMS_FAILURE_MESSAGES` の再エクスポート（025）、`ExcludeCard.vue` の未使用の `root` ref（020）を扱う。`NotFound.yaml` の説明が `getSharedBuild` と合わない点（012）は、触る領域が 4 つになるので外した（029 decisions.md Q119・open-questions.md Q123） |
 | 030 privacy-notice | 004, 009 | `design/tech-stack.md` 判断 6（Google Fonts で IP アドレスが Google に送られる。「公開前にプライバシーの表記へ含める」）が出どころ。入力文書は無く、公開作業の依頼（2026-11-03）が入力。URL をフレンドへ配る前（Q88 の公開作業の段階 3 以降）にマージしておく。扱う範囲・置き場所・連絡先は Q132〜Q135 |
+| 031 api-proxy | 028 | 028 decisions.md Q84 の同一オリジンの経路を実装する。扱う範囲は Q130・Q142。デプロイと Cloud Run への直接の到達の制限は含めない（Q88） |
+| 032 privacy-analytics | 030 | 030 の AC-9 のうち、アクセス解析を入れていないとする部分を取り消す。扱う範囲は Q141。URL をフレンドへ配る前にマージしてデプロイする |
