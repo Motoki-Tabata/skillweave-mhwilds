@@ -146,8 +146,14 @@ describe('PrivacyView（/privacy）', () => {
       expect(text).toContain('IP アドレス・User-Agent・参照元・要求の URL')
       expect(text).toContain('Google Cloud のログの保持期間は、既定で 30 日です')
       expect(text.match(/30 日/g)?.length).toBe(2) // 表示名の最長 30 日と Google Cloud の既定
-      const cloudflareSentence = text.split('Cloudflare での扱いは')[0]!.split('。').pop()
-      expect(cloudflareSentence).not.toMatch(/\d/)
+      const logStart = text.indexOf('Cloudflare と Google Cloud のアクセスログ')
+      const logBody = text.slice(logStart, text.indexOf('を確認してください', logStart))
+      expect(logBody).toContain('Cloudflare での扱いは') // 節の本文を切り出せている
+      const withoutGoogleRetention = logBody.replace(
+        'Google Cloud のログの保持期間は、既定で 30 日です',
+        '',
+      )
+      expect(withoutGoogleRetention).not.toMatch(/\d/)
       const a = link('Cloudflare のプライバシーポリシー')
       expect(a.getAttribute('href')).toBe('https://www.cloudflare.com/privacypolicy/')
       expect(a.getAttribute('target')).toBe('_blank')
