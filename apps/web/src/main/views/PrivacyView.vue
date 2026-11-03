@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ExternalLink } from '@lucide/vue'
+import ExternalTextLink from '@/components/common/ExternalTextLink.vue'
 
 /** 最終更新日。文面を変えたらこの値も変える。 */
 const LAST_UPDATED = '2026/11/03'
@@ -88,15 +88,8 @@ const h2Class = 'text-base leading-snug font-bold'
         <p>
           画面の文字に Google Fonts を使っています。フォントの読み込みで、IP アドレス・要求の
           URL・User-Agent などが Google に届きます。Google での扱いは
-          <a
-            href="https://fonts.google.com/faq#privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-            :class="linkClass"
-            >Google Fonts の FAQ<ExternalLink
-              class="ml-0.5 inline size-3.5 align-text-bottom"
-              aria-hidden="true"
-            /><span class="sr-only">（新しいタブで開く）</span></a
+          <ExternalTextLink href="https://fonts.google.com/faq#privacy"
+            >Google Fonts の FAQ</ExternalTextLink
           >
           を確認してください。
         </p>
@@ -108,15 +101,8 @@ const h2Class = 'text-base leading-snug font-bold'
           Cloudflare と Google Cloud のアクセスログに、IP アドレス・User-Agent・参照元・要求の URL
           などが記録されることがあります。Google Cloud のログの保持期間は、既定で 30
           日です。Cloudflare での扱いは
-          <a
-            href="https://www.cloudflare.com/privacypolicy/"
-            target="_blank"
-            rel="noopener noreferrer"
-            :class="linkClass"
-            >Cloudflare のプライバシーポリシー<ExternalLink
-              class="ml-0.5 inline size-3.5 align-text-bottom"
-              aria-hidden="true"
-            /><span class="sr-only">（新しいタブで開く）</span></a
+          <ExternalTextLink href="https://www.cloudflare.com/privacypolicy/"
+            >Cloudflare のプライバシーポリシー</ExternalTextLink
           >
           を確認してください。
         </p>
