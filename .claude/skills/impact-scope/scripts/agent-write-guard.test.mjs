@@ -86,9 +86,10 @@ test('api-agent: src/test は allow、ビルド設定・migration は deny', () 
   }
 });
 
-test('web-agent: schema.ts と src/test は allow、package.json は deny', () => {
+test('web-agent: schema.ts と src/test と worker は allow、package.json は deny', () => {
   assert.equal(writeDecision('web-agent', 'apps/web/src/main/lib/api/schema.ts').decision, 'allow');
   assert.equal(writeDecision('web-agent', 'apps/web/src/test/x.spec.ts').decision, 'allow');
+  assert.equal(writeDecision('web-agent', 'apps/web/worker/index.ts').decision, 'allow');
   assert.equal(writeDecision('web-agent', 'apps/web/package.json').decision, 'deny');
   assert.equal(writeDecision('web-agent', 'apps/web/e2e/x.spec.ts').decision, 'deny');
 });
