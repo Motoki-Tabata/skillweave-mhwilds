@@ -2,9 +2,9 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: C
-- 次に起動するコマンド: `/tsod-plan 031-api-proxy`
-- 推奨モデル: Opus
+- 区間: D
+- 次に起動するコマンド: `/tsod-build 031-api-proxy`
+- 推奨モデル: Sonnet
 - ブランチ: `feat/031-api-proxy`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
@@ -27,7 +27,7 @@
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-11-03 / f31464f |
 | B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | 2026-11-03 |
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-11-03 |
-| C-1 | plan.md・tasks.md | 未 | |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-11-03 / 4651602 |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
@@ -71,6 +71,7 @@
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
 - apps/web/worker/** はどのワーカーの書込範囲にも入っていない（tasks/lessons.md の 2026-11-03 の項目）。区間 D の前に chore/* で web-agent の範囲へ足すかを区間 C で決める。
 - 区間 D の確認は単体テストに加え、wrangler dev で API_ORIGIN を手元の API か偽の上流へ向けて実際の経路で確かめる。実測の方法と結果は decisions.md Q142。
+- 上の worker の書込範囲は、web-agent へ足すと区間 C で決めた（plan D1）。区間 D の前に chore/* をマージして main を merge で取り込む（rebase しない）。済むまで /tsod-build の T1 で止まる。
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
