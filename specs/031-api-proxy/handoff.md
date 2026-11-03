@@ -77,3 +77,4 @@
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q130, Q142
 - 区間 C で apps/web/worker/** を web-agent の常設範囲へ足すと決め、spec.md の常時許可外から worker/index.ts を外して A-2 を取り直した（decisions.md）
+- plan D1 の chore は PR #91 でマージし、main を merge で取り込み済み（T1 の前提は成立）。台帳の項目は feat にしか無かったので、D1 と違い chore のコミットでなく取り込み後の feat のコミットで直した。
