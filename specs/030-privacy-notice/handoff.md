@@ -78,3 +78,4 @@
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q132, Q133, Q134, Q135, Q137, Q138
 - 区間 B で spec.md の常時許可外に MASTER.md を足し、A-2 を取り直した（decisions.md「区間 B での spec.md の変更」）。フッターのリンクの高さは 32px に決めた（screen-design.md）
+- T5: build やり直し後の wrangler dev で /privacy は 200 text/html で、/ と同じ index.html（cmp 一致）を返した。本物の Discord と、デプロイした環境は未確認（Q140）
