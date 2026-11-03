@@ -68,13 +68,16 @@
 ## メインの直接修正
 | 区間 | ファイル | 内容（1行） | 理由 |
 |---|---|---|---|
+- なし（T1 の MASTER.md は plan D11 でメインが書くと決めた常時許可外の変更）
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- 常時許可外の変更: design-system/skillweave/MASTER.md（クレジットのバーに /privacy へのリンクと高さを足した。plan D11・C-1 で承認済み・メインが T1 で書いた）
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
+- 候補（起票するか持ち越すかは D-1 後に決める）: (1) フルの test:coverage で CharmsView.import.spec.ts・WeaponsView.import.spec.ts の AC-1 が 5000ms を超える flake が web-agent の実行で2回出た（単独・test:unit・最終検証の Sonar では再現せず）。(2) master.load() を呼ばない画面では mountApp 後に master.status が failed にならない。(3) window.scrollTo を呼ぶ画面の spec は jsdom で vi.stubGlobal が要る。(4) e2e の tsconfig に DOM 型が無く、page.evaluate 内の document/window は globalThis 経由にする。(5) テストで indexOf により本文を切り出すときは、終端の検索に起点を渡し、切り出した中身を assert する
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
