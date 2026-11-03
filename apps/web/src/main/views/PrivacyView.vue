@@ -80,7 +80,7 @@ const h2Class = 'text-base leading-snug font-bold'
           <li><code>SESSION</code>: ログインの維持</li>
           <li><code>XSRF-TOKEN</code>: 不正な要求の防止</li>
         </ul>
-        <p>アクセス解析と広告は入れていません。</p>
+        <p>広告は入れていません。</p>
       </section>
 
       <section class="flex flex-col gap-2 text-sm">
@@ -96,15 +96,34 @@ const h2Class = 'text-base leading-snug font-bold'
       </section>
 
       <section class="flex flex-col gap-2 text-sm">
+        <h2 :class="h2Class">アクセス解析</h2>
+        <p>アクセス数と表示の速さを知るために、Cloudflare Web Analytics を使っています。</p>
+        <p>
+          ブラウザは、開いたページの URL と読み込みの時間などの計測値を Cloudflare
+          へ送ります。この通信でも IP アドレスが Cloudflare に届きます。Cloudflare
+          は、国・ページのパス・参照元・ブラウザ・OS・端末の種類を集計します。
+        </p>
+        <p>
+          Cloudflare の説明では、この計測に Cookie と localStorage を使いません。詳細なデータは 7
+          日間保持され、その後は約 10% に集約されます。詳しくは
+          <ExternalTextLink href="https://www.cloudflare.com/web-analytics/"
+            >Cloudflare Web Analytics の説明</ExternalTextLink
+          >
+          を確認してください。
+        </p>
+      </section>
+
+      <section class="flex flex-col gap-2 text-sm">
         <h2 :class="h2Class">アクセスログ</h2>
         <p>
           Cloudflare と Google Cloud のアクセスログに、IP アドレス・User-Agent・参照元・要求の URL
           などが記録されることがあります。Google Cloud のログの保持期間は、既定で 30
-          日です。Cloudflare での扱いは
+          日です。Cloudflare の処理については、
           <ExternalTextLink href="https://www.cloudflare.com/privacypolicy/"
             >Cloudflare のプライバシーポリシー</ExternalTextLink
           >
-          を確認してください。
+          の「End
+          Users」の項を確認してください。このポリシーは個々のサイトの扱いを定めるものではありません。
         </p>
       </section>
 

@@ -9,7 +9,7 @@ import {
 } from '../support/mount'
 import type { Mounted } from '../support/mount'
 
-// 030 privacy-notice の AC-1・AC-3〜AC-11
+// 030 privacy-notice の AC-1・AC-3〜AC-11、032 privacy-analytics の AC-1〜AC-8
 describe('PrivacyView（/privacy）', () => {
   let mounted: Mounted | null = null
 
@@ -129,13 +129,14 @@ describe('PrivacyView（/privacy）', () => {
       expect(text).toContain('ログインして取り込むとサーバーへ送られます')
     })
 
-    it('AC-9: Cookie の用途を書き、解析と広告を入れていない', async () => {
+    it('AC-9: Cookie の用途を書き、広告を入れていない', async () => {
       stubBackend()
       await open()
       const text = main()
       expect(text).toContain('SESSION: ログインの維持')
       expect(text).toContain('XSRF-TOKEN: 不正な要求の防止')
-      expect(text).toContain('アクセス解析と広告は入れていません')
+      expect(text).toContain('広告は入れていません')
+      expect(text).not.toMatch(/アクセス解析[^。]*入れていません/)
     })
 
     it('AC-10: ログの記録を書き、30 日は Google Cloud だけ、Cloudflare は方針へリンクする', async () => {
@@ -148,7 +149,7 @@ describe('PrivacyView（/privacy）', () => {
       expect(text.match(/30 日/g)?.length).toBe(2) // 表示名の最長 30 日と Google Cloud の既定
       const logStart = text.indexOf('Cloudflare と Google Cloud のアクセスログ')
       const logBody = text.slice(logStart, text.indexOf('を確認してください', logStart))
-      expect(logBody).toContain('Cloudflare での扱いは') // 節の本文を切り出せている
+      expect(logBody).toContain('Cloudflare の処理については') // 節の本文を切り出せている
       const withoutGoogleRetention = logBody.replace(
         'Google Cloud のログの保持期間は、既定で 30 日です',
         '',
@@ -168,6 +169,121 @@ describe('PrivacyView（/privacy）', () => {
         'mailto:contact@skillweave.app',
       )
       expect(main()).toMatch(/最終更新日: \d{4}\/\d{2}\/\d{2}/)
+    })
+  })
+
+  describe('032 アクセス解析の節', () => {
+    function analyticsSection(): string {
+      const h2 = Array.from(document.body.querySelectorAll('h2')).find(
+        (h) => textOf(h) === 'アクセス解析',
+      )
+      const section = h2?.closest('section')
+      if (section === null || section === undefined) throw new Error('アクセス解析の節が無い')
+      return textOf(section)
+    }
+
+    function analyticsLink(): HTMLAnchorElement {
+      const a = Array.from(document.body.querySelectorAll('h2'))
+        .find((h) => textOf(h) === 'アクセス解析')
+        ?.closest('section')
+        ?.querySelector('a')
+      if (a === null || a === undefined) throw new Error('節のリンクが無い')
+      return a
+    }
+
+    it('032 AC-1: アクセス数と表示の速さのために Cloudflare Web Analytics を使う', async () => {
+      stubBackend()
+      await open()
+      expect(analyticsSection()).toContain(
+        'アクセス数と表示の速さを知るために、Cloudflare Web Analytics を使っています',
+      )
+    })
+
+    it('032 AC-2: 送る内容と集計する項目を書く', async () => {
+      stubBackend()
+      await open()
+      const text = analyticsSection()
+      expect(text).toContain(
+        'ブラウザは、開いたページの URL と読み込みの時間などの計測値を Cloudflare へ送ります',
+      )
+      expect(text).toContain(
+        'Cloudflare は、国・ページのパス・参照元・ブラウザ・OS・端末の種類を集計します',
+      )
+    })
+
+    it('032 AC-3: IP アドレスが届くと書き、保存の有無とクエリ文字列には触れない', async () => {
+      stubBackend()
+      await open()
+      const text = analyticsSection()
+      expect(text).toContain('この通信でも IP アドレスが Cloudflare に届きます')
+      expect(text).not.toContain('保存')
+      expect(text).not.toContain('クエリ')
+    })
+
+    it('032 AC-4: Cookie と localStorage を使わず、7 日間保持して約 10% に集約する', async () => {
+      stubBackend()
+      await open()
+      const text = analyticsSection()
+      expect(text).toContain(
+        'Cloudflare の説明では、この計測に Cookie と localStorage を使いません',
+      )
+      expect(text).toContain('詳細なデータは 7 日間保持され、その後は約 10% に集約されます')
+    })
+
+    it('032 AC-5: Cloudflare Web Analytics の説明へ新しいタブでリンクする', async () => {
+      stubBackend()
+      await open()
+      const a = analyticsLink()
+      expect(textOf(a)).toContain('Cloudflare Web Analytics の説明')
+      expect(a.getAttribute('href')).toBe('https://www.cloudflare.com/web-analytics/')
+      expect(a.getAttribute('target')).toBe('_blank')
+      expect(a.getAttribute('rel')).toBe('noopener noreferrer')
+      expect(textOf(a)).toContain('（新しいタブで開く）')
+    })
+
+    it('032 AC-6: アクセス解析を入れていない文が無く、Cookie の用途と広告なしは残る', async () => {
+      stubBackend()
+      await open()
+      const text = main()
+      expect(text).not.toMatch(/アクセス解析[^。]*入れていません/)
+      expect(text).toContain('SESSION: ログインの維持')
+      expect(text).toContain('XSRF-TOKEN: 不正な要求の防止')
+      expect(text).toContain('広告は入れていません')
+    })
+
+    it('032 AC-7: アクセスログの導入文が End Users の項を案内し、期間は書かない', async () => {
+      stubBackend()
+      await open()
+      const text = main()
+      expect(text).toContain('Cloudflare の処理については')
+      expect(text).toContain('「End Users」の項を確認してください')
+      expect(text).toContain('このポリシーは個々のサイトの扱いを定めるものではありません')
+      const a = link('Cloudflare のプライバシーポリシー')
+      expect(a.getAttribute('href')).toBe('https://www.cloudflare.com/privacypolicy/')
+    })
+
+    it('032 AC-8: 最終更新日は変えた日の日付', async () => {
+      stubBackend()
+      await open()
+      expect(main()).toContain('最終更新日: 2026/11/03')
+    })
+
+    it('032 AC-1（節の順）: h2 の並びはアクセス解析を Web フォントとアクセスログの間に置く', async () => {
+      stubBackend()
+      await open()
+      const headings = Array.from(document.body.querySelectorAll('h2')).map((h) => textOf(h))
+      expect(headings).toEqual([
+        'この端末に保存するデータ',
+        'Discord でのログイン',
+        'サーバーに保存するデータ',
+        'データの削除',
+        '共有',
+        'Cookie',
+        'Web フォント',
+        'アクセス解析',
+        'アクセスログ',
+        '連絡先',
+      ])
     })
   })
 
