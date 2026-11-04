@@ -12,7 +12,7 @@
 SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch/handoff.md と plan.md を全文読み、未完了の最初のタスクから進める。plan.md の「守ること」に従う。
 ```
 
-- 最初のタスク: B3。材料は `specs/open-questions.md` の Q143。機能マップに無いので `/tsod-discover` で足してから `/tsod-spec` へ進む。始める前に、リポジトリの本体の `main` で `git pull --ff-only` を実行する。並行して C2 に進める。
+- 最初のタスク: B3。機能マップに 033 privacy-backup として足した。材料は `specs/open-questions.md` の Q143〜Q147 で、`/tsod-spec 033` から進める。始める前に、リポジトリの本体の `main` で `git pull --ff-only` を実行する。並行して C2 に進める。
 
 ## 判断ログ
 - 2026-11-03 段階2: サブセッションに分けず、1 つの進行表で進める（理由: ユーザーの指示）
