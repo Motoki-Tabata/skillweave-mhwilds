@@ -9,7 +9,8 @@ import {
 } from '../support/mount'
 import type { Mounted } from '../support/mount'
 
-// 030 privacy-notice の AC-1・AC-3〜AC-11、032 privacy-analytics の AC-1〜AC-8
+// 030 privacy-notice の AC-1・AC-3〜AC-11、032 privacy-analytics の AC-1〜AC-8、
+// 033 privacy-backup の AC-1〜AC-7（AC-6・AC-7 は 032 の節の順と最終更新日のテストが兼ねる）
 describe('PrivacyView（/privacy）', () => {
   let mounted: Mounted | null = null
 
@@ -262,13 +263,13 @@ describe('PrivacyView（/privacy）', () => {
       expect(a.getAttribute('href')).toBe('https://www.cloudflare.com/privacypolicy/')
     })
 
-    it('032 AC-8: 最終更新日は変えた日の日付', async () => {
+    it('032 AC-8・033 AC-7: 最終更新日は変えた日の日付', async () => {
       stubBackend()
       await open()
-      expect(main()).toContain('最終更新日: 2026/11/03')
+      expect(main()).toContain('最終更新日: 2026/11/04')
     })
 
-    it('032 AC-1（節の順）: h2 の並びはアクセス解析を Web フォントとアクセスログの間に置く', async () => {
+    it('032 AC-1（節の順）・033 AC-6: h2 の並びはアクセス解析を Web フォントとアクセスログの間に置く', async () => {
       stubBackend()
       await open()
       const headings = Array.from(document.body.querySelectorAll('h2')).map((h) => textOf(h))
@@ -284,6 +285,65 @@ describe('PrivacyView（/privacy）', () => {
         'アクセスログ',
         '連絡先',
       ])
+    })
+  })
+
+  describe('033 データの削除の節', () => {
+    function deletionSection(): string {
+      const h2 = Array.from(document.body.querySelectorAll('h2')).find(
+        (h) => textOf(h) === 'データの削除',
+      )
+      const section = h2?.closest('section')
+      if (section === null || section === undefined) throw new Error('データの削除の節が無い')
+      return textOf(section)
+    }
+
+    it('033 AC-1: 既存の2文を残し、14 日以内を目安に消去すると書く', async () => {
+      stubBackend()
+      await open()
+      const text = deletionSection()
+      expect(text).toContain('画面から削除しても、データはデータベース上に残ります')
+      expect(text).toContain('完全に消去したいときは、下の連絡先へ依頼してください')
+      expect(text).toContain('依頼を受けてから 14 日以内を目安に消去します')
+    })
+
+    it('033 AC-2: 週に 1 回ほど暗号化して運営者が管理する保存先に保管し、場所を書かない', async () => {
+      stubBackend()
+      await open()
+      const text = deletionSection()
+      expect(text).toContain(
+        'データベースのバックアップを週に 1 回ほど取り、暗号化して、運営者が管理する保存先に保管しています',
+      )
+      expect(text).not.toMatch(/手元|Neon|Google Drive|Dropbox|OneDrive|iCloud|S3|R2/)
+    })
+
+    it('033 AC-3: 消去後も約 4 週間残り、手作業で前後すると書き、上限の語を使わない', async () => {
+      stubBackend()
+      await open()
+      const text = deletionSection()
+      expect(text).toContain(
+        '消去した後も、消去の前に取ったバックアップには約 4 週間データが残ります',
+      )
+      expect(text).toContain('取得は手作業なので、この期間は前後することがあります')
+      expect(text).not.toMatch(/最大|最長|上限/)
+    })
+
+    it('033 AC-4: 画面から削除したデータと Discord の ID を含み、ログインの状態と表示名を含まない', async () => {
+      stubBackend()
+      await open()
+      const text = deletionSection()
+      expect(text).toContain(
+        'バックアップには、画面から削除したデータと Discord の ID も含まれます',
+      )
+      expect(text).toContain('ログインの状態と表示名は含まれません')
+    })
+
+    it('033 AC-5: 復元したら消し直し、内部の ID をバックアップが消えるまで記録すると書く', async () => {
+      stubBackend()
+      await open()
+      const text = deletionSection()
+      expect(text).toContain('バックアップから復元したときは、消去したデータを消し直します')
+      expect(text).toContain('消去した利用者の内部の ID を、バックアップが消えるまで記録します')
     })
   })
 
