@@ -45,7 +45,7 @@
 | 030 | privacy-notice | 公開（フレンド公開）の前に、利用者のデータがどこへ送られ何が保存されるか（Google Fonts への IP アドレスの送信・Discord のログインで保存する情報・Cloudflare と Google Cloud のアクセスログ・端末内に保存するデータ）を、画面から読めるようにする | P0 | S | 済 |
 | 031 | api-proxy | Web の Worker が `/api/*` を Cloud Run へ転送し、同じオリジンのまま本番でログイン・保存・共有 URL を使えるようにする（今は 503 を返す） | P0 | M | 済 |
 | 032 | privacy-analytics | `/privacy` の表記を本番の事実に合わせ、Cloudflare Web Analytics で何が送られ何に使われるかを画面から読めるようにする | P0 | S | 済 |
-| 033 | privacy-backup | 消去を依頼した後もデータがバックアップにいつまで、どんな形で残るかを、`/privacy` で読めるようにする | P0 | S | 未着手 |
+| 033 | privacy-backup | 消去を依頼した後もデータがバックアップにいつまで、どんな形で残るかを、`/privacy` で読めるようにする | P0 | S | 済 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
