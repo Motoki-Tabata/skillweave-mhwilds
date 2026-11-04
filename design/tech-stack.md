@@ -519,7 +519,7 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
 
 #### バックアップ
 
-週 1 回とマイグレーションを含む版のデプロイの前に、運営者が手元で取る。ダンプには利用者のデータが入るので、平文でディスクに置かず、リポジトリの外に保存する。4 世代を残して古いものを消す。パスフレーズはダンプと別の場所で管理する。
+週 1 回とマイグレーションを含む版のデプロイの前に、運営者が手元で取る。ダンプには利用者のデータが入るので、平文でディスクに置かず、リポジトリの外に保存する。マイグレーションの前のダンプも世代に数え、ダンプを取って確かめた後に、新しい順で 5 個目以降のものと、取得から 28 日を過ぎたものを消す（手順 4）。パスフレーズはダンプと別の場所で管理する。
 
 1. 同じターミナルで、接続文字列とパスフレーズを読み込む。どちらも画面に出ず、履歴にも残らない。
 
@@ -545,15 +545,59 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
    gpg --batch --quiet --pinentry-mode loopback --passphrase-fd 3 -d "$F" 3<<<"$SWV_BACKUP_PASSPHRASE" | docker run --rm -i postgres:18.6-trixie pg_restore --list | grep -c 'TABLE DATA'
    ```
 
-4. 変数を消す。
+4. 古いものを消す。手順 3 で確かめた後にだけ行う。例: `10/06`・`10/13`・`10/20`・`10/27` がある状態で `11/03` を取ると、`10/06` が 5 個目になるので消す。まず対象を表示し、内容を見てから消す。
+
+   ```bash
+   cd "<保存先>"
+   { ls -1 swv-*.dump.gpg | sort -r | tail -n +5; find . -maxdepth 1 -name 'swv-*.dump.gpg' -mtime +28 -printf '%P\n'; } | sort -u
+   ```
+
+   表示されたファイルを `rm` で消す。続けて、残っている最も古いダンプの取得日より前の日付の `swv-erased-<YYYYMMDD>.txt`（#### 消去）を消す。同じ日のダンプが残る間は消さない。
+
+5. 変数を消す。
 
    ```bash
    unset NEON_DIRECT_URL SWV_BACKUP_PASSPHRASE
    ```
 
+#### 消去
+
+利用者から消去の依頼を受けたら、依頼を受けてから 14 日以内を目安に行う。本人確認の方法はこの手順の対象外とする。ダンプには消去の前のデータが残るので、消した利用者の記録を残し、復元のときに消し直す。
+
+1. 接続文字列を読み込む（`#### バックアップ` の手順 1）。依頼の Discord の ID から `users.id` を引く。`<DiscordのID>` は数字だけ（`^[0-9]{1,20}$`）を確かめてから入れる。
+
+   ```bash
+   docker run --rm -e NEON_DIRECT_URL postgres:18.6-trixie sh -c 'psql "$NEON_DIRECT_URL" -At -c "select id from users where discord_id = '"'"'<DiscordのID>'"'"'"'
+   ```
+
+2. 消去の記録を書く。ダンプと同じ保存先の `swv-erased-<YYYYMMDD>.txt`（日付は UTC）に、`users.id` を 1 行に 1 件ずつ書く。`users.id` 以外は書かない。消す前に書く（記録が無いまま消えた状態を作らないため。消す工程が失敗しても依頼は残っているのでやり直す）。
+
+   ```bash
+   echo "<users.id>" >> "<保存先>/swv-erased-$(date -u +%Y%m%d).txt"
+   ```
+
+3. 消す。`SWV_ERASED_IDS` はカンマ区切りの `users.id`。消去では 1 件を入れる。1 つのトランザクションで、`shares` を `builds` より先に消す（外部キーのため）。`spring_session_attributes` は `ON DELETE CASCADE` で消える。ソフトデリートの行も `deleted_at` を見ずに消す。他の利用者の共有が対象の構成を指すと外部キーで全体が失敗し、何も消えない（`ShareService.create` は自分の構成だけを受け付けるので通常は起きない）。
+
+   ```bash
+   read -r SWV_ERASED_IDS && export SWV_ERASED_IDS
+   ```
+
+   ```bash
+   docker run --rm -i -e NEON_DIRECT_URL -e SWV_ERASED_IDS postgres:18.6-trixie sh -c 'psql "$NEON_DIRECT_URL" -v ON_ERROR_STOP=1 --single-transaction -v ids="$SWV_ERASED_IDS" -f -' <<'SQL'
+   DELETE FROM spring_session WHERE principal_name = ANY (string_to_array(:'ids', ','));
+   DELETE FROM shares WHERE user_id = ANY (string_to_array(:'ids', ',')::uuid[]);
+   DELETE FROM builds WHERE user_id = ANY (string_to_array(:'ids', ',')::uuid[]);
+   DELETE FROM charms WHERE user_id = ANY (string_to_array(:'ids', ',')::uuid[]);
+   DELETE FROM weapons WHERE user_id = ANY (string_to_array(:'ids', ',')::uuid[]);
+   DELETE FROM users WHERE id = ANY (string_to_array(:'ids', ',')::uuid[]);
+   SQL
+   ```
+
+4. 結果を確かめる。`users`・`builds`・`charms`・`weapons`・`shares` と `spring_session` の該当行が 0 件であること、ほかの利用者の行が残っていることを `select count(*)` で見る。終わったら `unset SWV_ERASED_IDS` する。
+
 #### 復元
 
-6 時間以内の誤操作なら、先に Neon の復元（無料プランは 6 時間・変更 1 GB まで）を検討する。それより前に戻すときは、ダンプを空のデータベースへ入れる。
+6 時間以内の誤操作なら、先に Neon の復元（無料プランは 6 時間・変更 1 GB まで）を検討する。それより前に戻すときは、ダンプを空のデータベースへ入れる。どちらの復元でも、API を止めて復元し、復元したデータベースへ手順 3 と 4 の間の消し直す工程（`#### 消去` の手順 3 と同じ SQL）を実行してから起動する。Neon の復元は `NEON_DIRECT_URL` に対して実行する。Neon の復元はセッションも戻すが、この工程で消える。
 
 1. API を止める。
 2. 接続文字列（`NEON_DIRECT_URL`）とパスフレーズを上の手順で読み込む。ダッシュボードか次のコマンドで空のデータベースを作る。
@@ -572,7 +616,13 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
    gpg --batch --quiet --pinentry-mode loopback --passphrase-fd 3 -d "$F" 3<<<"$SWV_BACKUP_PASSPHRASE" | docker run --rm -i -e NEON_RESTORE_URL postgres:18.6-trixie sh -c 'pg_restore -d "$NEON_RESTORE_URL" --no-owner --no-acl --single-transaction --exit-on-error'
    ```
 
-4. 行数を確かめ、API の `SPRING_DATASOURCE_URL` を `swv_restore` へ向けて起動する。セッションは復元されないので、利用者は再ログインする。
+4. 消し直す。保存先の `swv-erased-*.txt` のすべての行をカンマ区切りで `SWV_ERASED_IDS` に入れ、`#### 消去` の手順 3 の `psql` を `NEON_RESTORE_URL` に対して実行する（`-e NEON_DIRECT_URL` と `"$NEON_DIRECT_URL"` を `NEON_RESTORE_URL` に読み替える）。記録が無ければ飛ばす。
+
+   ```bash
+   export SWV_ERASED_IDS="$(cat "<保存先>"/swv-erased-*.txt | paste -sd, -)"
+   ```
+
+5. 行数を確かめ、API の `SPRING_DATASOURCE_URL` を `swv_restore` へ向けて起動する。セッションは復元されないので、利用者は再ログインする。
 
 確認の範囲（2026-11-04）: Neon の使い捨てのデータベースでは、ファイルを介した同じ指定の往復を確かめた。パイプの形は手元の PostgreSQL 18.6 で確かめた。Flyway が作る本物の `flyway_schema_history` を含む復元と、パイプの形の Neon での実行は、API のデプロイの後の最初のバックアップで確かめる。
 
