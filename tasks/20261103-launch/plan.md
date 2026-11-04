@@ -89,6 +89,8 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - Q88 の地域: Singapore と東京に一時デプロイして測り、差がわずかなら Singapore。
 - Q88 のイメージ: `bootBuildImage` で作れ、JRE 25.0.5 で動いた（手元で確認）。
 - Q88 の最小インスタンス数: 0。
+- Q150 の AOT キャッシュ: C3 で通常と AOT のイメージを Cloud Run に出して比べる。差があれば、URL を配る前に TSOD の機能として入れる。
+- エラーの確認: C3 で Cloud Run の Error Reporting にスタックトレースが載るかを試す（設定だけで済まないなら機能として扱う）。
 - Q88 の直接アクセス: フレンド公開では開けたままにし、URL を公開せず、低額の予算アラートと停止手順を用意する。
 - C3 の予算: Cloud Run に月 $10 の spend cap、請求先アカウント全体に月 $5 の通常の予算を置く（`design/tech-stack.md`「費用」）。無料枠の範囲でも spend cap に届く場合があるので、C6 の実測で金額を見直す。
 - C4 の値: redirect URI は `https://skillweave.app/api/login/oauth2/code/discord`、`SWV_WEB_TOP_URL` は `https://skillweave.app/`。

@@ -550,6 +550,25 @@ Cloud Run の単価（リクエストベースの課金）:
 
 Cloudflare の Web Analytics は残す（2026-11-03 にユーザーが決定）。Cloudflare が、HTML を受け付ける要求の応答にビーコン（`static.cloudflareinsights.com/beacon.min.js`）を挿入し、ブラウザが `/cdn-cgi/rum` へ計測値を送る。リポジトリと `dist` にはこのスクリプトが無く、`Accept: text/html` を付けない `curl` の応答にも入らないので、ブラウザか、この `Accept` を付けた要求で確かめる。`/privacy` の記載は、この挙動に合わせる。
 
+### 使わないサービス
+
+2026-11-04 に公式の料金ページで確かめて判断した。条件が変わったら見直す。
+
+| サービス | 判断 | 理由 |
+|---|---|---|
+| Vercel | 使わない | Hobby は個人の非商用が条件で使えるが、Workers の静的配信は無料で無制限、`/api/*` の転送もすでに動く形になっている |
+| Namecheap | 使わない | Cloudflare Registrar は原価で販売し、DNS とまとまる |
+| Clerk | 使わない | Discord のログインとセッションは API に実装済みで、外部へ渡すデータが増えるだけになる |
+| Supabase | 使わない | 無料枠は 1 週間使わないと一時停止し、500 MB。Neon は 1 GB で、使わない間は計算が止まり、一時停止の扱いにならない。API の置き換えにも Spring Boot の書き直しが要る |
+| Upstash | 使わない | セッションは PostgreSQL にあり、Redis の用途が無い |
+| Pinecone | 使わない | ベクトル検索の機能が無い |
+| Resend | 使わない | 送信するメールが無い。受信は Cloudflare Email Routing（無料）で足りる |
+| Stripe | 使わない | 憲法で営利化を禁止している |
+| PostHog | 使わない | 表示の速さは Cloudflare Web Analytics で足りる。行動の記録やセッションの録画は `/privacy` の説明を大きく変える |
+| Sentry | 今は使わない | API のエラーは Google Cloud の Error Reporting（料金なし。Cloud Logging の費用だけ）を先に試す。ブラウザのエラーを集めたくなったら、`/privacy` の変更と合わせて機能として検討する |
+
+Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 日 0.5 GB・保持 7 日で、上限に達すると取り込みを止め、課金はされない。Workers Logs は引き続き無効のままにする。
+
 ### API のデプロイ手順
 
 手元から手動で出す。この手順は 2026-11-04 時点で本番では未実行で、C3 で実行して直す。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
@@ -560,7 +579,8 @@ Cloudflare の Web Analytics は残す（2026-11-03 にユーザーが決定）�
 |---|---|
 | イメージ | `./gradlew bootBuildImage` で作れる。JRE は 25.0.5。展開後 769 MB、gzip で 175 MB（Artifact Registry の無料枠の目安は 2 版ほど） |
 | メモリ | 512 MiB は起動しない（メモリの計算で `fixed memory regions require 642294K`）。768 MiB と 1 GiB は起動し、300 回の要求の後で約 300 MiB |
-| 起動 | 1 CPU で 36〜39 秒、2 CPU で 21 秒 |
+| 起動（`/actuator/health` が 200 になるまで） | 通常のイメージは 1 CPU で約 14.5 秒、2 CPU で 7.5 秒。同じ日の先の測定では 1 CPU で 36〜39 秒、2 CPU で 21 秒と大きくぶれ、原因は分かっていない |
+| AOT キャッシュ（`BP_JVM_AOTCACHE_ENABLED=true`。試作でリポジトリの設定は未変更） | 1 CPU で約 7 秒、2 CPU で約 3.7 秒（通常のイメージと続けて測定）。イメージは gzip で 214 MB。マイグレーション・`/api/auth/me` の 401・ログイン開始の 302 は通常と同じ。訓練の実行では DB に接続しないよう `TRAINING_RUN_JAVA_TOOL_OPTIONS` で Flyway を止める |
 
 Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、ゲストの訪問では Cloud Run を起こさない。ログイン済みの最初の要求とログインの開始は、停止中のインスタンスの起動を待つ。
 
