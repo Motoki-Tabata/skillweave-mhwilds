@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import ExternalTextLink from '@/components/common/ExternalTextLink.vue'
 
 /** 最終更新日。文面を変えたらこの値も変える。 */
-const LAST_UPDATED = '2026/11/03'
+const LAST_UPDATED = '2026/11/04'
 
 const heading = ref<HTMLElement | null>(null)
 
@@ -63,6 +63,20 @@ const h2Class = 'text-base leading-snug font-bold'
         <h2 :class="h2Class">データの削除</h2>
         <p>
           画面から削除しても、データはデータベース上に残ります。完全に消去したいときは、下の連絡先へ依頼してください。
+        </p>
+        <p>依頼を受けてから 14 日以内を目安に消去します。</p>
+        <p>
+          データベースのバックアップを週に 1
+          回ほど取り、暗号化して、運営者が管理する保存先に保管しています。消去した後も、消去の前に取ったバックアップには約
+          4 週間データが残ります。取得は手作業なので、この期間は前後することがあります。
+        </p>
+        <p>
+          バックアップには、画面から削除したデータと Discord の ID
+          も含まれます。ログインの状態と表示名は含まれません。
+        </p>
+        <p>
+          バックアップから復元したときは、消去したデータを消し直します。そのために、消去した利用者の内部の
+          ID を、バックアップが消えるまで記録します。
         </p>
       </section>
 
