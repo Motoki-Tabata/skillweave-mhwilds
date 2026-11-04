@@ -531,11 +531,11 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
    read -rs SWV_BACKUP_PASSPHRASE
    ```
 
-2. ダンプを取って暗号化する。`<保存先>` はリポジトリの外のディレクトリ。
+2. ダンプを取って暗号化する。`<保存先>` はリポジトリの外のディレクトリ。ファイル名には時刻（UTC の時分）を含める。同じ日にマイグレーションの前のダンプを続けて取っても、名前が衝突して手順 3 の「失敗したらファイルを消す」が先に取ったダンプを消すことがないようにするため。
 
    ```bash
    set -o pipefail
-   F="<保存先>/swv-$(date -u +%Y%m%d).dump.gpg"
+   F="<保存先>/swv-$(date -u +%Y%m%d%H%M).dump.gpg"
    docker run --rm -e NEON_DIRECT_URL postgres:18.6-trixie sh -c 'pg_dump "$NEON_DIRECT_URL" -Fc --no-owner --no-acl --exclude-table-data="spring_session*"' | gpg --batch --pinentry-mode loopback --passphrase-fd 3 --symmetric --cipher-algo AES256 -o "$F" 3<<<"$SWV_BACKUP_PASSPHRASE"; echo "exit=$?"
    ```
 
@@ -555,7 +555,7 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
    表示されたファイルだけを `rm` で消す。続けて、消去の記録（`#### 消去`）のうち、残っている最も古いダンプの取得日より前の日付のものを表示する。ダンプが 1 個も残っていなければ、記録は消さない。同じ日のダンプが残る間も消さない。表示された名前を見てから `rm` で消す。
 
    ```bash
-   OLDEST=$(ls -1 swv-*.dump.gpg | sort | head -n1 | sed -E 's/^swv-([0-9]{8})\..*/\1/')
+   OLDEST=$(ls -1 swv-*.dump.gpg | sort | head -n1 | sed -E 's/^swv-([0-9]{8})[0-9]*\..*/\1/')
    [ -n "$OLDEST" ] && ls -1 swv-erased-*.txt | awk -v o="$OLDEST" '{ d = $0; gsub(/[^0-9]/, "", d); if (d < o) print $0 }'
    ```
 
