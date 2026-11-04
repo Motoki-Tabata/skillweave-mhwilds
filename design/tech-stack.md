@@ -550,6 +550,83 @@ Cloud Run の単価（リクエストベースの課金）:
 
 Cloudflare の Web Analytics は残す（2026-11-03 にユーザーが決定）。Cloudflare が、HTML を受け付ける要求の応答にビーコン（`static.cloudflareinsights.com/beacon.min.js`）を挿入し、ブラウザが `/cdn-cgi/rum` へ計測値を送る。リポジトリと `dist` にはこのスクリプトが無く、`Accept: text/html` を付けない `curl` の応答にも入らないので、ブラウザか、この `Accept` を付けた要求で確かめる。`/privacy` の記載は、この挙動に合わせる。
 
+### API のデプロイ手順
+
+手元から手動で出す。この手順は 2026-11-04 時点で本番では未実行で、C3 で実行して直す。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
+
+手元のコンテナで測った値（2026-11-04。Ryzen 7 5700X・WSL2・`prod` プロファイル・PostgreSQL 18.6 のコンテナ。Cloud Run と Neon の値ではない）:
+
+| 項目 | 結果 |
+|---|---|
+| イメージ | `./gradlew bootBuildImage` で作れる。JRE は 25.0.5。展開後 769 MB、gzip で 175 MB（Artifact Registry の無料枠の目安は 2 版ほど） |
+| メモリ | 512 MiB は起動しない（メモリの計算で `fixed memory regions require 642294K`）。768 MiB と 1 GiB は起動し、300 回の要求の後で約 300 MiB |
+| 起動 | 1 CPU で 36〜39 秒、2 CPU で 21 秒 |
+
+Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、ゲストの訪問では Cloud Run を起こさない。ログイン済みの最初の要求とログインの開始は、停止中のインスタンスの起動を待つ。
+
+設定と理由:
+
+| 設定 | 値 | 理由 |
+|---|---|---|
+| メモリ | 1 GiB | 768 MiB でも動くが、負荷をかけて測っていないので余裕を取る。費用は CPU が大半で、差は小さい |
+| CPU | 1 vCPU、`--cpu-throttling`（リクエストベースの課金） | インスタンスベースは存続の間ずっと課金される |
+| 起動ブースト | `--cpu-boost` | 起動中は 2 vCPU 分が課金されるが、待ち時間が減る |
+| インスタンス数 | 最小 0・最大 1 | 最小 1 は Singapore で月約 $13 かかる |
+| シークレット | `swv-db-url`・`swv-db-username`・`swv-db-password`・`swv-discord-client-id`・`swv-discord-client-secret` | 5 個で無料枠に収まる。値を入れ替えたら古い版を破棄する |
+
+`SPRING_DATASOURCE_URL` は `jdbc:postgresql://<direct のホスト>/neondb?sslmode=require` の形にする。ユーザー名とパスワードは URL に入れない。
+
+1. 変数を決め、`gcloud` を呼ぶ関数を定義する。`PROJECT` は実際の ID に置き換える。
+
+   ```bash
+   PROJECT=<プロジェクト ID>
+   REGION=asia-southeast1
+   IMAGE=$REGION-docker.pkg.dev/$PROJECT/swv/api:$(git rev-parse --short HEAD)
+   gc() { docker run --rm -i -v swv-gcloud:/root/.config/gcloud gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim gcloud "$@"; }
+   ```
+
+2. 先に Cloud Run の spend cap の予算と、請求先アカウントの通知用の予算をコンソールで作る（下の「停止」と「費用」）。
+3. Artifact Registry のリポジトリと、実行用のサービスアカウントを作り、シークレットを読む権限を渡す。
+
+   ```bash
+   gc artifacts repositories create swv --repository-format=docker --location=$REGION
+   gc iam service-accounts create swv-api-runtime
+   for s in swv-db-url swv-db-username swv-db-password swv-discord-client-id swv-discord-client-secret; do
+     gc secrets add-iam-policy-binding $s --member=serviceAccount:swv-api-runtime@$PROJECT.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor
+   done
+   ```
+
+4. 配備するコミットでイメージを作り、push する。
+
+   ```bash
+   (cd apps/api && ./gradlew bootBuildImage)
+   docker tag skillweave-mhwilds-api:latest $IMAGE
+   gc auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://$REGION-docker.pkg.dev
+   docker push $IMAGE
+   ```
+
+5. デプロイする。起動時に Flyway が Neon へマイグレーションを流すので、スキーマが変わる版では先にバックアップを取る。
+
+   ```bash
+   gc run deploy swv-api --image=$IMAGE --region=$REGION --service-account=swv-api-runtime@$PROJECT.iam.gserviceaccount.com --no-invoker-iam-check --memory=1Gi --cpu=1 --cpu-throttling --cpu-boost --min-instances=0 --max-instances=1 --set-env-vars=SPRING_PROFILES_ACTIVE=prod,DISCORD_REDIRECT_URI=https://skillweave.app/api/login/oauth2/code/discord,SWV_WEB_TOP_URL=https://skillweave.app/ --set-secrets=SPRING_DATASOURCE_URL=swv-db-url:latest,SPRING_DATASOURCE_USERNAME=swv-db-username:latest,SPRING_DATASOURCE_PASSWORD=swv-db-password:latest,DISCORD_CLIENT_ID=swv-discord-client-id:latest,DISCORD_CLIENT_SECRET=swv-discord-client-secret:latest
+   ```
+
+6. `/actuator/health` が 200、Cookie なしの `/api/auth/me` が 401 を返すことを確かめる。`run.app` の URL はリポジトリに書かない。
+
+#### 地域の測定
+
+Singapore と東京へ同じイメージを一時的に出し、ウォームの状態で `/actuator/health` の応答時間（DB の確認を含む）を手元から 20 回ずつ測る。東京の単価は安いが Neon は Singapore にあるので、DB への往復が増える。差がわずかなら Singapore にする。測り終えたら使わない地域のサービスを削除する。
+
+#### 停止
+
+費用が想定を超えたら、Invoker の確認を有効に戻す。認証のない要求は Cloud Run が拒否し、料金ページによると IAM で拒否した要求は課金されない。C3 で実際に試す。
+
+```bash
+gc run services update swv-api --region=$REGION --invoker-iam-check
+```
+
+再開は `--no-invoker-iam-check` にする。それでも足りなければ `gc run services delete swv-api --region=$REGION` でサービスを消す。イメージ・シークレット・Neon のデータは残る。
+
 ### DB の設定とバックアップ
 
 Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固定で、無操作が 5 分続くと止まる（無料プランでは変更できない）。

@@ -29,8 +29,8 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 ### C. 運用作業
 - [x] C1 Neon: Q129・Q131 を決め、プロジェクトを作り、バックアップとリストアの手順を `design/tech-stack.md` に書いた（2026-11-04）。パイプの形の Neon での実行と本物の `flyway_schema_history` の復元は、C3 の後の最初のバックアップで確かめる
 - [x] C2 Cloud Run・Artifact Registry・Secret Manager の料金を公式資料で確かめ、課金の有効化の前に示した（2026-11-04。`design/tech-stack.md`「費用」）
-- [ ] C3 Cloud Run: 予算アラートと停止手順を先に用意し、イメージ・地域の測定・最小インスタンス数・API の接続を進める（Q88）。依存: C1、C2
-- [ ] C4 本番の Discord OAuth を設定する。依存: C3
+- [ ] C3 Cloud Run: 予算アラートと停止手順を先に用意し、イメージ・地域の測定・最小インスタンス数・API の接続を進める（Q88）。依存: C1、C2。イメージと手元の測定、手順の下書きは済み（2026-11-04。`design/tech-stack.md`「API のデプロイ手順」）。残りはユーザーの課金の有効化と予算の作成、その後のデプロイと測定
+- [ ] C4 本番の Discord OAuth を設定する。依存: なし（redirect URI は固定なので C3 の前にできる。API の起動に値が要るので、C3 のデプロイより先に行う）
 - [ ] C5 Web を再デプロイし、本番でログイン・保存・共有 URL を確かめる。依存: B1、B2、B3、C4
 - [ ] C6 Neon が停止するか（Q91）、無料枠の消費、レイテンシを実測して記録する。依存: C5
 - [ ] C7 Q140 の照合: Email Routing の転送と受信、Cloud Run の地域、ログの保持、Workers Logs、バックアップの保持期間、Web Analytics、ブラウザの通信先。依存: C5
@@ -87,7 +87,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - Q129: マイグレーションは API の起動時のまま Neon の direct 接続で流す。PostgreSQL の見送りを解除し、18 でプロジェクトを作る。先に Flyway が advisory lock を使うかと、direct 接続を設定できるかを確かめる。
 - Q131: 週 1 回とマイグレーションの前に手元で `pg_dump` を取り（`postgres:18.6-trixie` のコンテナ）、暗号化してリポジトリの外に保存する。手元の PostgreSQL 18 で dump と restore を試す。
 - Q88 の地域: Singapore と東京に一時デプロイして測り、差がわずかなら Singapore。
-- Q88 のイメージ: まず `bootBuildImage` を試す（Java 25 で動くかは未確認）。
+- Q88 のイメージ: `bootBuildImage` で作れ、JRE 25.0.5 で動いた（手元で確認）。
 - Q88 の最小インスタンス数: 0。
 - Q88 の直接アクセス: フレンド公開では開けたままにし、URL を公開せず、低額の予算アラートと停止手順を用意する。
 - C3 の予算: Cloud Run に月 $10 の spend cap、請求先アカウント全体に月 $5 の通常の予算を置く（`design/tech-stack.md`「費用」）。無料枠の範囲でも spend cap に届く場合があるので、C6 の実測で金額を見直す。
@@ -96,7 +96,8 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 ## 注意する点
 - `max-instances=1` だけでは費用は無料枠に収まらない。Singapore・1 vCPU・1 GiB で常に処理中だと月約 $91 で、リクエストと転送はこの上に加わる（`design/tech-stack.md`「費用」）。通常の予算アラートは支出を止めない。Cloud Run には spend cap の予算が使える。実際に止まるかと、転送の費用が判定に含まれるかは C3 で確かめる。
 - Cloud Run を出した時点で `run.app` の URL は誰でもアクセスできる。Workers の上限も効かない。
-- `gcloud`・`psql`・`pg_dump` は手元に無く、`docker` はある。
+- `gcloud`・`psql`・`pg_dump` は手元に無く、`docker` はある。`gcloud` はコンテナで動かす（`design/tech-stack.md`「API のデプロイ手順」）。
+- PR は #98 の 1 本にまとめる（ユーザーの指示）。TSOD が要る作業の前で止まる。
 - `test:e2e` の後の `apps/web/dist` は配備に使わない。デプロイの直前にビルドし直す。
 - 本番の確認は、ブラウザの通信先も見る。`Accept: text/html` を付けない `curl` にはビーコンが入らない。
 
