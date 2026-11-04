@@ -463,11 +463,55 @@ Web は 2026-11-03 にデプロイした（`/api/*` は未接続で 503 を返�
 |---|---|---|
 | ドメイン・DNS | Cloudflare Registrar（`skillweave.app`） | ドメイン代だけ費用がかかる |
 | Web・マスターデータ | Cloudflare Workers Static Assets | 静的配信は無料で無制限。Worker の実行は 10 万回/日で、`/api/*` の転送がこれを消費する |
-| API | Cloud Run（Singapore を第一候補に、東京とも測って決める） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト。課金アカウントが要り、超えると課金される。`max-instances=1` と予算アラートを設定する |
+| API | Cloud Run（Singapore を第一候補に、東京とも測って決める） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト（Tier 1 の地域の値。Singapore は下の「費用」を見る）。課金アカウントが要り、超えると課金される。`max-instances=1` と予算を設定する |
 | DB | Neon（`aws-ap-southeast-1`。PostgreSQL 18。最大 0.25 CU） | 月 100 CU 時間・1 GB・転送量 5 GB。課金はされず、CU 時間か転送量を超えるとコンピュートが止まり、ストレージを超えると書き込みが止まる |
 | イメージの保管 | Artifact Registry | 0.5 GiB。最新版だけを残す |
 
 Web は Pages でなく Workers にする。どちらも静的配信は無料で、`/api/*` の転送は同じ Workers の枠を消費する。Cloudflare の資料は Workers を機能の広い基盤とし、Pages からの移行手順を示している（Pages の廃止の告知は確認していない）。
+
+### 費用
+
+2026-11-04 に Google Cloud の公式の料金ページで確かめた値で、変わりうる。金額は USD で、日本円の単価は確かめていない。
+
+Cloud Run の単価（リクエストベースの課金）:
+
+| 項目 | Singapore（`asia-southeast1`） | 東京（`asia-northeast1`） |
+|---|---|---|
+| CPU（処理中。vCPU 秒） | $0.0000336 | $0.000024 |
+| メモリ（処理中。GiB 秒） | $0.0000035 | $0.0000025 |
+| CPU・メモリの待機（最小インスタンスだけ。各単位） | $0.0000035 | $0.0000025 |
+| リクエスト（100 万件） | $0.40 | $0.40 |
+| インターネットへの転送（最初の段階。GiB） | $0.19 | $0.12（アジア宛て） |
+
+- 課金されるのは、インスタンスの起動中、SIGTERM の処理中、リクエストの処理中で、100 ミリ秒単位に切り上げる。最小インスタンスでない待機中のインスタンスは課金されない。
+- 無料枠は請求先アカウント単位で毎月リセットされ、Tier 1 の単価による金額の割引として適用される（CPU $4.32・メモリ $0.90）。Singapore の単価で割ると、月 12.9 万 vCPU 秒（1 vCPU で約 36 時間）・25.7 万 GiB 秒になる。この換算は資料の記載からの計算で、請求での確認はまだしていない。
+- インターネットへの転送の無料枠は北米からの 1 GiB だけで、Singapore と東京には無い。Cloud Run から Cloudflare と Neon への通信はこれに当たると読んでいる（請求での確認はまだしていない）。同じ地域の Google Cloud 内の転送は無料。
+
+| 構成（Singapore・1 vCPU・1 GiB） | 月額の目安 |
+|---|---|
+| 最小 0、処理中が月 36 時間以内 | CPU とメモリは無料枠の範囲 |
+| 最小 1、待機だけ | 約 $13 |
+| 最大 1 インスタンスが 30 日間ずっと処理中 | 約 $91（東京は約 $63）に、リクエストと転送の費用が加わる |
+
+`max-instances=1` は CPU とメモリの費用だけを抑える。リクエスト数と転送量は抑えない。
+
+その他のサービス:
+
+| サービス | 無料枠 | 超えた分 |
+|---|---|---|
+| Artifact Registry | 請求先アカウントで 0.5 GiB | 約 $0.10/GiB・月。同じ地域からの取得は無料、アジア内の別の地域は $0.05/GiB |
+| Secret Manager | 請求先アカウントで有効なバージョン 6 個・アクセス 1 万回/月 | 約 $0.06/バージョン・月、$0.03/1 万回。無効にしない古いバージョンも数える |
+| Cloud Logging | プロジェクトごとに月 50 GiB、30 日の保持 | $0.50/GiB、30 日を超える保持は $0.01/GiB・月 |
+
+費用の上限:
+
+- 通常の予算（alerts-only）は通知するだけで、使用も課金も止めない。
+- spend cap の予算は、1 プロジェクトの 1 サービスを対象に月単位で設定でき、Cloud Run は対象に入っている。超えるとそのサービスの新しい使用を翌月 1 日まで止める。リソースとデータは消えない。適用は即時でなく、超過分は通常どおり請求される。判定は定価の見積もりで、割引とクレジットを含まない。無料枠が割引として扱われるなら、無料枠の範囲の使用でも上限に届く。転送の費用が判定に含まれるかは、資料に記載が見つからない。
+- 課金を無効にする自動化は、プロジェクトの全サービスを止め、リソースが消えることがあると資料が警告している。
+
+新規の無料トライアルは $300・90 日で、有料へ切り替えないまま期限が来るか使い切ると、アカウントを閉じてリソースを止め、30 日の猶予の後に完全に削除する。
+
+資料: [Cloud Run](https://cloud.google.com/run/pricing)・[Artifact Registry](https://cloud.google.com/artifact-registry/pricing)・[Secret Manager](https://cloud.google.com/secret-manager/pricing)・[ネットワーク](https://cloud.google.com/vpc/network-pricing)・[Observability](https://cloud.google.com/products/observability/pricing)・[予算](https://docs.cloud.google.com/billing/docs/how-to/budgets)・[spend cap](https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps)・[課金の無効化](https://docs.cloud.google.com/billing/docs/how-to/disable-billing-with-notifications)・[無料の機能](https://docs.cloud.google.com/free/docs/free-cloud-features)
 
 ### Web のデプロイ手順
 

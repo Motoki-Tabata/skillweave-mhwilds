@@ -24,11 +24,11 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 ### B. TSOD で進めるもの
 - [x] B1 `/privacy` に Web Analytics の説明を足し、030 の AC-9 を取り消す（032 privacy-analytics。PR #89・#90 でマージ。本番への反映は C5）
 - [x] B2 031 api-proxy（PR #92・#93 でマージ。本番での転送の確認は Q88・031 decisions.md Q142 へ持ち越し。デプロイは C5）
-- [ ] B3 `/privacy` にバックアップの説明を足す（消去の依頼の後も最大約 4 週間、暗号化したダンプに残る）。033 privacy-backup。依存: C1。C5 の前にマージする（デプロイは C5）
+- [x] B3 `/privacy` にバックアップの説明を足す（033 privacy-backup。PR #96・#97 でマージ。本番への反映は C5）
 
 ### C. 運用作業
 - [x] C1 Neon: Q129・Q131 を決め、プロジェクトを作り、バックアップとリストアの手順を `design/tech-stack.md` に書いた（2026-11-04）。パイプの形の Neon での実行と本物の `flyway_schema_history` の復元は、C3 の後の最初のバックアップで確かめる
-- [ ] C2 Cloud Run・Artifact Registry・Secret Manager の料金を公式資料で確かめ、課金の有効化の前に示す。依存: なし
+- [x] C2 Cloud Run・Artifact Registry・Secret Manager の料金を公式資料で確かめ、課金の有効化の前に示した（2026-11-04。`design/tech-stack.md`「費用」）
 - [ ] C3 Cloud Run: 予算アラートと停止手順を先に用意し、イメージ・地域の測定・最小インスタンス数・API の接続を進める（Q88）。依存: C1、C2
 - [ ] C4 本番の Discord OAuth を設定する。依存: C3
 - [ ] C5 Web を再デプロイし、本番でログイン・保存・共有 URL を確かめる。依存: B1、B2、B3、C4
@@ -90,11 +90,11 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - Q88 のイメージ: まず `bootBuildImage` を試す（Java 25 で動くかは未確認）。
 - Q88 の最小インスタンス数: 0。
 - Q88 の直接アクセス: フレンド公開では開けたままにし、URL を公開せず、低額の予算アラートと停止手順を用意する。
+- C3 の予算: Cloud Run に月 $10 の spend cap、請求先アカウント全体に月 $5 の通常の予算を置く（`design/tech-stack.md`「費用」）。無料枠の範囲でも spend cap に届く場合があるので、C6 の実測で金額を見直す。
 - C4 の値: redirect URI は `https://skillweave.app/api/login/oauth2/code/discord`、`SWV_WEB_TOP_URL` は `https://skillweave.app/`。
 
 ## 注意する点
-- `max-instances=1` だけでは費用は無料枠に収まらない。1 vCPU で常に動くと月 259 万 vCPU 秒で、無料枠の約 14 倍（課金方式によって変わる。未確認）。予算アラートは支出を止めない。
-- Cloud Run の料金ページ（https://cloud.google.com/run/pricing）は本文を読めていない。Secret Manager の無料枠も未確認。
+- `max-instances=1` だけでは費用は無料枠に収まらない。Singapore・1 vCPU・1 GiB で常に処理中だと月約 $91 で、リクエストと転送はこの上に加わる（`design/tech-stack.md`「費用」）。通常の予算アラートは支出を止めない。Cloud Run には spend cap の予算が使える。実際に止まるかと、転送の費用が判定に含まれるかは C3 で確かめる。
 - Cloud Run を出した時点で `run.app` の URL は誰でもアクセスできる。Workers の上限も効かない。
 - `gcloud`・`psql`・`pg_dump` は手元に無く、`docker` はある。
 - `test:e2e` の後の `apps/web/dist` は配備に使わない。デプロイの直前にビルドし直す。
