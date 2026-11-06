@@ -14,7 +14,7 @@ spotless = "8.10.4"
 java = "25"
 
 # --- ライブラリ（Spring Boot BOM の管理外、または明示が必要なもの） ---
-springdoc-openapi = "3.1.1"
+springdoc-openapi = "3.2.0"
 testcontainers-postgresql = "2.0.5" # 座標変更に注意: org.testcontainers:testcontainers-postgresql
 swagger-parser = "2.1.48"           # contracts/openapi.yaml と実装の突合（contractTest）用
 jaxb-api = "2.3.1"                  # swagger-core の @XmlElement 参照解決に必要（Java 11+ で JDK 同梱が廃止された）
