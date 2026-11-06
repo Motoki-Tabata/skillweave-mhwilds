@@ -154,7 +154,65 @@
       "Bash(gh run view)",
       "Bash(gh run view *)",
       "Bash(gh run list)",
-      "Bash(gh run list *)"
+      "Bash(gh run list *)",
+      "Bash(gh release list)",
+      "Bash(gh release list *)",
+      "Bash(gh release view)",
+      "Bash(gh release view *)",
+
+      "Bash(pnpm exec neon me)",
+      "Bash(pnpm exec neon status)",
+      "Bash(pnpm exec neon orgs list)",
+      "Bash(pnpm exec neon orgs list *)",
+      "Bash(pnpm exec neon projects list)",
+      "Bash(pnpm exec neon projects list *)",
+      "Bash(pnpm exec neon branches list)",
+      "Bash(pnpm exec neon branches list *)",
+      "Bash(pnpm exec neon databases list)",
+      "Bash(pnpm exec neon databases list *)",
+      "Bash(pnpm exec neon operations list)",
+      "Bash(pnpm exec neon operations list *)",
+
+      "Bash(pnpm --filter @swv/web exec wrangler whoami)",
+      "Bash(pnpm --filter @swv/web exec wrangler deployments list)",
+      "Bash(pnpm --filter @swv/web exec wrangler deployments list *)",
+      "Bash(pnpm --filter @swv/web exec wrangler versions list)",
+      "Bash(pnpm --filter @swv/web exec wrangler versions list *)",
+      "Bash(pnpm --filter @swv/web exec wrangler deploy --dry-run)",
+      "Bash(pnpm --filter @swv/web exec wrangler deploy --dry-run *)"
+    ],
+    "ask": [
+      "Bash(pnpm --filter @swv/web exec wrangler deploy)",
+      "Bash(pnpm --filter @swv/web exec wrangler rollback)",
+      "Bash(pnpm --filter @swv/web exec wrangler rollback *)",
+      "Bash(pnpm --filter @swv/web exec wrangler secret *)",
+      "Bash(pnpm --filter @swv/web exec wrangler versions deploy *)",
+      "Bash(pnpm exec neon branches create *)",
+      "Bash(pnpm exec neon branches delete *)",
+      "Bash(pnpm exec neon branches reset *)",
+      "Bash(pnpm exec neon branches restore *)",
+      "Bash(pnpm exec neon connection-string)",
+      "Bash(pnpm exec neon connection-string *)",
+      "Bash(gh release create *)",
+      "Bash(gh workflow run *)"
+    ],
+    "deny": [
+      "Bash(pnpm exec neon projects delete *)",
+      "Bash(pnpm exec neon databases delete *)",
+      "Bash(pnpm --filter @swv/web exec wrangler delete)",
+      "Bash(pnpm --filter @swv/web exec wrangler delete *)"
     ]
+  },
+  "enabledPlugins": {
+    "cloudflare@cloudflare": true,
+    "neon-postgres@neon": true
+  },
+  "extraKnownMarketplaces": {
+    "cloudflare": {
+      "source": { "source": "github", "repo": "cloudflare/skills" }
+    },
+    "neon": {
+      "source": { "source": "github", "repo": "neondatabase/agent-skills" }
+    }
   }
 }
