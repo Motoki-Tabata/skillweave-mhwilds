@@ -472,7 +472,14 @@ Web は Pages でなく Workers にする。どちらも静的配信は無料で
 
 ### Web のデプロイ手順
 
-手元から手動で出す。`wrangler login` は運営者が行う。
+通常は `.github/workflows/release.yml` が出す（「リリースと版」節）。release-please のリリース PR をマージすると、作られたタグをチェックアウトし、単体テスト・ビルド・測定ページの除外の確認・`wrangler deploy --dry-run`・`wrangler deploy --tag <タグ> --message <タグ>` を順に実行し、下の手順 4 の表のうち `/`・`/privacy`・`/api/auth/me` の応答を確かめる。既存のタグを出し直すときと前の版へ戻すときは、Actions の Release を `workflow_dispatch` で実行し、タグを指定する。画面の確認（表の残りの行）は、デプロイの後に運営者がブラウザで行う。
+
+ワークフローの準備（運営者が行う）:
+
+- GitHub App: このリポジトリだけに入れる。権限は Contents・Pull requests・Issues の Read and write（release-please がブランチ・PR・ラベルを作る）。Client ID を Variable の `RELEASE_APP_CLIENT_ID` に、秘密鍵を Secret の `RELEASE_APP_PRIVATE_KEY` に入れる。
+- Environment `production`: デプロイを許すブランチは `main` だけ。Secret の `CLOUDFLARE_API_TOKEN`（テンプレートは「Edit Cloudflare Workers」で、アカウントと `skillweave.app` のゾーンに絞る）と Variable の `CLOUDFLARE_ACCOUNT_ID` を入れる。カスタムドメインの経路に要るゾーンの権限は、公式資料に記載が無い（2026-11-07 に確認）。テンプレートの範囲で最初のデプロイが通るかで確かめる。
+
+ワークフローが使えないときは、手元から手動で出す。`wrangler login` は運営者が行う。
 
 1. 配備するコミットをチェックアウトし、リポジトリ直下で依存を入れてビルドし直す。`test:e2e` の後の `apps/web/dist` には OCR の測定ページが入っているので、配備に使わない。
 
@@ -503,7 +510,7 @@ Web は Pages でなく Workers にする。どちらも静的配信は無料で
    | `/master-<版>.json` | 200 の `application/json` |
    | `/api/auth/me` | API の接続前は 503 の `application/problem+json` |
 
-戻すときは `wrangler rollback` で前の版へ戻す。
+戻すときは、前のタグで Release を `workflow_dispatch` で実行する。ワークフローが使えないときは `wrangler rollback` で前の版へ戻す。版はタグ名で `wrangler deployments list` に出る。
 
 Cloudflare の Web Analytics は残す（2026-11-03 にユーザーが決定）。Cloudflare が、HTML を受け付ける要求の応答にビーコン（`static.cloudflareinsights.com/beacon.min.js`）を挿入し、ブラウザが `/cdn-cgi/rum` へ計測値を送る。リポジトリと `dist` にはこのスクリプトが無く、`Accept: text/html` を付けない `curl` の応答にも入らないので、ブラウザか、この `Accept` を付けた要求で確かめる。`/privacy` の記載は、この挙動に合わせる。
 
@@ -638,7 +645,21 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
 
 ## CI
 
-`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。
+`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。e2e のブラウザ本体は Playwright の版ごとにキャッシュする。すべての checkout は `persist-credentials: false` にする。
+
+`.github/workflows/release.yml` のジョブは release-please / deploy-web（「リリースと版」節・「Web のデプロイ手順」節）。`main` の Ruleset の必須チェックには入れない。
+
+## リリースと版（2026-11-07）
+
+版は release-please がリポジトリで1つだけ管理する。直下の `package.json` の `version`・`.release-please-manifest.json`・`CHANGELOG.md` を release-please が書き、手では編集しない。`apps/web`・`packages/*` の `version` は使わない（0.0.1 のまま）。
+
+- **タグ**: `v<MAJOR>.<MINOR>.<PATCH>`（`include-component-in-tag: false`）。
+- **開発中（0.x）**: `feat` で MINOR、`fix` で PATCH を上げる。破壊的変更でも MINOR だけを上げる（`bump-minor-pre-major`）。`docs`・`test`・`refactor`・`build`・`ci`・`chore`・`style` は版を上げず、CHANGELOG にも載せない。そうしたコミットは、次のリリースに同乗する。
+- **リリースの流れ**: `main` へのマージのたびに、release-please がリリース PR（`chore(main): release x.y.z`）を作るか更新する。PR は GitHub App の名義なので CI が走る。リリース PR をマージした時点で、タグ・GitHub Release を作り、Web を本番へ出す。
+- **起点**: v0.1.0 は、release-please の導入の直後の `main` に手で作った GitHub Release である。それより前の履歴は CHANGELOG に載せない（`bootstrap-sha` は導入前の `main` の HEAD）。手で作ったタグはワークフローを起動しないので、v0.1.0 の本番への反映は `workflow_dispatch` で行う。
+- **Dependabot**: npm の本番の依存は `fix(deps)` で PATCH のリリースを作り、CHANGELOG の「修正」に載る。npm の開発の依存（`build(deps-dev)`）・gradle と docker-compose（`build(deps)`）・Actions（`ci(deps)`）は版を上げない。1本の PR に本番と開発の依存が混ざったときの接頭辞は資料に記載が無いので（2026-11-07 に確認）、npm のグループを `dependency-type` で分けている。
+- **API**: CD の対象外。Cloud Run への手順は `specs/open-questions.md` の Q88。
+- **v1.0.0**: 初期リリース（URL を配る）の判断の時に、`release-please-config.json` のパッケージ `.` に `"release-as": "1.0.0"` を入れた PR をマージし、リリース PR を v1.0.0 にする。リリースの後、次の PR で `release-as` を外す（残すと、以後も 1.0.0 を作ろうとする）。
 
 ## SonarQube のローカル限定採用
 
