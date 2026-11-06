@@ -646,7 +646,7 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
 
 ## CI
 
-`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。e2e のブラウザ本体は Playwright の版ごとにキャッシュする。すべての checkout は `persist-credentials: false` にする。
+`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。すべての checkout は `persist-credentials: false` にする。
 
 `.github/workflows/release.yml` のジョブは release-please / deploy-web（「リリースと版」節・「Web のデプロイ手順」節）。`main` の Ruleset の必須チェックには入れない。
 

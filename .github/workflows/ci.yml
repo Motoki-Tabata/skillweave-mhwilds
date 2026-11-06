@@ -148,21 +148,7 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # ブラウザ本体（約 170 MB）は Playwright の版ごとにキャッシュする。OS のパッケージは
-      # キャッシュできないので、当たったときも install-deps だけは実行する。
-      - name: Resolve Playwright version
-        id: playwright
-        run: echo "version=$(pnpm --filter @swv/web exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
       - name: Install Chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm --filter @swv/web exec playwright install --with-deps chromium
-      - name: Install Chromium system dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm --filter @swv/web exec playwright install-deps chromium
       - name: E2E tests
         run: pnpm --filter @swv/web run test:e2e
