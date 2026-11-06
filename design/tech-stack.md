@@ -172,6 +172,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 ### パッチ・マイナー: 毎週、エコシステムごとに1本
 
 - Dependabot の `groups` で、gradle・npm・github-actions・docker-compose ごとに、パッチ・マイナーを1本の PR にまとめる。
+  npm だけは本番の依存と開発の依存で2本に分ける（コミットの接頭辞を分けるため。「リリースと版」節）。
   CI が緑ならマージする。機能ブランチには混ぜない。
 - クールダウンは7日にする（`pnpm-workspace.yaml` の `minimumReleaseAge` と揃える）。github-actions・docker-compose にも同じ7日を置く。
 - セキュリティ更新は `groups` と `ignore` の対象外なので、個別に届く。届いたら、棚卸しを待たずに取り込む。
@@ -645,7 +646,7 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
 
 ## CI
 
-`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。e2e のブラウザ本体は Playwright の版ごとにキャッシュする。すべての checkout は `persist-credentials: false` にする。
+`.github/workflows/ci.yml` のジョブは secret-scan / api / web / packages / e2e。e2e は Chromium だけで、ビルドした web を `vite preview` で配信し、API・DB は使わない（004）。測定（`pnpm --filter @swv/web run measure`）は CI では実行しない。すべての checkout は `persist-credentials: false` にする。
 
 `.github/workflows/release.yml` のジョブは release-please / deploy-web（「リリースと版」節・「Web のデプロイ手順」節）。`main` の Ruleset の必須チェックには入れない。
 
