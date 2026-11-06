@@ -77,3 +77,6 @@ docker/volumes/
 
 # ===== 護石の OCR の測定用の画像（オーナーが用意する。正解ラベルの labels.json はコミットする） =====
 apps/web/e2e/measure/charm-ocr/images/
+
+# ===== Neon CLI の手元の紐付け（neon link が書く組織・プロジェクト・ブランチ。接続情報は .env.local） =====
+.neon

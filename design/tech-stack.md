@@ -84,6 +84,7 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | @lucide/vue | 1.61.0（2026-10-21） | アイコン。`lucide-vue-next` は deprecated |
 | @playwright/test | 1.63.0（2026-09-04） | `apps/web` の devDependencies。e2e と測定。Chromium だけ |
 | wrangler | 4.153.0（2026-10-26） | `apps/web` の devDependencies。Worker の手元の実行とデプロイ。推移的依存の `esbuild`・`workerd` のビルドスクリプトは `allowBuilds` で遮断 |
+| neon（Neon CLI） | 8.14.0（2026-10-30） | リポジトリ直下の devDependencies。完全一致の版。`pnpm exec neon` で使う。手元の運用（`neon link`・接続文字列の取得・使い捨てのブランチ）だけに使い、アプリからは import しない。グローバルに入れると Dependabot の対象外になるので、直下の依存にした。`neon.ts`（`@neon/config`・`@neon/env`）は作らない。ビルドスクリプトを持つ依存は無い |
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
@@ -514,6 +515,8 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
 - **接続**: API も手作業も direct（ホスト名に `-pooler` が付かないもの）を使う。pooled では `pg_dump` と Flyway を使わない。
 - **マイグレーション**: API の起動時に Flyway が流す。`neondb` に手でテーブルを作らない。試すときは使い捨てのデータベースを作る。
 - **接続文字列**: パスワードを含むので、チャット・リポジトリ・スクリーンショットに残さない。
+- **手元の紐付け**: リポジトリ直下で `pnpm exec neon init -y --agent claude-code --org-id <org> --project-id <project> --branch production --no-config` を実行すると、`.neon`（組織・プロジェクト・ブランチ）と `.env.local`（`DATABASE_URL`・`DATABASE_URL_UNPOOLED`）ができる。どちらも `.gitignore` の対象。API は `DATABASE_URL_UNPOOLED` を `SPRING_DATASOURCE_URL`（`jdbc:postgresql://<host>/<db>?sslmode=require`）・`_USERNAME`・`_PASSWORD` に分けて受ける。API のコードと Web には Neon 向けの変更は要らない。
+- **API を Neon で試す**: `production` から使い捨てのブランチを作り（`neon branches create --name <名前> --parent production`）、その direct 接続で `bootRun` し、終わったら `neon branches delete` で消す。2026-11-07 に、Flyway の V1〜V6 の適用・`/actuator/health` の `db: UP`・Spring Session の行の作成・`uuidv7()` の既定値を確かめ、`production` は空のまま残した。
 
 `DROP DATABASE` が `being accessed by other users` で失敗したら、ダッシュボードでそのデータベースを開いていないか確かめる。ダッシュボードで開いた後に、アプリ名が空の idle 接続が 8 本残り、コンピュートの設定を保存した後で消せた例がある（2026-11-04）。接続元は確定していない。
 
