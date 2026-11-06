@@ -11,7 +11,7 @@ name: swv-sonar
 
 services:
   sonarqube:
-    image: sonarqube:26.9.0.129388-community
+    image: sonarqube:26.10.0.133078-community
     container_name: swv_sonarqube
     environment:
       TZ: UTC
