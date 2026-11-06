@@ -6,6 +6,9 @@
 <type>(<scope>): <summary>, refs specs/NNN-<slug>/spec.md
 ```
 
+- `<type>` は release-please が版の上げ方に使う。`feat` は 0.x の間は MINOR を上げ、`fix` は PATCH を上げる。その他の型は版を上げない（`design/tech-stack.md` の「リリースと版」節）。
+- release-please のリリースのコミット（`chore(main): release x.y.z`）と Dependabot のコミットには `refs` が付かない。手で直さない。
+
 ## コミットの単位
 
 「1区間 = 1コミット」にしない。区間の中の成果物・ゲートの単位で積む。ゲートの直前で一度コミットしておくと、差し戻しが起きたときの復帰点が明確になる。PR は1機能につき1本のまま、その中でコミットを積む。
