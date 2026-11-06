@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "bootstrap-sha": "7a6e758808e105da8c5ea3ebf60b82aae28e6655",
+  "changelog-sections": [
+    { "type": "feat", "section": "機能" },
+    { "type": "fix", "section": "修正" },
+    { "type": "perf", "section": "性能" },
+    { "type": "revert", "section": "取り消し" },
+    { "type": "docs", "section": "文書", "hidden": true },
+    { "type": "test", "section": "テスト", "hidden": true },
+    { "type": "refactor", "section": "整理", "hidden": true },
+    { "type": "build", "section": "ビルド", "hidden": true },
+    { "type": "ci", "section": "CI", "hidden": true },
+    { "type": "chore", "section": "雑務", "hidden": true },
+    { "type": "style", "section": "書式", "hidden": true }
+  ],
+  "packages": {
+    ".": {}
+  }
+}
