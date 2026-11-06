@@ -172,6 +172,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 ### パッチ・マイナー: 毎週、エコシステムごとに1本
 
 - Dependabot の `groups` で、gradle・npm・github-actions・docker-compose ごとに、パッチ・マイナーを1本の PR にまとめる。
+  npm だけは本番の依存と開発の依存で2本に分ける（コミットの接頭辞を分けるため。「リリースと版」節）。
   CI が緑ならマージする。機能ブランチには混ぜない。
 - クールダウンは7日にする（`pnpm-workspace.yaml` の `minimumReleaseAge` と揃える）。github-actions・docker-compose にも同じ7日を置く。
 - セキュリティ更新は `groups` と `ignore` の対象外なので、個別に届く。届いたら、棚卸しを待たずに取り込む。
