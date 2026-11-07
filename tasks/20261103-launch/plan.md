@@ -25,7 +25,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] B1 `/privacy` に Web Analytics の説明を足し、030 の AC-9 を取り消す（032 privacy-analytics。PR #89・#90 でマージ。2026-11-07 に v0.1.0 で本番へ反映）
 - [x] B2 031 api-proxy（PR #92・#93 でマージ。2026-11-07 に v0.1.0 で本番へ反映。`API_ORIGIN` は未設定で `/api/*` は 503。本番での転送の確認は Q88・031 decisions.md Q142 へ持ち越し）
 - [x] B3 `/privacy` にバックアップの説明を足す（033 privacy-backup。PR #96・#97 でマージ。2026-11-07 に v0.1.0 で本番へ反映）
-- [ ] B4 Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付ける（031 の Worker の変更。`/tsod-discover` から始める。鍵の置き場・トークンの使い回し・失敗のときの応答は機能の中で決める。Q88）。依存: なし
+- [x] B4 Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付ける（034 api-proxy-id-token。PR #112・#113・#114 でマージ。本番の Web へはまだ出していない。鍵の登録と本番での確認は C3・C5）
 
 ### C. 運用作業
 - [x] C1 Neon: Q129・Q131 を決め、プロジェクトを作り、バックアップとリストアの手順を `design/tech-stack.md` に書いた（2026-11-04）。パイプの形の Neon での実行と本物の `flyway_schema_history` の復元は、C3 の後の最初のバックアップで確かめる
