@@ -627,6 +627,20 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 2. 先に Cloud Run の spend cap の予算と、請求先アカウントの通知用の予算をコンソールで作る（下の「停止」と「費用」）。
 3. Artifact Registry のリポジトリと、実行用のサービスアカウントを作り、シークレットを読む権限を渡す。
 
+   シークレットの値は運営者が入れる。値を画面・履歴・チャットに出さないよう、DB の値は `.env.local` の `DATABASE_URL_UNPOOLED` から取り出し、Discord の値は `read -rs` で受けて渡す（2026-11-07 に実行）。
+
+   ```bash
+   neon_part() { python3 -c 'import sys,urllib.parse as u;v=[l.split("=",1)[1].strip().strip("\"\x27") for l in open(".env.local") if l.startswith("DATABASE_URL_UNPOOLED=")][0];p=u.urlsplit(v);print({"url":f"jdbc:postgresql://{p.hostname}{p.path}?sslmode=require","user":u.unquote(p.username),"pass":u.unquote(p.password)}[sys.argv[1]],end="")' "$1"; }
+   gc services enable run.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com
+   neon_part url | gc secrets create swv-db-url --replication-policy=automatic --data-file=-
+   neon_part user | gc secrets create swv-db-username --replication-policy=automatic --data-file=-
+   neon_part pass | gc secrets create swv-db-password --replication-policy=automatic --data-file=-
+   read -rs V && printf %s "$V" | gc secrets create swv-discord-client-id --replication-policy=automatic --data-file=- ; unset V
+   read -rs V && printf %s "$V" | gc secrets create swv-discord-client-secret --replication-policy=automatic --data-file=- ; unset V
+   ```
+
+   Discord の値は、本番用のアプリ（開発用と別）の OAuth2 に redirect URI `https://skillweave.app/api/login/oauth2/code/discord` を登録して取る。
+
    ```bash
    gc artifacts repositories create swv --repository-format=docker --location=$REGION
    gc iam service-accounts create swv-api-runtime
