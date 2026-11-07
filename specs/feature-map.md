@@ -46,7 +46,7 @@
 | 031 | api-proxy | Web の Worker が `/api/*` を Cloud Run へ転送し、同じオリジンのまま本番でログイン・保存・共有 URL を使えるようにする（今は 503 を返す） | P0 | M | 済 |
 | 032 | privacy-analytics | `/privacy` の表記を本番の事実に合わせ、Cloudflare Web Analytics で何が送られ何に使われるかを画面から読めるようにする | P0 | S | 済 |
 | 033 | privacy-backup | 消去を依頼した後もデータがバックアップにいつまで、どんな形で残るかを、`/privacy` で読めるようにする | P0 | S | 済 |
-| 034 | api-proxy-id-token | Web の Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付けて、Invoker の確認を有効にしたまま Cloud Run を呼べるようにする | P0 | S | 未着手 |
+| 034 | api-proxy-id-token | Web の Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付けて、Invoker の確認を有効にしたまま Cloud Run を呼べるようにする | P0 | S | 済 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
