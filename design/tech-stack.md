@@ -459,7 +459,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## 本番の構成（2026-11-02）
 
-Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0 を出した（`/api/*` は `API_ORIGIN` が未設定で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った。API は 2026-11-07 に Cloud Run（Singapore）へ初めてデプロイし、起動時の Flyway で V1〜V6 が `neondb` に入った（Worker の `API_ORIGIN` は未設定）。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0、続けて v0.2.0（034 の ID トークンの付与）を出した。Neon のプロジェクトは 2026-11-04 に作った。API は 2026-11-07 に Cloud Run（Singapore）へ初めてデプロイし、起動時の Flyway で V1〜V6 が `neondb` に入った。同日に Worker の `API_ORIGIN` と `API_INVOKER_KEY` を登録し、`/api/*` が Cloud Run へ届くようになった。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
 
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
