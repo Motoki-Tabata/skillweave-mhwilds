@@ -459,13 +459,13 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## 本番の構成（2026-11-02）
 
-Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0 を出した（`/api/*` は `API_ORIGIN` が未設定で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った（テーブルはまだ無い）。API は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0 を出した（`/api/*` は `API_ORIGIN` が未設定で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った。API は 2026-11-07 に Cloud Run（Singapore）へ初めてデプロイし、起動時の Flyway で V1〜V6 が `neondb` に入った（Worker の `API_ORIGIN` は未設定）。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
 
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
 | ドメイン・DNS | Cloudflare Registrar（`skillweave.app`） | ドメイン代だけ費用がかかる |
 | Web・マスターデータ | Cloudflare Workers Static Assets | 静的配信は無料で無制限。Worker の実行は 10 万回/日で、`/api/*` の転送がこれを消費する |
-| API | Cloud Run（Singapore を第一候補に、東京とも測って決める） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト（Tier 1 の地域の値。Singapore は下の「費用」を見る）。課金アカウントが要り、超えると課金される。`max-instances=1` と予算を設定する |
+| API | Cloud Run（Singapore。2026-11-07 に東京と測って決めた） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト（Tier 1 の地域の値。Singapore は下の「費用」を見る）。課金アカウントが要り、超えると課金される。`max-instances=1` と予算を設定する |
 | DB | Neon（`aws-ap-southeast-1`。PostgreSQL 18。最大 0.25 CU） | 月 100 CU 時間・1 GB・転送量 5 GB。課金はされず、CU 時間か転送量を超えるとコンピュートが止まり、ストレージを超えると書き込みが止まる |
 | イメージの保管 | Artifact Registry | 0.5 GiB。最新版だけを残す |
 
@@ -515,10 +515,10 @@ Cloud Run の単価（リクエストベースの課金）:
 
 | 予算 | 金額と通知 | 理由 |
 |---|---|---|
-| spend cap（`skillweave` のプロジェクトの Cloud Run） | 月 $10。通知は固定 | 普段の定価の見積もり（月 $1 弱。費用の大半は起動）の約 10 倍で、地域の測定でも止まりにくい。`/api/*` を叩かれたときの損失を $10 と報告の遅れの分に抑える |
-| 通常の予算（請求先アカウント全体） | 月 $1。実費の 50・90・100% と見込みの 100% で通知 | 普段は無料枠の範囲で $0 の見込みなので、請求が出たらすぐ気づける。spend cap の外の費用（Artifact Registry・Secret Manager・Logging・転送）を見張る |
+| spend cap（`skillweave` のプロジェクトの Cloud Run） | 月 ¥1,500（$10 相当）。通知は固定 | 普段の定価の見積もり（月 $1 弱。費用の大半は起動）の約 10 倍で、地域の測定でも止まりにくい。`/api/*` を叩かれたときの損失を $10 と報告の遅れの分に抑える |
+| 通常の予算（請求先アカウント全体） | 月 ¥150（$1 相当）。実費の 50・90・100% と見込みの 100% で通知 | 普段は無料枠の範囲で $0 の見込みなので、請求が出たらすぐ気づける。spend cap の外の費用（Artifact Registry・Secret Manager・Logging・転送）を見張る |
 
-請求先アカウントの通貨と、転送の費用がどのサービスの費目に出るかは C3 で確かめる。円建てなら金額を円で決め直す。金額は C6 の実測で見直す。
+請求先アカウントの通貨は JPY なので、金額を円で決めた（2026-11-07。ユーザーの決定）。転送の費用がどのサービスの費目に出るかは C3 で確かめる。金額は C6 の実測で見直す。
 
 新規の無料トライアルは $300・90 日で、有料へ切り替えないまま期限が来るか使い切ると、アカウントを閉じてリソースを止め、30 日の猶予の後に完全に削除する。
 
@@ -589,7 +589,7 @@ Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 
 
 ### API のデプロイ手順
 
-手元から手動で出す。この手順は 2026-11-04 時点で本番では未実行で、C3 で実行して直す。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
+手元から手動で出す。手順 1〜7 は 2026-11-07 に本番で実行した。「停止」の試行は C3 の残り。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
 
 手元のコンテナで測った値（2026-11-04。Ryzen 7 5700X・WSL2・`prod` プロファイル・PostgreSQL 18.6 のコンテナ。Cloud Run と Neon の値ではない）:
 
@@ -627,6 +627,20 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 2. 先に Cloud Run の spend cap の予算と、請求先アカウントの通知用の予算をコンソールで作る（下の「停止」と「費用」）。
 3. Artifact Registry のリポジトリと、実行用のサービスアカウントを作り、シークレットを読む権限を渡す。
 
+   シークレットの値は運営者が入れる。値を画面・履歴・チャットに出さないよう、DB の値は `.env.local` の `DATABASE_URL_UNPOOLED` から取り出し、Discord の値は `read -rs` で受けて渡す（2026-11-07 に実行）。
+
+   ```bash
+   neon_part() { python3 -c 'import sys,urllib.parse as u;v=[l.split("=",1)[1].strip().strip("\"\x27") for l in open(".env.local") if l.startswith("DATABASE_URL_UNPOOLED=")][0];p=u.urlsplit(v);print({"url":f"jdbc:postgresql://{p.hostname}{p.path}?sslmode=require","user":u.unquote(p.username),"pass":u.unquote(p.password)}[sys.argv[1]],end="")' "$1"; }
+   gc services enable run.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com
+   neon_part url | gc secrets create swv-db-url --replication-policy=automatic --data-file=-
+   neon_part user | gc secrets create swv-db-username --replication-policy=automatic --data-file=-
+   neon_part pass | gc secrets create swv-db-password --replication-policy=automatic --data-file=-
+   read -rs V && printf %s "$V" | gc secrets create swv-discord-client-id --replication-policy=automatic --data-file=- ; unset V
+   read -rs V && printf %s "$V" | gc secrets create swv-discord-client-secret --replication-policy=automatic --data-file=- ; unset V
+   ```
+
+   Discord の値は、本番用のアプリ（開発用と別）の OAuth2 に redirect URI `https://skillweave.app/api/login/oauth2/code/discord` を登録して取る。
+
    ```bash
    gc artifacts repositories create swv --repository-format=docker --location=$REGION
    gc iam service-accounts create swv-api-runtime
@@ -657,7 +671,7 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
    gc run services add-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
    ```
 
-   鍵の JSON はリポジトリの外に出し、手元に置く時間を短くする。発行したら、Worker に登録し、登録できたら手元のファイルを消す（2026-11-07 に、鍵の発行と、鍵での ID トークンの交換までを実際に通した。`wrangler secret put` の実行は C3 で行う）。
+   鍵の JSON はリポジトリの外に出し、手元に置く時間を短くする。発行したら、Worker に登録し、登録できたら手元のファイルを消す（2026-11-07 に、本番の鍵の発行・`wrangler secret put`・手元のファイルの削除までを通した）。
 
    ```bash
    mkdir -p "$HOME/.swv-keys" && chmod 700 "$HOME/.swv-keys"
@@ -685,6 +699,15 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 #### 地域の測定
 
 Singapore と東京へ同じイメージを一時的に出し、ウォームの状態で `/actuator/health` の応答時間（DB の確認を含む）を手元から 20 回ずつ測る。東京の単価は安いが Neon は Singapore にあるので、DB への往復が増える。差がわずかなら Singapore にする。測り終えたら使わない地域のサービスを削除する。
+
+結果（2026-11-07。イメージ `api:4fb470f`・手元は日本・運営者の ID トークンで直接・両地域を交互に 20 回ずつ）:
+
+| 地域 | 中央値 | 最小 | 90 パーセンタイル | 最大 | 起動（`Started … in`） |
+|---|---|---|---|---|---|
+| Singapore | 245 ms | 228 ms | 328 ms | 487 ms | 16.7 秒（初回でマイグレーションを含む） |
+| 東京 | 243 ms | 218 ms | 313 ms | 360 ms | 15.2 秒 |
+
+差はわずかなので Singapore にし、東京のサービスは削除した。東京は手元に近い分と Neon への往復が増える分が打ち消し合ったと読んでいる。DB を何度も呼ぶ要求では東京が不利になる。どちらもトークンなしの要求は 403、トークン付きで `/actuator/health` は 200、Cookie なしの `/api/auth/me` は 401、`/api/oauth2/authorization/discord` は本番の redirect URI を載せた Discord への 302 だった。
 
 #### 停止
 
