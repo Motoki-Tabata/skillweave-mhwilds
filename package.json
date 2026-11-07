@@ -1,6 +1,6 @@
 {
   "name": "skillweave-mhwilds",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.25.0",
@@ -20,5 +20,8 @@
     "contract:types": "pnpm --filter @swv/web run contract:types",
     "contract:docs": "pnpm --filter @swv/web run contract:docs",
     "contract:swagger": "pnpm --filter @swv/web run contract:swagger"
+  },
+  "devDependencies": {
+    "neon": "8.14.0"
   }
 }

@@ -153,6 +153,12 @@ skillweave-mhwilds/
 
 ---
 
+## リリース
+
+版とタグは release-please が管理します（タグは `v0.x.y`。初期リリースで `v1.0.0`）。リリース PR をマージすると、タグと GitHub Release を作り、Web を本番へデプロイします。規則と手順の正は `design/tech-stack.md` の「リリースと版」節です。
+
+---
+
 ## クレジット
 
 - マスターデータは [MHDB](https://github.com/LartTyler/mhdb-wilds-data)（`LartTyler/mhdb-wilds-data`）の出力 JSON を入力として使う予定です（機能002 で導入。MHDB のコードは流用しません）。
