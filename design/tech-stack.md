@@ -589,7 +589,7 @@ Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 
 
 ### API のデプロイ手順
 
-手元から手動で出す。手順 1〜5 と 7 は 2026-11-07 に本番で実行した。手順 6 の鍵の登録と「停止」の試行は C3 の残り。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
+手元から手動で出す。手順 1〜7 は 2026-11-07 に本番で実行した。「停止」の試行は C3 の残り。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
 
 手元のコンテナで測った値（2026-11-04。Ryzen 7 5700X・WSL2・`prod` プロファイル・PostgreSQL 18.6 のコンテナ。Cloud Run と Neon の値ではない）:
 
@@ -671,7 +671,7 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
    gc run services add-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
    ```
 
-   鍵の JSON はリポジトリの外に出し、手元に置く時間を短くする。発行したら、Worker に登録し、登録できたら手元のファイルを消す（2026-11-07 に、鍵の発行と、鍵での ID トークンの交換までを実際に通した。`wrangler secret put` の実行は C3 で行う）。
+   鍵の JSON はリポジトリの外に出し、手元に置く時間を短くする。発行したら、Worker に登録し、登録できたら手元のファイルを消す（2026-11-07 に、本番の鍵の発行・`wrangler secret put`・手元のファイルの削除までを通した）。
 
    ```bash
    mkdir -p "$HOME/.swv-keys" && chmod 700 "$HOME/.swv-keys"

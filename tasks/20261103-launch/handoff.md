@@ -12,7 +12,7 @@
 SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch/handoff.md と plan.md を全文読み、未完了の最初のタスクから進める。plan.md の「守ること」に従う。
 ```
 
-- 最初のタスク: C3 の続き。課金の有効化と予算の作成（手順 2）は済んだ（2026-11-07）。Secret Manager の 5 つのシークレット（`swv-db-*`・`swv-discord-*`）も運営者が登録し、形を確かめた（2026-11-07）。手順 3（Artifact Registry の `swv`・`swv-api-runtime`・シークレットの読み取り権限）と手順 4（`main` の `4fb470f` のイメージを `api:4fb470f` で push）も済んだ（2026-11-07）。手順 5 のデプロイ・「地域の測定」・手順 7 の確認も済み、地域は Singapore に決めて東京のサービスを消した（2026-11-07。`design/tech-stack.md`）。残りは手順 6（`swv-web-invoker` に Invoker を付け、鍵を発行して `API_INVOKER_KEY` に登録する。鍵の発行と登録は運営者）と、「停止」の試行、Q150 の AOT キャッシュの比較、Error Reporting の確認。C4 は済んだ。進捗は `main` から `docs/*` のブランチを切り、タスクごとに小さな PR で入れる。課金の有効化・予算の作成・`gcloud` のログイン・秘密情報の入力・Discord の設定はユーザーが行う。
+- 最初のタスク: C3 の続き。課金の有効化と予算の作成（手順 2）は済んだ（2026-11-07）。Secret Manager の 5 つのシークレット（`swv-db-*`・`swv-discord-*`）も運営者が登録し、形を確かめた（2026-11-07）。手順 3（Artifact Registry の `swv`・`swv-api-runtime`・シークレットの読み取り権限）と手順 4（`main` の `4fb470f` のイメージを `api:4fb470f` で push）も済んだ（2026-11-07）。手順 5 のデプロイ・「地域の測定」・手順 7 の確認も済み、地域は Singapore に決めて東京のサービスを消した（2026-11-07。`design/tech-stack.md`）。手順 6 も済んだ（2026-11-07。`swv-web-invoker` に Invoker を付け、運営者が鍵を発行して `API_INVOKER_KEY` に登録し、手元の鍵を消した。利用者が管理する鍵は 1 本）。次は v0.2.0（034 の Worker）のリリースと `API_ORIGIN` の登録（C5）。C3 の残りは「停止」の試行、Q150 の AOT キャッシュの比較、Error Reporting の確認。C4 は済んだ。進捗は `main` から `docs/*` のブランチを切り、タスクごとに小さな PR で入れる。課金の有効化・予算の作成・`gcloud` のログイン・秘密情報の入力・Discord の設定はユーザーが行う。
 
 ## 判断ログ
 - 2026-11-03 段階2: サブセッションに分けず、1 つの進行表で進める（理由: ユーザーの指示）
