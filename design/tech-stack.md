@@ -459,13 +459,13 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## 本番の構成（2026-11-02）
 
-Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0 を出した（`/api/*` は `API_ORIGIN` が未設定で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った（テーブルはまだ無い）。API は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0 を出した（`/api/*` は `API_ORIGIN` が未設定で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った。API は 2026-11-07 に Cloud Run（Singapore）へ初めてデプロイし、起動時の Flyway で V1〜V6 が `neondb` に入った（Worker の `API_ORIGIN` は未設定）。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
 
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
 | ドメイン・DNS | Cloudflare Registrar（`skillweave.app`） | ドメイン代だけ費用がかかる |
 | Web・マスターデータ | Cloudflare Workers Static Assets | 静的配信は無料で無制限。Worker の実行は 10 万回/日で、`/api/*` の転送がこれを消費する |
-| API | Cloud Run（Singapore を第一候補に、東京とも測って決める） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト（Tier 1 の地域の値。Singapore は下の「費用」を見る）。課金アカウントが要り、超えると課金される。`max-instances=1` と予算を設定する |
+| API | Cloud Run（Singapore。2026-11-07 に東京と測って決めた） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト（Tier 1 の地域の値。Singapore は下の「費用」を見る）。課金アカウントが要り、超えると課金される。`max-instances=1` と予算を設定する |
 | DB | Neon（`aws-ap-southeast-1`。PostgreSQL 18。最大 0.25 CU） | 月 100 CU 時間・1 GB・転送量 5 GB。課金はされず、CU 時間か転送量を超えるとコンピュートが止まり、ストレージを超えると書き込みが止まる |
 | イメージの保管 | Artifact Registry | 0.5 GiB。最新版だけを残す |
 
@@ -589,7 +589,7 @@ Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 
 
 ### API のデプロイ手順
 
-手元から手動で出す。この手順は 2026-11-04 時点で本番では未実行で、C3 で実行して直す。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
+手元から手動で出す。手順 1〜5 と 7 は 2026-11-07 に本番で実行した。手順 6 の鍵の登録と「停止」の試行は C3 の残り。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
 
 手元のコンテナで測った値（2026-11-04。Ryzen 7 5700X・WSL2・`prod` プロファイル・PostgreSQL 18.6 のコンテナ。Cloud Run と Neon の値ではない）:
 
@@ -699,6 +699,15 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 #### 地域の測定
 
 Singapore と東京へ同じイメージを一時的に出し、ウォームの状態で `/actuator/health` の応答時間（DB の確認を含む）を手元から 20 回ずつ測る。東京の単価は安いが Neon は Singapore にあるので、DB への往復が増える。差がわずかなら Singapore にする。測り終えたら使わない地域のサービスを削除する。
+
+結果（2026-11-07。イメージ `api:4fb470f`・手元は日本・運営者の ID トークンで直接・両地域を交互に 20 回ずつ）:
+
+| 地域 | 中央値 | 最小 | 90 パーセンタイル | 最大 | 起動（`Started … in`） |
+|---|---|---|---|---|---|
+| Singapore | 245 ms | 228 ms | 328 ms | 487 ms | 16.7 秒（初回でマイグレーションを含む） |
+| 東京 | 243 ms | 218 ms | 313 ms | 360 ms | 15.2 秒 |
+
+差はわずかなので Singapore にし、東京のサービスは削除した。東京は手元に近い分と Neon への往復が増える分が打ち消し合ったと読んでいる。DB を何度も呼ぶ要求では東京が不利になる。どちらもトークンなしの要求は 403、トークン付きで `/actuator/health` は 200、Cookie なしの `/api/auth/me` は 401、`/api/oauth2/authorization/discord` は本番の redirect URI を載せた Discord への 302 だった。
 
 #### 停止
 
