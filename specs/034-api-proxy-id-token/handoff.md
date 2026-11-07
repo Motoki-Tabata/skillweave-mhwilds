@@ -2,9 +2,9 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: C
-- 次に起動するコマンド: `/tsod-plan 034-api-proxy-id-token`
-- 推奨モデル: Opus
+- 区間: D
+- 次に起動するコマンド: `/tsod-build 034-api-proxy-id-token`
+- 推奨モデル: Sonnet
 - ブランチ: `feat/034-api-proxy-id-token`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
@@ -27,7 +27,7 @@
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-11-07 / 55ab82b |
 | B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | 2026-11-07 |
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-11-07 |
-| C-1 | plan.md・tasks.md | 未 | |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-11-07 / f373686 |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
@@ -71,6 +71,7 @@
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
 - 区間 D の最初のタスク（decisions.md Q151）は、運営者が swv-web-invoker の鍵を発行してから行う。plan.md で、鍵の発行（手順 6 の service-accounts create を含む）を運営者の作業として順序に入れ、鍵を作れない（iam.disableServiceAccountKeyCreation）ときの扱いも書く
+- 上の鍵の発行の順序と、鍵を作れないときの扱い（停止してユーザーに判断を仰ぐ）は plan.md の D1 に書いた（区間 C）。T1 は運営者の作業を待つので、区間 D の開始時に運営者へ依頼する
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
