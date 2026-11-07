@@ -95,3 +95,13 @@
 - 種別: 規律昇華
 - 何が起きたか: `cloud.google.com/*/pricing` は WebFetch だとタイトルだけが返るが、`curl` で取った HTML には本文と地域ごとの単価（埋め込みの JSON）が入っている。既定の表示は `us-central1` の単価で、Singapore は Tier 2 で約 1.4 倍だった。plan.md は「料金ページの本文を読めていない」のまま残っていた。
 - 提案: `.claude/skills/tsod-workflow/references/judgment.md` に、WebFetch で本文が空のときは HTML を直接取って確かめること、料金表は対象の地域の値を読むことを足す。
+
+## 2026-11-07 憲法の「http.ts を使う」規定が apps/web/worker/** に及ぶかが書かれていない（機能034・区間D）
+- 種別: 矛盾是正
+- 何が起きたか: `CLAUDE.md` の憲法は Web の HTTP クライアントに `apps/web/src/main/lib/http.ts` を使うと定める。Worker（031・034）は素の `fetch` を使い、`tsconfig.node.json` の include の制約（`specs/034-api-proxy-id-token/plan.md` の D3）で `http.ts` を import できない。reviewer が適用範囲を判断できなかった。
+- 提案: `CLAUDE.md` の該当の憲法に、適用は `apps/web/src/main/**`（ブラウザ）で、`apps/web/worker/**` は素の `fetch` を使う、と明記する（人間の明示指示を要する。経路 (a)）。
+
+## 2026-11-07 ローカルの SonarQube の DB が、compose のイメージの版と合わず起動しない（機能034・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `scripts/sonar-local.sh` がイメージを引き直したところ、2026-10-04 に作った組込み DB が新しい版（`docker/compose.sonar.yaml` の `sonarqube:26.10.0.133078-community`）に合わず `DB_MIGRATION_NEEDED` で止まった。組込み DB は移行できない（`/api/system/migrate_db` が `NOT_SUPPORTED`）。ユーザーの承認のうえ `docker compose -f docker/compose.sonar.yaml down -v` で作り直して直った。web-agent は原因を環境と見て報告したが、メインでの復旧に時間がかかった。
+- 提案: `.claude/skills/tsod-verify/` の注意書きに、`--sonar-area` が「DB の移行が要る」で落ちたら `down -v` で作り直す（ローカルの解析履歴が消えるのでユーザーの承認を取る）手順を足す（経路 (a)）。
