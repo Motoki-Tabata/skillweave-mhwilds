@@ -1,8 +1,8 @@
 # handoff: launch
 
 ## 現在地
-段階2 完了（2026-11-03）。A1・A2・B1・B2・B3 まで完了（PR #87・#89・#90・#92・#93・#96・#97）。B1・B2・B3 は `main` にあり、本番には未デプロイ（C5 で出す）。C1 は Neon のプロジェクトを作り（PostgreSQL 18.6・Singapore・0.25 CU、`neondb` は空）、手順と Q129・Q131 の記録を書いた（2026-11-04）。C2 は料金を確かめて `design/tech-stack.md`「費用」に書き、ユーザーに示した（2026-11-04）。C2 まで完了。C3 はイメージと手元の測定、手順の下書きまで済み、ユーザーの課金の有効化を待っている。
-公開までの残りを `plan.md` に整理した。Web は `https://skillweave.app` にデプロイ済みで、`/api/*` は 503 を返す。`/privacy` の「アクセス解析は入れていません」が事実と合わないので、直して再デプロイするまで URL は配らない。
+段階2 完了（2026-11-03）。A1・A2・B1・B2・B3 まで完了（PR #87・#89・#90・#92・#93・#96・#97）。B1・B2・B3 は 2026-11-07 に v0.1.0 として本番の Web に出した（C5 のうち Web の再デプロイ）。C1 は Neon のプロジェクトを作り（PostgreSQL 18.6・Singapore・0.25 CU、`neondb` は空）、手順と Q129・Q131 の記録を書いた（2026-11-04）。C2 は料金を確かめて `design/tech-stack.md`「費用」に書き、ユーザーに示した（2026-11-04）。C2 まで完了。C3 はイメージと手元の測定、手順の下書きまで済み、ユーザーの課金の有効化を待っている。
+公開までの残りを `plan.md` に整理した。Web は `https://skillweave.app` で v0.1.0 が動いている。release-please と `.github/workflows/release.yml` による版の管理と Web の自動デプロイを入れ（PR #104・#105・#106・#109。規則は `design/tech-stack.md`「リリースと版」）、`main` の `39368d1` に v0.1.0 の GitHub Release を作って、Release の `workflow_dispatch`（tag=`v0.1.0`）で出した。`API_ORIGIN` は未設定なので `/api/*` は 503 を返す。`/`・`/privacy`・`/builds` の画面と検索はユーザーがブラウザで確かめた（2026-11-07）。C5 はログイン・保存・共有 URL の確認が残っている。URL は C8 まで配らない。
 
 ## 次のセッション
 - 推奨モデル: Opus（effort medium）
@@ -36,7 +36,8 @@ SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch
 
 ## メモ
 - このフォルダは `main` にある。更新するときは `docs/*` のブランチを切り、PR で入れる。
-- 本番の版は `5b864842-fb1a-4fb1-83a9-73a47d5e00ca`。wrangler はログイン済みで、4.153.0 のまま。
+- 本番の版は `7a13dec9-6183-4f15-b363-cc7397b41513`（タグ `v0.1.0`。2026-11-07 に Release の run 42342160053 で出した）。前の版は `5b864842-fb1a-4fb1-83a9-73a47d5e00ca`。手元の wrangler はログイン済みで、4.153.0 のまま。
+- Release が使う Cloudflare のトークン（テンプレートの「Edit Cloudflare Workers」）で、カスタムドメインへのデプロイが通った（2026-11-07）。
 - PR #86 で `design/tech-stack.md` の手順と `tasks/lessons.md` の教訓を `main` に入れた（`e2d7639`）。
 - C1 の実測（2026-11-04）:
   - V1・V3〜V6 の既定値が `uuidv7()` を使う。PostgreSQL 17.11 のコンテナでは `function uuidv7() does not exist` で、18 が必須。

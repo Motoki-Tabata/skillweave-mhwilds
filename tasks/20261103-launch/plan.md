@@ -22,16 +22,16 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] A1 「A1 で記録する内容」を `specs/open-questions.md` に反映する（`docs/*` ブランチ。PR #87 でマージ、`09bf299`）
 
 ### B. TSOD で進めるもの
-- [x] B1 `/privacy` に Web Analytics の説明を足し、030 の AC-9 を取り消す（032 privacy-analytics。PR #89・#90 でマージ。本番への反映は C5）
-- [x] B2 031 api-proxy（PR #92・#93 でマージ。本番での転送の確認は Q88・031 decisions.md Q142 へ持ち越し。デプロイは C5）
-- [x] B3 `/privacy` にバックアップの説明を足す（033 privacy-backup。PR #96・#97 でマージ。本番への反映は C5）
+- [x] B1 `/privacy` に Web Analytics の説明を足し、030 の AC-9 を取り消す（032 privacy-analytics。PR #89・#90 でマージ。2026-11-07 に v0.1.0 で本番へ反映）
+- [x] B2 031 api-proxy（PR #92・#93 でマージ。2026-11-07 に v0.1.0 で本番へ反映。`API_ORIGIN` は未設定で `/api/*` は 503。本番での転送の確認は Q88・031 decisions.md Q142 へ持ち越し）
+- [x] B3 `/privacy` にバックアップの説明を足す（033 privacy-backup。PR #96・#97 でマージ。2026-11-07 に v0.1.0 で本番へ反映）
 
 ### C. 運用作業
 - [x] C1 Neon: Q129・Q131 を決め、プロジェクトを作り、バックアップとリストアの手順を `design/tech-stack.md` に書いた（2026-11-04）。パイプの形の Neon での実行と本物の `flyway_schema_history` の復元は、C3 の後の最初のバックアップで確かめる
 - [x] C2 Cloud Run・Artifact Registry・Secret Manager の料金を公式資料で確かめ、課金の有効化の前に示した（2026-11-04。`design/tech-stack.md`「費用」）
 - [ ] C3 Cloud Run: 予算アラートと停止手順を先に用意し、イメージ・地域の測定・最小インスタンス数・API の接続を進める（Q88）。依存: C1、C2。イメージと手元の測定、手順の下書きは済み（2026-11-04。`design/tech-stack.md`「API のデプロイ手順」）。残りはユーザーの課金の有効化と予算の作成、その後のデプロイと測定
 - [ ] C4 本番の Discord OAuth を設定する。依存: なし（redirect URI は固定なので C3 の前にできる。API の起動に値が要るので、C3 のデプロイより先に行う）
-- [ ] C5 Web を再デプロイし（Release を `workflow_dispatch` で実行する。`design/tech-stack.md`「Web のデプロイ手順」）、本番でログイン・保存・共有 URL を確かめる。依存: B1、B2、B3、C4
+- [ ] C5 Web を再デプロイし（Release を `workflow_dispatch` で実行する。`design/tech-stack.md`「Web のデプロイ手順」）、本番でログイン・保存・共有 URL を確かめる。依存: B1、B2、B3、C4。Web の再デプロイは済み（2026-11-07。v0.1.0、run 42342160053。`/`・`/privacy`・`/builds` の画面と検索はユーザーが確かめた）。残りは `API_ORIGIN` の登録の後のログイン・保存・共有 URL の確認
 - [ ] C6 Neon が停止するか（Q91）、無料枠の消費、レイテンシを実測して記録する。依存: C5
 - [ ] C7 Q140 の照合: Email Routing の転送と受信、Cloud Run の地域、ログの保持、Workers Logs、バックアップの保持期間、Web Analytics、ブラウザの通信先。依存: C5
 - [ ] C8 ユーザーの判断で URL を配る。このとき v1.0.0 をリリースする（`design/tech-stack.md`「リリースと版」）。依存: C5、C6、C7

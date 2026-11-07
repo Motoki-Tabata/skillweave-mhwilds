@@ -459,7 +459,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## 本番の構成（2026-11-02）
 
-Web は 2026-11-03 にデプロイした（`/api/*` は未接続で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った（テーブルはまだ無い）。API は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0 を出した（`/api/*` は `API_ORIGIN` が未設定で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った（テーブルはまだ無い）。API は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
 
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
@@ -522,7 +522,7 @@ Cloud Run の単価（リクエストベースの課金）:
 ワークフローの準備（運営者が行う）:
 
 - GitHub App: このリポジトリだけに入れる。権限は Contents・Pull requests・Issues の Read and write（release-please がブランチ・PR・ラベルを作る）。Client ID を Variable の `RELEASE_APP_CLIENT_ID` に、秘密鍵を Secret の `RELEASE_APP_PRIVATE_KEY` に入れる。
-- Environment `production`: デプロイを許すブランチは `main` だけ。Secret の `CLOUDFLARE_API_TOKEN`（テンプレートは「Edit Cloudflare Workers」で、アカウントと `skillweave.app` のゾーンに絞る）と Variable の `CLOUDFLARE_ACCOUNT_ID` を入れる。カスタムドメインの経路に要るゾーンの権限は、公式資料に記載が無い（2026-11-07 に確認）。テンプレートの範囲で最初のデプロイが通るかで確かめる。
+- Environment `production`: デプロイを許すブランチは `main` だけ。Secret の `CLOUDFLARE_API_TOKEN`（テンプレートは「Edit Cloudflare Workers」で、アカウントと `skillweave.app` のゾーンに絞る）と Variable の `CLOUDFLARE_ACCOUNT_ID` を入れる。カスタムドメインの経路に要るゾーンの権限は、公式資料に記載が無い（2026-11-07 に確認）。このテンプレートの範囲で、v0.1.0 のカスタムドメインへのデプロイが通った（2026-11-07）。
 
 ワークフローが使えないときは、手元から手動で出す。`wrangler login` は運営者が行う。
 
