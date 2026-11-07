@@ -674,7 +674,7 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
    ```bash
    gc iam service-accounts keys list --iam-account=swv-web-invoker@$PROJECT.iam.gserviceaccount.com
    gc iam service-accounts keys disable <漏れた鍵の ID> --iam-account=swv-web-invoker@$PROJECT.iam.gserviceaccount.com
-   # 新しい鍵を発行して登録する（上の 3 コマンドと wrangler secret put）
+   # 新しい鍵を発行して登録する（上の `keys create` から `wrangler secret put`・`shred` まで）
    gc iam service-accounts keys delete <漏れた鍵の ID> --iam-account=swv-web-invoker@$PROJECT.iam.gserviceaccount.com
    ```
 
