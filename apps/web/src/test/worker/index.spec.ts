@@ -269,6 +269,7 @@ describe('worker ID token (034)', () => {
     await call('/api/builds')
     expect(tokenCalls()).toHaveLength(1)
     const init = tokenCalls()[0]![1]
+    expect(init.method).toBe('POST')
     expect((init.headers as Record<string, string>)['Content-Type']).toBe(
       'application/x-www-form-urlencoded',
     )
@@ -330,11 +331,21 @@ describe('worker ID token (034)', () => {
     ['T+3300s refreshes', 3300, 2],
     ['T+3301s refreshes', 3301, 2],
   ])('AC-4: %s', async (_name, seconds, expected) => {
+    let n = 0
+    tokenHandler = () =>
+      Response.json({ id_token: fakeIdToken(T0 / 1000 + 3600, n++ === 0 ? 'a' : 'b') })
     await call()
     vi.setSystemTime(T0 + seconds * 1000)
     await call()
     expect(tokenCalls()).toHaveLength(expected)
     expect(upstreamCalls()).toHaveLength(2)
+    const tag = expected === 1 ? 'a' : 'b'
+    expect(upstreamHeaders(0).get('X-Serverless-Authorization')).toBe(
+      `Bearer ${fakeIdToken(T0 / 1000 + 3600, 'a')}`,
+    )
+    expect(upstreamHeaders(1).get('X-Serverless-Authorization')).toBe(
+      `Bearer ${fakeIdToken(T0 / 1000 + 3600, tag)}`,
+    )
   })
 
   it('AC-5: retries the exchange on the next request after a failure', async () => {
