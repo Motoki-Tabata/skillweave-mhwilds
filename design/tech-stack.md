@@ -650,12 +650,35 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
    gc run deploy swv-api --image=$IMAGE --region=$REGION --service-account=swv-api-runtime@$PROJECT.iam.gserviceaccount.com --invoker-iam-check --memory=1Gi --cpu=1 --cpu-throttling --cpu-boost --min-instances=0 --max-instances=1 --set-env-vars=SPRING_PROFILES_ACTIVE=prod,DISCORD_REDIRECT_URI=https://skillweave.app/api/login/oauth2/code/discord,SWV_WEB_TOP_URL=https://skillweave.app/ --set-secrets=SPRING_DATASOURCE_URL=swv-db-url:latest,SPRING_DATASOURCE_USERNAME=swv-db-username:latest,SPRING_DATASOURCE_PASSWORD=swv-db-password:latest,DISCORD_CLIENT_ID=swv-discord-client-id:latest,DISCORD_CLIENT_SECRET=swv-discord-client-secret:latest
    ```
 
-6. Worker が呼び出しに使うサービスアカウントを作り、このサービスの Invoker の権限だけを渡す。鍵の作り方と Worker への登録は、Worker の機能（`tasks/20261103-launch/plan.md` の B4）で決めてここに足す。
+6. Worker が呼び出しに使うサービスアカウントを作り、このサービスの Invoker の権限だけを渡す。続けて鍵を発行して Worker に登録する。Worker は鍵から ID トークンを作り、`X-Serverless-Authorization` に付けて Cloud Run を呼ぶ（`specs/034-api-proxy-id-token/spec.md`）。
 
    ```bash
    gc iam service-accounts create swv-web-invoker
    gc run services add-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
    ```
+
+   鍵の JSON はリポジトリの外に出し、手元に置く時間を短くする。発行したら、Worker に登録し、登録できたら手元のファイルを消す（2026-11-07 に、鍵の発行と、鍵での ID トークンの交換までを実際に通した。`wrangler secret put` の実行は C3 で行う）。
+
+   ```bash
+   mkdir -p "$HOME/.swv-keys" && chmod 700 "$HOME/.swv-keys"
+   docker run --rm -v swv-gcloud:/root/.config/gcloud -v "$HOME/.swv-keys":/out gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim gcloud iam service-accounts keys create /out/swv-web-invoker.json --iam-account=swv-web-invoker@$PROJECT.iam.gserviceaccount.com
+   sudo chown "$USER" "$HOME/.swv-keys/swv-web-invoker.json" && chmod 600 "$HOME/.swv-keys/swv-web-invoker.json"
+   cat "$HOME/.swv-keys/swv-web-invoker.json" | pnpm --filter @swv/web exec wrangler secret put API_INVOKER_KEY
+   shred -u "$HOME/.swv-keys/swv-web-invoker.json"
+   ```
+
+   `wrangler secret put` は新しい版を作り、すぐにデプロイする（Cloudflare の公式資料）。登録を忘れても Worker は止まらず、Cloud Run が 403 を返す（`specs/034-api-proxy-id-token/decisions.md` Q153）ので、手順 7 の後に Worker 経由の要求で確かめる。
+
+   鍵が漏れた（または漏れた疑いがある）ときは、先に無効にして被害を止め、新しい鍵を登録してから古い鍵を消す。
+
+   ```bash
+   gc iam service-accounts keys list --iam-account=swv-web-invoker@$PROJECT.iam.gserviceaccount.com
+   gc iam service-accounts keys disable <漏れた鍵の ID> --iam-account=swv-web-invoker@$PROJECT.iam.gserviceaccount.com
+   # 新しい鍵を発行して登録する（上の `keys create` から `wrangler secret put`・`shred` まで）
+   gc iam service-accounts keys delete <漏れた鍵の ID> --iam-account=swv-web-invoker@$PROJECT.iam.gserviceaccount.com
+   ```
+
+   `USER_MANAGED` でない鍵（`SYSTEM_MANAGED`）は Google が管理するので、触らない。無効にしてから新しい鍵を登録し終えるまでは、トークンの交換が失敗して 502 になる（すでに取ったトークンは期限まで使われる）。漏れていない鍵を入れ替えるだけなら、新しい鍵を登録してから古い鍵を無効にして途切れを避ける。
 
 7. トークンを付けない要求が 403 になることと、運営者の ID トークン（`gc auth print-identity-token`）を `Authorization: Bearer` で付けたとき `/actuator/health` が 200、Cookie なしの `/api/auth/me` が 401 を返すことを確かめる。`run.app` の URL はリポジトリに書かない。
 
