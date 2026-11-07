@@ -99,7 +99,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - `max-instances=1` だけでは費用は無料枠に収まらない。Singapore・1 vCPU・1 GiB で常に処理中だと月約 $91 で、リクエストと転送はこの上に加わる（`design/tech-stack.md`「費用」）。通常の予算アラートは支出を止めない。Cloud Run には spend cap の予算が使える。実際に止まるかと、転送の費用が判定に含まれるかは C3 で確かめる。
 - Cloud Run を出した時点で `run.app` の URL は誰でもアクセスできる。Workers の上限も効かない。
 - `gcloud`・`psql`・`pg_dump` は手元に無く、`docker` はある。`gcloud` はコンテナで動かす（`design/tech-stack.md`「API のデプロイ手順」）。
-- PR は #98 の 1 本にまとめる（ユーザーの指示）。TSOD が要る作業の前で止まる。
+- TSOD が要る作業の前で止まる。
 - `test:e2e` の後の `apps/web/dist` は配備に使わない。デプロイの直前にビルドし直す。
 - 本番の確認は、ブラウザの通信先も見る。`Accept: text/html` を付けない `curl` にはビーコンが入らない。
 
