@@ -601,6 +601,7 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 | CPU | 1 vCPU、`--cpu-throttling`（リクエストベースの課金） | インスタンスベースは存続の間ずっと課金される |
 | 起動ブースト | `--cpu-boost` | 起動中は 2 vCPU 分が課金されるが、待ち時間が減る |
 | インスタンス数 | 最小 0・最大 1 | 最小 1 は Singapore で月約 $13 かかる |
+| Invoker の確認 | 有効（既定のまま） | Worker だけが ID トークンを付けて呼ぶ。料金ページによると IAM で拒否した要求は課金されないので、`run.app` への直接の要求で費用が増えない（`specs/open-questions.md` Q88） |
 | シークレット | `swv-db-url`・`swv-db-username`・`swv-db-password`・`swv-discord-client-id`・`swv-discord-client-secret` | 5 個で無料枠に収まる。値を入れ替えたら古い版を破棄する |
 
 `SPRING_DATASOURCE_URL` は `jdbc:postgresql://<direct のホスト>/neondb?sslmode=require` の形にする。ユーザー名とパスワードは URL に入れない。
@@ -637,10 +638,17 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 5. デプロイする。起動時に Flyway が Neon へマイグレーションを流すので、スキーマが変わる版では先にバックアップを取る。
 
    ```bash
-   gc run deploy swv-api --image=$IMAGE --region=$REGION --service-account=swv-api-runtime@$PROJECT.iam.gserviceaccount.com --no-invoker-iam-check --memory=1Gi --cpu=1 --cpu-throttling --cpu-boost --min-instances=0 --max-instances=1 --set-env-vars=SPRING_PROFILES_ACTIVE=prod,DISCORD_REDIRECT_URI=https://skillweave.app/api/login/oauth2/code/discord,SWV_WEB_TOP_URL=https://skillweave.app/ --set-secrets=SPRING_DATASOURCE_URL=swv-db-url:latest,SPRING_DATASOURCE_USERNAME=swv-db-username:latest,SPRING_DATASOURCE_PASSWORD=swv-db-password:latest,DISCORD_CLIENT_ID=swv-discord-client-id:latest,DISCORD_CLIENT_SECRET=swv-discord-client-secret:latest
+   gc run deploy swv-api --image=$IMAGE --region=$REGION --service-account=swv-api-runtime@$PROJECT.iam.gserviceaccount.com --invoker-iam-check --memory=1Gi --cpu=1 --cpu-throttling --cpu-boost --min-instances=0 --max-instances=1 --set-env-vars=SPRING_PROFILES_ACTIVE=prod,DISCORD_REDIRECT_URI=https://skillweave.app/api/login/oauth2/code/discord,SWV_WEB_TOP_URL=https://skillweave.app/ --set-secrets=SPRING_DATASOURCE_URL=swv-db-url:latest,SPRING_DATASOURCE_USERNAME=swv-db-username:latest,SPRING_DATASOURCE_PASSWORD=swv-db-password:latest,DISCORD_CLIENT_ID=swv-discord-client-id:latest,DISCORD_CLIENT_SECRET=swv-discord-client-secret:latest
    ```
 
-6. `/actuator/health` が 200、Cookie なしの `/api/auth/me` が 401 を返すことを確かめる。`run.app` の URL はリポジトリに書かない。
+6. Worker が呼び出しに使うサービスアカウントを作り、このサービスの Invoker の権限だけを渡す。鍵の作り方と Worker への登録は、Worker の機能（`tasks/20261103-launch/plan.md` の B4）で決めてここに足す。
+
+   ```bash
+   gc iam service-accounts create swv-web-invoker
+   gc run services add-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
+   ```
+
+7. トークンを付けない要求が 403 になることと、運営者の ID トークン（`gc auth print-identity-token`）を `Authorization: Bearer` で付けたとき `/actuator/health` が 200、Cookie なしの `/api/auth/me` が 401 を返すことを確かめる。`run.app` の URL はリポジトリに書かない。
 
 #### 地域の測定
 
@@ -648,13 +656,13 @@ Singapore と東京へ同じイメージを一時的に出し、ウォームの�
 
 #### 停止
 
-費用が想定を超えたら、Invoker の確認を有効に戻す。認証のない要求は Cloud Run が拒否し、料金ページによると IAM で拒否した要求は課金されない。C3 で実際に試す。
+Invoker の確認は常に有効なので、`run.app` への直接の要求は Cloud Run が拒否し、料金ページによると課金されない。費用が想定を超えたら、Worker のサービスアカウントから Invoker の権限を外す。Worker からの要求も拒否されるようになる。C3 で実際に試す。
 
 ```bash
-gc run services update swv-api --region=$REGION --invoker-iam-check
+gc run services remove-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
 ```
 
-再開は `--no-invoker-iam-check` にする。それでも足りなければ `gc run services delete swv-api --region=$REGION` でサービスを消す。イメージ・シークレット・Neon のデータは残る。
+再開は手順 6 の `add-iam-policy-binding` で権限を戻す。それでも足りなければ `gc run services delete swv-api --region=$REGION` でサービスを消す。イメージ・シークレット・Neon のデータは残る。
 
 ### DB の設定とバックアップ
 
