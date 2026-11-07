@@ -93,7 +93,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - Q150 の AOT キャッシュ: C3 で通常と AOT のイメージを Cloud Run に出して比べる。差があれば、URL を配る前に TSOD の機能として入れる。
 - エラーの確認: C3 で Cloud Run の Error Reporting にスタックトレースが載るかを試す（設定だけで済まないなら機能として扱う）。
 - Q88 の直接アクセス（2026-11-07 に決定）: Invoker の確認を有効にしたままにし、Worker が ID トークンを付けて呼ぶ（B4）。停止は Worker のサービスアカウントから Invoker の権限を外す（`design/tech-stack.md`「停止」）。
-- C3 の予算（2026-11-07 に決定）: Cloud Run に月 $10 の spend cap、請求先アカウント全体に月 $1 の通常の予算（実費の 50・90・100% と見込みの 100% で通知）を置く（`design/tech-stack.md`「費用」）。通貨と転送の費目は C3 で確かめ、金額は C6 の実測で見直す。
+- C3 の予算（2026-11-07 に決定）: Cloud Run に月 $10 の spend cap、請求先アカウント全体に月 $1 の通常の予算（実費の 50・90・100% と見込みの 100% で通知）を置く（`design/tech-stack.md`「費用」）。通貨は JPY だったので、spend cap は月 ¥1,500、通常の予算は月 ¥150 にした（2026-11-07。ユーザーの決定）。転送の費目は C3 で確かめ、金額は C6 の実測で見直す。
 - C4 の値: redirect URI は `https://skillweave.app/api/login/oauth2/code/discord`、`SWV_WEB_TOP_URL` は `https://skillweave.app/`。
 
 ## 注意する点
