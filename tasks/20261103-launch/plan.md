@@ -25,13 +25,13 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] B1 `/privacy` に Web Analytics の説明を足し、030 の AC-9 を取り消す（032 privacy-analytics。PR #89・#90 でマージ。2026-11-07 に v0.1.0 で本番へ反映）
 - [x] B2 031 api-proxy（PR #92・#93 でマージ。2026-11-07 に v0.1.0 で本番へ反映。`API_ORIGIN` は未設定で `/api/*` は 503。本番での転送の確認は Q88・031 decisions.md Q142 へ持ち越し）
 - [x] B3 `/privacy` にバックアップの説明を足す（033 privacy-backup。PR #96・#97 でマージ。2026-11-07 に v0.1.0 で本番へ反映）
-- [ ] B4 Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付ける（031 の Worker の変更。`/tsod-discover` から始める。鍵の置き場・トークンの使い回し・失敗のときの応答は機能の中で決める。Q88）。依存: なし
+- [x] B4 Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付ける（034 api-proxy-id-token。PR #112・#113・#114 でマージ。本番の Web へはまだ出していない。鍵の登録と本番での確認は C3・C5）
 
 ### C. 運用作業
 - [x] C1 Neon: Q129・Q131 を決め、プロジェクトを作り、バックアップとリストアの手順を `design/tech-stack.md` に書いた（2026-11-04）。パイプの形の Neon での実行と本物の `flyway_schema_history` の復元は、C3 の後の最初のバックアップで確かめる
 - [x] C2 Cloud Run・Artifact Registry・Secret Manager の料金を公式資料で確かめ、課金の有効化の前に示した（2026-11-04。`design/tech-stack.md`「費用」）
 - [ ] C3 Cloud Run: 予算アラートと停止手順を先に用意し、イメージ・地域の測定・最小インスタンス数・API の接続を進める（Q88）。依存: C1、C2。イメージと手元の測定、手順の下書きは済み（2026-11-04。`design/tech-stack.md`「API のデプロイ手順」）。残りはユーザーの課金の有効化と予算の作成、その後のデプロイと測定
-- [ ] C4 本番の Discord OAuth を設定する。依存: なし（redirect URI は固定なので C3 の前にできる。API の起動に値が要るので、C3 のデプロイより先に行う）
+- [x] C4 本番の Discord OAuth を設定する（2026-11-07。本番用のアプリを作り、redirect URI を登録し、ID とシークレットを Secret Manager に入れた）。依存: なし（redirect URI は固定なので C3 の前にできる。API の起動に値が要るので、C3 のデプロイより先に行う）
 - [ ] C5 Web を再デプロイし（Release を `workflow_dispatch` で実行する。`design/tech-stack.md`「Web のデプロイ手順」）、本番でログイン・保存・共有 URL を確かめる。依存: B1、B2、B3、B4、C4。Web の再デプロイは済み（2026-11-07。v0.1.0、run 42342160053。`/`・`/privacy`・`/builds` の画面と検索はユーザーが確かめた）。残りは `API_ORIGIN` の登録の後のログイン・保存・共有 URL の確認。Invoker の確認を有効にしたままなので、Worker からの転送は B4 のデプロイの後に通る
 - [ ] C6 Neon が停止するか（Q91）、無料枠の消費、レイテンシを実測して記録する。依存: C5
 - [ ] C7 Q140 の照合: Email Routing の転送と受信、Cloud Run の地域、ログの保持、Workers Logs、バックアップの保持期間、Web Analytics、ブラウザの通信先。依存: C5
@@ -93,7 +93,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - Q150 の AOT キャッシュ: C3 で通常と AOT のイメージを Cloud Run に出して比べる。差があれば、URL を配る前に TSOD の機能として入れる。
 - エラーの確認: C3 で Cloud Run の Error Reporting にスタックトレースが載るかを試す（設定だけで済まないなら機能として扱う）。
 - Q88 の直接アクセス（2026-11-07 に決定）: Invoker の確認を有効にしたままにし、Worker が ID トークンを付けて呼ぶ（B4）。停止は Worker のサービスアカウントから Invoker の権限を外す（`design/tech-stack.md`「停止」）。
-- C3 の予算（2026-11-07 に決定）: Cloud Run に月 $10 の spend cap、請求先アカウント全体に月 $1 の通常の予算（実費の 50・90・100% と見込みの 100% で通知）を置く（`design/tech-stack.md`「費用」）。通貨と転送の費目は C3 で確かめ、金額は C6 の実測で見直す。
+- C3 の予算（2026-11-07 に決定）: Cloud Run に月 $10 の spend cap、請求先アカウント全体に月 $1 の通常の予算（実費の 50・90・100% と見込みの 100% で通知）を置く（`design/tech-stack.md`「費用」）。通貨は JPY だったので、spend cap は月 ¥1,500、通常の予算は月 ¥150 にした（2026-11-07。ユーザーの決定）。転送の費目は C3 で確かめ、金額は C6 の実測で見直す。
 - C4 の値: redirect URI は `https://skillweave.app/api/login/oauth2/code/discord`、`SWV_WEB_TOP_URL` は `https://skillweave.app/`。
 
 ## 注意する点
