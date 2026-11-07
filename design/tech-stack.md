@@ -459,17 +459,70 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## 本番の構成（2026-11-02）
 
-Web は 2026-11-03 にデプロイした（`/api/*` は未接続で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った（テーブルはまだ無い）。API は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0 を出した（`/api/*` は `API_ORIGIN` が未設定で 503 を返す）。Neon のプロジェクトは 2026-11-04 に作った（テーブルはまだ無い）。API は未デプロイ。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
 
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
 | ドメイン・DNS | Cloudflare Registrar（`skillweave.app`） | ドメイン代だけ費用がかかる |
 | Web・マスターデータ | Cloudflare Workers Static Assets | 静的配信は無料で無制限。Worker の実行は 10 万回/日で、`/api/*` の転送がこれを消費する |
-| API | Cloud Run（Singapore を第一候補に、東京とも測って決める） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト。課金アカウントが要り、超えると課金される。`max-instances=1` と予算アラートを設定する |
+| API | Cloud Run（Singapore を第一候補に、東京とも測って決める） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト（Tier 1 の地域の値。Singapore は下の「費用」を見る）。課金アカウントが要り、超えると課金される。`max-instances=1` と予算を設定する |
 | DB | Neon（`aws-ap-southeast-1`。PostgreSQL 18。最大 0.25 CU） | 月 100 CU 時間・1 GB・転送量 5 GB。課金はされず、CU 時間か転送量を超えるとコンピュートが止まり、ストレージを超えると書き込みが止まる |
 | イメージの保管 | Artifact Registry | 0.5 GiB。最新版だけを残す |
 
 Web は Pages でなく Workers にする。どちらも静的配信は無料で、`/api/*` の転送は同じ Workers の枠を消費する。Cloudflare の資料は Workers を機能の広い基盤とし、Pages からの移行手順を示している（Pages の廃止の告知は確認していない）。
+
+### 費用
+
+2026-11-04 に Google Cloud の公式の料金ページで確かめた値で、変わりうる。金額は USD で、日本円の単価は確かめていない。
+
+Cloud Run の単価（リクエストベースの課金）:
+
+| 項目 | Singapore（`asia-southeast1`） | 東京（`asia-northeast1`） |
+|---|---|---|
+| CPU（処理中。vCPU 秒） | $0.0000336 | $0.000024 |
+| メモリ（処理中。GiB 秒） | $0.0000035 | $0.0000025 |
+| CPU・メモリの待機（最小インスタンスだけ。各単位） | $0.0000035 | $0.0000025 |
+| リクエスト（100 万件） | $0.40 | $0.40 |
+| インターネットへの転送（最初の段階。GiB） | $0.19 | $0.12（アジア宛て） |
+
+- 課金されるのは、インスタンスの起動中、SIGTERM の処理中、リクエストの処理中で、100 ミリ秒単位に切り上げる。最小インスタンスでない待機中のインスタンスは課金されない。
+- 無料枠は請求先アカウント単位で毎月リセットされ、Tier 1 の単価による金額の割引として適用される（CPU $4.32・メモリ $0.90）。Singapore の単価で割ると、月 12.9 万 vCPU 秒（1 vCPU で約 36 時間）・25.7 万 GiB 秒になる。この換算は資料の記載からの計算で、請求での確認はまだしていない。
+- インターネットへの転送の無料枠は北米からの 1 GiB だけで、Singapore と東京には無い。Cloud Run から Cloudflare と Neon への通信はこれに当たると読んでいる（請求での確認はまだしていない）。同じ地域の Google Cloud 内の転送は無料。
+
+| 構成（Singapore・1 vCPU・1 GiB） | 月額の目安 |
+|---|---|
+| 最小 0、処理中が月 36 時間以内 | CPU とメモリは無料枠の範囲 |
+| 最小 1、待機だけ | 約 $13 |
+| 最大 1 インスタンスが 30 日間ずっと処理中 | 約 $91（東京は約 $63）に、リクエストと転送の費用が加わる |
+
+`max-instances=1` は CPU とメモリの費用だけを抑える。リクエスト数と転送量は抑えない。
+
+その他のサービス:
+
+| サービス | 無料枠 | 超えた分 |
+|---|---|---|
+| Artifact Registry | 請求先アカウントで 0.5 GiB | 約 $0.10/GiB・月。同じ地域からの取得は無料、アジア内の別の地域は $0.05/GiB |
+| Secret Manager | 請求先アカウントで有効なバージョン 6 個・アクセス 1 万回/月 | 約 $0.06/バージョン・月、$0.03/1 万回。無効にしない古いバージョンも数える |
+| Cloud Logging | プロジェクトごとに月 50 GiB、30 日の保持 | $0.50/GiB、30 日を超える保持は $0.01/GiB・月 |
+
+費用の上限:
+
+- 通常の予算（alerts-only）は通知するだけで、使用も課金も止めない。判定は割引を引いた後の実際の費用で、税を含む。月の費用は翌月 2 日まで数える。通知の割合は変えられ（既定は実費の 50・90・100%）、見込みの額でも通知できる。
+- spend cap の予算は、1 プロジェクトの 1 サービスを対象に月単位で設定でき、Cloud Run は対象に入っている。超えるとそのサービスの新しい使用を翌月 1 日まで止める。リソースとデータは消えない。適用は即時でなく、超過分は通常どおり請求される。判定は定価の見積もりで、割引とクレジットを含まない。無料枠が割引として扱われるなら、無料枠の範囲の使用でも上限に届く。転送の費用が判定に含まれるかは、資料に記載が見つからない。通知は 50・80・100% で、請求先アカウントの管理者とプロジェクトのオーナーに届き、変えられない。同じプロジェクトの同じサービスはすべて数えるので、地域の測定で出す東京のサービスも含まれる。手で解除すると、その月は額を上げて保存し直すまで再び止まらない。止まっている間は編集も削除もできない。
+- 課金を無効にする自動化は、プロジェクトの全サービスを止め、リソースが消えることがあると資料が警告している。
+
+予算（2026-11-07 に決定）:
+
+| 予算 | 金額と通知 | 理由 |
+|---|---|---|
+| spend cap（`skillweave` のプロジェクトの Cloud Run） | 月 $10。通知は固定 | 普段の定価の見積もり（月 $1 弱。費用の大半は起動）の約 10 倍で、地域の測定でも止まりにくい。`/api/*` を叩かれたときの損失を $10 と報告の遅れの分に抑える |
+| 通常の予算（請求先アカウント全体） | 月 $1。実費の 50・90・100% と見込みの 100% で通知 | 普段は無料枠の範囲で $0 の見込みなので、請求が出たらすぐ気づける。spend cap の外の費用（Artifact Registry・Secret Manager・Logging・転送）を見張る |
+
+請求先アカウントの通貨と、転送の費用がどのサービスの費目に出るかは C3 で確かめる。円建てなら金額を円で決め直す。金額は C6 の実測で見直す。
+
+新規の無料トライアルは $300・90 日で、有料へ切り替えないまま期限が来るか使い切ると、アカウントを閉じてリソースを止め、30 日の猶予の後に完全に削除する。
+
+資料: [Cloud Run](https://cloud.google.com/run/pricing)・[Artifact Registry](https://cloud.google.com/artifact-registry/pricing)・[Secret Manager](https://cloud.google.com/secret-manager/pricing)・[ネットワーク](https://cloud.google.com/vpc/network-pricing)・[Observability](https://cloud.google.com/products/observability/pricing)・[予算](https://docs.cloud.google.com/billing/docs/how-to/budgets)・[spend cap](https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps)・[課金の無効化](https://docs.cloud.google.com/billing/docs/how-to/disable-billing-with-notifications)・[無料の機能](https://docs.cloud.google.com/free/docs/free-cloud-features)
 
 ### Web のデプロイ手順
 
@@ -478,7 +531,7 @@ Web は Pages でなく Workers にする。どちらも静的配信は無料で
 ワークフローの準備（運営者が行う）:
 
 - GitHub App: このリポジトリだけに入れる。権限は Contents・Pull requests・Issues の Read and write（release-please がブランチ・PR・ラベルを作る）。Client ID を Variable の `RELEASE_APP_CLIENT_ID` に、秘密鍵を Secret の `RELEASE_APP_PRIVATE_KEY` に入れる。
-- Environment `production`: デプロイを許すブランチは `main` だけ。Secret の `CLOUDFLARE_API_TOKEN`（テンプレートは「Edit Cloudflare Workers」で、アカウントと `skillweave.app` のゾーンに絞る）と Variable の `CLOUDFLARE_ACCOUNT_ID` を入れる。カスタムドメインの経路に要るゾーンの権限は、公式資料に記載が無い（2026-11-07 に確認）。テンプレートの範囲で最初のデプロイが通るかで確かめる。
+- Environment `production`: デプロイを許すブランチは `main` だけ。Secret の `CLOUDFLARE_API_TOKEN`（テンプレートは「Edit Cloudflare Workers」で、アカウントと `skillweave.app` のゾーンに絞る）と Variable の `CLOUDFLARE_ACCOUNT_ID` を入れる。カスタムドメインの経路に要るゾーンの権限は、公式資料に記載が無い（2026-11-07 に確認）。このテンプレートの範囲で、v0.1.0 のカスタムドメインへのデプロイが通った（2026-11-07）。
 
 ワークフローが使えないときは、手元から手動で出す。`wrangler login` は運営者が行う。
 
@@ -514,6 +567,113 @@ Web は Pages でなく Workers にする。どちらも静的配信は無料で
 戻すときは、前のタグで Release を `workflow_dispatch` で実行する。ワークフローが使えないときは `wrangler rollback` で前の版へ戻す。版はタグ名で `wrangler deployments list` に出る。
 
 Cloudflare の Web Analytics は残す（2026-11-03 にユーザーが決定）。Cloudflare が、HTML を受け付ける要求の応答にビーコン（`static.cloudflareinsights.com/beacon.min.js`）を挿入し、ブラウザが `/cdn-cgi/rum` へ計測値を送る。リポジトリと `dist` にはこのスクリプトが無く、`Accept: text/html` を付けない `curl` の応答にも入らないので、ブラウザか、この `Accept` を付けた要求で確かめる。`/privacy` の記載は、この挙動に合わせる。
+
+### 使わないサービス
+
+2026-11-04 に公式の料金ページで確かめて判断した。条件が変わったら見直す。
+
+| サービス | 判断 | 理由 |
+|---|---|---|
+| Vercel | 使わない | Hobby は個人の非商用が条件で使えるが、Workers の静的配信は無料で無制限、`/api/*` の転送もすでに動く形になっている |
+| Namecheap | 使わない | Cloudflare Registrar は原価で販売し、DNS とまとまる |
+| Clerk | 使わない | Discord のログインとセッションは API に実装済みで、外部へ渡すデータが増えるだけになる |
+| Supabase | 使わない | 無料枠は 1 週間使わないと一時停止し、500 MB。Neon は 1 GB で、使わない間は計算が止まり、一時停止の扱いにならない。API の置き換えにも Spring Boot の書き直しが要る |
+| Upstash | 使わない | セッションは PostgreSQL にあり、Redis の用途が無い |
+| Pinecone | 使わない | ベクトル検索の機能が無い |
+| Resend | 使わない | 送信するメールが無い。受信は Cloudflare Email Routing（無料）で足りる |
+| Stripe | 使わない | 憲法で営利化を禁止している |
+| PostHog | 使わない | 表示の速さは Cloudflare Web Analytics で足りる。行動の記録やセッションの録画は `/privacy` の説明を大きく変える |
+| Sentry | 今は使わない | API のエラーは Google Cloud の Error Reporting（料金なし。Cloud Logging の費用だけ）を先に試す。ブラウザのエラーを集めたくなったら、`/privacy` の変更と合わせて機能として検討する |
+
+Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 日 0.5 GB・保持 7 日で、上限に達すると取り込みを止め、課金はされない。Workers Logs は引き続き無効のままにする。
+
+### API のデプロイ手順
+
+手元から手動で出す。この手順は 2026-11-04 時点で本番では未実行で、C3 で実行して直す。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
+
+手元のコンテナで測った値（2026-11-04。Ryzen 7 5700X・WSL2・`prod` プロファイル・PostgreSQL 18.6 のコンテナ。Cloud Run と Neon の値ではない）:
+
+| 項目 | 結果 |
+|---|---|
+| イメージ | `./gradlew bootBuildImage` で作れる。JRE は 25.0.5。展開後 769 MB、gzip で 175 MB（Artifact Registry の無料枠の目安は 2 版ほど） |
+| メモリ | 512 MiB は起動しない（メモリの計算で `fixed memory regions require 642294K`）。768 MiB と 1 GiB は起動し、300 回の要求の後で約 300 MiB |
+| 起動（`/actuator/health` が 200 になるまで） | 通常のイメージは 1 CPU で約 14.5 秒、2 CPU で 7.5 秒。同じ日の先の測定では 1 CPU で 36〜39 秒、2 CPU で 21 秒と大きくぶれ、原因は分かっていない |
+| AOT キャッシュ（`BP_JVM_AOTCACHE_ENABLED=true`。試作でリポジトリの設定は未変更） | 1 CPU で約 7 秒、2 CPU で約 3.7 秒（通常のイメージと続けて測定）。イメージは gzip で 214 MB。マイグレーション・`/api/auth/me` の 401・ログイン開始の 302 は通常と同じ。訓練の実行では DB に接続しないよう `TRAINING_RUN_JAVA_TOOL_OPTIONS` で Flyway を止める |
+
+Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、ゲストの訪問では Cloud Run を起こさない。ログイン済みの最初の要求とログインの開始は、停止中のインスタンスの起動を待つ。
+
+設定と理由:
+
+| 設定 | 値 | 理由 |
+|---|---|---|
+| メモリ | 1 GiB | 768 MiB でも動くが、負荷をかけて測っていないので余裕を取る。費用は CPU が大半で、差は小さい |
+| CPU | 1 vCPU、`--cpu-throttling`（リクエストベースの課金） | インスタンスベースは存続の間ずっと課金される |
+| 起動ブースト | `--cpu-boost` | 起動中は 2 vCPU 分が課金されるが、待ち時間が減る |
+| インスタンス数 | 最小 0・最大 1 | 最小 1 は Singapore で月約 $13 かかる |
+| Invoker の確認 | 有効（既定のまま） | Worker だけが ID トークンを付けて呼ぶ。料金ページによると IAM で拒否した要求は課金されないので、`run.app` への直接の要求で費用が増えない（`specs/open-questions.md` Q88） |
+| シークレット | `swv-db-url`・`swv-db-username`・`swv-db-password`・`swv-discord-client-id`・`swv-discord-client-secret` | 5 個で無料枠に収まる。値を入れ替えたら古い版を破棄する |
+
+`SPRING_DATASOURCE_URL` は `jdbc:postgresql://<direct のホスト>/neondb?sslmode=require` の形にする。ユーザー名とパスワードは URL に入れない。
+
+1. 変数を決め、`gcloud` を呼ぶ関数を定義する。`PROJECT` は実際の ID に置き換える。
+
+   ```bash
+   PROJECT=<プロジェクト ID>
+   REGION=asia-southeast1
+   IMAGE=$REGION-docker.pkg.dev/$PROJECT/swv/api:$(git rev-parse --short HEAD)
+   gc() { docker run --rm -i -v swv-gcloud:/root/.config/gcloud gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim gcloud "$@"; }
+   ```
+
+2. 先に Cloud Run の spend cap の予算と、請求先アカウントの通知用の予算をコンソールで作る（下の「停止」と「費用」）。
+3. Artifact Registry のリポジトリと、実行用のサービスアカウントを作り、シークレットを読む権限を渡す。
+
+   ```bash
+   gc artifacts repositories create swv --repository-format=docker --location=$REGION
+   gc iam service-accounts create swv-api-runtime
+   for s in swv-db-url swv-db-username swv-db-password swv-discord-client-id swv-discord-client-secret; do
+     gc secrets add-iam-policy-binding $s --member=serviceAccount:swv-api-runtime@$PROJECT.iam.gserviceaccount.com --role=roles/secretmanager.secretAccessor
+   done
+   ```
+
+4. 配備するコミットでイメージを作り、push する。
+
+   ```bash
+   (cd apps/api && ./gradlew bootBuildImage)
+   docker tag skillweave-mhwilds-api:latest $IMAGE
+   gc auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://$REGION-docker.pkg.dev
+   docker push $IMAGE
+   ```
+
+5. デプロイする。起動時に Flyway が Neon へマイグレーションを流すので、スキーマが変わる版では先にバックアップを取る。
+
+   ```bash
+   gc run deploy swv-api --image=$IMAGE --region=$REGION --service-account=swv-api-runtime@$PROJECT.iam.gserviceaccount.com --invoker-iam-check --memory=1Gi --cpu=1 --cpu-throttling --cpu-boost --min-instances=0 --max-instances=1 --set-env-vars=SPRING_PROFILES_ACTIVE=prod,DISCORD_REDIRECT_URI=https://skillweave.app/api/login/oauth2/code/discord,SWV_WEB_TOP_URL=https://skillweave.app/ --set-secrets=SPRING_DATASOURCE_URL=swv-db-url:latest,SPRING_DATASOURCE_USERNAME=swv-db-username:latest,SPRING_DATASOURCE_PASSWORD=swv-db-password:latest,DISCORD_CLIENT_ID=swv-discord-client-id:latest,DISCORD_CLIENT_SECRET=swv-discord-client-secret:latest
+   ```
+
+6. Worker が呼び出しに使うサービスアカウントを作り、このサービスの Invoker の権限だけを渡す。鍵の作り方と Worker への登録は、Worker の機能（`tasks/20261103-launch/plan.md` の B4）で決めてここに足す。
+
+   ```bash
+   gc iam service-accounts create swv-web-invoker
+   gc run services add-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
+   ```
+
+7. トークンを付けない要求が 403 になることと、運営者の ID トークン（`gc auth print-identity-token`）を `Authorization: Bearer` で付けたとき `/actuator/health` が 200、Cookie なしの `/api/auth/me` が 401 を返すことを確かめる。`run.app` の URL はリポジトリに書かない。
+
+#### 地域の測定
+
+Singapore と東京へ同じイメージを一時的に出し、ウォームの状態で `/actuator/health` の応答時間（DB の確認を含む）を手元から 20 回ずつ測る。東京の単価は安いが Neon は Singapore にあるので、DB への往復が増える。差がわずかなら Singapore にする。測り終えたら使わない地域のサービスを削除する。
+
+#### 停止
+
+Invoker の確認は常に有効なので、`run.app` への直接の要求は Cloud Run が拒否し、料金ページによると課金されない。費用が想定を超えたら、Worker のサービスアカウントから Invoker の権限を外す。Worker からの要求も拒否されるようになる。C3 で実際に試す。
+
+```bash
+gc run services remove-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
+```
+
+再開は手順 6 の `add-iam-policy-binding` で権限を戻す。それでも足りなければ `gc run services delete swv-api --region=$REGION` でサービスを消す。イメージ・シークレット・Neon のデータは残る。
+
+spend cap で止まったときは、原因を確かめてから、予算の編集で上限を解除し、上限の額を上げて保存し直す（解除だけでは、その月は再び止まらない）。戻るまで最大 1 時間かかる。何もしなければ翌月 1 日に戻る。
 
 ### DB の設定とバックアップ
 

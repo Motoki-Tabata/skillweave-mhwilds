@@ -111,9 +111,17 @@ jobs:
       # /api/auth/me は、API の接続前は 503、接続後は Cookie が無いので Worker の 401 になる。
       - name: Smoke test
         run: |
+          # curl の --retry は 503 も一時的な失敗として再試行するので使わない。再試行するのは、
+          # 接続できずに応答が得られなかったとき（curl の終了コードが 0 でないとき）だけにする。
           check() {
-            local path="$1" expected="$2" accept="$3" result
-            result="$(curl -sS -o /dev/null -H "Accept: $accept" -w '%{http_code} %{content_type}' --retry 3 --retry-all-errors "https://skillweave.app$path")"
+            local path="$1" expected="$2" accept="$3" result attempt
+            for attempt in 1 2 3; do
+              if result="$(curl -sS -o /dev/null -H "Accept: $accept" -w '%{http_code} %{content_type}' "https://skillweave.app$path")"; then
+                break
+              fi
+              echo "$path: 接続に失敗した（$attempt 回目）"
+              if [ "$attempt" -lt 3 ]; then sleep 5; fi
+            done
             echo "$path -> $result"
             [[ "$result" =~ ^($expected) ]] || { echo "::error::$path の応答が想定外: $result"; return 1; }
           }
