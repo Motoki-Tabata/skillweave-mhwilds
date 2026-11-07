@@ -1,7 +1,7 @@
 # handoff: launch
 
 ## 現在地
-段階2 完了（2026-11-03）。A1・A2・B1・B2・B3 まで完了（PR #87・#89・#90・#92・#93・#96・#97）。B1・B2・B3 は 2026-11-07 に v0.1.0 として本番の Web に出した（C5 のうち Web の再デプロイ）。C1 は Neon のプロジェクトを作り（PostgreSQL 18.6・Singapore・0.25 CU、`neondb` は空）、手順と Q129・Q131 の記録を書いた（2026-11-04）。C2 は料金を確かめて `design/tech-stack.md`「費用」に書き、ユーザーに示した（2026-11-04）。C2 まで完了。C3 はイメージと手元の測定、手順の下書きまで済み、ユーザーの課金の有効化を待っている。B4 は 034 api-proxy-id-token として完了した（PR #112・#113・#114。2026-11-07）。GCP のプロジェクトと `swv-web-invoker` は 034 の T1 で作った。2026-11-07 時点で課金は無効、Cloud Run・Artifact Registry・Secret Manager の API は未有効だった（同日に課金を有効にし、3 つの API を有効にした）、`swv-web-invoker` に利用者が管理する鍵は無い。034 の Worker は本番の Web にまだ出していない（release-please の PR #111 が開いている）。
+段階2 完了（2026-11-03）。A1・A2・B1・B2・B3 まで完了（PR #87・#89・#90・#92・#93・#96・#97）。B1・B2・B3 は 2026-11-07 に v0.1.0 として本番の Web に出した（C5 のうち Web の再デプロイ）。C1 は Neon のプロジェクトを作り（PostgreSQL 18.6・Singapore・0.25 CU、`neondb` は空）、手順と Q129・Q131 の記録を書いた（2026-11-04）。C2 は料金を確かめて `design/tech-stack.md`「費用」に書き、ユーザーに示した（2026-11-04）。C2 まで完了。C3 はイメージと手元の測定、手順の下書きまで済み、ユーザーの課金の有効化を待っている。B4 は 034 api-proxy-id-token として完了した（PR #112・#113・#114。2026-11-07）。GCP のプロジェクトと `swv-web-invoker` は 034 の T1 で作った。2026-11-07 時点で課金は無効、Cloud Run・Artifact Registry・Secret Manager の API は未有効だった（同日に課金を有効にし、3 つの API を有効にし、予算 2 つ（`swv-cloud-run-cap`・`swv-billing-alert`）を作った）、`swv-web-invoker` に利用者が管理する鍵は無い。034 の Worker は本番の Web にまだ出していない（release-please の PR #111 が開いている）。
 公開までの残りを `plan.md` に整理した。Web は `https://skillweave.app` で v0.1.0 が動いている。release-please と `.github/workflows/release.yml` による版の管理と Web の自動デプロイを入れ（PR #104・#105・#106・#109。規則は `design/tech-stack.md`「リリースと版」）、`main` の `39368d1` に v0.1.0 の GitHub Release を作って、Release の `workflow_dispatch`（tag=`v0.1.0`）で出した。`API_ORIGIN` は未設定なので `/api/*` は 503 を返す。`/`・`/privacy`・`/builds` の画面と検索はユーザーがブラウザで確かめた（2026-11-07）。C5 はログイン・保存・共有 URL の確認が残っている。URL は C8 まで配らない。
 
 ## 次のセッション
@@ -12,7 +12,7 @@
 SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch/handoff.md と plan.md を全文読み、未完了の最初のタスクから進める。plan.md の「守ること」に従う。
 ```
 
-- 最初のタスク: C3 の続き。ユーザーの課金の有効化と予算の作成（手順 2）を確かめてから、`design/tech-stack.md`「API のデプロイ手順」の手順 3 へ進む。C4（本番の Discord OAuth）は手順 5 のデプロイより先に行う。進捗は `main` から `docs/*` のブランチを切り、タスクごとに小さな PR で入れる。課金の有効化・予算の作成・`gcloud` のログイン・秘密情報の入力・Discord の設定はユーザーが行う。
+- 最初のタスク: C3 の続き。課金の有効化と予算の作成（手順 2）は済んだ（2026-11-07）。Secret Manager への値の登録（運営者）を確かめてから、`design/tech-stack.md`「API のデプロイ手順」の手順 3 へ進む。C4（本番の Discord OAuth）は手順 5 のデプロイより先に行う。進捗は `main` から `docs/*` のブランチを切り、タスクごとに小さな PR で入れる。課金の有効化・予算の作成・`gcloud` のログイン・秘密情報の入力・Discord の設定はユーザーが行う。
 
 ## 判断ログ
 - 2026-11-03 段階2: サブセッションに分けず、1 つの進行表で進める（理由: ユーザーの指示）
