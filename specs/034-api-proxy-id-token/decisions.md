@@ -41,3 +41,14 @@
   - JWT のヘッダーに `kid` を付けた場合も同じ結果（`kid` は不要）。
 - 結論: spec（AC-1・AC-2）・plan D5・D6 の形のとおりで、区間 A へ戻す必要は無い。`http://127.0.0.1` の audience も交換できたので、T4 は AC-1 の項目を含めて行える。
 - 鍵の値と `id_token` の本体は記録していない。鍵は T4 の後に運営者が手元と GCP 上で削除する（plan D10）。
+
+## T4 の確認結果（実施: 2026-11-07。plan D10）
+- 方法: `pnpm --filter @swv/web run build` の後、`apps/web` で `wrangler dev`（`.dev.vars` に `API_ORIGIN=http://127.0.0.1:9911` と `API_INVOKER_KEY`。確認の直後に削除済み）を起動し、受けたヘッダーを記録する Node の偽の上流へ転送させた。トークンエンドポイントは本物。鍵は T1 のもの。
+- 結果:
+  - 鍵あり・1 回目: 上流に `X-Serverless-Authorization: Bearer …` が届いた。ペイロードの `aud` は `http://127.0.0.1:9911`（`API_ORIGIN` のオリジン）、`exp` は約 3599 秒後。`Authorization` は届かない（付けていない要求）。
+  - 続けた 2 回目: 同じトークンが届いた（使い回し）。
+  - クライアントが `X-Serverless-Authorization: Bearer evil` と `Authorization: Bearer abc` を送った要求: 上流には取ったトークンだけが届き、`evil` は消えた。`Authorization: Bearer abc` はそのまま届いた。
+  - 鍵を外して起動し直した場合: 上流にこのヘッダーは無い（クライアントの `evil` も消えた）。
+  - `private_key` を壊した鍵: 503 `{"title":"Service Unavailable","status":503}`。上流には 0 件。
+- 範囲: AC-1・AC-3・AC-4・AC-7・AC-8 を実際の経路で確かめた（T1 で `http://127.0.0.1` の audience が交換できたので、AC-1 の項目も含めた）。本物の Cloud Run での確認は C3・C5。
+- 後始末: scratchpad のスクリプトと `.dev.vars` は削除済み・コミットしていない。手元の鍵のファイルと GCP 上の鍵は、運営者がこの後に削除する。
