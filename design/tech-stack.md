@@ -507,9 +507,18 @@ Cloud Run の単価（リクエストベースの課金）:
 
 費用の上限:
 
-- 通常の予算（alerts-only）は通知するだけで、使用も課金も止めない。
-- spend cap の予算は、1 プロジェクトの 1 サービスを対象に月単位で設定でき、Cloud Run は対象に入っている。超えるとそのサービスの新しい使用を翌月 1 日まで止める。リソースとデータは消えない。適用は即時でなく、超過分は通常どおり請求される。判定は定価の見積もりで、割引とクレジットを含まない。無料枠が割引として扱われるなら、無料枠の範囲の使用でも上限に届く。転送の費用が判定に含まれるかは、資料に記載が見つからない。
+- 通常の予算（alerts-only）は通知するだけで、使用も課金も止めない。判定は割引を引いた後の実際の費用で、税を含む。月の費用は翌月 2 日まで数える。通知の割合は変えられ（既定は実費の 50・90・100%）、見込みの額でも通知できる。
+- spend cap の予算は、1 プロジェクトの 1 サービスを対象に月単位で設定でき、Cloud Run は対象に入っている。超えるとそのサービスの新しい使用を翌月 1 日まで止める。リソースとデータは消えない。適用は即時でなく、超過分は通常どおり請求される。判定は定価の見積もりで、割引とクレジットを含まない。無料枠が割引として扱われるなら、無料枠の範囲の使用でも上限に届く。転送の費用が判定に含まれるかは、資料に記載が見つからない。通知は 50・80・100% で、請求先アカウントの管理者とプロジェクトのオーナーに届き、変えられない。同じプロジェクトの同じサービスはすべて数えるので、地域の測定で出す東京のサービスも含まれる。手で解除すると、その月は額を上げて保存し直すまで再び止まらない。止まっている間は編集も削除もできない。
 - 課金を無効にする自動化は、プロジェクトの全サービスを止め、リソースが消えることがあると資料が警告している。
+
+予算（2026-11-07 に決定）:
+
+| 予算 | 金額と通知 | 理由 |
+|---|---|---|
+| spend cap（`skillweave` のプロジェクトの Cloud Run） | 月 $10。通知は固定 | 普段の定価の見積もり（月 $1 弱。費用の大半は起動）の約 10 倍で、地域の測定でも止まりにくい。`/api/*` を叩かれたときの損失を $10 と報告の遅れの分に抑える |
+| 通常の予算（請求先アカウント全体） | 月 $1。実費の 50・90・100% と見込みの 100% で通知 | 普段は無料枠の範囲で $0 の見込みなので、請求が出たらすぐ気づける。spend cap の外の費用（Artifact Registry・Secret Manager・Logging・転送）を見張る |
+
+請求先アカウントの通貨と、転送の費用がどのサービスの費目に出るかは C3 で確かめる。円建てなら金額を円で決め直す。金額は C6 の実測で見直す。
 
 新規の無料トライアルは $300・90 日で、有料へ切り替えないまま期限が来るか使い切ると、アカウントを閉じてリソースを止め、30 日の猶予の後に完全に削除する。
 
@@ -601,6 +610,7 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 | CPU | 1 vCPU、`--cpu-throttling`（リクエストベースの課金） | インスタンスベースは存続の間ずっと課金される |
 | 起動ブースト | `--cpu-boost` | 起動中は 2 vCPU 分が課金されるが、待ち時間が減る |
 | インスタンス数 | 最小 0・最大 1 | 最小 1 は Singapore で月約 $13 かかる |
+| Invoker の確認 | 有効（既定のまま） | Worker だけが ID トークンを付けて呼ぶ。料金ページによると IAM で拒否した要求は課金されないので、`run.app` への直接の要求で費用が増えない（`specs/open-questions.md` Q88） |
 | シークレット | `swv-db-url`・`swv-db-username`・`swv-db-password`・`swv-discord-client-id`・`swv-discord-client-secret` | 5 個で無料枠に収まる。値を入れ替えたら古い版を破棄する |
 
 `SPRING_DATASOURCE_URL` は `jdbc:postgresql://<direct のホスト>/neondb?sslmode=require` の形にする。ユーザー名とパスワードは URL に入れない。
@@ -637,10 +647,17 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 5. デプロイする。起動時に Flyway が Neon へマイグレーションを流すので、スキーマが変わる版では先にバックアップを取る。
 
    ```bash
-   gc run deploy swv-api --image=$IMAGE --region=$REGION --service-account=swv-api-runtime@$PROJECT.iam.gserviceaccount.com --no-invoker-iam-check --memory=1Gi --cpu=1 --cpu-throttling --cpu-boost --min-instances=0 --max-instances=1 --set-env-vars=SPRING_PROFILES_ACTIVE=prod,DISCORD_REDIRECT_URI=https://skillweave.app/api/login/oauth2/code/discord,SWV_WEB_TOP_URL=https://skillweave.app/ --set-secrets=SPRING_DATASOURCE_URL=swv-db-url:latest,SPRING_DATASOURCE_USERNAME=swv-db-username:latest,SPRING_DATASOURCE_PASSWORD=swv-db-password:latest,DISCORD_CLIENT_ID=swv-discord-client-id:latest,DISCORD_CLIENT_SECRET=swv-discord-client-secret:latest
+   gc run deploy swv-api --image=$IMAGE --region=$REGION --service-account=swv-api-runtime@$PROJECT.iam.gserviceaccount.com --invoker-iam-check --memory=1Gi --cpu=1 --cpu-throttling --cpu-boost --min-instances=0 --max-instances=1 --set-env-vars=SPRING_PROFILES_ACTIVE=prod,DISCORD_REDIRECT_URI=https://skillweave.app/api/login/oauth2/code/discord,SWV_WEB_TOP_URL=https://skillweave.app/ --set-secrets=SPRING_DATASOURCE_URL=swv-db-url:latest,SPRING_DATASOURCE_USERNAME=swv-db-username:latest,SPRING_DATASOURCE_PASSWORD=swv-db-password:latest,DISCORD_CLIENT_ID=swv-discord-client-id:latest,DISCORD_CLIENT_SECRET=swv-discord-client-secret:latest
    ```
 
-6. `/actuator/health` が 200、Cookie なしの `/api/auth/me` が 401 を返すことを確かめる。`run.app` の URL はリポジトリに書かない。
+6. Worker が呼び出しに使うサービスアカウントを作り、このサービスの Invoker の権限だけを渡す。鍵の作り方と Worker への登録は、Worker の機能（`tasks/20261103-launch/plan.md` の B4）で決めてここに足す。
+
+   ```bash
+   gc iam service-accounts create swv-web-invoker
+   gc run services add-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
+   ```
+
+7. トークンを付けない要求が 403 になることと、運営者の ID トークン（`gc auth print-identity-token`）を `Authorization: Bearer` で付けたとき `/actuator/health` が 200、Cookie なしの `/api/auth/me` が 401 を返すことを確かめる。`run.app` の URL はリポジトリに書かない。
 
 #### 地域の測定
 
@@ -648,13 +665,15 @@ Singapore と東京へ同じイメージを一時的に出し、ウォームの�
 
 #### 停止
 
-費用が想定を超えたら、Invoker の確認を有効に戻す。認証のない要求は Cloud Run が拒否し、料金ページによると IAM で拒否した要求は課金されない。C3 で実際に試す。
+Invoker の確認は常に有効なので、`run.app` への直接の要求は Cloud Run が拒否し、料金ページによると課金されない。費用が想定を超えたら、Worker のサービスアカウントから Invoker の権限を外す。Worker からの要求も拒否されるようになる。C3 で実際に試す。
 
 ```bash
-gc run services update swv-api --region=$REGION --invoker-iam-check
+gc run services remove-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
 ```
 
-再開は `--no-invoker-iam-check` にする。それでも足りなければ `gc run services delete swv-api --region=$REGION` でサービスを消す。イメージ・シークレット・Neon のデータは残る。
+再開は手順 6 の `add-iam-policy-binding` で権限を戻す。それでも足りなければ `gc run services delete swv-api --region=$REGION` でサービスを消す。イメージ・シークレット・Neon のデータは残る。
+
+spend cap で止まったときは、原因を確かめてから、予算の編集で上限を解除し、上限の額を上げて保存し直す（解除だけでは、その月は再び止まらない）。戻るまで最大 1 時間かかる。何もしなければ翌月 1 日に戻る。
 
 ### DB の設定とバックアップ
 
