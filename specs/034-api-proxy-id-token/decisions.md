@@ -30,3 +30,14 @@
   - トークンを付けた転送に Cloud Run が 401・403 を返したとき: 031 の AC-2 のとおりそのまま返し、取り直しも再試行もしない。
 - 理由: 鍵が不正なのは `API_ORIGIN` が不正なのと同じく運営者の設定の誤りで、待っても直らないので 503 に揃える（仮の 502 から変えた）。トークンエンドポイントの失敗は、上流へ届かないのと同じく転送先の側の失敗なので 502 に揃える。未設定で付けずに転送すると、本番で登録を忘れたときは Cloud Run の 403 がそのまま見えるので、気づける。
 - 受け入れる欠点: 本番で `API_INVOKER_KEY` の登録を忘れても Worker は止まらず、ログイン・保存・共有 URL が 403 になる。C5 の確認で気づく前提にする。
+
+## T1 の確認結果（実施: 2026-11-07）
+- 内容: 運営者が GCP プロジェクトを作り、サービスアカウント `swv-web-invoker` と JSON 鍵を発行した（鍵はリポジトリの外。`iam.disableServiceAccountKeyCreation` は掛からなかった）。メインが plan D5・D6 と同じ JWT（`kid` なし）を Web Crypto で作り、`https://oauth2.googleapis.com/token` へ交換を試した。
+- 要求: `POST`・`Content-Type: application/x-www-form-urlencoded`・本文は `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer` と `assertion`。JWT のヘッダーは `{"alg":"RS256","typ":"JWT"}`（`kid` なし）、クレームは `iss`・`sub`（`client_email`）・`aud`（トークンエンドポイント）・`target_audience`・`iat`・`exp`（`iat + 3600`）。
+- 結果（`target_audience` が `https://swv-api-example.a.run.app` と `http://127.0.0.1:8787` の両方）:
+  - 200・`application/json`。応答のキーは `id_token` だけ。
+  - `id_token` は 3 つの部分で、ヘッダーのキーは `alg`・`kid`・`typ`、ペイロードのキーは `aud`・`azp`・`email`・`email_verified`・`exp`・`iat`・`iss`・`sub`。
+  - `aud` は送った `target_audience` と一致。`exp` は数値で、交換の直後から約 3600 秒後。`iss` は `https://accounts.google.com`、`email` は `client_email` と一致。
+  - JWT のヘッダーに `kid` を付けた場合も同じ結果（`kid` は不要）。
+- 結論: spec（AC-1・AC-2）・plan D5・D6 の形のとおりで、区間 A へ戻す必要は無い。`http://127.0.0.1` の audience も交換できたので、T4 は AC-1 の項目を含めて行える。
+- 鍵の値と `id_token` の本体は記録していない。鍵は T4 の後に運営者が手元と GCP 上で削除する（plan D10）。
