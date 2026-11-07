@@ -26,7 +26,7 @@
     "contract:swagger": "pnpm run contract:bundle && node scripts/build-swagger-ui.mjs"
   },
   "dependencies": {
-    "@lucide/vue": "1.64.0",
+    "@lucide/vue": "1.65.0",
     "@swv/data": "workspace:*",
     "@swv/solver": "workspace:*",
     "@tesseract.js-data/jpn": "1.0.0",
