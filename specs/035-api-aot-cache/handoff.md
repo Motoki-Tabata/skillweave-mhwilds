@@ -2,10 +2,10 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: A
-- 次に起動するコマンド: `/tsod-spec 035-api-aot-cache`
+- 区間: C
+- 次に起動するコマンド: `/tsod-plan 035-api-aot-cache`
 - 推奨モデル: Opus
-- ブランチ: `feat/035-api-aot-cache`
+- ブランチ: `feat/035-api-aot-cache`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
@@ -24,9 +24,9 @@
 | ゲート | 対象 | 状態 | 承認日時・記録 |
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-11-09 / d8c949e |
-| A-2 | 薄仕様 spec.md | 未 | |
-| B-1 | 画面設計 screen-design.md | 未 | |
-| B-2 | テーブル設計（design/・migration） | 未 | |
+| A-2 | 薄仕様 spec.md | 承認済み | 2026-11-09 / 08b1a2f |
+| B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | 2026-11-09 |
+| B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-11-09 |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
@@ -73,3 +73,4 @@
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q154・Q155・Q156・Q157（Q157 は区間 A の試作で判明して直接 decisions.md に記録）
+- 区間 A の試作: init スクリプト（allprojects で bootBuildImage の environment.putAll）で環境は渡せたが、imageName.set は build.gradle.kts の設定が後から勝って skillweave-mhwilds-api:latest に上書きされた。AC-8 の通常のイメージを作るときは、作った直後に別名へ docker tag する
