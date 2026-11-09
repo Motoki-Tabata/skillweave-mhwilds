@@ -71,6 +71,7 @@
 | 区間 | ファイル | 内容（1行） | 理由 |
 |---|---|---|---|
 | D | design/tech-stack.md | イメージ行を通常のイメージと明記・訓練の文言を「接続できなくても」に直す | reviewer 所見（要修正・軽微）の反映 |
+| D | design/tech-stack.md | 手順 4 の確認と docker tag・push を && でつなぎ、確認が失敗したら止まるようにした | ゲート D-1 の要判断（手順 4 の停止処理）でユーザーが選んだ |
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
@@ -78,6 +79,7 @@
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
+- api-agent の候補: training など local・prod 以外のプロファイルを新設するときは、prod・local にしか既定が無い設定キー（今回は redirect-uri）を洗い出し、plan の列挙だけでなく実際に起動して足りないキーを確かめる。繰り返すか見てから tasks/lessons.md へ起票する（持ち越し）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
@@ -88,3 +90,4 @@
 - 区間 A の試作: init スクリプト（allprojects で bootBuildImage の environment.putAll）で環境は渡せたが、imageName.set は build.gradle.kts の設定が後から勝って skillweave-mhwilds-api:latest に上書きされた。AC-8 の通常のイメージを作るときは、作った直後に別名へ docker tag する
 - T3: plan D2 に無い redirect-uri（spring.security.oauth2.client.registration.discord.redirect-uri）を application-training.yml に足した（空だと InMemoryClientRegistrationRepository が止まる。prod・local にしか既定が無いため）。T4 の実訓練で通ることを確かめる。plan D2・AC-3 への追記はゲート D-1 で扱う
 - T4 結果（2026-11-09・1 CPU・1 GiB・prod・postgres:18.6-trixie・交互 3 回）: AC-4 訓練は最後まで通った（Training run exited with an error 0 件、AOTCache creation is complete: application.aot 140853248 bytes）。通常: health 200 まで 16.5/16.0/15.4 秒、Started 14.2/13.8/13.3 秒。AOT: health 200 まで 7.6/7.7/7.5 秒、Started 6.1/6.3/6.2 秒。両方とも Flyway 6 件適用・/api/auth/me 401・ログイン開始 302 で同一。イメージ: 通常 展開後 770 MB・gzip 164 MB、AOT 展開後 1050 MB・gzip 198 MB（0.5 GB の無料枠は AOT で 2 版ほどのまま）
+- D-1 の判断: redirect-uri は採用。plan D2・decisions.md Q154 の値の列挙への追記は区間 E で行う。手順 4 は && でつなぎ失敗時に止める形に直した
