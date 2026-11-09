@@ -589,7 +589,7 @@ Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 
 
 ### API のデプロイ手順
 
-手元から手動で出す。手順 1〜7 は 2026-11-07 に本番で実行した。「停止」の試行は C3 の残り。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
+手元から手動で出す。手順 1〜7 は 2026-11-07 に本番で実行し、「停止」は 2026-11-09 に試した。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
 
 手元のコンテナで測った値（2026-11-04。Ryzen 7 5700X・WSL2・`prod` プロファイル・PostgreSQL 18.6 のコンテナ。Cloud Run と Neon の値ではない）:
 
@@ -711,7 +711,7 @@ Singapore と東京へ同じイメージを一時的に出し、ウォームの�
 
 #### 停止
 
-Invoker の確認は常に有効なので、`run.app` への直接の要求は Cloud Run が拒否し、料金ページによると課金されない。費用が想定を超えたら、Worker のサービスアカウントから Invoker の権限を外す。Worker からの要求も拒否されるようになる。C3 で実際に試す。
+Invoker の確認は常に有効なので、`run.app` への直接の要求は Cloud Run が拒否し、料金ページによると課金されない。費用が想定を超えたら、Worker のサービスアカウントから Invoker の権限を外す。Worker からの要求も拒否されるようになる。2026-11-09 に試した。権限を外してから約 80 秒で、Worker 経由の `/api/oauth2/authorization/discord` が 302 から 403（Google の `text/html` の Forbidden がそのまま返る）に変わった。Worker が持っている期限内の ID トークンでも拒否される。Cookie なしの `/api/auth/me` は Worker が答えるので 401 のまま。権限を戻すと約 90 秒で 302 に戻った。
 
 ```bash
 gc run services remove-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
