@@ -595,10 +595,10 @@ Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 
 
 | 項目 | 結果 |
 |---|---|
-| イメージ | `./gradlew bootBuildImage` で作れる。JRE は 25.0.5。展開後 769 MB、gzip で 175 MB（Artifact Registry の無料枠の目安は 2 版ほど） |
+| イメージ | `./gradlew bootBuildImage` で作れる。JRE は 25.0.5。AOT キャッシュ無しの通常のイメージで、展開後 769 MB、gzip で 175 MB（2026-11-04。AOT キャッシュ付きの値は下の行。Artifact Registry の無料枠の目安は 2 版ほど） |
 | メモリ | 512 MiB は起動しない（メモリの計算で `fixed memory regions require 642294K`）。768 MiB と 1 GiB は起動し、300 回の要求の後で約 300 MiB |
 | 起動（`/actuator/health` が 200 になるまで） | 通常のイメージは 1 CPU で約 14.5 秒、2 CPU で 7.5 秒。同じ日の先の測定では 1 CPU で 36〜39 秒、2 CPU で 21 秒と大きくぶれ、原因は分かっていない |
-| AOT キャッシュ（`bootBuildImage` の既定。`BP_JVM_AOTCACHE_ENABLED=true`、訓練は `training` プロファイル。2026-11-09 に測定） | 訓練の実行は DB に接続せず、最後まで通る（`application-training.yml`）。1 CPU・1 GiB で `/actuator/health` が 200 になるまで 7.5〜7.7 秒、`Started … in` は 6.1〜6.3 秒（通常のイメージと交互に 3 回ずつ。通常は 15.4〜16.5 秒、`Started` は 13.3〜14.2 秒）。イメージは展開後 1050 MB・gzip で 198 MB（通常は 770 MB・164 MB）で、無料枠の目安は 2 版ほどのまま。マイグレーション 6 件の適用・`/api/auth/me` の 401・ログイン開始の 302 は通常と同じ |
+| AOT キャッシュ（`bootBuildImage` の既定。`BP_JVM_AOTCACHE_ENABLED=true`、訓練は `training` プロファイル。2026-11-09 に測定） | 訓練の実行は DB に接続できなくても最後まで通る（`application-training.yml`）。1 CPU・1 GiB で `/actuator/health` が 200 になるまで 7.5〜7.7 秒、`Started … in` は 6.1〜6.3 秒（通常のイメージと交互に 3 回ずつ。通常は 15.4〜16.5 秒、`Started` は 13.3〜14.2 秒）。イメージは展開後 1050 MB・gzip で 198 MB（通常は 770 MB・164 MB）で、無料枠の目安は 2 版ほどのまま。マイグレーション 6 件の適用・`/api/auth/me` の 401・ログイン開始の 302 は通常と同じ |
 | AOT キャッシュの Cloud Run での比較（2026-11-09。Singapore・本番と同じ設定の別名のサービス・同じコミット `4fb470f`） | アプリの起動（`Started … in`、3 回の平均）は通常 13.9 秒、AOT 9.4 秒。21 分の無操作の後の最初の要求（ログイン開始の 302）は通常 19.0 秒、AOT 14.2 秒。ウォームはどちらも約 0.3 秒。AOT のイメージは訓練が JPA の初期化で失敗した（ビルドの中に DB が無い）まま作られたキャッシュで、訓練を最後まで通せばさらに縮む見込み。測定のサービスとイメージは削除した |
 
 Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、ゲストの訪問では Cloud Run を起こさない。ログイン済みの最初の要求とログインの開始は、停止中のインスタンスの起動を待つ。
