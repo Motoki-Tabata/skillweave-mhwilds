@@ -589,7 +589,7 @@ Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 
 
 ### API のデプロイ手順
 
-手元から手動で出す。手順 1〜7 は 2026-11-07 に本番で実行した。「停止」の試行は C3 の残り。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
+手元から手動で出す。手順 1〜7 は 2026-11-07 に本番で実行し、「停止」は 2026-11-09 に試した。`gcloud` は手元に入れず、`gcr.io/google.com/cloudsdktool/google-cloud-cli:592.0.0-slim` のコンテナで実行する。認証情報は docker ボリュームに置き、リポジトリに入れない。ログイン・課金の有効化・秘密情報の入力は運営者が行う。
 
 手元のコンテナで測った値（2026-11-04。Ryzen 7 5700X・WSL2・`prod` プロファイル・PostgreSQL 18.6 のコンテナ。Cloud Run と Neon の値ではない）:
 
@@ -599,6 +599,7 @@ Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 
 | メモリ | 512 MiB は起動しない（メモリの計算で `fixed memory regions require 642294K`）。768 MiB と 1 GiB は起動し、300 回の要求の後で約 300 MiB |
 | 起動（`/actuator/health` が 200 になるまで） | 通常のイメージは 1 CPU で約 14.5 秒、2 CPU で 7.5 秒。同じ日の先の測定では 1 CPU で 36〜39 秒、2 CPU で 21 秒と大きくぶれ、原因は分かっていない |
 | AOT キャッシュ（`BP_JVM_AOTCACHE_ENABLED=true`。試作でリポジトリの設定は未変更） | 1 CPU で約 7 秒、2 CPU で約 3.7 秒（通常のイメージと続けて測定）。イメージは gzip で 214 MB。マイグレーション・`/api/auth/me` の 401・ログイン開始の 302 は通常と同じ。訓練の実行では DB に接続しないよう `TRAINING_RUN_JAVA_TOOL_OPTIONS` で Flyway を止める |
+| AOT キャッシュの Cloud Run での比較（2026-11-09。Singapore・本番と同じ設定の別名のサービス・同じコミット `4fb470f`） | アプリの起動（`Started … in`、3 回の平均）は通常 13.9 秒、AOT 9.4 秒。21 分の無操作の後の最初の要求（ログイン開始の 302）は通常 19.0 秒、AOT 14.2 秒。ウォームはどちらも約 0.3 秒。AOT のイメージは訓練が JPA の初期化で失敗した（ビルドの中に DB が無い）まま作られたキャッシュで、訓練を最後まで通せばさらに縮む見込み。測定のサービスとイメージは削除した |
 
 Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、ゲストの訪問では Cloud Run を起こさない。ログイン済みの最初の要求とログインの開始は、停止中のインスタンスの起動を待つ。
 
@@ -711,7 +712,7 @@ Singapore と東京へ同じイメージを一時的に出し、ウォームの�
 
 #### 停止
 
-Invoker の確認は常に有効なので、`run.app` への直接の要求は Cloud Run が拒否し、料金ページによると課金されない。費用が想定を超えたら、Worker のサービスアカウントから Invoker の権限を外す。Worker からの要求も拒否されるようになる。C3 で実際に試す。
+Invoker の確認は常に有効なので、`run.app` への直接の要求は Cloud Run が拒否し、料金ページによると課金されない。費用が想定を超えたら、Worker のサービスアカウントから Invoker の権限を外す。Worker からの要求も拒否されるようになる。2026-11-09 に試した。権限を外してから約 80 秒で、Worker 経由の `/api/oauth2/authorization/discord` が 302 から 403（Google の `text/html` の Forbidden がそのまま返る）に変わった。Worker が持っている期限内の ID トークンでも拒否される。Cookie なしの `/api/auth/me` は Worker が答えるので 401 のまま。権限を戻すと約 90 秒で 302 に戻った。
 
 ```bash
 gc run services remove-iam-policy-binding swv-api --region=$REGION --member=serviceAccount:swv-web-invoker@$PROJECT.iam.gserviceaccount.com --role=roles/run.invoker
