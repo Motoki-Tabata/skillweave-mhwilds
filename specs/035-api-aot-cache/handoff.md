@@ -34,7 +34,7 @@
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
 
 ## コミット範囲
-- 区間 D の開始コミット: <区間 D を始めたときの HEAD>
+- 区間 D の開始コミット: 1162c2e
 - レビュー対象の範囲: `<開始コミット>..<再開点>`
 - 是正の範囲: `<前回のレビュー対象の終点>..<是正の最後のコミット>`
 <!-- 書くのは既に存在するコミットのハッシュだけ。区間 D 以外では空のまま -->
@@ -48,6 +48,7 @@
 ## 委譲の記録
 | 領域 | ワーカー | コミット |
 |---|---|---|
+| api | api-agent | 7ec87ce |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
@@ -74,3 +75,5 @@
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q154・Q155・Q156・Q157（Q157 は区間 A の試作で判明して直接 decisions.md に記録）
 - 区間 A の試作: init スクリプト（allprojects で bootBuildImage の environment.putAll）で環境は渡せたが、imageName.set は build.gradle.kts の設定が後から勝って skillweave-mhwilds-api:latest に上書きされた。AC-8 の通常のイメージを作るときは、作った直後に別名へ docker tag する
+- T3: plan D2 に無い redirect-uri（spring.security.oauth2.client.registration.discord.redirect-uri）を application-training.yml に足した（空だと InMemoryClientRegistrationRepository が止まる。prod・local にしか既定が無いため）。T4 の実訓練で通ることを確かめる。plan D2・AC-3 への追記はゲート D-1 で扱う
+- T4 結果（2026-11-09・1 CPU・1 GiB・prod・postgres:18.6-trixie・交互 3 回）: AC-4 訓練は最後まで通った（Training run exited with an error 0 件、AOTCache creation is complete: application.aot 140853248 bytes）。通常: health 200 まで 16.5/16.0/15.4 秒、Started 14.2/13.8/13.3 秒。AOT: health 200 まで 7.6/7.7/7.5 秒、Started 6.1/6.3/6.2 秒。両方とも Flyway 6 件適用・/api/auth/me 401・ログイン開始 302 で同一。イメージ: 通常 展開後 770 MB・gzip 164 MB、AOT 展開後 1050 MB・gzip 198 MB（0.5 GB の無料枠は AOT で 2 版ほどのまま）
