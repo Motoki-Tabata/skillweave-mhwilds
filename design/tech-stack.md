@@ -650,10 +650,12 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
    done
    ```
 
-4. 配備するコミットでイメージを作り、push する。
+4. 配備するコミットでイメージを作り、push する。イメージの作成中に AOT キャッシュの訓練の実行が走る（`training` プロファイル。`application-training.yml`）。訓練が失敗してもイメージは作られてしまうので、出力をファイルに残し、`Training run exited with an error` があるとき、または `AOTCache creation is complete` が無いときは push せずに止める。JRE・Syft の取得が 504 などで失敗したら、時間をおいて同じコマンドを再実行する。
 
    ```bash
-   (cd apps/api && ./gradlew bootBuildImage)
+   mkdir -p apps/api/build
+   (cd apps/api && set -o pipefail && ./gradlew bootBuildImage 2>&1 | tee build/boot-build-image.log)
+   ! grep -q 'Training run exited with an error' apps/api/build/boot-build-image.log && grep -q 'AOTCache creation is complete' apps/api/build/boot-build-image.log
    docker tag skillweave-mhwilds-api:latest $IMAGE
    gc auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://$REGION-docker.pkg.dev
    docker push $IMAGE

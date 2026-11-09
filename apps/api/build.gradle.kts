@@ -144,6 +144,16 @@ tasks.withType<JavaCompile> {
 
 tasks.named<BootBuildImage>("bootBuildImage") {
     imageName.set("skillweave-mhwilds-api")
+    // イメージの作成中に訓練の実行を行い、AOT キャッシュを作る（起動の短縮）。
+    // 訓練の実行は DB に接続できないので、`training` プロファイル
+    // （application-training.yml）で DB と Discord の値に頼らず起動を通す。
+    // 実行時には有効にしない。詳細は specs/035-api-aot-cache/decisions.md の Q154・Q155。
+    environment.putAll(
+        mapOf(
+            "BP_JVM_AOTCACHE_ENABLED" to "true",
+            "TRAINING_RUN_JAVA_TOOL_OPTIONS" to "-Dspring.profiles.active=training",
+        ),
+    )
 }
 
 spotless {
