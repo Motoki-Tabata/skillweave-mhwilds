@@ -1,0 +1,22 @@
+# AOT キャッシュの訓練の実行だけで有効にする。実行時には有効にしない（decisions.md Q154）。
+spring:
+  flyway:
+    enabled: false
+  datasource:
+    # ポート 1 は接続が即座に拒否される（応答の無いホストだと接続のタイムアウトまで待つため使わない）。
+    url: jdbc:postgresql://localhost:1/training
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        boot:
+          allow_jdbc_metadata_access: false
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            client-id: training
+            client-secret: training
+            # local・prod の外では既定が無く、空だと登録の生成が止まる。
+            redirect-uri: http://localhost/login/oauth2/code/discord

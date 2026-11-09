@@ -8,6 +8,7 @@
 031 の入力（2026-11-03）: 公開の構成（`design/tech-stack.md`「本番の構成」）で、Web の Worker が `/api/*` を Cloud Run へ転送する部分のうち、コードの変更が要るもの（open-questions.md Q130・Q142）。
 032 の入力（2026-11-03）: 公開作業で本番を実測して分かった `/privacy` の表記と事実の食い違い（open-questions.md Q141）。
 033 の入力（2026-11-04）: 公開作業の進行表（`tasks/20261103-launch/plan.md` の B3）。バックアップの方式を決めて分かった `/privacy` の記載の不足（open-questions.md Q143）。
+035 の入力（2026-11-09）: 公開作業の進行表（`tasks/20261103-launch/plan.md` の B5）。Cloud Run で通常と AOT キャッシュ付きのイメージを比べた結果（open-questions.md Q150・`design/tech-stack.md`「API のデプロイ手順」）。
 機能 ID は実装順に振る（依存の表を満たす順で、同じ段では優先度の高いものを先にする）。初回の分解の後に追加した機能は、既存の ID を振り直さず末尾に採番する。その場合の実装順は依存の表が正である。
 
 ### 機能マップ
@@ -47,6 +48,7 @@
 | 032 | privacy-analytics | `/privacy` の表記を本番の事実に合わせ、Cloudflare Web Analytics で何が送られ何に使われるかを画面から読めるようにする | P0 | S | 済 |
 | 033 | privacy-backup | 消去を依頼した後もデータがバックアップにいつまで、どんな形で残るかを、`/privacy` で読めるようにする | P0 | S | 済 |
 | 034 | api-proxy-id-token | Web の Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付けて、Invoker の確認を有効にしたまま Cloud Run を呼べるようにする | P0 | S | 済 |
+| 035 | api-aot-cache | API のコンテナイメージを AOT キャッシュ付きで作り、Cloud Run で停止した状態から最初の要求（ログイン開始など）に答えるまでの待ち時間を縮める（本番の DB 接続と実行時の設定は変えない） | P0 | S | 未着手 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
@@ -85,3 +87,4 @@
 | 032 privacy-analytics | 030 | 030 の AC-9 のうち、アクセス解析を入れていないとする部分を取り消す。扱う範囲は Q141。URL をフレンドへ配る前にマージしてデプロイする |
 | 033 privacy-backup | 030 | 030 の AC-6（完全な消去は連絡先へ依頼する）の案内に、バックアップの説明を足す。バックアップの方式は 028 decisions.md Q131。扱う範囲は Q143〜Q147。URL をフレンドへ配る前にマージしてデプロイする |
 | 034 api-proxy-id-token | 031 | Q88 の直接の到達の決定（Invoker の確認を有効にしたまま、Worker が専用のサービスアカウントで ID トークンを付ける）を実装する。扱う範囲は Q151〜Q153。031 の AC-9 の転送のヘッダーの扱いに `X-Serverless-Authorization` の付与が加わる。デプロイ・鍵の発行と登録・本番での確認は含めない（C3・C5）。C5 のログインの確認の前にマージしてデプロイする |
+| 035 api-aot-cache | なし | Q150 の C3 での比較（2026-11-09）で差が出たので起票した。`apps/api/build.gradle.kts` の `bootBuildImage` に `BP_JVM_AOTCACHE_ENABLED` と訓練の実行の設定を足す。扱う範囲は Q154〜Q156。`design/tech-stack.md`「API のデプロイ手順」の更新を含め、本番の `swv-api` へのデプロイと測定は含めない（公開作業の B5・C8）。URL を配る（C8）前にマージし、本番へ出す |
