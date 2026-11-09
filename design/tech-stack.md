@@ -654,10 +654,11 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 
    ```bash
    mkdir -p apps/api/build
-   (cd apps/api && set -o pipefail && ./gradlew bootBuildImage 2>&1 | tee build/boot-build-image.log)
-   ! grep -q 'Training run exited with an error' apps/api/build/boot-build-image.log && grep -q 'AOTCache creation is complete' apps/api/build/boot-build-image.log
-   docker tag skillweave-mhwilds-api:latest $IMAGE
-   gc auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://$REGION-docker.pkg.dev
+   (cd apps/api && set -o pipefail && ./gradlew bootBuildImage 2>&1 | tee build/boot-build-image.log) &&
+   ! grep -q 'Training run exited with an error' apps/api/build/boot-build-image.log &&
+   grep -q 'AOTCache creation is complete' apps/api/build/boot-build-image.log &&
+   docker tag skillweave-mhwilds-api:latest $IMAGE &&
+   gc auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://$REGION-docker.pkg.dev &&
    docker push $IMAGE
    ```
 
