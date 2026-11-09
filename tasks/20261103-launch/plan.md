@@ -25,7 +25,8 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] B1 `/privacy` に Web Analytics の説明を足し、030 の AC-9 を取り消す（032 privacy-analytics。PR #89・#90 でマージ。2026-11-07 に v0.1.0 で本番へ反映）
 - [x] B2 031 api-proxy（PR #92・#93 でマージ。2026-11-07 に v0.1.0 で本番へ反映。`API_ORIGIN` は未設定で `/api/*` は 503。本番での転送の確認は Q88・031 decisions.md Q142 へ持ち越し）
 - [x] B3 `/privacy` にバックアップの説明を足す（033 privacy-backup。PR #96・#97 でマージ。2026-11-07 に v0.1.0 で本番へ反映）
-- [x] B4 Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付ける（034 api-proxy-id-token。PR #112・#113・#114 でマージ。本番の Web へはまだ出していない。鍵の登録と本番での確認は C3・C5）
+- [x] B4 Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付ける（034 api-proxy-id-token。PR #112・#113・#114 でマージ。2026-11-07 に v0.2.0 で本番へ反映。鍵の登録と本番での確認は C3・C5 で済んだ）
+- [ ] B5 API のイメージを AOT キャッシュ付きで作る（Q150。`apps/api/build.gradle.kts` の `bootBuildImage`。`/tsod-discover` から始める。訓練の実行を DB なしで最後まで通す方法は機能の中で決める）。依存: なし
 
 ### C. 運用作業
 - [x] C1 Neon: Q129・Q131 を決め、プロジェクトを作り、バックアップとリストアの手順を `design/tech-stack.md` に書いた（2026-11-04）。パイプの形の Neon での実行と本物の `flyway_schema_history` の復元は、C3 の後の最初のバックアップで確かめる
@@ -35,13 +36,13 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] C5 Web を再デプロイし（Release を `workflow_dispatch` で実行する。`design/tech-stack.md`「Web のデプロイ手順」）、本番でログイン・保存・共有 URL を確かめる。依存: B1、B2、B3、B4、C4。Web の再デプロイは済み（2026-11-07。v0.1.0、run 42342160053。`/`・`/privacy`・`/builds` の画面と検索はユーザーが確かめた）。2026-11-07 に v0.2.0（B4 の Worker）を出し、`API_INVOKER_KEY` と `API_ORIGIN` を登録して、Worker から Cloud Run への転送が通った。同日に運営者がブラウザで、ログイン（約 5 秒）・構成と護石の保存・共有 URL のシークレットウィンドウでの表示・ログアウトを確かめた。HAR（`skillweave.app` 以外）の通信先は `discord.com`（ログインの遷移）・`cdn.discordapp.com`・`gateway.discord.gg`・Google Fonts・`static.cloudflareinsights.com` と、運営者の端末のセキュリティソフトが挿入したものだけで、`run.app` は無かった。`/cdn-cgi/rum` の送信は C7 で確かめる
 - [ ] C6 Neon が停止するか（Q91）、無料枠の消費、レイテンシを実測して記録する。依存: C5
 - [ ] C7 Q140 の照合: Email Routing の転送と受信、Cloud Run の地域、ログの保持、Workers Logs、バックアップの保持期間、Web Analytics、ブラウザの通信先。依存: C5
-- [ ] C8 ユーザーの判断で URL を配る。このとき v1.0.0 をリリースする（`design/tech-stack.md`「リリースと版」）。依存: C5、C6、C7
+- [ ] C8 ユーザーの判断で URL を配る。このとき v1.0.0 をリリースする（`design/tech-stack.md`「リリースと版」）。依存: B5、C5、C6、C7。B5 のイメージを本番の `swv-api` へ出してから配る
 - [ ] C9 残す内容を `design/`・`specs/` へ移し、このフォルダを消す。依存: C8
 
 ### 順番
 1. A2 → A1 → B1
 2. B2 と C1 を並行して進める
-3. B3 と C2 → C3 → C4 を並行して進める。B4 は C3 と並行して進める
+3. B3 と C2 → C3 → C4 を並行して進める。B4 は C3 と並行して進める。B5 は C6・C7 と並行して進める
 4. C5 → C6・C7 → C8 → C9
 
 ## A1 で記録する内容
