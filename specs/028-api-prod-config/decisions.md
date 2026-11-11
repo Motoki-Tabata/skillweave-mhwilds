@@ -24,6 +24,7 @@
 - 問い: 028 api-prod-config で、Spring Session JDBC の期限切れのセッションの掃除の間隔を変えるか。既定は毎分（`0 * * * * *`。`spring-session-jdbc` 4.1.1 の `JdbcIndexedSessionRepository` で確認）で、リポジトリは `cleanup-cron` を設定していない。API が起きている間は Neon が 5 分使われずに停止する条件を満たせず、最小の 0.25 CU で常時動くと月に約 180 CU 時間となり、Neon Free の 100 CU 時間を超えうる（試算。実測していない）。Cloud Run の最小インスタンス数（0 なら費用はほぼ 0 だが、JVM の起動と Neon の復帰の待ちが重なる。1 なら常駐の料金が出る）とも関わる。
 - 決定: 掃除の間隔（`spring.session.jdbc.cleanup-cron`）を1日1回（UTC 3:00）にし、プロファイル共通の `application.yml` に置く。最小インスタンス数は Q88 の手順を決めるときに見積もって決める。
 - 理由: 期限の切れたセッションは読み出しのときにも無効として扱われるので、掃除の間隔を延ばしても挙動は変わらない。ローカルと本番で間隔を分ける理由は無い。Neon が実際に止まれるかは、接続プールの keepalive や Cloud Run の CPU の割り当てにも左右されるため、公開の作業（Q87・Q88）で実測する。
+- 実測（2026-11-11）: Neon は止まる。Cloud Run のインスタンスが最後の要求から約 15 分で落ち、その約 5 分後に Neon が止まる（最後の要求から約 20 分。10 回で確認）。最小インスタンス数は 0 にした（`design/tech-stack.md`「API のデプロイ手順」「稼働の実測」）。掃除の cron がインスタンスの無い時間に動かない件は `specs/open-questions.md` Q149。
 
 ## Q83（決定: 2026-11-02）
 - 問い: 独自ドメイン（`temp/initial-design.md` §11）をどう取るか。Cookie の同一サイト化の前提（`design/tech-stack.md`「§3.3 の確認結果」の表）。ドメイン名・取得先・DNS の置き場所と、同じく §11 で未決のホスティング費用の上限（無料枠を超えたときの方針）を合わせて決める（仮: Cloudflare で取得して DNS も Cloudflare に置く。費用の上限は Cloud Run・Neon・Cloudflare の無料枠の範囲とし、超えそうなら公開を止めて見直す）
