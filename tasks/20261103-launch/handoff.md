@@ -1,6 +1,7 @@
 # handoff: launch
 
 ## 現在地
+2026-11-11: B5（AOT キャッシュ付きのイメージの本番反映と Cloud Run での測定）と C3（Error Reporting の確認。結果は Q158）を済ませた。残りは C6・C7・C8・C9。
 段階2 完了（2026-11-03）。A1・A2・B1・B2・B3 まで完了（PR #87・#89・#90・#92・#93・#96・#97）。B1・B2・B3 は 2026-11-07 に v0.1.0 として本番の Web に出した（C5 のうち Web の再デプロイ）。C1 は Neon のプロジェクトを作り（PostgreSQL 18.6・Singapore・0.25 CU、`neondb` は空）、手順と Q129・Q131 の記録を書いた（2026-11-04）。C2 は料金を確かめて `design/tech-stack.md`「費用」に書き、ユーザーに示した（2026-11-04）。C2 まで完了。C3 はイメージと手元の測定、手順の下書きまで済み、ユーザーの課金の有効化を待っている。B4 は 034 api-proxy-id-token として完了した（PR #112・#113・#114。2026-11-07）。GCP のプロジェクトと `swv-web-invoker` は 034 の T1 で作った。2026-11-07 時点で課金は無効、Cloud Run・Artifact Registry・Secret Manager の API は未有効だった（同日に課金を有効にし、3 つの API を有効にし、予算 2 つ（`swv-cloud-run-cap`・`swv-billing-alert`）を作った）、`swv-web-invoker` に利用者が管理する鍵は無い。034 の Worker は本番の Web にまだ出していない（release-please の PR #111 が開いている）。
 公開までの残りを `plan.md` に整理した。Web は `https://skillweave.app` で v0.1.0 が動いている。release-please と `.github/workflows/release.yml` による版の管理と Web の自動デプロイを入れ（PR #104・#105・#106・#109。規則は `design/tech-stack.md`「リリースと版」）、`main` の `39368d1` に v0.1.0 の GitHub Release を作って、Release の `workflow_dispatch`（tag=`v0.1.0`）で出した。`API_ORIGIN` は未設定なので `/api/*` は 503 を返す。`/`・`/privacy`・`/builds` の画面と検索はユーザーがブラウザで確かめた（2026-11-07）。C5 はログイン・保存・共有 URL の確認が残っている。URL は C8 まで配らない。
 
@@ -12,7 +13,7 @@
 SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch/handoff.md と plan.md を全文読み、未完了の最初のタスクから進める。plan.md の「守ること」に従う。
 ```
 
-- 最初のタスク: C3 の続き。課金の有効化と予算の作成（手順 2）は済んだ（2026-11-07）。Secret Manager の 5 つのシークレット（`swv-db-*`・`swv-discord-*`）も運営者が登録し、形を確かめた（2026-11-07）。手順 3（Artifact Registry の `swv`・`swv-api-runtime`・シークレットの読み取り権限）と手順 4（`main` の `4fb470f` のイメージを `api:4fb470f` で push）も済んだ（2026-11-07）。手順 5 のデプロイ・「地域の測定」・手順 7 の確認も済み、地域は Singapore に決めて東京のサービスを消した（2026-11-07。`design/tech-stack.md`）。手順 6 も済んだ（2026-11-07。`swv-web-invoker` に Invoker を付け、運営者が鍵を発行して `API_INVOKER_KEY` に登録し、手元の鍵を消した。利用者が管理する鍵は 1 本）。v0.2.0（034 の Worker）を Release の run 42364896935 で出し（版 `ef1c64f6-298c-4ad3-938d-36e0340fe887`）、`API_ORIGIN` を登録した（2026-11-07）。Worker 経由で、Cookie なしの `/api/auth/me` は 401、`/api/oauth2/authorization/discord` は本番の redirect URI の 302（停止からの起動で 21.5 秒、2 回目は 0.3 秒）、クライアントが送った `X-Serverless-Authorization` は消されて 302 だった。C5 は同日に運営者のブラウザでの確認まで済んだ（plan.md C5）。C3 の「停止」は 2026-11-09 に試した（`design/tech-stack.md`「停止」）。Q150 の AOT キャッシュは 2026-11-09 に Cloud Run で比べ、停止からの最初の要求が 19.0 秒から 14.2 秒に縮んだ（訓練が途中で失敗したキャッシュでの値。`specs/open-questions.md` Q150）。URL を配る前に機能として入れることにした（plan.md B5）。次は B5（`/tsod-discover` から）、C3 の残り（Error Reporting）、C6・C7。C3 の残りは「停止」の試行、Q150 の AOT キャッシュの比較、Error Reporting の確認。C4 は済んだ。進捗は `main` から `docs/*` のブランチを切り、タスクごとに小さな PR で入れる。課金の有効化・予算の作成・`gcloud` のログイン・秘密情報の入力・Discord の設定はユーザーが行う。
+- 最初のタスク: C6・C7。B5 と C3 は 2026-11-11 に済んだ。B5 は AOT キャッシュ付きの `api:b29693c` を本番の `swv-api` に出し（リビジョン `swv-api-00002-cs5`）、Cloud Run で停止からの最初の要求を測った（`design/tech-stack.md`「API のデプロイ手順」）。C3 の Error Reporting は、今の平文のログではスタックトレースが 1 行ずつ分かれて載らなかった（`specs/open-questions.md` Q158）。Q158 は URL を配った後に TSOD で起票する。release-please の PR #119（v0.3.0）は開いたままで、C8 の v1.0.0 にまとめる予定。以下は 2026-11-09 までの経緯。C3 の続き。課金の有効化と予算の作成（手順 2）は済んだ（2026-11-07）。Secret Manager の 5 つのシークレット（`swv-db-*`・`swv-discord-*`）も運営者が登録し、形を確かめた（2026-11-07）。手順 3（Artifact Registry の `swv`・`swv-api-runtime`・シークレットの読み取り権限）と手順 4（`main` の `4fb470f` のイメージを `api:4fb470f` で push）も済んだ（2026-11-07）。手順 5 のデプロイ・「地域の測定」・手順 7 の確認も済み、地域は Singapore に決めて東京のサービスを消した（2026-11-07。`design/tech-stack.md`）。手順 6 も済んだ（2026-11-07。`swv-web-invoker` に Invoker を付け、運営者が鍵を発行して `API_INVOKER_KEY` に登録し、手元の鍵を消した。利用者が管理する鍵は 1 本）。v0.2.0（034 の Worker）を Release の run 42364896935 で出し（版 `ef1c64f6-298c-4ad3-938d-36e0340fe887`）、`API_ORIGIN` を登録した（2026-11-07）。Worker 経由で、Cookie なしの `/api/auth/me` は 401、`/api/oauth2/authorization/discord` は本番の redirect URI の 302（停止からの起動で 21.5 秒、2 回目は 0.3 秒）、クライアントが送った `X-Serverless-Authorization` は消されて 302 だった。C5 は同日に運営者のブラウザでの確認まで済んだ（plan.md C5）。C3 の「停止」は 2026-11-09 に試した（`design/tech-stack.md`「停止」）。Q150 の AOT キャッシュは 2026-11-09 に Cloud Run で比べ、停止からの最初の要求が 19.0 秒から 14.2 秒に縮んだ（訓練が途中で失敗したキャッシュでの値。`specs/open-questions.md` Q150）。URL を配る前に機能として入れることにした（plan.md B5）。次は B5（`/tsod-discover` から）、C3 の残り（Error Reporting）、C6・C7。C3 の残りは「停止」の試行、Q150 の AOT キャッシュの比較、Error Reporting の確認。C4 は済んだ。進捗は `main` から `docs/*` のブランチを切り、タスクごとに小さな PR で入れる。課金の有効化・予算の作成・`gcloud` のログイン・秘密情報の入力・Discord の設定はユーザーが行う。
 
 ## 判断ログ
 - 2026-11-03 段階2: サブセッションに分けず、1 つの進行表で進める（理由: ユーザーの指示）
@@ -38,6 +39,9 @@ SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch
 
 - 2026-11-07 C3: 予算は Cloud Run に月 $10 の spend cap、請求先アカウント全体に月 $1 の通常の予算にする（理由: ユーザーの決定。spend cap は定価で判定し、普段の見積もりは月 $1 弱。通常の予算は無料枠を引いた額で判定するので、普段は $0 の見込み）
 - 2026-11-09 C3: AOT キャッシュ（Q150）を URL を配る前に TSOD の機能として入れる（plan.md B5。理由: ユーザーの決定。停止からの最初の要求が 19.0 秒から 14.2 秒に縮み、訓練を最後まで通せばさらに縮む見込み）
+- 2026-11-11 C3: Error Reporting は本番の `swv-api` に触れず、同じイメージの一時のサービス（`swv-err-test`）を起動に失敗させて確かめ、確認の後に削除した（理由: ユーザーの承認。本番の API には 500 を安全に起こす経路が無い）
+- 2026-11-11: release-please の PR #119（v0.3.0）はマージせず、C8 の v1.0.0 にまとめる（理由: 提案をユーザーが受け入れた。中身は 035 の api の変更だけで、API は手動でデプロイするので Web のリリースは要らない）
+- 2026-11-11 C3: Q158（Error Reporting に載らない）は URL を配った後に機能として起票し、C8 の前提にしない（理由: 推奨をユーザーが受け入れた。フレンドへの公開の規模なら Cloud Logging を読めば足りる）
 
 ## レビュー記録
 
