@@ -10,14 +10,14 @@ packages:
 # `catalog:` で参照する（版の食い違いを防ぐため）。版の選定理由は design/tech-stack.md。
 catalog:
   '@types/node': 24.19.2
-  '@vitest/coverage-v8': 5.0.5
+  '@vitest/coverage-v8': 5.1.0
   eslint: 10.14.0
   eslint-plugin-oxlint: 1.90.0
   oxlint: 1.90.0
   prettier: 3.9.10
   typescript: 6.0.3
   typescript-eslint: 8.72.1
-  vitest: 5.0.5
+  vitest: 5.1.0
 
 # ワーム型マルウェアによる npm サプライチェーン汚染対策（2026年に複数件発生:
 # Shai-Hulud, Mini Shai-Hulud, axios侵害等）として、以下を有効化する。
