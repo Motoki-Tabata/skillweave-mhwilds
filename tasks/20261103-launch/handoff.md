@@ -1,6 +1,7 @@
 # handoff: launch
 
 ## 現在地
+2026-11-14: C8 を済ませた。PR #119 を v0.3.0 としてマージして Web を出し（Release の run 43578068198、版 `9e2f1b6a-0b80-42a8-a37a-32f1104a1056`）、運営者がブラウザで確かめた。URL は運営者が配る。残りは D1〜D5・C9・C10。
 2026-11-14: v1.0.0 は `specs/feature-map.md` の残りの機能（016・017・018・023）をすべて出した後にした。URL は 0.x のまま C8 で配る。URL を配った後に起票する Q136・Q149・Q158・Q159 の機能も v1.0.0 の前に出す。plan.md に D1〜D4（4 機能）・D5（4 つの Q）と C9（v1.0.0）を足し、後片付けを C10 にした。残りは C8・D1〜D5・C9・C10。
 2026-11-14: C7（Q140 の照合。`design/tech-stack.md`「プライバシーの表記との照合」）を済ませた。Email Routing が未設定で `contact@` に届かなかったので運営者が有効にし、受信を確かめた。ほかは `/privacy` と合っていた。残りは C8・C9。
 2026-11-11: C6（Neon の停止・無料枠の消費・レイテンシの実測。`design/tech-stack.md`「稼働の実測」）を済ませた。残りは C7・C8・C9。
@@ -10,13 +11,13 @@
 
 ## 次のセッション
 - 推奨モデル: Opus（effort medium）
-- 最初に打つコマンド: `/flow-*` は使わない。次の文を貼る。
+- 最初に打つコマンド: D1〜D4 は機能の区間コマンド（D1 は `/tsod-spec 016`）を打つ。`/flow-*` は使わない。この進行表の運用作業（D5 の起票・C9・C10）に戻るときは、次の文を貼る。
 
 ```text
 SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch/handoff.md と plan.md を全文読み、未完了の最初のタスクから進める。plan.md の「守ること」に従う。
 ```
 
-- 最初のタスク: C8。release-please の PR #119 を v0.3.0 としてマージして Web を出し、ユーザーの判断で URL を 0.x のまま配る。v1.0.0 は D1〜D4（016→017→018→023 を TSOD で）と D5（URL を配った後に Q158・Q149・Q159・Q136 を起票して出す）の後の C9 で出す（`design/tech-stack.md`「リリースと版」）。以下は 2026-11-14 の方針変更より前の経緯。C7 は 2026-11-14 に済んだ。Email Routing は未設定だったので有効にし（MX 3 件・SPF と DKIM の TXT）、`contact@` の転送と受信を確かめた。Web Analytics は運営者の端末ではセキュリティソフトがビーコンを止めていたので、手元の Playwright で `/cdn-cgi/rum` の送信を確かめた。以下は C7 より前の経緯。最初のタスクは C7 だった。C6 は 2026-11-11 に済んだ。Neon は最後の要求から約 20 分で止まり（Q91）、期限切れの `spring_session` は残っていた（Q149。URL を配った後に起票）。`/api/*` へのスキャナーの要求が Cloud Run と Neon を起こしている（Q159。今の量なら直さない）。C7 は `/privacy` の記載を読み、Email Routing のテストメール・`/cdn-cgi/rum` の送信の確認をユーザーに依頼する。以下は C6 より前の経緯。B5 と C3 は 2026-11-11 に済んだ。B5 は AOT キャッシュ付きの `api:b29693c` を本番の `swv-api` に出し（リビジョン `swv-api-00002-cs5`）、Cloud Run で停止からの最初の要求を測った（`design/tech-stack.md`「API のデプロイ手順」）。C3 の Error Reporting は、今の平文のログではスタックトレースが 1 行ずつ分かれて載らなかった（`specs/open-questions.md` Q158）。Q158 は URL を配った後に TSOD で起票する。release-please の PR #119（v0.3.0）は開いたままで、C8 の v1.0.0 にまとめる予定。以下は 2026-11-09 までの経緯。C3 の続き。課金の有効化と予算の作成（手順 2）は済んだ（2026-11-07）。Secret Manager の 5 つのシークレット（`swv-db-*`・`swv-discord-*`）も運営者が登録し、形を確かめた（2026-11-07）。手順 3（Artifact Registry の `swv`・`swv-api-runtime`・シークレットの読み取り権限）と手順 4（`main` の `4fb470f` のイメージを `api:4fb470f` で push）も済んだ（2026-11-07）。手順 5 のデプロイ・「地域の測定」・手順 7 の確認も済み、地域は Singapore に決めて東京のサービスを消した（2026-11-07。`design/tech-stack.md`）。手順 6 も済んだ（2026-11-07。`swv-web-invoker` に Invoker を付け、運営者が鍵を発行して `API_INVOKER_KEY` に登録し、手元の鍵を消した。利用者が管理する鍵は 1 本）。v0.2.0（034 の Worker）を Release の run 42364896935 で出し（版 `ef1c64f6-298c-4ad3-938d-36e0340fe887`）、`API_ORIGIN` を登録した（2026-11-07）。Worker 経由で、Cookie なしの `/api/auth/me` は 401、`/api/oauth2/authorization/discord` は本番の redirect URI の 302（停止からの起動で 21.5 秒、2 回目は 0.3 秒）、クライアントが送った `X-Serverless-Authorization` は消されて 302 だった。C5 は同日に運営者のブラウザでの確認まで済んだ（plan.md C5）。C3 の「停止」は 2026-11-09 に試した（`design/tech-stack.md`「停止」）。Q150 の AOT キャッシュは 2026-11-09 に Cloud Run で比べ、停止からの最初の要求が 19.0 秒から 14.2 秒に縮んだ（訓練が途中で失敗したキャッシュでの値。`specs/open-questions.md` Q150）。URL を配る前に機能として入れることにした（plan.md B5）。次は B5（`/tsod-discover` から）、C3 の残り（Error Reporting）、C6・C7。C3 の残りは「停止」の試行、Q150 の AOT キャッシュの比較、Error Reporting の確認。C4 は済んだ。進捗は `main` から `docs/*` のブランチを切り、タスクごとに小さな PR で入れる。課金の有効化・予算の作成・`gcloud` のログイン・秘密情報の入力・Discord の設定はユーザーが行う。
+- 最初のタスク: D1。016 charm-ocr を `/tsod-spec 016` で始める（区間 A の最初に Q117 を決める）。D1〜D4 は機能 ID の順に、1 機能ずつ TSOD の区間 A〜E で進め、マージの後の release-please のリリースで本番へ出す。D5（Q136・Q149・Q158・Q159 の起票と実装）は D4 の後、v1.0.0（C9）は D5 の後。以下は C8 より前の経緯。C8 は、release-please の PR #119 を v0.3.0 としてマージして Web を出し、ユーザーの判断で URL を 0.x のまま配る。v1.0.0 は D1〜D4（016→017→018→023 を TSOD で）と D5（URL を配った後に Q158・Q149・Q159・Q136 を起票して出す）の後の C9 で出す（`design/tech-stack.md`「リリースと版」）。以下は 2026-11-14 の方針変更より前の経緯。C7 は 2026-11-14 に済んだ。Email Routing は未設定だったので有効にし（MX 3 件・SPF と DKIM の TXT）、`contact@` の転送と受信を確かめた。Web Analytics は運営者の端末ではセキュリティソフトがビーコンを止めていたので、手元の Playwright で `/cdn-cgi/rum` の送信を確かめた。以下は C7 より前の経緯。最初のタスクは C7 だった。C6 は 2026-11-11 に済んだ。Neon は最後の要求から約 20 分で止まり（Q91）、期限切れの `spring_session` は残っていた（Q149。URL を配った後に起票）。`/api/*` へのスキャナーの要求が Cloud Run と Neon を起こしている（Q159。今の量なら直さない）。C7 は `/privacy` の記載を読み、Email Routing のテストメール・`/cdn-cgi/rum` の送信の確認をユーザーに依頼する。以下は C6 より前の経緯。B5 と C3 は 2026-11-11 に済んだ。B5 は AOT キャッシュ付きの `api:b29693c` を本番の `swv-api` に出し（リビジョン `swv-api-00002-cs5`）、Cloud Run で停止からの最初の要求を測った（`design/tech-stack.md`「API のデプロイ手順」）。C3 の Error Reporting は、今の平文のログではスタックトレースが 1 行ずつ分かれて載らなかった（`specs/open-questions.md` Q158）。Q158 は URL を配った後に TSOD で起票する。release-please の PR #119（v0.3.0）は開いたままで、C8 の v1.0.0 にまとめる予定。以下は 2026-11-09 までの経緯。C3 の続き。課金の有効化と予算の作成（手順 2）は済んだ（2026-11-07）。Secret Manager の 5 つのシークレット（`swv-db-*`・`swv-discord-*`）も運営者が登録し、形を確かめた（2026-11-07）。手順 3（Artifact Registry の `swv`・`swv-api-runtime`・シークレットの読み取り権限）と手順 4（`main` の `4fb470f` のイメージを `api:4fb470f` で push）も済んだ（2026-11-07）。手順 5 のデプロイ・「地域の測定」・手順 7 の確認も済み、地域は Singapore に決めて東京のサービスを消した（2026-11-07。`design/tech-stack.md`）。手順 6 も済んだ（2026-11-07。`swv-web-invoker` に Invoker を付け、運営者が鍵を発行して `API_INVOKER_KEY` に登録し、手元の鍵を消した。利用者が管理する鍵は 1 本）。v0.2.0（034 の Worker）を Release の run 42364896935 で出し（版 `ef1c64f6-298c-4ad3-938d-36e0340fe887`）、`API_ORIGIN` を登録した（2026-11-07）。Worker 経由で、Cookie なしの `/api/auth/me` は 401、`/api/oauth2/authorization/discord` は本番の redirect URI の 302（停止からの起動で 21.5 秒、2 回目は 0.3 秒）、クライアントが送った `X-Serverless-Authorization` は消されて 302 だった。C5 は同日に運営者のブラウザでの確認まで済んだ（plan.md C5）。C3 の「停止」は 2026-11-09 に試した（`design/tech-stack.md`「停止」）。Q150 の AOT キャッシュは 2026-11-09 に Cloud Run で比べ、停止からの最初の要求が 19.0 秒から 14.2 秒に縮んだ（訓練が途中で失敗したキャッシュでの値。`specs/open-questions.md` Q150）。URL を配る前に機能として入れることにした（plan.md B5）。次は B5（`/tsod-discover` から）、C3 の残り（Error Reporting）、C6・C7。C3 の残りは「停止」の試行、Q150 の AOT キャッシュの比較、Error Reporting の確認。C4 は済んだ。進捗は `main` から `docs/*` のブランチを切り、タスクごとに小さな PR で入れる。課金の有効化・予算の作成・`gcloud` のログイン・秘密情報の入力・Discord の設定はユーザーが行う。
 
 ## 判断ログ
 - 2026-11-03 段階2: サブセッションに分けず、1 つの進行表で進める（理由: ユーザーの指示）
@@ -50,6 +51,7 @@ SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch
 - 2026-11-14 C7: `contact@skillweave.app` を Cloudflare Email Routing で運営者の受信箱へ転送する。キャッチオールは無効にする（理由: 030 decisions.md Q134 の決定どおり。照合で未設定と分かり、運営者が設定した）
 - 2026-11-14 C7: `/privacy` は直さない（理由: Email Routing のほかは本番の事実と合っていた）
 - 2026-11-14 C8: v1.0.0 は `specs/feature-map.md` の 016・017・018・023 をすべて出した後にする。URL はそれを待たずに 0.x のまま配る。4 機能は ID の順に進める（理由: ユーザーの決定）
+- 2026-11-14 C8: PR #119 は release-please が更新せず `main` より古いままだったので、`gh pr update-branch` で追随させ、CI が通ってからマージした（理由: #128 は文書だけで、release-please はリリース PR を書き換えない）
 - 2026-11-14 C8: Q136・Q149・Q158・Q159 も URL を配った後に起票し、v1.0.0 の前に出す（plan.md D5。理由: ユーザーの決定。範囲外の「Q136 の修正」を取り下げる）
 - 2026-11-14 C8: PR #119 は v1.0.0 にまとめず、v0.3.0 としてマージする（理由: v1.0.0 が 4 機能の後になり、本番の依存の更新を先に出せる。2026-11-11 の「v1.0.0 にまとめる」を取り下げる）
 
@@ -57,7 +59,7 @@ SkillWeave の公開作業の続き。応答は日本語。tasks/20261103-launch
 
 ## メモ
 - このフォルダは `main` にある。更新するときは `docs/*` のブランチを切り、PR で入れる。
-- 本番の版は `7a13dec9-6183-4f15-b363-cc7397b41513`（タグ `v0.1.0`。2026-11-07 に Release の run 42342160053 で出した）。前の版は `5b864842-fb1a-4fb1-83a9-73a47d5e00ca`。手元の wrangler はログイン済みで、4.153.0 のまま。
+- 本番の版は `9e2f1b6a-0b80-42a8-a37a-32f1104a1056`（タグ `v0.3.0`。2026-11-14 に Release の run 43578068198 で出した）。v0.1.0 の版は `7a13dec9-6183-4f15-b363-cc7397b41513`（2026-11-07 に Release の run 42342160053 で出した）。手元の wrangler はログイン済みで、4.153.0 のまま。
 - Release が使う Cloudflare のトークン（テンプレートの「Edit Cloudflare Workers」）で、カスタムドメインへのデプロイが通った（2026-11-07）。
 - PR #86 で `design/tech-stack.md` の手順と `tasks/lessons.md` の教訓を `main` に入れた（`e2d7639`）。
 - C1 の実測（2026-11-04）:
