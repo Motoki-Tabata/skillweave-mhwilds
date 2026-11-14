@@ -1,5 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
-import { openCharms, registerCharm } from './support/charms'
+import { charmRows, openCharms, registerCharm } from './support/charms'
 import { loadMasterInfo } from './support/masterData'
 import { searchButton, selectWeapon } from './support/search'
 import { uuidV7 } from './support/uuid'
@@ -109,7 +109,7 @@ test.describe('010 charm-save', () => {
     await registerCharm(page)
 
     await expect(page.getByRole('heading', { name: '登録済みの護石（1）' })).toBeVisible()
-    const item = page.getByRole('listitem').filter({ hasText: 'レア8' }).first()
+    const item = charmRows(page, 8).first()
     await expect(item).toContainText(`${skill.name} Lv1`)
     expect(api.posts).toHaveLength(1)
     expect(api.posts[0]!.id).toMatch(
@@ -163,16 +163,16 @@ test.describe('010 charm-save', () => {
     ).toBeVisible()
     // 一覧はアカウントの護石（レア7）だけで、端末内のレア8は出ない
     await expect(page.getByRole('heading', { name: '登録済みの護石（1）' })).toBeVisible()
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア7' }).first()).toBeVisible()
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア8' })).toHaveCount(0)
+    await expect(charmRows(page, 7).first()).toBeVisible()
+    await expect(charmRows(page, 8)).toHaveCount(0)
 
     const url = page.url()
     await page.getByRole('button', { name: 'ログアウト' }).click()
 
     await expect(page.getByText('保存先: この端末', { exact: true })).toBeVisible()
     await expect(page.getByText(/この端末には、ログインしていないときに/)).toHaveCount(0)
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア8' }).first()).toBeVisible()
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア7' })).toHaveCount(0)
+    await expect(charmRows(page, 8).first()).toBeVisible()
+    await expect(charmRows(page, 7)).toHaveCount(0)
     expect(page.url()).toBe(url)
   })
 
@@ -181,7 +181,7 @@ test.describe('010 charm-save', () => {
     const api = await mockApi(page, { loggedIn: true, charms: [seeded] })
     await openCharms(page)
     await expect(page.getByRole('heading', { name: '登録済みの護石（1）' })).toBeVisible()
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア8' }).first()).toBeVisible()
+    await expect(charmRows(page, 8).first()).toBeVisible()
 
     // 別の端末が先に変更した状態を、409 の応答と同時にサーバー側へ作る
     api.conflictOnPut = true
@@ -195,6 +195,10 @@ test.describe('010 charm-save', () => {
       .first()
       .click()
     await expect(page.getByRole('heading', { name: '護石を編集' })).toBeVisible()
+    // 照合が一致しないときは、確認のチェックを付けてから保存する
+    const confirm = page.getByRole('checkbox', { name: 'テーブルに合わないことを確認しました' })
+    await expect(confirm).toBeVisible()
+    await confirm.check()
     await page.getByRole('button', { name: '保存', exact: true }).click()
 
     await expect(
@@ -204,8 +208,8 @@ test.describe('010 charm-save', () => {
       ),
     ).toBeVisible()
     // 読み直した一覧（サーバー側で変わった内容）が出る
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア6' }).first()).toBeVisible()
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア8' })).toHaveCount(0)
+    await expect(charmRows(page, 6).first()).toBeVisible()
+    await expect(charmRows(page, 8)).toHaveCount(0)
     expect(api.listCalls).toBeGreaterThan(callsBefore)
     await expect(page.getByRole('heading', { name: '護石を登録' })).toBeVisible()
   })

@@ -1,5 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
-import { openCharms, pickSkillByReading } from './support/charms'
+import { charmRows, openCharms, pickSkillByReading, submitCharm } from './support/charms'
 import { loadMasterInfo } from './support/masterData'
 import { searchButton, selectWeapon } from './support/search'
 
@@ -27,12 +27,11 @@ test.describe('005 charm-input', () => {
       await page.getByRole('combobox', { name: `スロット${i}`, exact: true }).click()
       await page.getByRole('option', { name: '防具用 Lv3', exact: true }).click()
     }
-    await page.getByRole('button', { name: '登録', exact: true }).click()
+    await submitCharm(page)
 
-    await expect(page.getByText('護石を登録しました。', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: '登録済みの護石（1）' })).toBeVisible()
     // 一覧の行（スキルのチップも listitem なので、レア度を含む外側の行を取る）
-    const item = page.getByRole('listitem').filter({ hasText: 'レア8' }).first()
+    const item = charmRows(page, 8).first()
     await expect(item).toContainText(`${skill.name} Lv1`)
     await expect(item).toContainText('防具用 Lv3・防具用 Lv3・防具用 Lv3')
 
@@ -41,9 +40,7 @@ test.describe('005 charm-input', () => {
     await expect(page.getByRole('heading', { name: '登録済みの護石（1）' })).toBeVisible({
       timeout: 60_000,
     })
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア8' }).first()).toContainText(
-      `${skill.name} Lv1`,
-    )
+    await expect(charmRows(page, 8).first()).toContainText(`${skill.name} Lv1`)
 
     // ナビで検索画面へ行き、候補の件数を確かめる
     await goByNav(page, '装備検索')

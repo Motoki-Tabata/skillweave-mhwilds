@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 import { loadMasterInfo } from './masterData'
 
 const skill = loadMasterInfo().kanjiArmorSkill()
@@ -33,7 +33,28 @@ export async function registerCharm(page: Page, rarity = 8): Promise<void> {
     await page.getByRole('combobox', { name: `スロット${i}`, exact: true }).click()
     await page.getByRole('option', { name: '防具用 Lv3', exact: true }).click()
   }
-  await page.getByRole('button', { name: '登録', exact: true }).click()
+  await submitCharm(page)
+}
+
+/**
+ * `登録` を押し、登録のトーストか「テーブルに合わないことを確認しました」のチェックのどちらかが出るのを待つ。
+ * チェックが出ていれば付けて `登録` を押し直し、トーストが出るまで待つ。
+ */
+export async function submitCharm(page: Page): Promise<void> {
+  const register = page.getByRole('button', { name: '登録', exact: true })
   // 続けて登録すると前のトーストが残るので、先頭の1つで確かめる
-  await expect(page.getByText('護石を登録しました。', { exact: true }).first()).toBeVisible()
+  const toast = page.getByText('護石を登録しました。', { exact: true }).first()
+  const confirm = page.getByRole('checkbox', { name: 'テーブルに合わないことを確認しました' })
+  await register.click()
+  await expect(toast.or(confirm).first()).toBeVisible()
+  if (await confirm.isVisible()) {
+    await confirm.check()
+    await register.click()
+  }
+  await expect(toast).toBeVisible()
+}
+
+/** 登録済みの護石の一覧の行（レア<rarity>）。照合の不一致の理由の行（`li`）は含めない。 */
+export function charmRows(page: Page, rarity: number): Locator {
+  return page.locator('li[data-charm-id]').filter({ hasText: `レア${rarity}` })
 }
