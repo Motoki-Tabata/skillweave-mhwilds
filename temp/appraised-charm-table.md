@@ -1,5 +1,7 @@
 # 鑑定護石の抽選テーブルの整備（036 の起票の入力資料）
 
+> **完了（036 appraised-charm-table で卒業）**: 抽選テーブルは `packages/data/overlays/appraised-charm.yaml`、受入基準は `specs/036-appraised-charm-table/spec.md`、出典・取得日・未検証の箇所は `design/master-data.md` §10 に移した。本ファイルは 036 の起票の入力として参照が残るため削除しない。
+
 > 作成日: 2026-11-15。`/tsod-discover temp/appraised-charm-table.md` の入力にする一次資料。
 > 017 reverse-lookup の区間 A で、抽選テーブル（`packages/data/overlays/` の `appraisedCharm`）が空だと分かり、整備を 017 より先に行うと決めた（017 decisions.md Q166）。整備は TSOD の機能（仮: 036 appraised-charm-table・触る領域 data）として起票する。
 
