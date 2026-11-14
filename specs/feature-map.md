@@ -9,6 +9,7 @@
 032 の入力（2026-11-03）: 公開作業で本番を実測して分かった `/privacy` の表記と事実の食い違い（open-questions.md Q141）。
 033 の入力（2026-11-04）: 公開作業の進行表（`tasks/20261103-launch/plan.md` の B3）。バックアップの方式を決めて分かった `/privacy` の記載の不足（open-questions.md Q143）。
 035 の入力（2026-11-09）: 公開作業の進行表（`tasks/20261103-launch/plan.md` の B5）。Cloud Run で通常と AOT キャッシュ付きのイメージを比べた結果（open-questions.md Q150・`design/tech-stack.md`「API のデプロイ手順」）。
+036 の入力（2026-11-15）: `temp/appraised-charm-table.md`。017 reverse-lookup の区間 A で、鑑定護石の抽選テーブルが空と分かり、整備を 017 より先に行うと決めた事項（017 decisions.md Q166）。
 機能 ID は実装順に振る（依存の表を満たす順で、同じ段では優先度の高いものを先にする）。初回の分解の後に追加した機能は、既存の ID を振り直さず末尾に採番する。その場合の実装順は依存の表が正である。
 
 ### 機能マップ
@@ -49,6 +50,7 @@
 | 033 | privacy-backup | 消去を依頼した後もデータがバックアップにいつまで、どんな形で残るかを、`/privacy` で読めるようにする | P0 | S | 済 |
 | 034 | api-proxy-id-token | Web の Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付けて、Invoker の確認を有効にしたまま Cloud Run を呼べるようにする | P0 | S | 済 |
 | 035 | api-aot-cache | API のコンテナイメージを AOT キャッシュ付きで作り、Cloud Run で停止した状態から最初の要求（ログイン開始など）に答えるまでの待ち時間を縮める（本番の DB 接続と実行時の設定は変えない） | P0 | S | 済 |
+| 036 | appraised-charm-table | 鑑定護石の抽選テーブル（スキル枠のパターン・群の中身・スロットの並び）を overlay の `appraisedCharm` に入れてマスターの版を上げ、護石の照合（005）が「未検査」ではなく合否を判定し、017 の逆引きが使える土台を作る | P1 | M | 未着手 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
@@ -69,7 +71,7 @@
 | 014 guest-draft-import | 010, 013 | 一般公開段階で行う（§2.1）。ゲストの構成は端末内に保存しないので取り込みの対象から外した（014 decisions.md Q70）。件数の上限とページングの見直し（010 decisions.md Q62）は 014 に含めず Q107 として残した（014 decisions.md Q106） |
 | 015 ocr-spike | なし | フェーズ②の前に行う |
 | 016 charm-ocr | 005, 015 | 着手の前に Q117 を決める。015 handoff.md の持ち越しを含める: `parse.ts` が空行を落とすため枠が空だと以降のスキルが上に詰まる・`reader.ts` の `setParameters` の失敗で worker が残る・測定の通信検査が同一オリジンへの POST を検出しない |
-| 017 reverse-lookup | 003, 005 | フェーズ③ |
+| 017 reverse-lookup | 003, 005, 036 | フェーズ③。鑑定護石の抽選テーブル（overlay の `appraisedCharm`）が空のため、少なくとも 1 つのレア度のテーブルがマスターに入ってから区間 A のゲート A-2 を再開する（017 decisions.md Q166） |
 | 018 pwa-offline | 004 | 導入方式の判断待ち（Q6） |
 | 019 damage-solve-perf | 006 | `packages/solver` だけを触る。対策の中身は 019 の区間 A で Q41 として決める。ID は追加順で末尾だが、実装は 007 の区間 B より前に行う |
 | 020 armor-lock-exclude | 004 | 004 decisions.md Q22 で 004 のスコープ外にした。検索画面のレイアウトを変えるなら Q28 に当たる |
@@ -88,3 +90,4 @@
 | 033 privacy-backup | 030 | 030 の AC-6（完全な消去は連絡先へ依頼する）の案内に、バックアップの説明を足す。バックアップの方式は 028 decisions.md Q131。扱う範囲は Q143〜Q147。URL をフレンドへ配る前にマージしてデプロイする |
 | 034 api-proxy-id-token | 031 | Q88 の直接の到達の決定（Invoker の確認を有効にしたまま、Worker が専用のサービスアカウントで ID トークンを付ける）を実装する。扱う範囲は Q151〜Q153。031 の AC-9 の転送のヘッダーの扱いに `X-Serverless-Authorization` の付与が加わる。デプロイ・鍵の発行と登録・本番での確認は含めない（C3・C5）。C5 のログインの確認の前にマージしてデプロイする |
 | 035 api-aot-cache | なし | Q150 の C3 での比較（2026-11-09）で差が出たので起票した。`apps/api/build.gradle.kts` の `bootBuildImage` に `BP_JVM_AOTCACHE_ENABLED` と訓練の実行の設定を足す。扱う範囲は Q154〜Q156。`design/tech-stack.md`「API のデプロイ手順」の更新を含め、本番の `swv-api` へのデプロイと測定は含めない（公開作業の B5・C8）。URL を配る（C8）前にマージし、本番へ出す |
+| 036 appraised-charm-table | 002, 005 | 017 decisions.md Q166 で 017 より先に行うと決めた。型（`AppraisedCharmPattern`・`CharmSkillGroup`）と overlay の検証（規則 `appraised-charm`）は 002 で実装済みで、型を変えずに overlay を書くだけで済む見込み。照合（`apps/web/src/main/lib/charms/match.ts`）は 005 のもの。扱う範囲は Q170〜Q177。少なくとも 1 つのレア度のテーブルがマスターに入れば 017 を再開できる |

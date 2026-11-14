@@ -33,10 +33,10 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
     expect([ja.version, en.version]).toEqual([MASTER_VERSION, MASTER_VERSION])
   })
 
-  it('全防具に rank があり、版が 2026.10.5 である（12。006 受入基準 3）', async () => {
+  it('全防具に rank があり、版が 2026.11.1 である（12。006 受入基準 3）', async () => {
     const bundle = await readJson<MasterBundle>(BUNDLE)
-    expect(bundle.version).toBe('2026.10.5')
-    expect(MASTER_VERSION).toBe('2026.10.5')
+    expect(bundle.version).toBe('2026.11.1')
+    expect(MASTER_VERSION).toBe('2026.11.1')
     expect(bundle.armors.length).toBeGreaterThan(0)
     for (const armor of bundle.armors) {
       expect(['low', 'high', 'master'], armor.id).toContain(armor.rank)
@@ -202,6 +202,63 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
         { pieces: 2, level: 1 },
         { pieces: 4, level: 2 },
       ])
+    }
+  })
+
+  it('抽選テーブルのパターンのレア度が 5〜8 で、1 件以上あり、参照する群がすべて groups にある（036 AC-4）', async () => {
+    const { patterns, groups } = (await readJson<MasterBundle>(BUNDLE)).appraisedCharm
+    expect(patterns.length).toBeGreaterThan(0)
+    const names = new Set(groups.map((g) => g.group))
+    for (const pattern of patterns) {
+      expect([5, 6, 7, 8], `rarity ${pattern.rarity}`).toContain(pattern.rarity)
+      for (const name of pattern.skillGroups) {
+        if (name !== null) expect(names.has(name), `群 ${name}`).toBe(true)
+      }
+    }
+  })
+
+  it('群のスキルのレベルが 1 以上かつ最大レベル以下（036 AC-4）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    expect(bundle.appraisedCharm.groups.length).toBeGreaterThan(0)
+    for (const group of bundle.appraisedCharm.groups) {
+      for (const { skillId, level } of group.skills) {
+        const skill = bundle.skills.find((s) => s.id === skillId)
+        expect(skill, skillId).toBeDefined()
+        expect(level, `${group.group} ${skillId}`).toBeGreaterThanOrEqual(1)
+        expect(level, `${group.group} ${skillId}`).toBeLessThanOrEqual(skill?.maxLevel ?? 0)
+      }
+    }
+  })
+
+  it('レア5〜7 のスロットに武器用の枠が無く、レア8 は 1 枠目だけが武器用 Lv1（036 AC-4）', async () => {
+    const { patterns } = (await readJson<MasterBundle>(BUNDLE)).appraisedCharm
+    for (const pattern of patterns) {
+      for (const slots of pattern.slotPatterns) {
+        if (pattern.rarity < 8) {
+          expect(
+            slots.some((s) => s.target === 'weapon'),
+            `rarity ${pattern.rarity}`,
+          ).toBe(false)
+        } else {
+          expect(slots[0], 'rarity 8').toEqual({ target: 'weapon', level: 1 })
+          expect(slots.slice(1).some((s) => s.target === 'weapon')).toBe(false)
+        }
+      }
+    }
+  })
+
+  it('overlay の skillId の行がすべて ja のスキル名のコメントで終わる（036 AC-2）', async () => {
+    const text = await readFile(
+      `${import.meta.dirname}/../../../overlays/appraised-charm.yaml`,
+      'utf8',
+    )
+    const ja = await readJson<MasterDictionary>(JA)
+    const lines = text.split('\n').filter((line) => line.includes('skillId'))
+    expect(lines.length).toBeGreaterThan(0)
+    for (const line of lines) {
+      const match = /skillId: '([^']+)'.*# (.+)$/u.exec(line)
+      expect(match, line).not.toBeNull()
+      expect(match?.[2], line).toBe(ja.entries[match?.[1] ?? '']?.name)
     }
   })
 })

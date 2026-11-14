@@ -1,0 +1,499 @@
+# 鑑定護石の抽選テーブル。出典の記録は design/master-data.md §10 にある。
+appraisedCharm:
+  groups:
+    - group: A
+      skills:
+        - { skillId: 'sk:-596764096', level: 1 } # 砲術
+        - { skillId: 'sk:1', level: 1 } # 攻撃
+        - { skillId: 'sk:-420608864', level: 1 } # 弾導強化
+        - { skillId: 'sk:-844978880', level: 1 } # 爆破属性強化
+        - { skillId: 'sk:397306144', level: 1 } # 鈍器使い
+        - { skillId: 'sk:-1475134080', level: 1 } # チャージマスター
+        - { skillId: 'sk:686533440', level: 1 } # 抜刀術【技】
+        - { skillId: 'sk:313598432', level: 1 } # 会心撃【属性】
+        - { skillId: 'sk:-2096489472', level: 1 } # 見切り
+        - { skillId: 'sk:-168922880', level: 1 } # 会心撃【特殊】
+        - { skillId: 'sk:-776946176', level: 1 } # 龍属性攻撃強化
+        - { skillId: 'sk:-562534336', level: 1 } # 火属性攻撃強化
+        - { skillId: 'sk:-283334048', level: 1 } # 集中
+        - { skillId: 'sk:-307644128', level: 1 } # ガード性能
+        - { skillId: 'sk:-1674114176', level: 1 } # ガード強化
+        - { skillId: 'sk:1160639488', level: 1 } # 匠
+        - { skillId: 'sk:-1237438336', level: 1 } # 笛吹き名人
+        - { skillId: 'sk:1268070400', level: 1 } # 氷属性攻撃強化
+        - { skillId: 'sk:802725120', level: 1 } # 砲弾装填
+        - { skillId: 'sk:1594792704', level: 1 } # 心眼
+        - { skillId: 'sk:-181127504', level: 1 } # 攻めの守勢
+        - { skillId: 'sk:1711950720', level: 1 } # ファーストショット
+        - { skillId: 'sk:-1863702144', level: 1 } # 麻痺属性強化
+        - { skillId: 'sk:-1716324608', level: 1 } # 毒属性強化
+        - { skillId: 'sk:691199232', level: 1 } # 強化持続
+        - { skillId: 'sk:1500129152', level: 1 } # 剛刃研磨
+        - { skillId: 'sk:-1946345856', level: 1 } # 抜刀術【力】
+        - { skillId: 'sk:-1961116288', level: 1 } # 高速変形
+        - { skillId: 'sk:1050520384', level: 1 } # 業物
+        - { skillId: 'sk:166057120', level: 1 } # 睡眠属性強化
+        - { skillId: 'sk:-893407296', level: 1 } # ＫＯ術
+        - { skillId: 'sk:-160562336', level: 1 } # 特殊射撃強化
+        - { skillId: 'sk:1444935552', level: 1 } # 砥石使用高速化
+        - { skillId: 'sk:1758661504', level: 1 } # スタミナ奪取
+        - { skillId: 'sk:1613139840', level: 1 } # フォースショット
+        - { skillId: 'sk:1452140672', level: 1 } # 雷属性攻撃強化
+        - { skillId: 'sk:508916704', level: 1 } # 水属性攻撃強化
+    - group: B
+      skills:
+        - { skillId: 'sk:402237312', level: 1 } # 飛燕
+        - { skillId: 'sk:-596764096', level: 2 } # 砲術
+        - { skillId: 'sk:1', level: 2 } # 攻撃
+        - { skillId: 'sk:-420608864', level: 2 } # 弾導強化
+        - { skillId: 'sk:-844978880', level: 2 } # 爆破属性強化
+        - { skillId: 'sk:-2022542848', level: 1 } # 爆破ビン追加
+        - { skillId: 'sk:397306144', level: 2 } # 鈍器使い
+        - { skillId: 'sk:-1475134080', level: 2 } # チャージマスター
+        - { skillId: 'sk:353114912', level: 1 } # 溜打強化
+        - { skillId: 'sk:686533440', level: 2 } # 抜刀術【技】
+        - { skillId: 'sk:313598432', level: 2 } # 会心撃【属性】
+        - { skillId: 'sk:-2096489472', level: 2 } # 見切り
+        - { skillId: 'sk:-168922880', level: 2 } # 会心撃【特殊】
+        - { skillId: 'sk:-776946176', level: 2 } # 龍属性攻撃強化
+        - { skillId: 'sk:-181774400', level: 1 } # 減気ビン追加
+        - { skillId: 'sk:-562534336', level: 2 } # 火属性攻撃強化
+        - { skillId: 'sk:-283334048', level: 2 } # 集中
+        - { skillId: 'sk:-307644128', level: 2 } # ガード性能
+        - { skillId: 'sk:-1674114176', level: 2 } # ガード強化
+        - { skillId: 'sk:1160639488', level: 2 } # 匠
+        - { skillId: 'sk:-1237438336', level: 2 } # 笛吹き名人
+        - { skillId: 'sk:1268070400', level: 2 } # 氷属性攻撃強化
+        - { skillId: 'sk:802725120', level: 2 } # 砲弾装填
+        - { skillId: 'sk:1594792704', level: 2 } # 心眼
+        - { skillId: 'sk:-181127504', level: 2 } # 攻めの守勢
+        - { skillId: 'sk:1711950720', level: 2 } # ファーストショット
+        - { skillId: 'sk:-1863702144', level: 2 } # 麻痺属性強化
+        - { skillId: 'sk:-1716324608', level: 2 } # 毒属性強化
+        - { skillId: 'sk:-1629629184', level: 1 } # 毒ダメージ強化
+        - { skillId: 'sk:919683456', level: 1 } # 毒ビン追加
+        - { skillId: 'sk:691199232', level: 2 } # 強化持続
+        - { skillId: 'sk:1500129152', level: 2 } # 剛刃研磨
+        - { skillId: 'sk:-1946345856', level: 2 } # 抜刀術【力】
+        - { skillId: 'sk:-1961116288', level: 2 } # 高速変形
+        - { skillId: 'sk:1050520384', level: 2 } # 業物
+        - { skillId: 'sk:166057120', level: 2 } # 睡眠属性強化
+        - { skillId: 'sk:-893407296', level: 2 } # ＫＯ術
+        - { skillId: 'sk:-160562336', level: 2 } # 特殊射撃強化
+        - { skillId: 'sk:1444935552', level: 2 } # 砥石使用高速化
+        - { skillId: 'sk:1758661504', level: 2 } # スタミナ奪取
+        - { skillId: 'sk:1613139840', level: 2 } # フォースショット
+        - { skillId: 'sk:1452140672', level: 2 } # 雷属性攻撃強化
+        - { skillId: 'sk:508916704', level: 2 } # 水属性攻撃強化
+    - group: C
+      skills:
+        - { skillId: 'sk:-596764096', level: 3 } # 砲術
+        - { skillId: 'sk:1', level: 3 } # 攻撃
+        - { skillId: 'sk:-420608864', level: 3 } # 弾導強化
+        - { skillId: 'sk:-844978880', level: 3 } # 爆破属性強化
+        - { skillId: 'sk:397306144', level: 3 } # 鈍器使い
+        - { skillId: 'sk:-1475134080', level: 3 } # チャージマスター
+        - { skillId: 'sk:686533440', level: 3 } # 抜刀術【技】
+        - { skillId: 'sk:313598432', level: 3 } # 会心撃【属性】
+        - { skillId: 'sk:-2096489472', level: 3 } # 見切り
+        - { skillId: 'sk:-168922880', level: 3 } # 会心撃【特殊】
+        - { skillId: 'sk:-776946176', level: 3 } # 龍属性攻撃強化
+        - { skillId: 'sk:-562534336', level: 3 } # 火属性攻撃強化
+        - { skillId: 'sk:-283334048', level: 3 } # 集中
+        - { skillId: 'sk:-307644128', level: 3 } # ガード性能
+        - { skillId: 'sk:-1674114176', level: 3 } # ガード強化
+        - { skillId: 'sk:1160639488', level: 3 } # 匠
+        - { skillId: 'sk:1268070400', level: 3 } # 氷属性攻撃強化
+        - { skillId: 'sk:1389859584', level: 1 } # 達人芸
+        - { skillId: 'sk:1594792704', level: 3 } # 心眼
+        - { skillId: 'sk:-1961297152', level: 1 } # 通常弾・通常矢強化
+        - { skillId: 'sk:-181127504', level: 3 } # 攻めの守勢
+        - { skillId: 'sk:1711950720', level: 3 } # ファーストショット
+        - { skillId: 'sk:-676967744', level: 1 } # 麻痺ビン追加
+        - { skillId: 'sk:-1863702144', level: 3 } # 麻痺属性強化
+        - { skillId: 'sk:552982656', level: 1 } # 貫通弾・竜の矢強化
+        - { skillId: 'sk:-1716324608', level: 3 } # 毒属性強化
+        - { skillId: 'sk:691199232', level: 3 } # 強化持続
+        - { skillId: 'sk:1500129152', level: 3 } # 剛刃研磨
+        - { skillId: 'sk:-1946345856', level: 3 } # 抜刀術【力】
+        - { skillId: 'sk:-1507579776', level: 1 } # 速射強化
+        - { skillId: 'sk:-1961116288', level: 3 } # 高速変形
+        - { skillId: 'sk:1050520384', level: 3 } # 業物
+        - { skillId: 'sk:166057120', level: 3 } # 睡眠属性強化
+        - { skillId: 'sk:169998480', level: 1 } # 睡眠ビン追加
+        - { skillId: 'sk:-893407296', level: 3 } # ＫＯ術
+        - { skillId: 'sk:-2123993856', level: 1 } # 散弾・剛射強化
+        - { skillId: 'sk:1758661504', level: 3 } # スタミナ奪取
+        - { skillId: 'sk:1613139840', level: 3 } # フォースショット
+        - { skillId: 'sk:1452140672', level: 3 } # 雷属性攻撃強化
+        - { skillId: 'sk:508916704', level: 3 } # 水属性攻撃強化
+    - group: D
+      skills:
+        - { skillId: 'sk:1', level: 2 } # 攻撃
+        - { skillId: 'sk:-420608864', level: 2 } # 弾導強化
+        - { skillId: 'sk:-844978880', level: 2 } # 爆破属性強化
+        - { skillId: 'sk:-1607763456', level: 1 } # 超会心
+        - { skillId: 'sk:313598432', level: 2 } # 会心撃【属性】
+        - { skillId: 'sk:-2096489472', level: 2 } # 見切り
+        - { skillId: 'sk:-776946176', level: 2 } # 龍属性攻撃強化
+        - { skillId: 'sk:-562534336', level: 2 } # 火属性攻撃強化
+        - { skillId: 'sk:-307644128', level: 2 } # ガード性能
+        - { skillId: 'sk:-1674114176', level: 2 } # ガード強化
+        - { skillId: 'sk:1160639488', level: 2 } # 匠
+        - { skillId: 'sk:1268070400', level: 2 } # 氷属性攻撃強化
+        - { skillId: 'sk:1711950720', level: 2 } # ファーストショット
+        - { skillId: 'sk:-1863702144', level: 2 } # 麻痺属性強化
+        - { skillId: 'sk:-1716324608', level: 2 } # 毒属性強化
+        - { skillId: 'sk:1500129152', level: 2 } # 剛刃研磨
+        - { skillId: 'sk:1050520384', level: 2 } # 業物
+        - { skillId: 'sk:166057120', level: 2 } # 睡眠属性強化
+        - { skillId: 'sk:1613139840', level: 2 } # フォースショット
+        - { skillId: 'sk:1452140672', level: 2 } # 雷属性攻撃強化
+        - { skillId: 'sk:508916704', level: 2 } # 水属性攻撃強化
+    - group: E
+      skills:
+        - { skillId: 'sk:424768352', level: 1 } # 環境適応
+        - { skillId: 'sk:-1662120192', level: 1 } # 無我の境地
+        - { skillId: 'sk:-201445760', level: 1 } # 水場・油泥適応
+        - { skillId: 'sk:1966172160', level: 1 } # 拘束耐性
+        - { skillId: 'sk:820385792', level: 1 } # 爆破やられ耐性
+        - { skillId: 'sk:1940820864', level: 1 } # 裂傷耐性
+        - { skillId: 'sk:-857543744', level: 1 } # ボマー
+        - { skillId: 'sk:860517760', level: 2 } # 植生学
+        - { skillId: 'sk:-1689391744', level: 2 } # 体術
+        - { skillId: 'sk:1077686656', level: 2 } # 防御
+        - { skillId: 'sk:1346775424', level: 1 } # 精霊の加護
+        - { skillId: 'sk:-2125233152', level: 1 } # 龍耐性
+        - { skillId: 'sk:1425756032', level: 1 } # 火耐性
+        - { skillId: 'sk:742695104', level: 1 } # ひるみ軽減
+        - { skillId: 'sk:850626240', level: 1 } # 満足感
+        - { skillId: 'sk:595870656', level: 1 } # 地質学
+        - { skillId: 'sk:2045149568', level: 1 } # 腹減り耐性
+        - { skillId: 'sk:652161472', level: 1 } # 氷耐性
+        - { skillId: 'sk:1472632704', level: 1 } # 威嚇
+        - { skillId: 'sk:1522518528', level: 1 } # 防御力ＤＯＷＮ耐性
+        - { skillId: 'sk:-1684613760', level: 1 } # アイテム使用強化
+        - { skillId: 'sk:-682586176', level: 1 } # ランナー
+        - { skillId: 'sk:522288832', level: 1 } # 麻痺耐性
+        - { skillId: 'sk:1459579264', level: 1 } # 毒耐性
+        - { skillId: 'sk:-1073401280', level: 1 } # 納刀術
+        - { skillId: 'sk:-1121468544', level: 1 } # 回復速度
+        - { skillId: 'sk:-1235658624', level: 1 } # 体力回復量ＵＰ
+        - { skillId: 'sk:-193031552', level: 1 } # 睡眠耐性
+        - { skillId: 'sk:634068352', level: 1 } # 早食い
+        - { skillId: 'sk:-411441344', level: 1 } # 悪臭耐性
+        - { skillId: 'sk:705317568', level: 1 } # 気絶耐性
+        - { skillId: 'sk:-593005376', level: 1 } # 環境利用の知識
+        - { skillId: 'sk:2143068800', level: 1 } # 雷耐性
+        - { skillId: 'sk:-609509888', level: 1 } # 耐震
+        - { skillId: 'sk:383104832', level: 1 } # 水耐性
+        - { skillId: 'sk:894530496', level: 2 } # 広域化
+        - { skillId: 'sk:-895828480', level: 1 } # 風圧耐性
+    - group: F
+      skills:
+        - { skillId: 'sk:424768352', level: 2 } # 環境適応
+        - { skillId: 'sk:-1662120192', level: 2 } # 無我の境地
+        - { skillId: 'sk:-201445760', level: 2 } # 水場・油泥適応
+        - { skillId: 'sk:1966172160', level: 2 } # 拘束耐性
+        - { skillId: 'sk:820385792', level: 2 } # 爆破やられ耐性
+        - { skillId: 'sk:1940820864', level: 2 } # 裂傷耐性
+        - { skillId: 'sk:-857543744', level: 2 } # ボマー
+        - { skillId: 'sk:860517760', level: 3 } # 植生学
+        - { skillId: 'sk:-1689391744', level: 3 } # 体術
+        - { skillId: 'sk:1077686656', level: 3 } # 防御
+        - { skillId: 'sk:1346775424', level: 2 } # 精霊の加護
+        - { skillId: 'sk:-2125233152', level: 2 } # 龍耐性
+        - { skillId: 'sk:1425756032', level: 2 } # 火耐性
+        - { skillId: 'sk:742695104', level: 2 } # ひるみ軽減
+        - { skillId: 'sk:850626240', level: 2 } # 満足感
+        - { skillId: 'sk:595870656', level: 2 } # 地質学
+        - { skillId: 'sk:2045149568', level: 2 } # 腹減り耐性
+        - { skillId: 'sk:652161472', level: 2 } # 氷耐性
+        - { skillId: 'sk:1472632704', level: 2 } # 威嚇
+        - { skillId: 'sk:1522518528', level: 2 } # 防御力ＤＯＷＮ耐性
+        - { skillId: 'sk:-1684613760', level: 2 } # アイテム使用強化
+        - { skillId: 'sk:-682586176', level: 2 } # ランナー
+        - { skillId: 'sk:522288832', level: 2 } # 麻痺耐性
+        - { skillId: 'sk:1459579264', level: 2 } # 毒耐性
+        - { skillId: 'sk:-1073401280', level: 2 } # 納刀術
+        - { skillId: 'sk:-1121468544', level: 2 } # 回復速度
+        - { skillId: 'sk:-1235658624', level: 2 } # 体力回復量ＵＰ
+        - { skillId: 'sk:-193031552', level: 2 } # 睡眠耐性
+        - { skillId: 'sk:634068352', level: 2 } # 早食い
+        - { skillId: 'sk:-411441344', level: 2 } # 悪臭耐性
+        - { skillId: 'sk:705317568', level: 2 } # 気絶耐性
+        - { skillId: 'sk:-593005376', level: 2 } # 環境利用の知識
+        - { skillId: 'sk:2143068800', level: 2 } # 雷耐性
+        - { skillId: 'sk:-609509888', level: 2 } # 耐震
+        - { skillId: 'sk:383104832', level: 2 } # 水耐性
+        - { skillId: 'sk:894530496', level: 3 } # 広域化
+        - { skillId: 'sk:-895828480', level: 2 } # 風圧耐性
+    - group: G
+      skills:
+        - { skillId: 'sk:-1662120192', level: 3 } # 無我の境地
+        - { skillId: 'sk:1966172160', level: 3 } # 拘束耐性
+        - { skillId: 'sk:820385792', level: 3 } # 爆破やられ耐性
+        - { skillId: 'sk:1940820864', level: 3 } # 裂傷耐性
+        - { skillId: 'sk:-857543744', level: 3 } # ボマー
+        - { skillId: 'sk:860517760', level: 4 } # 植生学
+        - { skillId: 'sk:-1689391744', level: 4 } # 体術
+        - { skillId: 'sk:1077686656', level: 4 } # 防御
+        - { skillId: 'sk:1346775424', level: 3 } # 精霊の加護
+        - { skillId: 'sk:-2125233152', level: 3 } # 龍耐性
+        - { skillId: 'sk:1425756032', level: 3 } # 火耐性
+        - { skillId: 'sk:742695104', level: 3 } # ひるみ軽減
+        - { skillId: 'sk:850626240', level: 3 } # 満足感
+        - { skillId: 'sk:595870656', level: 3 } # 地質学
+        - { skillId: 'sk:2045149568', level: 3 } # 腹減り耐性
+        - { skillId: 'sk:652161472', level: 3 } # 氷耐性
+        - { skillId: 'sk:1472632704', level: 3 } # 威嚇
+        - { skillId: 'sk:1522518528', level: 3 } # 防御力ＤＯＷＮ耐性
+        - { skillId: 'sk:-1684613760', level: 3 } # アイテム使用強化
+        - { skillId: 'sk:-682586176', level: 3 } # ランナー
+        - { skillId: 'sk:522288832', level: 3 } # 麻痺耐性
+        - { skillId: 'sk:1459579264', level: 3 } # 毒耐性
+        - { skillId: 'sk:-1073401280', level: 3 } # 納刀術
+        - { skillId: 'sk:-1121468544', level: 3 } # 回復速度
+        - { skillId: 'sk:-1235658624', level: 3 } # 体力回復量ＵＰ
+        - { skillId: 'sk:-193031552', level: 3 } # 睡眠耐性
+        - { skillId: 'sk:634068352', level: 3 } # 早食い
+        - { skillId: 'sk:705317568', level: 3 } # 気絶耐性
+        - { skillId: 'sk:-593005376', level: 3 } # 環境利用の知識
+        - { skillId: 'sk:2143068800', level: 3 } # 雷耐性
+        - { skillId: 'sk:-609509888', level: 3 } # 耐震
+        - { skillId: 'sk:383104832', level: 3 } # 水耐性
+        - { skillId: 'sk:894530496', level: 4 } # 広域化
+        - { skillId: 'sk:-895828480', level: 3 } # 風圧耐性
+    - group: H
+      skills:
+        - { skillId: 'sk:-171796848', level: 1 } # 急襲
+        - { skillId: 'sk:-568838336', level: 1 } # 属性やられ耐性
+        - { skillId: 'sk:-1700743296', level: 1 } # 災禍転福
+        - { skillId: 'sk:280489184', level: 1 } # 逆襲
+        - { skillId: 'sk:192746944', level: 1 } # 耳栓
+        - { skillId: 'sk:673822976', level: 1 } # 回避距離ＵＰ
+        - { skillId: 'sk:144660544', level: 2 } # 回避性能
+        - { skillId: 'sk:422666624', level: 2 } # 火事場力
+        - { skillId: 'sk:632127488', level: 1 } # 渾身
+        - { skillId: 'sk:-481419552', level: 1 } # キノコ大好き
+        - { skillId: 'sk:1470960256', level: 1 } # 破壊王
+        - { skillId: 'sk:2106877312', level: 1 } # フルチャージ
+        - { skillId: 'sk:1359821952', level: 1 } # 逆恨み
+        - { skillId: 'sk:-315492576', level: 1 } # スタミナ急速回復
+        - { skillId: 'sk:469540352', level: 2 } # 整備
+    - group: I
+      skills:
+        - { skillId: 'sk:-171796848', level: 2 } # 急襲
+        - { skillId: 'sk:-568838336', level: 2 } # 属性やられ耐性
+        - { skillId: 'sk:-1700743296', level: 2 } # 災禍転福
+        - { skillId: 'sk:280489184', level: 2 } # 逆襲
+        - { skillId: 'sk:192746944', level: 2 } # 耳栓
+        - { skillId: 'sk:673822976', level: 2 } # 回避距離ＵＰ
+        - { skillId: 'sk:144660544', level: 3 } # 回避性能
+        - { skillId: 'sk:422666624', level: 3 } # 火事場力
+        - { skillId: 'sk:632127488', level: 2 } # 渾身
+        - { skillId: 'sk:-481419552', level: 2 } # キノコ大好き
+        - { skillId: 'sk:1470960256', level: 2 } # 破壊王
+        - { skillId: 'sk:2106877312', level: 2 } # フルチャージ
+        - { skillId: 'sk:1359821952', level: 2 } # 逆恨み
+        - { skillId: 'sk:-315492576', level: 2 } # スタミナ急速回復
+        - { skillId: 'sk:469540352', level: 3 } # 整備
+    - group: J
+      skills:
+        - { skillId: 'sk:1174975744', level: 1 } # 巧撃
+        - { skillId: 'sk:1865909632', level: 1 } # 挑戦者
+        - { skillId: 'sk:565867136', level: 1 } # 連撃
+        - { skillId: 'sk:2083363072', level: 1 } # 属性変換
+        - { skillId: 'sk:1489568384', level: 1 } # 属性吸収
+        - { skillId: 'sk:-856322816', level: 1 } # 鎖刃刺撃
+        - { skillId: 'sk:27684744', level: 1 } # 攻勢
+        - { skillId: 'sk:1763191040', level: 1 } # 力の解放
+        - { skillId: 'sk:-397570464', level: 1 } # 弱点特効
+  patterns:
+    - rarity: 5
+      skillGroups: [A, F, F]
+      slotPatterns:
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 3 }]
+    - rarity: 5
+      skillGroups: [A, G, null]
+      slotPatterns:
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 3 }]
+    - rarity: 5
+      skillGroups: [A, H, F]
+      slotPatterns:
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 3 }]
+    - rarity: 5
+      skillGroups: [A, H, H]
+      slotPatterns:
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 3 }]
+    - rarity: 5
+      skillGroups: [A, I, null]
+      slotPatterns:
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 3 }]
+    - rarity: 5
+      skillGroups: [A, J, null]
+      slotPatterns:
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 3 }]
+    - rarity: 6
+      skillGroups: [A, A, G]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+    - rarity: 6
+      skillGroups: [A, A, J]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+    - rarity: 6
+      skillGroups: [B, F, F]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+    - rarity: 6
+      skillGroups: [B, H, F]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+    - rarity: 6
+      skillGroups: [B, H, H]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+    - rarity: 6
+      skillGroups: [B, I, null]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+    - rarity: 6
+      skillGroups: [B, J, null]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 2 }, { target: armor, level: 1 }]
+    - rarity: 7
+      skillGroups: [B, A, G]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+    - rarity: 7
+      skillGroups: [B, A, H]
+      slotPatterns:
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+        - [{ target: armor, level: 3 }]
+    - rarity: 7
+      skillGroups: [B, A, J]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+    - rarity: 7
+      skillGroups: [C, F, E]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+    - rarity: 7
+      skillGroups: [C, G, null]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+    - rarity: 7
+      skillGroups: [C, H, E]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+    - rarity: 7
+      skillGroups: [C, J, null]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+    - rarity: 7
+      skillGroups: [D, A, A]
+      slotPatterns:
+        - [{ target: armor, level: 1 }]
+        - [{ target: armor, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: armor, level: 2 }]
+    - rarity: 8
+      skillGroups: [B, A, G]
+      slotPatterns:
+        - [{ target: weapon, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }, { target: armor, level: 1 }]
+    - rarity: 8
+      skillGroups: [B, A, H]
+      slotPatterns:
+        - [{ target: weapon, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }, { target: armor, level: 1 }]
+    - rarity: 8
+      skillGroups: [B, A, J]
+      slotPatterns:
+        - [{ target: weapon, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }, { target: armor, level: 1 }]
+    - rarity: 8
+      skillGroups: [C, F, E]
+      slotPatterns:
+        - [{ target: weapon, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }, { target: armor, level: 1 }]
+    - rarity: 8
+      skillGroups: [C, G, null]
+      slotPatterns:
+        - [{ target: weapon, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }, { target: armor, level: 1 }]
+    - rarity: 8
+      skillGroups: [C, H, E]
+      slotPatterns:
+        - [{ target: weapon, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }, { target: armor, level: 1 }]
+    - rarity: 8
+      skillGroups: [C, J, null]
+      slotPatterns:
+        - [{ target: weapon, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }, { target: armor, level: 1 }]
+    - rarity: 8
+      skillGroups: [D, A, A]
+      slotPatterns:
+        - [{ target: weapon, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }]
+        - [{ target: weapon, level: 1 }, { target: armor, level: 1 }, { target: armor, level: 1 }]

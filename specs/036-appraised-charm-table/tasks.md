@@ -1,0 +1,9 @@
+# 036 appraised-charm-table タスク
+
+- [x] T1 [main]           出典の 5 ページを `curl` で 1 回ずつ取得して `packages/data/.cache/appraised-charm/html/` に全文を保存し（Phantom Brawlers は取得しない）、オーナーの手持ちの鑑定護石を `owned/charms.md` に集め、`draft/table.md`（群 A〜J・レア5〜8 のパターンとスロット。日本語のスキル名）と `draft/conflicts.md`（食い違いと採った規則・外したレア度）を作る。取得日と各ページの最終更新日を控える（plan D2〜D5）     refs spec §受入基準 AC-1, AC-7, AC-10
+- [x] T2 [main]           オーナーの確認つき: 下書きの要約と手持ちの護石の照らし合わせを示して採用を問う（不採用なら区間 D を止める）。採用後、scratchpad のスクリプトで日本語のスキル名を `sk:` の ID に直し、`out/appraised-charm.yaml`・`out/owned-charms.json` を作る（変換できない名前があれば止める）（plan D6・D7）     refs spec §受入基準 AC-1, AC-2, AC-5
+- [x] T3 [main]           委譲の前の常時許可外の変更: `design/master-data.md` に §10 鑑定護石の抽選テーブルの出典（サイト・取得日・最終更新日・ゲームの版・未検証の箇所・外したレア度）を足す（plan D11・D17）     refs spec §受入基準 AC-7
+- [x] T4 [data-agent]     `overlays/appraised-charm.yaml` を `out/appraised-charm.yaml` から置いて形と注記を整える（plan D8）、`MASTER_VERSION` を `2026.11.1` に上げて `dist.spec.ts` の版を追従する（plan D1）、`dist.spec.ts` に抽選テーブルの検査と overlay の注記の検査を足す（plan D9）。`dist/` は書かない。想定内の失敗は plan D15 のとおり     refs spec §受入基準 AC-1, AC-2, AC-3, AC-4
+- [x] T5 [main]           `pnpm --filter @swv/data run generate` で `dist/` を `2026.11.1` に再生成する（旧版の 3 ファイルは生成のコマンドが削除する）。`generate:check` の一致・`pnpm --filter @swv/data run test:unit` の成功・`2026.10.5` との比較（版と `appraisedCharm` を除いて一致）を確かめる（plan D10）     refs spec §受入基準 AC-1, AC-3
+- [x] T6 [web-agent]      `src/test/support/ownedAppraisedCharms.ts`（`out/owned-charms.json` の書き写し）と `src/test/lib/charms/match.master.spec.ts`（実際のマスターで手持ちの全件が合格・表に入れたレア度は不一致を返しうる・外したレア度は未検査）。`src/main/**` は変えない（plan D12・D13）     refs spec §受入基準 AC-5, AC-6, AC-8
+- [x] T7 [e2e-agent]      `e2e/support/charms.ts` にテーブル不一致の確認を経て登録する補助を足し、`registerCharm` と `charm-input.spec.ts` の登録の手順を追従する。`charm-input`・`charm-save`・`guest-draft-import`・`charm-ocr` の E2E がすべて通ることを確かめる（plan D14）     refs spec §受入基準 AC-9

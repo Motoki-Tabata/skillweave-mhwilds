@@ -1,5 +1,5 @@
 import { expect, type Page, type Route, test } from '@playwright/test'
-import { openCharms, registerCharm } from './support/charms'
+import { charmRows, openCharms, registerCharm } from './support/charms'
 import { openWeapons, registerWeapon } from './support/weapons'
 
 const ME_URL = '**/api/auth/me'
@@ -122,8 +122,8 @@ test.describe('014 guest-draft-import', () => {
     ).toBeVisible()
     expect(api.charmPosts).toHaveLength(2)
     await expect(page.getByRole('heading', { name: '登録済みの護石（2）' })).toBeVisible()
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア8' }).first()).toBeVisible()
-    await expect(page.getByRole('listitem').filter({ hasText: 'レア7' }).first()).toBeVisible()
+    await expect(charmRows(page, 8).first()).toBeVisible()
+    await expect(charmRows(page, 7).first()).toBeVisible()
     await expect(page.getByText(/この端末には、ログインしていないときに/)).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'アカウントに取り込む' })).toHaveCount(0)
 
