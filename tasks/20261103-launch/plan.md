@@ -35,7 +35,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] C4 本番の Discord OAuth を設定する（2026-11-07。本番用のアプリを作り、redirect URI を登録し、ID とシークレットを Secret Manager に入れた）。依存: なし（redirect URI は固定なので C3 の前にできる。API の起動に値が要るので、C3 のデプロイより先に行う）
 - [x] C5 Web を再デプロイし（Release を `workflow_dispatch` で実行する。`design/tech-stack.md`「Web のデプロイ手順」）、本番でログイン・保存・共有 URL を確かめる。依存: B1、B2、B3、B4、C4。Web の再デプロイは済み（2026-11-07。v0.1.0、run 42342160053。`/`・`/privacy`・`/builds` の画面と検索はユーザーが確かめた）。2026-11-07 に v0.2.0（B4 の Worker）を出し、`API_INVOKER_KEY` と `API_ORIGIN` を登録して、Worker から Cloud Run への転送が通った。同日に運営者がブラウザで、ログイン（約 5 秒）・構成と護石の保存・共有 URL のシークレットウィンドウでの表示・ログアウトを確かめた。HAR（`skillweave.app` 以外）の通信先は `discord.com`（ログインの遷移）・`cdn.discordapp.com`・`gateway.discord.gg`・Google Fonts・`static.cloudflareinsights.com` と、運営者の端末のセキュリティソフトが挿入したものだけで、`run.app` は無かった。`/cdn-cgi/rum` の送信は C7 で確かめる
 - [x] C6 Neon が停止するか（Q91）、無料枠の消費、レイテンシを実測して記録する。依存: C5。2026-11-11 に済んだ（`design/tech-stack.md`「稼働の実測」）。Neon は最後の要求から約 20 分で止まる。11 月 1〜11 日の費用は ¥0（定価 ¥4）で、予算の金額は据え置いた。Q149 は残ることを確かめ、スキャナーの要求を Q159 にした
-- [ ] C7 Q140 の照合: Email Routing の転送と受信、Cloud Run の地域、ログの保持、Workers Logs、バックアップの保持期間、Web Analytics、ブラウザの通信先。依存: C5
+- [x] C7 Q140 の照合: Email Routing の転送と受信、Cloud Run の地域、ログの保持、Workers Logs、バックアップの保持期間、Web Analytics、ブラウザの通信先。依存: C5。2026-11-14 に済んだ（`design/tech-stack.md`「プライバシーの表記との照合」。Q140 は 030 decisions.md へ移した）。Email Routing は未設定だったので有効にし、受信を確かめた。ほかは表記と合っていて、`/privacy` は直していない
 - [ ] C8 ユーザーの判断で URL を配る。このとき v1.0.0 をリリースする（`design/tech-stack.md`「リリースと版」）。依存: B5、C5、C6、C7。Q158（Error Reporting）は URL を配った後に機能として起票する
 - [ ] C9 残す内容を `design/`・`specs/` へ移し、このフォルダを消す。依存: C8
 

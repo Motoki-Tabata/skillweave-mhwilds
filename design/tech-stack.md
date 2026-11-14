@@ -464,6 +464,7 @@ Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0、続け�
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
 | ドメイン・DNS | Cloudflare Registrar（`skillweave.app`） | ドメイン代だけ費用がかかる |
+| 連絡先のメール | Cloudflare Email Routing（`contact@skillweave.app` を運営者の受信箱へ転送。2026-11-14 に有効化） | 無料。受信と転送だけで、送信はしない。キャッチオールは無効 |
 | Web・マスターデータ | Cloudflare Workers Static Assets | 静的配信は無料で無制限。Worker の実行は 10 万回/日で、`/api/*` の転送がこれを消費する |
 | API | Cloud Run（Singapore。2026-11-07 に東京と測って決めた） | 月 18 万 vCPU 秒・36 万 GB 秒・200 万リクエスト（Tier 1 の地域の値。Singapore は下の「費用」を見る）。課金アカウントが要り、超えると課金される。`max-instances=1` と予算を設定する |
 | DB | Neon（`aws-ap-southeast-1`。PostgreSQL 18。最大 0.25 CU） | 月 100 CU 時間・1 GB・転送量 5 GB。課金はされず、CU 時間か転送量を超えるとコンピュートが止まり、ストレージを超えると書き込みが止まる |
@@ -757,6 +758,22 @@ Neon の停止（`specs/028-api-prod-config/decisions.md` Q91）:
 | Workers | Worker の呼び出し 327 回・静的配信の要求 30.77k（11 月） | 呼び出しは 10 万回/日、静的配信は無制限 |
 
 URL を配る前から、`/api/.env`・`/api/credentials` などを探るスキャナーの要求が来ている（2026-11-09〜11 に約 40 件）。Cookie なしの `/api/auth/me` 以外は Worker が Cloud Run へ転送するので、これだけで Cloud Run と Neon が起きる（`specs/open-questions.md` Q159）。期限切れの `spring_session` の行は消えずに残っている（`specs/open-questions.md` Q149）。
+
+### プライバシーの表記との照合（2026-11-14）
+
+`/privacy`（最終更新日 2026/11/04）の記載を、URL を配る前の本番（Web は v0.2.0）の設定とブラウザの通信と照らし合わせた。連絡先のメールが未設定だったので設定を表記に合わせ、ほかは表記と合っていた。表記は直していない（`specs/030-privacy-notice/decisions.md` Q140）。
+
+| 項目 | `/privacy` の記載 | 本番の事実 | 確かめた方法 |
+|---|---|---|---|
+| 連絡先 | `contact@skillweave.app` | 2026-11-14 まで Email Routing は未設定で、届かなかった。同日に有効にし、DNS に MX 3 件・SPF と DKIM の TXT 各 1 件が入った。転送先とは別のアドレスから送ったメールが、アクティビティログで「転送済み」になり、運営者の受信箱に届いた。最初のテストメールは `550 5.1.1 Address does not exist` で戻った（DNS は公開側から引けていたので、ルールが反映される前に届いたと見ている。原因は確かめていない） | ダッシュボードの設定とアクティビティログ・テストメール |
+| DB の場所 | シンガポールなど日本国外 | Neon は `aws-ap-southeast-1`、Cloud Run は Singapore | 「本番の構成」 |
+| Google Cloud のログの保持 | 既定で 30 日 | 要求のログが入る `_Default` は 30 日。ほかは Google が置く `_Required`（400 日・管理の操作の監査ログ）だけで、シンクは既定の 2 つ、データアクセスの監査ログは無効（`auditConfigs` が空） | `gcloud logging buckets list`・`sinks list`・`projects get-iam-policy`（読み取りだけ） |
+| Cloudflare のログ | 記録されることがある（期間は書かない） | Workers Logs はダッシュボードの Observability で無効のまま。`wrangler.jsonc` に `observability` は無い | ダッシュボード・`wrangler.jsonc` |
+| バックアップ | 週 1 回ほど・消去の後も約 4 週間残る | 週 1 回・4 世代（「バックアップ」） | 手順との照合 |
+| Web Analytics | ページの URL と読み込みの時間などを Cloudflare へ送る。Cookie と localStorage は使わない | `beacon.min.js` が `/cdn-cgi/rum` へ、読み込みのたびと画面の遷移（`/` → `/builds`）のたびに POST する。項目は `location`・`referrer`・`firstPaint`・`firstContentfulPaint`・`timingsV2`・`memory`・`versions` など。`?probe=1` を付けて開いても `location` にクエリ文字列は無かった。要求に `Cookie` は無く、ゲストの訪問の後の Cookie と localStorage は空だった | 手元の Playwright（Chromium）で本番を開いて記録 |
+| ブラウザの通信先 | Google Fonts・Cloudflare・Discord のログイン | ゲストの訪問では `skillweave.app`・`fonts.googleapis.com`・`fonts.gstatic.com`・`static.cloudflareinsights.com` だけ。ログインでは C5（2026-11-07）の HAR のとおり Discord の画面の通信が加わる。`run.app` への通信は無い | 運営者のブラウザの HAR・Playwright |
+
+運営者の端末では、セキュリティソフトが `beacon.min.js` を 0 バイトの `image/gif` に差し替え（`net::ERR_FAILED`）、`/cdn-cgi/rum` は送られなかった。ビーコン自体のハッシュは HTML の `integrity` と一致した。同じソフトはページにスクリプトも挿入するので、本番の通信先を確かめるときはその分を除いて読む。
 
 ### DB の設定とバックアップ
 
