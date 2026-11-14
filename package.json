@@ -22,6 +22,6 @@
     "contract:swagger": "pnpm --filter @swv/web run contract:swagger"
   },
   "devDependencies": {
-    "neon": "8.14.0"
+    "neon": "8.23.4"
   }
 }
