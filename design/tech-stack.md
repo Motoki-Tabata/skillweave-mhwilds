@@ -88,9 +88,9 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | openapi-typescript | 7.13.0 | peer の `typescript ^5.x` は満たさない（6.0.3）が、生成は動作する（CI の型の鮮度検査で毎回確かめる） |
 | @redocly/cli | 2.54.2 | 2.54.3 はクールダウン中 |
 | swagger-ui-dist | 5.33.0 | 定義書の生成時のみ |
-| tesseract.js | 7.0.0（2025-12-15） | **015 の測定は不合格（採否は Q117 で決める。決めるまで測定用に残す）**。`apps/web` の dependencies。完全一致の版。Apache-2.0。護石の画像の文字認識（015 ocr-spike）。ブラウザ内で動かし、画像を送らない。postinstall（寄付の案内の表示だけ）は `allowBuilds` で遮断 |
-| tesseract.js-core | 7.0.0（2025-12-15） | **015 の測定は不合格（採否は Q117 で決める。決めるまで測定用に残す）**。`apps/web` の dependencies。完全一致の版。Apache-2.0。tesseract.js の要求 `^7.0.0` と同じ版。WASM コアを `vite.config.ts` のプラグインが自オリジンの固定のパスで配信するために直接の依存にする |
-| @tesseract.js-data/jpn | 1.0.0（2023-09-04） | **015 の測定は不合格（採否は Q117 で決める。決めるまで測定用に残す）**。`apps/web` の dependencies。完全一致の版。MIT。言語データは `4.0.0_best_int/jpn.traineddata.gz`（約 2.0 MB）だけを使う |
+| tesseract.js | 7.0.0（2025-12-15） | **採用（016 の再測定。基準は Q117 の「誤った値で埋めた行 0 件」）**。`apps/web` の dependencies。完全一致の版。Apache-2.0。護石の画像の文字認識（015 ocr-spike）。ブラウザ内で動かし、画像を送らない。postinstall（寄付の案内の表示だけ）は `allowBuilds` で遮断 |
+| tesseract.js-core | 7.0.0（2025-12-15） | **採用（016 の再測定。基準は Q117 の「誤った値で埋めた行 0 件」）**。`apps/web` の dependencies。完全一致の版。Apache-2.0。tesseract.js の要求 `^7.0.0` と同じ版。WASM コアを `vite.config.ts` のプラグインが自オリジンの固定のパスで配信するために直接の依存にする |
+| @tesseract.js-data/jpn | 1.0.0（2023-09-04） | **採用（016 の再測定。基準は Q117 の「誤った値で埋めた行 0 件」）**。`apps/web` の dependencies。完全一致の版。MIT。言語データは `4.0.0_best_int/jpn.traineddata.gz`（約 2.0 MB）だけを使う |
 
 ### 後の機能で導入するもの（今回は入れない）
 
@@ -949,6 +949,8 @@ API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm worksp
 
 結論: **不合格・Tesseract.js は不採用**（改善の前 10.0%・改善の後 85.0%。基準は 90% 以上）。認識時間と初期化の時間は基準内。前処理の改善（plan D14）を1回加えても基準に届かなかったため、代替の選定を `specs/open-questions.md` の Q117 に起票した（015 の AC-13）。
 
+その後、016 charm-ocr の再測定で、基準を Q117 の「誤った値で埋めた行 0 件」に置き換えて Tesseract.js を採用した。結果は下の節「Tesseract.js の護石の読み取りの再測定（016 charm-ocr・2026-11-15）」。
+
 - 条件: 対象は PC 版の護石の詳細画面。画像 20 枚（すべて 1920x1080）。正解は `apps/web/e2e/measure/charm-ocr/labels.json`。完全一致は、スキル（ID と Lv）・スロット（別と Lv）の並びと数が正解と一致し、`null` を含まないこと。前処理は、改善の前が切り出し（名前と Lv を1枠1行に並べ直す）とグレースケール化だけ、改善の後がそれに拡大（2倍）・二値化（大津の方法）・文字の許可リスト（候補のスキル名に現れる文字と `Lv0123456789`）を加えたもの。どちらも PSM 6。照合のしきい値（長さ ÷ 3 の切り捨て）は変えていない。
 - 基準: 完全一致率 90% 以上かつ認識時間の最大 3000 ms 以下。
 - 測定環境: Node 24.22.2・Linux 6.18.54.1-microsoft-standard-WSL2・AMD Ryzen 7 5700X（12 論理コア）・メモリ 19 GB・Chromium 156.0.8078.4（Playwright）。
@@ -976,6 +978,29 @@ API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm worksp
   - 改善の前の主因だった `Lv` の誤認は、二値化と許可リストで解消した。
   - 残りの不一致は文字の欠落・取り違えで、前処理の追加の改善（さらなる拡大・範囲の調整など）や照合の調整で縮む余地があるが、015 の取り決め（改善は1回だけ・しきい値は変えない）に従い、ここでは行わない。
 - 生の出力: 測定コマンドの標準出力（画像ごとの不一致の項目と認識した生の行）。再現は `pnpm --filter @swv/web exec playwright test --project=measure e2e/measure/charm-ocr.measure.ts`。
+
+## Tesseract.js の護石の読み取りの再測定（016 charm-ocr・2026-11-15）
+
+結論: **合格・Tesseract.js を採用**（誤った値で埋めた行 0 件・空欄 2 行・認識時間の最大 109 ms）。015 の基準（完全一致率 90% 以上）は、Q117 の決定により「誤った値で埋めた行が 0 件、かつ認識時間の最大が 3000 ms 以下」に置き換えた。空欄は、フォームの未読の印で人が補うため、誤りに数えない。
+
+- 条件: 画像 20 枚（すべて 1920x1080。015 と同じ）。正解は `apps/web/e2e/measure/charm-ocr/labels.json`。行ごとに正解と位置で突き合わせ、結果が `null` の行は空欄、`null` でなく正解と違う行・正解に行があるのに結果に行が無い行・正解に行が無いのに `null` でない行は誤りに数える。前処理は、枠ごとの切り出し（スキルの3枠を別々の画像にし、1枚につき最大3回認識する。空の枠は画素の明るさの割合 0.01 未満で判定して認識しない）・拡大（2倍）・二値化（大津の方法）・文字の許可リスト。PSM は 7（1行）。照合のしきい値（長さ ÷ 3 の切り捨て）と同点で `null` にする扱いは緩めていない。
+- 前処理・PSM の比較（同じ 20 枚。いずれも誤り 0 件・PASS。実装中の比較の実行で、下の結果表の実行とは別。認識時間は実行ごとに揺れる）: PSM 7・2 倍＝空欄 2・最大 118 ms／PSM 7・3 倍＝空欄 2・126 ms／PSM 7・4 倍＝空欄 3・147 ms／PSM 6・2 倍＝空欄 2・122 ms。空欄が最少で最速の PSM 7・2 倍を採用した。
+- 測定環境: Node 24.22.3・Linux 6.18.58.1-microsoft-standard-WSL2・AMD Ryzen 7 5700X（12 論理コア）・メモリ 19 GB・Chromium 158.0.8127.18（Playwright）。
+- 版: tesseract.js 7.0.0・tesseract.js-core 7.0.0・言語データ `@tesseract.js-data/jpn` 1.0.0 の `4.0.0_best_int`。言語データは IndexedDB に保存しない（`cacheMethod: 'none'`）。
+- 結果:
+
+  | 項目 | 値 |
+  |---|---|
+  | 誤った値で埋めた行 | 0 件 |
+  | 空欄の行 | 2 行（charm-001 の skills[1] 渾身 Lv1・charm-019 の skills[0] 剛刃研磨 Lv1） |
+  | 完全一致率（合否に使わない） | 18/20 = 90.0% |
+  | 認識時間の最大 | 109 ms（1 枚あたり 46〜109 ms。枠ごとの3回の認識を含む） |
+  | 初期化の時間 | 294 ms |
+  | 合否 | PASS |
+  | 通信 | 自オリジン以外・GET 以外のリクエストなし。worker・core・lang の3種を記録した |
+
+- 空欄の原因: charm-001 は「渾身」の「渾」が欠けて「身」だけになり、charm-019 は「剛刃研磨」が「刃研護」になって距離がしきい値を超えた。どちらも `null` で返り、誤った値では埋まらない。
+- 再現: `pnpm --filter @swv/web exec playwright test --project=measure e2e/measure/charm-ocr.measure.ts`。
 
 ## 既知の警告
 

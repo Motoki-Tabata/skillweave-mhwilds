@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { MasterSkill, SkillLevel } from '@swv/data'
 import { X } from '@lucide/vue'
 import { ComboboxInput } from 'reka-ui'
+import CharmUnreadHint from '@/components/charms/CharmUnreadHint.vue'
 import { Button } from '@/components/ui/button'
 import {
   Combobox,
@@ -30,6 +31,8 @@ const props = defineProps<{
   skill: SkillLevel | null
   disabled: boolean
   error: string | null
+  /** 画像から読み取れなかった行（印を出す） */
+  unread?: boolean
 }>()
 const emit = defineEmits<{
   select: [skillId: string]
@@ -44,6 +47,12 @@ const master = useMasterStore()
 
 const inputId = computed(() => `charm-skill-${props.row}`)
 const errorId = computed(() => `charm-skill-${props.row}-error`)
+const unreadId = computed(() => `charm-skill-${props.row}-unread`)
+const describedBy = computed(() => {
+  const ids = [props.error === null ? null : errorId.value, props.unread ? unreadId.value : null]
+  const present = ids.filter((id) => id !== null)
+  return present.length === 0 ? undefined : present.join(' ')
+})
 
 const selectedName = computed(() =>
   props.skill === null ? '' : master.nameOf(props.skill.skillId),
@@ -111,7 +120,7 @@ function onLevel(value: unknown): void {
             :disabled="disabled"
             placeholder="スキルを検索"
             :aria-invalid="error !== null"
-            :aria-describedby="error === null ? undefined : errorId"
+            :aria-describedby="describedBy"
             :class="[COMBOBOX_FIELD_CLASS, 'truncate']"
             @blur="onBlur"
           />
@@ -166,6 +175,7 @@ function onLevel(value: unknown): void {
         <X aria-hidden="true" />
       </Button>
     </div>
+    <CharmUnreadHint v-if="unread" :id="unreadId" />
     <p v-if="error !== null" :id="errorId" class="text-destructive text-sm">{{ error }}</p>
   </div>
 </template>

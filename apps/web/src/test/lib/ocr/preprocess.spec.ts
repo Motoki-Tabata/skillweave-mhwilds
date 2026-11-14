@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  EMPTY_BRIGHT_RATIO,
   UPSCALE,
+  brightRatio,
   binarize,
   otsuThreshold,
   planSkillRows,
@@ -65,7 +67,7 @@ describe('prepareImage', () => {
 
     const prepared = await prepareImage(new Blob(['x']))
 
-    expect(prepared.skillImage).toBeInstanceOf(Blob)
+    expect(prepared.skillFrames).toHaveLength(3)
     expect(prepared.slotWidth).toBe(planSlotRegion(1920, 1080).width)
     expect(prepared.slotHeight).toBe(planSlotRegion(1920, 1080).height)
     // スキル欄の6か所とスロット欄の1か所を描く
@@ -79,7 +81,7 @@ describe('前処理の改善（AC-12）', () => {
     const plan = planSkillRows(1920, 1080)
     expect(UPSCALE).toBe(2)
     expect(plan.width).toBe((200 + 16 + 50) * 2)
-    expect(plan.height).toBe(36 * 3 * 2)
+    expect(plan.height).toBe(36 * 2)
     const [name0] = plan.rows[0]
     expect(name0.destination.width).toBe(name0.source.width * 2)
     expect(name0.destination.height).toBe(name0.source.height * 2)
@@ -101,5 +103,32 @@ describe('前処理の改善（AC-12）', () => {
     binarize(px)
     expect([px[0], px[4], px[8], px[12]]).toEqual([255, 0, 255, 0])
     expect([px[1], px[2], px[3]]).toEqual([255, 255, 255])
+  })
+})
+
+describe('空の枠の画素判定（AC-7）', () => {
+  const rect = { x: 0, y: 0, width: 2, height: 2 }
+  const gray = (values: number[]) => new Uint8ClampedArray(values.flatMap((v) => [v, v, v, 255]))
+
+  it('明るい画素が無ければ割合は 0（空の枠）', () => {
+    const ratio = brightRatio(gray([10, 20, 30, 40]), 2, rect)
+    expect(ratio).toBe(0)
+    expect(ratio).toBeLessThan(EMPTY_BRIGHT_RATIO)
+  })
+
+  it('文字がある枠は、空と判定するしきい値以上の割合になる', () => {
+    const ratio = brightRatio(gray([250, 10, 10, 10]), 2, rect)
+    expect(ratio).toBe(0.25)
+    expect(ratio).toBeGreaterThanOrEqual(EMPTY_BRIGHT_RATIO)
+  })
+
+  it('面積 0 の矩形は 0', () => {
+    expect(brightRatio(gray([255]), 1, { x: 0, y: 0, width: 0, height: 0 })).toBe(0)
+  })
+
+  it('枠は別々の画像で、貼り付け先はどれも同じ位置から始まる', () => {
+    const { rows } = planSkillRows(1920, 1080)
+    expect(rows[1][0].destination.y).toBe(rows[0][0].destination.y)
+    expect(rows[2][1].destination.y).toBe(rows[0][1].destination.y)
   })
 })
