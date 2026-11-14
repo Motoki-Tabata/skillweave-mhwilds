@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { slotsLabel } from '@/lib/charms/format'
 import { matchCharm } from '@/lib/charms/match'
 import type { CharmPayload } from '@/lib/charms/types'
 import { bundle, dictionary } from '../../support/masterFixture'
@@ -7,7 +8,7 @@ import { ownedAppraisedCharms } from '../../support/ownedAppraisedCharms'
 const nameOf = (id: string) => dictionary.entries[id].name
 
 const title = (c: CharmPayload) =>
-  `レア${c.rarity}: ${c.skills.map((s) => `${nameOf(s.skillId)} Lv${s.level}`).join(' / ')}`
+  `レア${c.rarity}: ${c.skills.map((s) => `${nameOf(s.skillId)} Lv${s.level}`).join(' / ')} / ${slotsLabel(c.slots)}`
 
 // 実際のマスターの抽選テーブルとの照合（受入基準 5・6・8）
 describe('matchCharm（実マスター）', () => {
