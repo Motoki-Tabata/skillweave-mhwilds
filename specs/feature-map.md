@@ -50,7 +50,7 @@
 | 033 | privacy-backup | 消去を依頼した後もデータがバックアップにいつまで、どんな形で残るかを、`/privacy` で読めるようにする | P0 | S | 済 |
 | 034 | api-proxy-id-token | Web の Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付けて、Invoker の確認を有効にしたまま Cloud Run を呼べるようにする | P0 | S | 済 |
 | 035 | api-aot-cache | API のコンテナイメージを AOT キャッシュ付きで作り、Cloud Run で停止した状態から最初の要求（ログイン開始など）に答えるまでの待ち時間を縮める（本番の DB 接続と実行時の設定は変えない） | P0 | S | 済 |
-| 036 | appraised-charm-table | 鑑定護石の抽選テーブル（スキル枠のパターン・群の中身・スロットの並び）を overlay の `appraisedCharm` に入れてマスターの版を上げ、護石の照合（005）が「未検査」ではなく合否を判定し、017 の逆引きが使える土台を作る | P1 | M | 未着手 |
+| 036 | appraised-charm-table | 鑑定護石の抽選テーブル（スキル枠のパターン・群の中身・スロットの並び）を overlay の `appraisedCharm` に入れてマスターの版を上げ、護石の照合（005）が「未検査」ではなく合否を判定し、017 の逆引きが使える土台を作る | P1 | M | 済 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
