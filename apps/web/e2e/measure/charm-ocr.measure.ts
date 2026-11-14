@@ -1,8 +1,9 @@
 /**
- * 護石の詳細画面の画像を OCR（Tesseract.js）で読む測定（機能 015・受入基準 AC-7〜AC-11・AC-15）。
+ * 護石の詳細画面の画像を OCR（Tesseract.js）で読む測定（機能 016・受入基準 AC-12〜AC-14。015 の AC-8・AC-10 を引き継ぐ）。
  * CI では実行しない。画像は git 管理外の e2e/measure/charm-ocr/images/、正解は labels.json。
- * 失敗にするのは、事前の検査（AC-8）・ラベルの誤り・通信の検査（AC-10）だけ。
- * 精度と時間は合否（PASS／FAIL）を出力するだけで、テストの失敗にしない。
+ * 失敗にするのは、事前の検査・ラベルの誤り・通信の検査（自オリジン以外か GET 以外）だけ。
+ * 判定（plan D4）: 行ごとに正解と位置で突き合わせ、空欄（null）と誤った値で埋めた行を分ける。
+ * 合否（PASS／FAIL）は、誤り 0 件かつ認識時間の最大が 3000 ms 以下。出力するだけで、テストの失敗にしない。
  * 実行: pnpm --filter @swv/web exec playwright test --project=measure e2e/measure/charm-ocr.measure.ts
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
@@ -13,7 +14,6 @@ const MEASURE_DIR = join(import.meta.dirname, 'charm-ocr')
 const IMAGES_DIR = join(MEASURE_DIR, 'images')
 const DIST_DIR = join(import.meta.dirname, '../../../../packages/data/dist')
 const MIN_IMAGES = 20
-const PASS_RATE = 0.9
 const PASS_MAX_MS = 3000
 const MIMES: Record<string, string> = {
   '.png': 'image/png',
@@ -138,44 +138,80 @@ function precheck(): { files: string[]; expected: Map<string, ExpectedCharm> } {
   return { files: labeledFiles, expected }
 }
 
-/** スキルとスロットの並びと数の完全一致で比べ、不一致の項目を返す。null は不一致。 */
-function diffCharm(expected: ExpectedCharm, got: ReadResult): string[] {
-  const diffs: string[] = []
-  const count = (kind: string, e: number, g: number) => {
-    if (e !== g) diffs.push(`${kind}: expected ${e} items, got ${g}`)
+interface Judgement {
+  /** 誤った値で埋めた行（項目つきの説明）。 */
+  wrong: string[]
+  /** 空欄の行（結果が null。誤りに数えない）。 */
+  blank: string[]
+}
+
+/**
+ * 1つの位置を判定する（plan D4）。e は正解の行の説明（無ければ undefined）、g は結果の行
+ * （null は空欄、undefined は結果に行が無い）。same は両方の行があるときの一致。
+ */
+function judgeRow(
+  label: string,
+  e: string | undefined,
+  g: string | null | undefined,
+  same: boolean,
+  out: Judgement,
+): void {
+  const expectedText = e ?? 'no row'
+  if (g === null) {
+    out.blank.push(`${label}: expected ${expectedText}, got null (blank)`)
+  } else if (g === undefined) {
+    // 正解に行があるのに結果に行が無い。「無い」と埋めたことになる
+    if (e !== undefined) out.wrong.push(`${label}: expected ${e}, got missing row`)
+  } else if (e === undefined || !same) {
+    out.wrong.push(`${label}: expected ${expectedText}, got ${g}`)
   }
-  count('skills', expected.skills.length, got.skills.length)
-  expected.skills.forEach((e, i) => {
+}
+
+/** スキルとスロットを位置で突き合わせる。 */
+function judgeCharm(expected: ExpectedCharm, got: ReadResult): Judgement {
+  const out: Judgement = { wrong: [], blank: [] }
+  const skillCount = Math.max(expected.skills.length, got.skills.length)
+  for (let i = 0; i < skillCount; i++) {
+    const e = expected.skills[i]
     const g = got.skills[i]
-    if (g?.skillId !== e.id || g.level !== e.level) {
-      const gotText = g ? `${g.skillId} Lv${g.level}` : 'null'
-      diffs.push(`skills[${i}]: expected ${e.name} Lv${e.level}, got ${gotText}`)
-    }
-  })
-  count('slots', expected.slots.length, got.slots.length)
-  expected.slots.forEach((e, i) => {
+    judgeRow(
+      `skills[${i}]`,
+      e && `${e.name} Lv${e.level}`,
+      g === undefined || g === null ? g : `${g.skillId} Lv${g.level}`,
+      e !== undefined && g != null && g.skillId === e.id && g.level === e.level,
+      out,
+    )
+  }
+  const slotCount = Math.max(expected.slots.length, got.slots.length)
+  for (let i = 0; i < slotCount; i++) {
+    const e = expected.slots[i]
     const g = got.slots[i]
-    if (g?.target !== e.target || g.level !== e.level) {
-      const gotText = g ? `${g.target} Lv${g.level}` : 'null'
-      diffs.push(`slots[${i}]: expected ${e.target} Lv${e.level}, got ${gotText}`)
-    }
-  })
-  return diffs
+    judgeRow(
+      `slots[${i}]`,
+      e && `${e.target} Lv${e.level}`,
+      g === undefined || g === null ? g : `${g.target} Lv${g.level}`,
+      e !== undefined && g != null && g.target === e.target && g.level === e.level,
+      out,
+    )
+  }
+  return out
 }
 
 test.setTimeout(600_000)
 
-test('015 護石の画像を OCR で読む測定', async ({ browser, baseURL }) => {
+test('016 護石の画像を OCR で読む測定', async ({ browser, baseURL }) => {
   expect(baseURL).toBeDefined()
   const origin = new URL(baseURL ?? '').origin
 
-  // 事前の検査（AC-8）。ブラウザを開く前
+  // 事前の検査。ブラウザを開く前
   const { files, expected } = precheck()
 
   const context = await browser.newContext({ baseURL })
-  const requested: string[] = []
+  const requested: { url: string; method: string }[] = []
   // page.goto の前に監視を始める（worker からのリクエストも context で拾う）
-  context.on('request', (request) => requested.push(request.url()))
+  context.on('request', (request) =>
+    requested.push({ url: request.url(), method: request.method() }),
+  )
   const page = await context.newPage()
 
   try {
@@ -189,8 +225,8 @@ test('015 護石の画像を OCR で読む測定', async ({ browser, baseURL }) 
 
     const rows: {
       file: string
-      ok: boolean
-      diffs: string[]
+      wrong: string[]
+      blank: string[]
       ms: number
       width: number
       height: number
@@ -205,11 +241,11 @@ test('015 護石の画像を OCR で読む測定', async ({ browser, baseURL }) 
       )
       const exp = expected.get(file)
       if (exp === undefined) throw new Error(`期待値が無い: ${file}`)
-      const diffs = diffCharm(exp, out.result)
+      const { wrong, blank } = judgeCharm(exp, out.result)
       rows.push({
         file,
-        ok: diffs.length === 0,
-        diffs,
+        wrong,
+        blank,
         ms: out.ms,
         width: out.width,
         height: out.height,
@@ -217,43 +253,58 @@ test('015 護石の画像を OCR で読む測定', async ({ browser, baseURL }) 
       })
     }
 
-    // 通信の検査（AC-10）
-    const paths = requested
-      .filter((u) => !u.startsWith('data:') && !u.startsWith('blob:'))
-      .map((u) => new URL(u))
-    const foreign = [...new Set(paths.filter((u) => u.origin !== origin).map((u) => u.href))]
-    const missing = TESSERACT_PATHS.filter(
-      (t) => !paths.some((u) => u.origin === origin && t.test(u.pathname)),
-    ).map((t) => t.label)
+    // 通信の検査（AC-14）。data:・blob: は除く
+    const recorded = requested
+      .filter((r) => !r.url.startsWith('data:') && !r.url.startsWith('blob:'))
+      .map((r) => ({ url: new URL(r.url), method: r.method }))
+    const foreign = [
+      ...new Set(recorded.filter((r) => r.url.origin !== origin).map((r) => r.url.href)),
+    ]
+    const nonGet = [
+      ...new Set(
+        recorded.filter((r) => r.method !== 'GET').map((r) => `${r.method} ${r.url.href}`),
+      ),
+    ]
+    const paths = recorded.filter((r) => r.url.origin === origin).map((r) => r.url)
+    const missing = TESSERACT_PATHS.filter((t) => !paths.some((u) => t.test(u.pathname))).map(
+      (t) => t.label,
+    )
 
-    // 出力（AC-9・AC-11）
+    // 出力（AC-12・AC-13）
     for (const r of rows) {
+      const status = r.wrong.length === 0 && r.blank.length === 0 ? 'MATCH' : 'MISMATCH'
       console.log(
         [
-          `${r.file}: ${r.ok ? 'MATCH' : 'MISMATCH'} (${r.ms.toFixed(0)} ms, ${r.width}x${r.height})`,
-          ...r.diffs.map((d) => `  ${d}`),
+          `${r.file}: ${status} wrong=${r.wrong.length} blank=${r.blank.length} (${r.ms.toFixed(0)} ms, ${r.width}x${r.height})`,
+          ...r.wrong.map((d) => `  WRONG ${d}`),
+          ...r.blank.map((d) => `  BLANK ${d}`),
           `  lines: ${JSON.stringify(r.lines)}`,
         ].join('\n'),
       )
     }
-    const matched = rows.filter((r) => r.ok).length
+    const matched = rows.filter((r) => r.wrong.length === 0 && r.blank.length === 0).length
     const rate = matched / rows.length
+    const wrongTotal = rows.reduce((sum, r) => sum + r.wrong.length, 0)
+    const blankTotal = rows.reduce((sum, r) => sum + r.blank.length, 0)
     const maxMs = Math.max(...rows.map((r) => r.ms))
     const resolutions = [...new Set(rows.map((r) => `${r.width}x${r.height}`))].join(', ')
-    const pass = rate >= PASS_RATE && maxMs <= PASS_MAX_MS
+    const pass = wrongTotal === 0 && maxMs <= PASS_MAX_MS
     console.log(
       [
         `browser: chromium ${browser.version()}`,
         `images: ${rows.length} (resolutions: ${resolutions})`,
-        `exact match: ${matched}/${rows.length} = ${(rate * 100).toFixed(1)}% (threshold ${PASS_RATE * 100}%)`,
+        `wrong rows: ${wrongTotal}`,
+        `blank rows: ${blankTotal}`,
+        `exact match: ${matched}/${rows.length} = ${(rate * 100).toFixed(1)}% (not used for verdict)`,
         `max recognition ms: ${maxMs.toFixed(0)} (threshold ${PASS_MAX_MS} ms)`,
         `init ms: ${initMs.toFixed(0)}`,
-        `verdict: ${pass ? 'PASS' : 'FAIL'}`,
+        `verdict: ${pass ? 'PASS' : 'FAIL'} (wrong rows 0 and max <= ${PASS_MAX_MS} ms)`,
         `tesseract requests recorded: ${TESSERACT_PATHS.length - missing.length}/${TESSERACT_PATHS.length}`,
       ].join('\n'),
     )
 
     expect(foreign, `自オリジン以外へのリクエスト: ${foreign.join(', ')}`).toEqual([])
+    expect(nonGet, `GET 以外のリクエスト: ${nonGet.join(', ')}`).toEqual([])
     expect(
       missing,
       `監視が worker の通信を捉えていない（記録に無い: ${missing.join(', ')}）`,
