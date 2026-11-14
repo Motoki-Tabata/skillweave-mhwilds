@@ -348,7 +348,9 @@ describe('CharmsView（S2・D3）', () => {
         await click(radio(8))
         await pickSkill(1, '攻撃', '攻撃', 2)
         await chooseOption(document.getElementById('charm-slot-1')!, '武器用 Lv1')
-        expect(textOf(document.querySelector('output'))).toBe('抽選テーブルに合います（レア8）。')
+        expect(textOf(document.querySelector('form output'))).toBe(
+          '抽選テーブルに合います（レア8）。',
+        )
       },
       SLOW,
     )
@@ -356,7 +358,7 @@ describe('CharmsView（S2・D3）', () => {
     it('未検査: テーブルの無いレア度は照合せず、そのまま登録できる', async () => {
       const m = await ready()
       await click(radio(6))
-      expect(textOf(document.querySelector('output'))).toBe(
+      expect(textOf(document.querySelector('form output'))).toBe(
         'レア6の抽選テーブルは未整備のため、照合していません。このまま登録できます。',
       )
       await submit()
@@ -370,7 +372,7 @@ describe('CharmsView（S2・D3）', () => {
         await click(radio(8))
         await pickSkill(1, '攻撃', '攻撃', 3)
         await chooseOption(document.getElementById('charm-slot-1')!, '武器用 Lv1')
-        const band = textOf(document.querySelector('output'))
+        const band = textOf(document.querySelector('form output'))
         expect(band).toContain('抽選テーブルに合いません（レア8）')
         expect(band).toContain('スキル1「攻撃 Lv3」は、レア8のスキル1の枠に出ません。')
         await submit()

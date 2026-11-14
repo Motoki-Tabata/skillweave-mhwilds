@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Cloud, Loader2, Smartphone } from '@lucide/vue'
 import CharmForm from '@/components/charms/CharmForm.vue'
+import type { CharmPrefill } from '@/components/charms/CharmForm.vue'
+import CharmOcrCard from '@/components/charms/CharmOcrCard.vue'
 import CharmListItem from '@/components/charms/CharmListItem.vue'
 import DeleteConfirmDialog from '@/components/common/DeleteConfirmDialog.vue'
 import DeviceImportDialog from '@/components/common/DeviceImportDialog.vue'
@@ -10,6 +12,8 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSkeletonDelay } from '@/lib/useSkeletonDelay'
 import { charmSummary } from '@/lib/charms/format'
+import { useCharmOcrQueue } from '@/lib/ocr/useCharmOcrQueue'
+import type { OcrRoute } from '@/lib/ocr/useCharmOcrQueue'
 import type { CharmEntry } from '@/stores/charms'
 import { useCharmsStore } from '@/stores/charms'
 import { useMasterStore } from '@/stores/master'
@@ -161,6 +165,93 @@ async function confirmDelete(): Promise<void> {
   if (result === 'expired') await focusHeadingIfLost()
 }
 
+// 画像からの読み取り（待ち列は画面のスコープだけに持つ。画面を離れたら破棄する）
+const ocrCard = ref<InstanceType<typeof CharmOcrCard> | null>(null)
+const queue = useCharmOcrQueue({
+  source: () =>
+    master.bundle !== null && master.dictionary !== null
+      ? { bundle: master.bundle, dictionary: master.dictionary }
+      : null,
+  enabled: () => !formDisabled.value && master.bundle !== null && master.dictionary !== null,
+})
+/** 進み具合の文言（次の1件を入れたとき・待ち列を終えたとき）。画像を渡したら消す。 */
+const notice = ref('')
+const prefill = computed<CharmPrefill | null>(() => {
+  const head = queue.head.value
+  if (head === null) return null
+  return {
+    key: head.key,
+    result: head.result,
+    previewUrl: head.previewUrl,
+    remaining: queue.items.value.length,
+    reading: queue.phase.value !== 'idle',
+  }
+})
+
+function onAccept(files: File[], route: OcrRoute): void {
+  notice.value = ''
+  void queue.accept(files, route)
+}
+
+function advanceQueue(): void {
+  queue.next()
+  const remaining = queue.items.value.length
+  notice.value =
+    remaining > 0
+      ? `次の護石を入れました。残り ${remaining} 件です。`
+      : '読み取った護石をすべて終えました。'
+}
+
+function clearQueue(): void {
+  queue.clear()
+  notice.value = ''
+}
+
+// 待ち列が空から1件以上になったとき・次の1件へ進んだときはレア度へ、空になったときは「画像を選ぶ」へフォーカスを移す
+watch(
+  () => queue.head.value?.key ?? null,
+  (key, previousKey) => {
+    if (key === null) {
+      if (previousKey !== null) void nextTick(() => ocrCard.value?.focusPick())
+      return
+    }
+    if (editingId.value === null) void nextTick(() => form.value?.focusRarity())
+  },
+)
+
+function hasImageFiles(files: FileList | undefined | null): files is FileList {
+  return files !== undefined && files !== null && Array.from(files).some(isImage)
+}
+
+function isImage(file: File): boolean {
+  return file.type.startsWith('image/')
+}
+
+/** 貼り付け: 画像のファイルがあるときだけ読み取りに回し、既定の貼り付けを止める。ダイアログを開いているあいだは受け付けない。 */
+function onPaste(event: ClipboardEvent): void {
+  if (importOpen.value || deleteOpen.value || formDisabled.value || loading.value) return
+  const files = event.clipboardData?.files
+  if (!hasImageFiles(files)) return
+  event.preventDefault()
+  onAccept(Array.from(files).filter(isImage), 'paste')
+}
+
+/** 枠の外に落としたときに、ブラウザが画像を開いて画面を離れないようにする。 */
+function suppressFileDrop(event: DragEvent): void {
+  if (Array.from(event.dataTransfer?.types ?? []).includes('Files')) event.preventDefault()
+}
+
+onMounted(() => {
+  document.addEventListener('paste', onPaste)
+  window.addEventListener('dragover', suppressFileDrop)
+  window.addEventListener('drop', suppressFileDrop)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('paste', onPaste)
+  window.removeEventListener('dragover', suppressFileDrop)
+  window.removeEventListener('drop', suppressFileDrop)
+})
+
 const importButton = ref<InstanceType<typeof Button> | null>(null)
 const importOpen = ref(false)
 
@@ -240,15 +331,33 @@ function onDialogCloseAutoFocus(event: Event): void {
       <div
         class="flex flex-col gap-4 lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:items-start lg:gap-6"
       >
-        <CharmForm
-          ref="form"
-          :editing="editing"
-          :disabled="formDisabled"
-          :disabled-message="formDisabledMessage"
-          @saved="finishEdit"
-          @cancel="finishEdit"
-          @rejected="onRejected"
-        />
+        <div class="flex flex-col gap-4">
+          <CharmOcrCard
+            ref="ocrCard"
+            :disabled="formDisabled"
+            :phase="queue.phase.value"
+            :progress="queue.progress.value"
+            :notice="notice"
+            :skipped="queue.skipped.value"
+            :overflow="queue.overflow.value"
+            :failure="queue.failure.value"
+            :queue-count="queue.items.value.length"
+            @accept="onAccept"
+            @clear="clearQueue"
+          />
+          <CharmForm
+            ref="form"
+            :editing="editing"
+            :disabled="formDisabled"
+            :disabled-message="formDisabledMessage"
+            :prefill="prefill"
+            @saved="finishEdit"
+            @registered="advanceQueue"
+            @skip="advanceQueue"
+            @cancel="finishEdit"
+            @rejected="onRejected"
+          />
+        </div>
 
         <section ref="listRoot" class="flex flex-col gap-2">
           <h2 ref="heading" tabindex="-1" class="text-base leading-snug font-bold outline-none">
