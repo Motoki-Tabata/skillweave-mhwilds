@@ -2,10 +2,10 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: E
-- 次に起動するコマンド: `/tsod-ship 036-appraised-charm-table`
-- 推奨モデル: Sonnet
-- ブランチ: `feat/036-appraised-charm-table`（不変）
+- 区間: 完了
+- 次に起動するコマンド: なし
+- 推奨モデル: なし
+- ブランチ: なし（`feat/036-appraised-charm-table`・`docs/036-appraised-charm-table-drift` ともマージ・削除済み）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
 
@@ -29,8 +29,8 @@
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-11-15 |
 | C-1 | plan.md・tasks.md | 承認済み | 2026-11-15 / feff7f7 |
 | D-1 | 実装受入 | 承認済み | 2026-11-15 / bca144c |
-| E-1 | マージ（PR・CI 緑） | 未 | |
-| E-2 | ドリフト是正と drift PR のマージ | 未 | |
+| E-1 | マージ（PR・CI 緑） | 承認済み | 2026-11-15 / PR #133 |
+| E-2 | ドリフト是正と drift PR のマージ | 承認済み | 2026-11-15 / drift PR #134 |
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
 
 ## コミット範囲
@@ -82,6 +82,7 @@
 - なし（区間 A で、繰り返しそうな誤りは見つからなかった）。
 - 区間 C: なし（繰り返しそうな誤りは見つからなかった）。
 - 区間 D: 繰り返しそうな誤りは無し。ツールの癖として、verify.mjs --only packages は test:unit が落ちると generate:check の段まで進まない（dist 再生成前は generate:check を別に実行する）。ブランド型の ID を表から書き写すときは as SkillId のヘルパーが要る。いずれも台帳へは起票せず持ち越し。
+- 区間 E: 繰り返しそうな誤りは無し。区間 D の持ち越し（verify.mjs --only packages は test:unit 失敗で generate:check へ進まない・ブランド型 ID の書き写しに as SkillId のヘルパーが要る）は台帳へ起票せず次の機能へ持ち越す
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
