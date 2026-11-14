@@ -6,7 +6,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - コードとテストの変更は TSOD（`/tsod-discover`・`/tsod-spec` 以降）で進める。
 - 運用作業は、この plan.md のタスクを順に進める。
 - `/flow-*` コマンドは使わない。`tsod-workflow` があるリポジトリでは停止するため、書式だけを使う。
-- 全機能の完成は待たない。残りの機能は公開後に 1 つずつデプロイする。
+- URL は全機能の完成を待たずに 0.x のまま配る。残りの機能（016・017・018・023）は公開後に 1 つずつデプロイし、URL を配った後に起票する Q136・Q149・Q158・Q159 の機能も出してから v1.0.0 にする（2026-11-14 にユーザーが決定）。
 - この進行表は `main` に置き、進捗はタスクごとに小さな PR で入れる。
 
 ## 変更するファイル
@@ -36,14 +36,23 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] C5 Web を再デプロイし（Release を `workflow_dispatch` で実行する。`design/tech-stack.md`「Web のデプロイ手順」）、本番でログイン・保存・共有 URL を確かめる。依存: B1、B2、B3、B4、C4。Web の再デプロイは済み（2026-11-07。v0.1.0、run 42342160053。`/`・`/privacy`・`/builds` の画面と検索はユーザーが確かめた）。2026-11-07 に v0.2.0（B4 の Worker）を出し、`API_INVOKER_KEY` と `API_ORIGIN` を登録して、Worker から Cloud Run への転送が通った。同日に運営者がブラウザで、ログイン（約 5 秒）・構成と護石の保存・共有 URL のシークレットウィンドウでの表示・ログアウトを確かめた。HAR（`skillweave.app` 以外）の通信先は `discord.com`（ログインの遷移）・`cdn.discordapp.com`・`gateway.discord.gg`・Google Fonts・`static.cloudflareinsights.com` と、運営者の端末のセキュリティソフトが挿入したものだけで、`run.app` は無かった。`/cdn-cgi/rum` の送信は C7 で確かめる
 - [x] C6 Neon が停止するか（Q91）、無料枠の消費、レイテンシを実測して記録する。依存: C5。2026-11-11 に済んだ（`design/tech-stack.md`「稼働の実測」）。Neon は最後の要求から約 20 分で止まる。11 月 1〜11 日の費用は ¥0（定価 ¥4）で、予算の金額は据え置いた。Q149 は残ることを確かめ、スキャナーの要求を Q159 にした
 - [x] C7 Q140 の照合: Email Routing の転送と受信、Cloud Run の地域、ログの保持、Workers Logs、バックアップの保持期間、Web Analytics、ブラウザの通信先。依存: C5。2026-11-14 に済んだ（`design/tech-stack.md`「プライバシーの表記との照合」。Q140 は 030 decisions.md へ移した）。Email Routing は未設定だったので有効にし、受信を確かめた。ほかは表記と合っていて、`/privacy` は直していない
-- [ ] C8 ユーザーの判断で URL を配る。このとき v1.0.0 をリリースする（`design/tech-stack.md`「リリースと版」）。依存: B5、C5、C6、C7。Q158（Error Reporting）は URL を配った後に機能として起票する
-- [ ] C9 残す内容を `design/`・`specs/` へ移し、このフォルダを消す。依存: C8
+- [ ] C8 ユーザーの判断で URL を 0.x のまま配る。先に release-please の PR #119 を v0.3.0 としてマージし、Web を出す（`design/tech-stack.md`「リリースと版」）。依存: B5、C5、C6、C7。Q158（Error Reporting）・Q149・Q159・Q136 は URL を配った後に D5 で起票する
+- [ ] C9 v1.0.0 をリリースする（`design/tech-stack.md`「リリースと版」）。依存: D1〜D5
+- [ ] C10 残す内容を `design/`・`specs/` へ移し、このフォルダを消す。依存: C9
+
+### D. v1.0.0 の前に TSOD で進める機能
+`specs/feature-map.md` の未着手の機能。1 機能ずつ区間 A〜E で進め、マージの後のリリースで本番へ出す。
+- [ ] D1 016 charm-ocr（着手の前に Q117 を決める）。依存: C8
+- [ ] D2 017 reverse-lookup。依存: D1
+- [ ] D3 018 pwa-offline（導入方式 Q6 を決める）。依存: D2
+- [ ] D4 023 element-damage。依存: D3
+- [ ] D5 `specs/open-questions.md` の Q136（存在しない URL）・Q149（期限切れの `spring_session`）・Q158（Error Reporting）・Q159（スキャナーの要求）を `/tsod-discover` で機能として起票し、TSOD で本番へ出す。依存: D4
 
 ### 順番
 1. A2 → A1 → B1
 2. B2 と C1 を並行して進める
 3. B3 と C2 → C3 → C4 を並行して進める。B4 は C3 と並行して進める。B5 は C6・C7 と並行して進める
-4. C5 → C6・C7 → C8 → C9
+4. C5 → C6・C7 → C8 → D1 → D2 → D3 → D4 → D5 → C9 → C10（D1〜D4 は機能 ID の順。2026-11-14 にユーザーが決定）
 
 ## A1 で記録する内容
 
@@ -125,11 +134,9 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - 本番の確認の手順は `design/tech-stack.md`「Web のデプロイ手順」
 
 ## 範囲外
-- 016・017・018・023（公開後に 1 つずつ）
 - Q107（件数の上限など）・Q139（物理削除）・直接アクセスの制限（一般公開の前に扱う）
-- Q136 の修正（起票だけして公開後に扱う）
 - `tasks/lessons.md` の項目の `.claude/rules` への反映（公開とは独立に、いつでも行える）
 
 ## 実装の最後の手順
 - 各タスクが終わったら [x] を付け、handoff.md の「現在地」と「次のセッション」を更新する。
-- C9 で残す内容を移し、このフォルダを消す。
+- C10 で残す内容を移し、このフォルダを消す。
