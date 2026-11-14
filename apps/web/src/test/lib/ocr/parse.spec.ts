@@ -1,6 +1,7 @@
+import type { SkillId } from '@swv/data'
 import { describe, expect, it } from 'vitest'
 import { buildCandidates } from '@/lib/ocr/match'
-import { parseSkillLines } from '@/lib/ocr/parse'
+import { assembleSkills, parseSkillFrame, parseSkillLines } from '@/lib/ocr/parse'
 import { bundle, dictionary, skillByName } from '../../support/masterFixture'
 
 const candidates = buildCandidates(bundle, dictionary)
@@ -46,5 +47,32 @@ describe('parseSkillLines（AC-2・AC-3・AC-6）', () => {
       { skillId: id('見切り'), level: 2 },
     ])
     expect(parseSkillLines('', candidates)).toEqual([])
+  })
+})
+
+describe('枠ごとの読み取りの組み立て（AC-7）', () => {
+  const atk = { skillId: id('見切り') as SkillId, level: 3 }
+  const crit = { skillId: id('渾身') as SkillId, level: 1 }
+
+  it('枠が [読めた・読めない・空] なら、読めない枠を null で残し、末尾の空は入れない', () => {
+    expect(assembleSkills([atk, null, 'empty'])).toEqual([atk, null])
+  })
+
+  it('途中の空の枠は null にし、以降の枠を前に詰めない', () => {
+    expect(assembleSkills([atk, 'empty', crit])).toEqual([atk, null, crit])
+  })
+
+  it('読めない枠があっても、以降の枠は元の位置に残る', () => {
+    expect(assembleSkills([null, atk, crit])).toEqual([null, atk, crit])
+  })
+
+  it('すべて空なら空配列', () => {
+    expect(assembleSkills(['empty', 'empty', 'empty'])).toEqual([])
+  })
+
+  it('枠1つの認識結果を解釈し、読めなければ null（推測で埋めない）', () => {
+    expect(parseSkillFrame('見切り Lv3', candidates)).toEqual(atk)
+    expect(parseSkillFrame('身 Lv1', candidates)).toBeNull()
+    expect(parseSkillFrame('', candidates)).toBeNull()
   })
 })

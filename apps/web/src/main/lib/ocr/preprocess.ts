@@ -36,18 +36,29 @@ export const SKILL_COUNT_MAX = 3
 
 const NAME: RefRect = { x: 1238, y: 2, width: 200, height: 28 }
 const LEVEL: RefRect = { x: 1465, y: 31, width: 50, height: 22 }
-/** 並べ直した画像の1行の高さ・名前と Lv の間の余白（基準の画素） */
+/** 枠1つ分の画像の高さ・名前と Lv の間の余白（基準の画素） */
 const ROW_HEIGHT = 36
 const GAP = 16
 /** 認識用の画像の拡大率（D14。小さい文字を読みやすくする） */
 export const UPSCALE = 2
+
+/** スキル欄全体の矩形（基準の画素。名前の左端〜Lv の右端、先頭の枠の上端〜最後の枠の Lv の下端）。切り抜きが使う。 */
+export const SKILL_BOUNDS: RefRect = {
+  x: NAME.x,
+  y: 362,
+  width: LEVEL.x + LEVEL.width - NAME.x,
+  height: 60 * (SKILL_COUNT_MAX - 1) + LEVEL.y + LEVEL.height,
+}
 
 export interface SkillRowPlan {
   source: Rect
   destination: Rect
 }
 
-/** スキル欄の切り出し元と、並べ直した画像での貼り付け先（どちらも実際の画素）。 */
+/**
+ * スキル欄の切り出し元と、枠ごとの画像での貼り付け先（どちらも実際の画素）。
+ * rows[k] が k 番目の枠の [名前, Lv]。width・height は枠1つ分の画像の寸法（枠ごとに別の画像にする。D1）。
+ */
 export function planSkillRows(
   imageWidth: number,
   imageHeight: number,
@@ -60,7 +71,7 @@ export function planSkillRows(
   const rows: SkillRowPlan[][] = []
   for (let k = 0; k < SKILL_COUNT_MAX; k++) {
     const top = (SKILL_TOP + SKILL_PITCH * k) * REF_HEIGHT
-    const rowY = ROW_HEIGHT * k
+    const rowY = 0
     rows.push([
       {
         source: scaleRect({ ...NAME, y: top + NAME.y }, sx, sy),
@@ -83,7 +94,7 @@ export function planSkillRows(
   return {
     rows,
     width: Math.round((NAME.width + GAP + LEVEL.width) * dx),
-    height: Math.round(ROW_HEIGHT * SKILL_COUNT_MAX * dy),
+    height: Math.round(ROW_HEIGHT * dy),
   }
 }
 
@@ -101,9 +112,15 @@ export function planSlotRegion(imageWidth: number, imageHeight: number): Rect {
   return scaleRect(SLOT_REGION, imageWidth / REF_WIDTH, imageHeight / REF_HEIGHT)
 }
 
+/** 1つの枠の認識用の画像。empty は、名前の範囲に文字が無い（スキルが付いていない）枠 */
+export interface SkillFrame {
+  image: Blob
+  empty: boolean
+}
+
 export interface PreparedImage {
-  /** スキル欄を2倍に拡大し、グレースケール・二値化（文字が黒）にして並べ直した画像（PSM 6 で認識する） */
-  skillImage: Blob
+  /** 枠ごとに、2倍に拡大し、グレースケール・二値化（文字が黒）にして名前と Lv を1行に並べた画像（D1） */
+  skillFrames: SkillFrame[]
   slotPixels: Uint8ClampedArray
   slotWidth: number
   slotHeight: number
@@ -169,20 +186,57 @@ function context2d(canvas: OffscreenCanvas): OffscreenCanvasRenderingContext2D {
   return ctx
 }
 
-async function buildSkillImage(bitmap: ImageBitmap): Promise<Blob> {
+/** 空の枠の判定に使う「明るい」画素の下限（グレースケールの 0〜255） */
+export const BRIGHT_LUMA = 140
+/**
+ * 名前の範囲（拡大後の貼り付け先）の明るい画素の割合がこの値未満なら、その枠は空（スキルが付いていない）。
+ * 根拠（016 の測定。015 の20枚・1920x1080）: スキルが無い枠12か所は割合が 0.0000、スキルがある枠は
+ * 最小が 0.0264（charm-010 の「匠」）・多くは 0.05〜0.2。両者の間の 0.01 にした。
+ * PSM・拡大率の比較（同じ20枚）: PSM 7（1行）・拡大2倍＝誤り0・空欄2（charm-001 の「渾身」の1文字落ち・
+ * charm-019 の「剛刃研磨」）、拡大3倍＝誤り0・空欄2（charm-001・charm-020）、拡大4倍＝誤り0・空欄3、
+ * PSM 6・拡大2倍＝PSM 7 と同じ。最大の認識時間はどれも 150 ms 以下。空欄が最少で最速の PSM 7・2倍を採る。
+ * 空欄の2件は、照合のしきい値（D3）を緩めないかぎり誤りでなく空欄として返る。
+ */
+export const EMPTY_BRIGHT_RATIO = 0.01
+
+/** グレースケールの RGBA のうち、矩形の中の明るい画素の割合 */
+export function brightRatio(px: ArrayLike<number>, width: number, rect: Rect): number {
+  let bright = 0
+  for (let y = rect.y; y < rect.y + rect.height; y++) {
+    for (let x = rect.x; x < rect.x + rect.width; x++) {
+      if (px[(y * width + x) * 4] >= BRIGHT_LUMA) bright++
+    }
+  }
+  const area = rect.width * rect.height
+  return area === 0 ? 0 : bright / area
+}
+
+async function buildSkillFrame(bitmap: ImageBitmap, row: SkillRowPlan[]): Promise<SkillFrame> {
   const plan = planSkillRows(bitmap.width, bitmap.height)
   const canvas = new OffscreenCanvas(plan.width, plan.height)
   const ctx = context2d(canvas)
   ctx.fillStyle = '#000'
   ctx.fillRect(0, 0, plan.width, plan.height)
-  for (const { source: s, destination: d } of plan.rows.flat()) {
+  for (const { source: s, destination: d } of row) {
     ctx.drawImage(bitmap, s.x, s.y, s.width, s.height, d.x, d.y, d.width, d.height)
   }
   const data = ctx.getImageData(0, 0, plan.width, plan.height)
   toGrayscale(data)
+  const ratio = brightRatio(data.data, plan.width, row[0].destination)
   binarize(data.data)
   ctx.putImageData(data, 0, 0)
-  return canvas.convertToBlob({ type: 'image/png' })
+  return {
+    image: await canvas.convertToBlob({ type: 'image/png' }),
+    empty: ratio < EMPTY_BRIGHT_RATIO,
+  }
+}
+
+async function buildSkillFrames(bitmap: ImageBitmap): Promise<SkillFrame[]> {
+  const frames: SkillFrame[] = []
+  for (const row of planSkillRows(bitmap.width, bitmap.height).rows) {
+    frames.push(await buildSkillFrame(bitmap, row))
+  }
+  return frames
 }
 
 function readSlotArea(bitmap: ImageBitmap): ImageData {
@@ -209,7 +263,7 @@ export async function prepareImage(image: Blob): Promise<PreparedImage> {
   try {
     const slots = readSlotArea(bitmap)
     return {
-      skillImage: await buildSkillImage(bitmap),
+      skillFrames: await buildSkillFrames(bitmap),
       slotPixels: slots.data,
       slotWidth: slots.width,
       slotHeight: slots.height,

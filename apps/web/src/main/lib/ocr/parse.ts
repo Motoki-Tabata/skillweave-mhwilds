@@ -28,3 +28,21 @@ export function parseSkillLines(text: string, candidates: SkillCandidate[]): (Sk
     .filter((line) => line.trim() !== '')
     .map((line) => parseLine(line, candidates))
 }
+
+/** 枠1つの読み取りの結果。empty は画素の判定で空だった枠（D2） */
+export type FrameReading = SkillLevel | null | 'empty'
+
+/** 枠1つの認識結果の文字列を解釈する。 */
+export function parseSkillFrame(text: string, candidates: SkillCandidate[]): SkillLevel | null {
+  return parseLine(text.replace(/\r?\n/g, ' '), candidates)
+}
+
+/**
+ * 枠ごとの結果から `skills` を作る（D2）。末尾から続く空の枠は入れず、途中の空の枠は null にする。
+ * 読めなかった枠も前に詰めず、位置に null を残す。
+ */
+export function assembleSkills(frames: FrameReading[]): (SkillLevel | null)[] {
+  let end = frames.length
+  while (end > 0 && frames[end - 1] === 'empty') end--
+  return frames.slice(0, end).map((frame) => (frame === 'empty' ? null : frame))
+}
