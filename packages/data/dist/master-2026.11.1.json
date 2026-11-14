@@ -1,7 +1,2333 @@
 {
   "appraisedCharm": {
-    "groups": [],
-    "patterns": []
+    "groups": [
+      {
+        "group": "A",
+        "skills": [
+          {
+            "level": 1,
+            "skillId": "sk:-596764096"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-420608864"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-844978880"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:397306144"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1475134080"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:686533440"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:313598432"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-2096489472"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-168922880"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-776946176"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-562534336"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-283334048"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-307644128"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1674114176"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1160639488"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1237438336"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1268070400"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:802725120"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1594792704"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-181127504"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1711950720"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1863702144"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1716324608"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:691199232"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1500129152"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1946345856"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1961116288"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1050520384"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:166057120"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-893407296"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-160562336"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1444935552"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1758661504"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1613139840"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1452140672"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:508916704"
+          }
+        ]
+      },
+      {
+        "group": "B",
+        "skills": [
+          {
+            "level": 1,
+            "skillId": "sk:402237312"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-596764096"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-420608864"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-844978880"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-2022542848"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:397306144"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1475134080"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:353114912"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:686533440"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:313598432"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-2096489472"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-168922880"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-776946176"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-181774400"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-562534336"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-283334048"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-307644128"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1674114176"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1160639488"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1237438336"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1268070400"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:802725120"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1594792704"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-181127504"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1711950720"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1863702144"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1716324608"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1629629184"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:919683456"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:691199232"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1500129152"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1946345856"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1961116288"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1050520384"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:166057120"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-893407296"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-160562336"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1444935552"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1758661504"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1613139840"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1452140672"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:508916704"
+          }
+        ]
+      },
+      {
+        "group": "C",
+        "skills": [
+          {
+            "level": 3,
+            "skillId": "sk:-596764096"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-420608864"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-844978880"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:397306144"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1475134080"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:686533440"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:313598432"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-2096489472"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-168922880"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-776946176"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-562534336"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-283334048"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-307644128"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1674114176"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1160639488"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1268070400"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1389859584"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1594792704"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1961297152"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-181127504"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1711950720"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-676967744"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1863702144"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:552982656"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1716324608"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:691199232"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1500129152"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1946345856"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1507579776"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1961116288"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1050520384"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:166057120"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:169998480"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-893407296"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-2123993856"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1758661504"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1613139840"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1452140672"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:508916704"
+          }
+        ]
+      },
+      {
+        "group": "D",
+        "skills": [
+          {
+            "level": 2,
+            "skillId": "sk:1"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-420608864"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-844978880"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1607763456"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:313598432"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-2096489472"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-776946176"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-562534336"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-307644128"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1674114176"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1160639488"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1268070400"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1711950720"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1863702144"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1716324608"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1500129152"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1050520384"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:166057120"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1613139840"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1452140672"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:508916704"
+          }
+        ]
+      },
+      {
+        "group": "E",
+        "skills": [
+          {
+            "level": 1,
+            "skillId": "sk:424768352"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1662120192"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-201445760"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1966172160"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:820385792"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1940820864"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-857543744"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:860517760"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1689391744"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1077686656"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1346775424"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-2125233152"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1425756032"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:742695104"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:850626240"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:595870656"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:2045149568"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:652161472"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1472632704"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1522518528"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1684613760"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-682586176"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:522288832"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1459579264"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1073401280"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1121468544"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1235658624"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-193031552"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:634068352"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-411441344"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:705317568"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-593005376"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:2143068800"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-609509888"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:383104832"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:894530496"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-895828480"
+          }
+        ]
+      },
+      {
+        "group": "F",
+        "skills": [
+          {
+            "level": 2,
+            "skillId": "sk:424768352"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1662120192"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-201445760"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1966172160"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:820385792"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1940820864"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-857543744"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:860517760"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1689391744"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1077686656"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1346775424"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-2125233152"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1425756032"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:742695104"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:850626240"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:595870656"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:2045149568"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:652161472"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1472632704"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1522518528"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1684613760"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-682586176"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:522288832"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1459579264"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1073401280"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1121468544"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1235658624"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-193031552"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:634068352"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-411441344"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:705317568"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-593005376"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:2143068800"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-609509888"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:383104832"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:894530496"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-895828480"
+          }
+        ]
+      },
+      {
+        "group": "G",
+        "skills": [
+          {
+            "level": 3,
+            "skillId": "sk:-1662120192"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1966172160"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:820385792"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1940820864"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-857543744"
+          },
+          {
+            "level": 4,
+            "skillId": "sk:860517760"
+          },
+          {
+            "level": 4,
+            "skillId": "sk:-1689391744"
+          },
+          {
+            "level": 4,
+            "skillId": "sk:1077686656"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1346775424"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-2125233152"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1425756032"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:742695104"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:850626240"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:595870656"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:2045149568"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:652161472"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1472632704"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1522518528"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1684613760"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-682586176"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:522288832"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:1459579264"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1073401280"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1121468544"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-1235658624"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-193031552"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:634068352"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:705317568"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-593005376"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:2143068800"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-609509888"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:383104832"
+          },
+          {
+            "level": 4,
+            "skillId": "sk:894530496"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:-895828480"
+          }
+        ]
+      },
+      {
+        "group": "H",
+        "skills": [
+          {
+            "level": 1,
+            "skillId": "sk:-171796848"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-568838336"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-1700743296"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:280489184"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:192746944"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:673822976"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:144660544"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:422666624"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:632127488"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-481419552"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1470960256"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:2106877312"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1359821952"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-315492576"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:469540352"
+          }
+        ]
+      },
+      {
+        "group": "I",
+        "skills": [
+          {
+            "level": 2,
+            "skillId": "sk:-171796848"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-568838336"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-1700743296"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:280489184"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:192746944"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:673822976"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:144660544"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:422666624"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:632127488"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-481419552"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1470960256"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:2106877312"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:1359821952"
+          },
+          {
+            "level": 2,
+            "skillId": "sk:-315492576"
+          },
+          {
+            "level": 3,
+            "skillId": "sk:469540352"
+          }
+        ]
+      },
+      {
+        "group": "J",
+        "skills": [
+          {
+            "level": 1,
+            "skillId": "sk:1174975744"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1865909632"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:565867136"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:2083363072"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1489568384"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-856322816"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:27684744"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:1763191040"
+          },
+          {
+            "level": 1,
+            "skillId": "sk:-397570464"
+          }
+        ]
+      }
+    ],
+    "patterns": [
+      {
+        "rarity": 5,
+        "skillGroups": [
+          "A",
+          "F",
+          "F"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 3,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 5,
+        "skillGroups": [
+          "A",
+          "G",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 3,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 5,
+        "skillGroups": [
+          "A",
+          "H",
+          "F"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 3,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 5,
+        "skillGroups": [
+          "A",
+          "H",
+          "H"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 3,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 5,
+        "skillGroups": [
+          "A",
+          "I",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 3,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 5,
+        "skillGroups": [
+          "A",
+          "J",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 3,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 6,
+        "skillGroups": [
+          "A",
+          "A",
+          "G"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 6,
+        "skillGroups": [
+          "A",
+          "A",
+          "J"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 6,
+        "skillGroups": [
+          "B",
+          "F",
+          "F"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 6,
+        "skillGroups": [
+          "B",
+          "H",
+          "F"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 6,
+        "skillGroups": [
+          "B",
+          "H",
+          "H"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 6,
+        "skillGroups": [
+          "B",
+          "I",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 6,
+        "skillGroups": [
+          "B",
+          "J",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 7,
+        "skillGroups": [
+          "B",
+          "A",
+          "G"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 7,
+        "skillGroups": [
+          "B",
+          "A",
+          "H"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 3,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 7,
+        "skillGroups": [
+          "B",
+          "A",
+          "J"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 7,
+        "skillGroups": [
+          "C",
+          "F",
+          "E"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 7,
+        "skillGroups": [
+          "C",
+          "G",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 7,
+        "skillGroups": [
+          "C",
+          "H",
+          "E"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 7,
+        "skillGroups": [
+          "C",
+          "J",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 7,
+        "skillGroups": [
+          "D",
+          "A",
+          "A"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 2,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 8,
+        "skillGroups": [
+          "B",
+          "A",
+          "G"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 8,
+        "skillGroups": [
+          "B",
+          "A",
+          "H"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 8,
+        "skillGroups": [
+          "B",
+          "A",
+          "J"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 8,
+        "skillGroups": [
+          "C",
+          "F",
+          "E"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 8,
+        "skillGroups": [
+          "C",
+          "G",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 8,
+        "skillGroups": [
+          "C",
+          "H",
+          "E"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 8,
+        "skillGroups": [
+          "C",
+          "J",
+          null
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      },
+      {
+        "rarity": 8,
+        "skillGroups": [
+          "D",
+          "A",
+          "A"
+        ],
+        "slotPatterns": [
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ],
+          [
+            {
+              "level": 1,
+              "target": "weapon"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            },
+            {
+              "level": 1,
+              "target": "armor"
+            }
+          ]
+        ]
+      }
+    ]
   },
   "armors": [
     {
@@ -27471,7 +29797,7 @@
     "commit": "c50a1eb892f4a1ad9bb35c147801658804be2cc2",
     "repository": "LartTyler/mhdb-wilds-data"
   },
-  "version": "2026.10.5",
+  "version": "2026.11.1",
   "weapons": [
     {
       "affinity": 0,
