@@ -5,7 +5,7 @@ defineProps<{ id: string }>()
 </script>
 
 <template>
-  <p :id="id" class="text-muted-foreground flex items-center gap-1 text-sm">
+  <p :id="id" class="text-muted-foreground flex items-center gap-1 text-xs">
     <TriangleAlert class="size-4 shrink-0" aria-hidden="true" />
     読み取れませんでした。画像を見て選んでください。
   </p>
