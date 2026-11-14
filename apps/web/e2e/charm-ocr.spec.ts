@@ -79,7 +79,8 @@ async function dispatchWithFiles(
 
 function trackRequests(page: Page): Request[] {
   const requests: Request[] = []
-  page.on('request', (request) => requests.push(request))
+  // worker からのリクエストは page ではなく context で拾う
+  page.context().on('request', (request) => requests.push(request))
   return requests
 }
 
@@ -162,6 +163,25 @@ test.describe('016 charm-ocr', () => {
     await expect(page.getByText(/画像から読み取った内容を入れました/)).toHaveCount(0)
     await expect(page.getByRole('button', { name: '待ち列を空にする' })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: '登録済みの護石（1）' })).toBeVisible()
+
+    // AC-10: worker・core・lang の3種を記録できていること（拾えていなければ検査が素通りしている）
+    const paths = requests.map((r) => new URL(r.url()).pathname)
+    const tesseractPaths = [
+      {
+        label: 'tesseract/worker.min.js',
+        test: (p: string) => p.endsWith('/tesseract/worker.min.js'),
+      },
+      { label: 'tesseract/core/', test: (p: string) => p.includes('/tesseract/core/') },
+      {
+        label: 'tesseract/lang/jpn.traineddata.gz',
+        test: (p: string) => p.endsWith('/tesseract/lang/jpn.traineddata.gz'),
+      },
+    ]
+    const missing = tesseractPaths.filter((t) => !paths.some(t.test)).map((t) => t.label)
+    expect(
+      missing,
+      `監視が worker の通信を捉えていない（記録に無い: ${missing.join(', ')}）`,
+    ).toEqual([])
 
     // AC-10: 自オリジン以外・GET 以外のリクエストが無い（未ログインで端末に保存する）
     const origin = new URL(page.url()).origin
