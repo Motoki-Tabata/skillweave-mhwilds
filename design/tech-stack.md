@@ -920,7 +920,7 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
 - **起点**: v0.1.0 は、release-please の導入の直後の `main` に手で作った GitHub Release である。それより前の履歴は CHANGELOG に載せない（`bootstrap-sha` は導入前の `main` の HEAD）。手で作ったタグはワークフローを起動しないので、v0.1.0 の本番への反映は `workflow_dispatch` で行う。
 - **Dependabot**: npm の本番の依存は `fix(deps)` で PATCH のリリースを作り、CHANGELOG の「修正」に載る。npm の開発の依存（`build(deps-dev)`）・gradle と docker-compose（`build(deps)`）・Actions（`ci(deps)`）は版を上げない。1本の PR に本番と開発の依存が混ざったときの接頭辞は資料に記載が無いので（2026-11-07 に確認）、npm のグループを `dependency-type` で分けている。
 - **API**: CD の対象外。Cloud Run への手順は `specs/open-questions.md` の Q88。
-- **v1.0.0**: 初期リリース（URL を配る）の判断の時に、`release-please-config.json` のパッケージ `.` に `"release-as": "1.0.0"` を入れた PR をマージし、リリース PR を v1.0.0 にする。リリースの後、次の PR で `release-as` を外す（残すと、以後も 1.0.0 を作ろうとする）。
+- **v1.0.0**: `specs/feature-map.md` の機能（2026-11-14 時点で未着手の 016・017・018・023）をすべて本番へ出した時に、`release-please-config.json` のパッケージ `.` に `"release-as": "1.0.0"` を入れた PR をマージし、リリース PR を v1.0.0 にする。リリースの後、次の PR で `release-as` を外す（残すと、以後も 1.0.0 を作ろうとする）。
 
 ## SonarQube のローカル限定採用
 
