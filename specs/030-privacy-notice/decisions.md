@@ -49,3 +49,8 @@
 ## 区間 B での spec.md の変更（2026-11-03）
 - 変更: 影響範囲の「常時許可外の変更予定」に `design-system/skillweave/MASTER.md` を足した。
 - 理由: ゲート B-1 で、フッターのリンクの高さをバーと同じにし、操作領域の 44px の例外として MASTER.md の画面骨格に書くと決めた（`screen-design.md`「操作領域の高さ」）。全画面の骨格の標準なので、この機能の画面設計だけに残さない。
+
+## Q140（決定: 2026-11-14）
+- 問い: プライバシーの表記を本番の設定と照合する。公開の作業（Q88）で、(a) `contact@skillweave.app` の Cloudflare Email Routing を設定して受信を確かめる（現在の条件は未確認）、(b) Cloud Run の地域・ログの保持・Workers Logs の設定（公式資料の記述が食い違う。030 decisions.md Q135）が表記と合うことを確かめる、(c) バックアップの保持期間（028 decisions.md Q131。表記は 033 decisions.md Q143）が表記と合うことを確かめる、(d) Web Analytics とブラウザの通信先が表記と合うことを確かめる。Workers Logs は、2026-11-03 時点でダッシュボードの Observability が無効だった。公式資料は新しい Worker は既定で有効としているが、`wrangler.jsonc` に `observability` が無いこの Worker は無効だった。有効にするときは、ダッシュボードでなく `wrangler.jsonc` に書く。無料プランの保持期間は料金表で 3 日、制限表で最大 7 日と食い違う。2026-12-01 から料金体系が変わる（新しい料金は無料プランで 1 日 0.5 GB・保持 7 日。上限で取り込みを止める。2026-11-04 に確認）（仮: URL をフレンドへ配る前に行い、合わなければ表記を先に直す）
+- 決定: 表記は直さない。連絡先のメールだけは未設定で届かなかったので、設定を表記に合わせた。ほかは表記と合っていた。(a) Email Routing は 2026-11-14 に有効にし、`contact@skillweave.app` から運営者の受信箱への転送と受信を確かめた。(b) 地域は Singapore、Google Cloud の `_Default` の保持は 30 日、Workers Logs は無効のまま。(c) バックアップは週 1 回・4 世代で、表記の「約 4 週間」と合う。(d) Web Analytics は `/cdn-cgi/rum` へ URL と計測値を送り、Cookie と localStorage を使わない。ゲストの訪問の通信先は `skillweave.app`・Google Fonts・`static.cloudflareinsights.com` だけ。照合の表は `design/tech-stack.md`「プライバシーの表記との照合」。
+- 理由: 本番の設定とブラウザの通信を一次情報（ダッシュボード・`gcloud` の読み取り・HAR・Playwright での記録）で確かめ、表記の範囲に収まっていた。
