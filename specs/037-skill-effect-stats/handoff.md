@@ -50,6 +50,8 @@
 |---|---|---|
 | data | data-agent | 0952b86 |
 | data（dist 再生成） | main | ab6f920 |
+| solver | solver-agent | 5d154ea |
+| web | web-agent | 77008fd |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
