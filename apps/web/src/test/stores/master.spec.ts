@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useMasterStore } from '@/stores/master'
-import { FakeWorker, sk, wp } from '../support/fixtures'
+import { FakeWorker, makeTableBundle, sk, wp } from '../support/fixtures'
 import { flushPromises, loadStores, newPinia, restoreStubs, stubBackend } from '../support/mount'
 
 // 受入基準 1・2（読み込み P1〜P3）
@@ -107,5 +107,29 @@ describe('master ストア', () => {
     expect(master.skillById.size).toBe(0)
     expect(master.armorById.size).toBe(0)
     expect(master.decorationById.size).toBe(0)
+  })
+})
+
+// AC-8（抽選テーブルのあるレア度）
+describe('master ストアの appraisedRarities', () => {
+  afterEach(restoreStubs)
+
+  it('AC-8: テーブルのあるレア度を重複なしの昇順で返す', async () => {
+    const bundle = makeTableBundle()
+    bundle.appraisedCharm.patterns.unshift({
+      rarity: 6,
+      skillGroups: ['C', null, null],
+      slotPatterns: [[]],
+    })
+    stubBackend({ bundle })
+    const { master } = await loadStores()
+    expect(master.appraisedRarities).toEqual([6, 8])
+  })
+
+  it('AC-8: テーブルが空のマスターと読み込み前は空', async () => {
+    stubBackend()
+    expect(useMasterStore(newPinia()).appraisedRarities).toEqual([])
+    const { master } = await loadStores()
+    expect(master.appraisedRarities).toEqual([])
   })
 })

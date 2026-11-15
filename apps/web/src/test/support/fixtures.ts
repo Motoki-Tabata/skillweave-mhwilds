@@ -20,7 +20,7 @@ import type {
   Slot,
   WeaponId,
 } from '@swv/data'
-import type { SolvedBuild, WorkerInbound } from '@swv/solver'
+import type { ReverseLookupCandidate, SolvedBuild, WorkerInbound } from '@swv/solver'
 import type { SolverWorkerOutbound, WorkerLike } from '@/lib/solver/client'
 
 /** 単体テスト用の小さなマスター（ランクは下位・上位。武器種は大剣・太刀・弓）。 */
@@ -270,6 +270,25 @@ export function makeBuild(): SolvedBuild {
   }
 }
 
+/**
+ * 逆引きの候補1件。護石は レア8・スキル [攻撃 Lv2・任意]・スロット [武器用 Lv1・防具用 Lv2]。
+ * 構成は makeBuild() の装飾品の持ち主だけを護石（スロット 1 = 防具用 Lv2）にしたもの。
+ */
+export function makeCandidate(rarity = 8): ReverseLookupCandidate {
+  return {
+    charm: {
+      rarity,
+      skills: [{ skillId: sk('a1'), level: 2 }, null],
+      slots: [slotOf('weapon', 1), slotOf('armor', 2)],
+    },
+    build: {
+      ...makeBuild(),
+      decorations: [{ slot: { owner: 'charm', index: 1 }, decorationId: dc('1') }],
+      freeSlots: [{ owner: 'weapon', index: 0 }],
+    },
+  }
+}
+
 /** Worker の偽物。送られたメッセージを記録し、手動で応答を返せる。 */
 export class FakeWorker implements WorkerLike {
   static instances: FakeWorker[] = []
@@ -323,6 +342,13 @@ export class FakeWorker implements WorkerLike {
     const solves = this.sent.filter((m) => m.type === 'solve')
     const last = solves.at(-1)
     if (last === undefined) throw new Error('solve が送られていません')
+    return last.requestId
+  }
+
+  /** 送られた reverseLookup の requestId（最後のもの）。 */
+  get lastReverseId(): string {
+    const last = this.sent.filter((m) => m.type === 'reverseLookup').at(-1)
+    if (last === undefined) throw new Error('reverseLookup が送られていません')
     return last.requestId
   }
 

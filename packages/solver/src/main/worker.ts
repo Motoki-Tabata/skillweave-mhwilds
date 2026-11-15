@@ -2,18 +2,27 @@ import type { Highs } from 'highs'
 import type { MasterBundle, MasterVersion } from '@swv/data'
 import { InvalidRequestError, SolveCancelledError } from './errors'
 import type { SolvedBuild, SolverRequest, SolverResponse } from './request'
+import {
+  reverseLookup,
+  type ReverseLookupCandidate,
+  type ReverseLookupRequest,
+  type ReverseLookupResponse,
+} from './reverseLookup'
 import { solveBuilds } from './solveBuilds'
 
 // Worker とのメッセージ（マスターは最初に 1 回だけ送る）
 export type WorkerInbound =
   | { type: 'loadMaster'; bundle: MasterBundle }
   | { type: 'solve'; requestId: string; request: SolverRequest }
+  | { type: 'reverseLookup'; requestId: string; request: ReverseLookupRequest }
   | { type: 'cancel'; requestId: string }
 
 export type WorkerOutbound =
   | { type: 'masterLoaded'; version: MasterVersion }
   | { type: 'progress'; requestId: string; found: number; build: SolvedBuild }
   | { type: 'result'; requestId: string; response: SolverResponse }
+  | { type: 'reverseProgress'; requestId: string; found: number; candidate: ReverseLookupCandidate }
+  | { type: 'reverseResult'; requestId: string; response: ReverseLookupResponse }
   | { type: 'error'; requestId: string; message: string }
 
 export interface WorkerDeps {
@@ -44,16 +53,26 @@ export function createWorkerHandler(deps: WorkerDeps): (message: WorkerInbound) 
   let master: MasterBundle | null = null
   let running: RunningRequest | null = null
 
-  async function solve(
-    bundle: MasterBundle,
+  /** 通常の検索と逆引きは実行中の枠を共有する。実行中の要求は、次の求解の合間で打ち切る */
+  async function runExclusive(
     requestId: string,
-    request: SolverRequest,
+    task: (me: RunningRequest) => Promise<void>,
   ): Promise<void> {
-    // 実行中の要求は、次の求解の合間で打ち切る
     if (running !== null) running.cancelled = true
     const me: RunningRequest = { requestId, cancelled: false }
     running = me
     try {
+      await task(me)
+    } catch (e) {
+      if (e instanceof SolveCancelledError || me.cancelled) return
+      post({ type: 'error', requestId, message: errorMessage(e) })
+    } finally {
+      if (running === me) running = null
+    }
+  }
+
+  const solve = (bundle: MasterBundle, requestId: string, request: SolverRequest) =>
+    runExclusive(requestId, async (me) => {
       const response = await solveBuilds(highs, bundle, request, {
         now,
         yieldControl,
@@ -63,13 +82,20 @@ export function createWorkerHandler(deps: WorkerDeps): (message: WorkerInbound) 
         },
       })
       if (!me.cancelled) post({ type: 'result', requestId, response })
-    } catch (e) {
-      if (e instanceof SolveCancelledError || me.cancelled) return
-      post({ type: 'error', requestId, message: errorMessage(e) })
-    } finally {
-      if (running === me) running = null
-    }
-  }
+    })
+
+  const reverse = (bundle: MasterBundle, requestId: string, request: ReverseLookupRequest) =>
+    runExclusive(requestId, async (me) => {
+      const response = await reverseLookup(highs, bundle, request, {
+        now,
+        yieldControl,
+        isCancelled: () => me.cancelled,
+        onProgress: (found, candidate) => {
+          if (!me.cancelled) post({ type: 'reverseProgress', requestId, found, candidate })
+        },
+      })
+      if (!me.cancelled) post({ type: 'reverseResult', requestId, response })
+    })
 
   return async (message) => {
     switch (message.type) {
@@ -78,6 +104,7 @@ export function createWorkerHandler(deps: WorkerDeps): (message: WorkerInbound) 
         post({ type: 'masterLoaded', version: message.bundle.version })
         return
       case 'solve':
+      case 'reverseLookup':
         if (master === null) {
           post({
             type: 'error',
@@ -86,7 +113,9 @@ export function createWorkerHandler(deps: WorkerDeps): (message: WorkerInbound) 
           })
           return
         }
-        await solve(master, message.requestId, message.request)
+        await (message.type === 'solve'
+          ? solve(master, message.requestId, message.request)
+          : reverse(master, message.requestId, message.request))
         return
       case 'cancel':
         if (running?.requestId === message.requestId) running.cancelled = true

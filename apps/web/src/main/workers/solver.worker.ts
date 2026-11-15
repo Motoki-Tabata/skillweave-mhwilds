@@ -41,7 +41,7 @@ scope.onmessage = (event) => {
   void ready
     .then((handler) => handler?.(message))
     .catch((e: unknown) => {
-      if (message.type !== 'solve') return
+      if (message.type !== 'solve' && message.type !== 'reverseLookup') return
       const detail = e instanceof Error ? e.message : '不明な例外'
       post({
         type: 'error',

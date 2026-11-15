@@ -1002,6 +1002,29 @@ API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm worksp
 - 空欄の原因: charm-001 は「渾身」の「渾」が欠けて「身」だけになり、charm-019 は「剛刃研磨」が「刃研護」になって距離がしきい値を超えた。どちらも `null` で返り、誤った値では埋まらない。
 - 再現: `pnpm --filter @swv/web exec playwright test --project=measure e2e/measure/charm-ocr.measure.ts`。
 
+## HiGHS の護石の逆引きの測定（017 reverse-lookup・2026-11-15）
+
+結論: **合格**（1 件目までの時間の最大 66.8 ms・合計の最大 411.5 ms。基準は AC-11 の 3000 ms 以下）。
+
+- 条件: 003 の defense と同じ武器・必須スキルのケース（k=3・6・10、解あり・解なしの 6 ケース。ラベルは「逆引き k=N 解あり/解なし」）を、それぞれ 3 回ずつ `reverseLookup` で測った。件数は 10（`maxResults`）、打ち切りは 3000 ms。1 件目までの時間は、最初の `onProgress` までの経過（1 件も無い回は合計の時間）。Node 上で測り、Worker・ブラウザ上の時間は未測定。
+- 抽選テーブルの規模: マスター 2026.11.1 の `appraisedCharm`（グループ 10・パターン 29）。
+- 測定環境: Node v24.22.3・linux x64（WSL2）・AMD Ryzen 7 5700X（12 論理コア）。HiGHS 本体は `1.15.1 (04024d7)`。マスターの版は `2026.11.1`（防具 714・装飾品 361・スキル 179・シリーズスキル 42・武器 1188）。
+- 結果（3 回の最大。ms）:
+
+  | ケース | 状態 | 候補数 | 求解回数 | 1 件目まで | 合計 |
+  |---|---|---|---|---|---|
+  | k=3 解あり | feasible | 8 | 9 | 66.8 | 179.4 |
+  | k=3 解なし | feasible | 8 | 9 | 13.9 | 115.1 |
+  | k=6 解あり | feasible | 8 | 9 | 23.9 | 152.3 |
+  | k=6 解なし | feasible | 5 | 6 | 29.4 | 202.1 |
+  | k=10 解あり | feasible | 8 | 9 | 29.2 | 261.3 |
+  | k=10 解なし | feasible | 10 | 10 | 44.9 | 411.5 |
+
+  1 回の求解の最大は 70.5 ms、ノード数の最大は 1、LP 反復数の最大は 159。
+- 注意: 護石が自由になるため、003 で解なしだったケースも逆引きでは候補が出る（「解なし」のラベルは 003 の通常の検索での区別）。
+- 合否: 1 件目までの最大 66.8 ms・合計の最大 411.5 ms はいずれも 3000 ms 以下で PASS。
+- 再現: `pnpm --filter @swv/solver exec vitest run --mode measure --reporter=verbose --silent=false src/test/solveBuilds.measure.ts -t 逆引き`
+
 ## 既知の警告
 
 - `pnpm --filter @swv/web test:unit` で Vite が「`vitest.config.ts` の `import './vite.config'` に拡張子が無い

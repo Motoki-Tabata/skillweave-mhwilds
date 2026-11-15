@@ -1,10 +1,12 @@
 import highsLoader, { type Highs } from 'highs'
 import type { MasterBundle, SkillId } from '@swv/data'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { reverseLookup } from '../main/reverseLookup'
 import { DAMAGE_EPSILON } from '../main/solveBuilds'
 import { makeRequest, skill, weaponId } from './support/builders'
-import { solveVerified } from './support/harness'
+import { fakeClock, solveVerified } from './support/harness'
 import { loadRealMaster } from './support/realMaster'
+import { sameSlots, toSolverCharm, toSolverRequest } from './support/reverse'
 
 let highs: Highs
 let master: MasterBundle
@@ -100,6 +102,55 @@ describe('[006 AC11] 実データで expectedDamage を解く（条件をすべ�
       const scores = result.builds.map((b) => b.score ?? Number.NaN)
       for (let i = 1; i < scores.length; i++) {
         expect(scores[i] ?? 0).toBeLessThanOrEqual((scores[i - 1] ?? 0) + DAMAGE_EPSILON)
+      }
+    },
+    TEST_TIMEOUT_MS,
+  )
+})
+
+describe('[017 AC-2][AC-3] 実データで護石を逆引きする', () => {
+  it(
+    '各候補がテーブルのどれかのパターンに収まり、同じスキルを 2 つ持たず、その護石で通常の検索が組める',
+    async () => {
+      const reverseRequest = {
+        masterVersion: master.version,
+        weapon: { kind: 'master' as const, weaponId: master.weapons[0]?.id ?? weaponId('') },
+        required: required([SKILL.evade, 3], [SKILL.taijutsu, 3]),
+        maxResults: 5,
+        timeoutMs: SOLVE_TIMEOUT_MS,
+      }
+      const clock = fakeClock()
+      const result = await reverseLookup(highs, master, reverseRequest, {
+        now: clock.options.now,
+        yieldControl: clock.options.yieldControl,
+      })
+      expect(result.status).toBe('feasible')
+      expect(result.candidates.length).toBeGreaterThan(0)
+      for (const { charm } of result.candidates) {
+        // AC-2: スキルの i 番目がパターンの i 番目の群に同じスキルとレベルで含まれ、スロットの並びが一致する
+        const fits = master.appraisedCharm.patterns.some((pattern) => {
+          const groups = pattern.skillGroups.filter((g) => g !== null)
+          return (
+            pattern.rarity === charm.rarity &&
+            groups.length === charm.skills.length &&
+            pattern.slotPatterns.some((slots) => sameSlots(slots, charm.slots)) &&
+            charm.skills.every((s, i) => {
+              if (s === null) return true
+              const group = master.appraisedCharm.groups.find((g) => g.group === groups[i])
+              return group?.skills.some((m) => m.skillId === s.skillId && m.level === s.level)
+            })
+          )
+        })
+        expect(fits).toBe(true)
+        // AC-3
+        const ids = charm.skills.flatMap((s) => (s === null ? [] : [s.skillId]))
+        expect(new Set(ids).size).toBe(ids.length)
+        // 候補の護石を登録した護石として通常の検索に渡すと組める
+        const request = makeRequest(master, {
+          ...toSolverRequest(reverseRequest, [toSolverCharm(charm)]),
+          maxResults: 1,
+        })
+        await solveVerified(highs, master, request, 'feasible')
       }
     },
     TEST_TIMEOUT_MS,

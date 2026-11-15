@@ -94,6 +94,7 @@ function levelLabel(level: number | null): string {
         </p>
       </div>
     </div>
+    <slot name="charm" />
     <section v-if="damageUnknown" class="flex flex-col gap-1 px-4">
       <h4 class="text-sm font-bold">火力</h4>
       <p class="text-sm">武器が現在のマスターに無いため、火力を計算できません。</p>
@@ -145,7 +146,11 @@ function levelLabel(level: number | null): string {
           </table>
         </section>
 
-        <section v-if="view.charm !== null || showCharm" class="flex flex-col gap-1">
+        <!-- 「charm」の slot があるときは、そちらが護石の節の代わりになる -->
+        <section
+          v-if="!$slots.charm && (view.charm !== null || showCharm)"
+          class="flex flex-col gap-1"
+        >
           <h4 class="text-sm font-bold">護石</h4>
           <p v-if="view.charm === null" class="text-sm">護石なし</p>
           <dl v-else class="flex flex-col gap-1 text-sm">

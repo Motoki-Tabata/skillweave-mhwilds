@@ -7,9 +7,15 @@ import type {
   MasterBundle,
   SkillLevel,
 } from '@swv/data'
-import type { Objective, SolverCharm, SolverRequest, SolverWeapon } from '@swv/solver'
+import type {
+  Objective,
+  ReverseLookupRequest,
+  SolverCharm,
+  SolverRequest,
+  SolverWeapon,
+} from '@swv/solver'
 import type { ObjectiveChoice } from '@/constants/labels'
-import { SOLVE_TIMEOUT_MS } from '@/constants/search'
+import { REVERSE_LOOKUP_MAX_RESULTS, SOLVE_TIMEOUT_MS } from '@/constants/search'
 
 /** 画面で入力した検索条件（武器が選ばれているもの）。 */
 export interface SearchConditions {
@@ -31,6 +37,9 @@ export interface SearchConditions {
   excludedDecorationIds: DecorationId[]
 }
 
+/** 逆引きに使う検索条件（目的・件数・護石の候補を除く）。 */
+export type ReverseLookupConditions = Omit<SearchConditions, 'objective' | 'maxResults' | 'charms'>
+
 export function toObjective(choice: ObjectiveChoice): Objective {
   switch (choice) {
     case 'feasible':
@@ -49,11 +58,19 @@ export function excludedArmorIds(bundle: MasterBundle, ranks: ArmorRank[]): Armo
   return bundle.armors.filter((armor) => !ranks.includes(armor.rank)).map((armor) => armor.id)
 }
 
-/** 検索条件をソルバーの要求に変換する。 */
-export function buildSolverRequest(
+/** 通常の検索と逆引きが共有する要求の部分（版・武器・必須スキル・防具の除外と固定・装飾品の除外）。 */
+function buildSharedRequest(
   bundle: MasterBundle,
-  conditions: SearchConditions,
-): SolverRequest {
+  conditions: ReverseLookupConditions,
+): Pick<
+  ReverseLookupRequest,
+  | 'masterVersion'
+  | 'weapon'
+  | 'required'
+  | 'excludedArmorIds'
+  | 'fixedArmor'
+  | 'excludedDecorationIds'
+> {
   const fixedIds = new Set(Object.values(conditions.fixedArmor).filter((id) => id != null))
   const excluded = excludedArmorIds(bundle, conditions.ranks).filter((id) => !fixedIds.has(id))
   const excludedSet = new Set(excluded)
@@ -64,16 +81,38 @@ export function buildSolverRequest(
   return {
     masterVersion: bundle.version,
     weapon: conditions.weapon,
-    charms: conditions.charms,
     required: conditions.required.map((skill) => ({ ...skill })),
     excludedArmorIds: excluded,
     ...(hasFixed ? { fixedArmor: { ...conditions.fixedArmor } } : {}),
     ...(conditions.excludedDecorationIds.length > 0
       ? { excludedDecorationIds: [...conditions.excludedDecorationIds] }
       : {}),
+  }
+}
+
+/** 検索条件をソルバーの要求に変換する。 */
+export function buildSolverRequest(
+  bundle: MasterBundle,
+  conditions: SearchConditions,
+): SolverRequest {
+  return {
+    ...buildSharedRequest(bundle, conditions),
+    charms: conditions.charms,
     objective: toObjective(conditions.objective),
     activeConditionIds: [...conditions.activeConditionIds],
     maxResults: conditions.maxResults,
+    timeoutMs: SOLVE_TIMEOUT_MS,
+  }
+}
+
+/** 検索条件を護石の逆引きの要求に変換する。目的・登録した護石・発動条件は含めない。 */
+export function buildReverseLookupRequest(
+  bundle: MasterBundle,
+  conditions: ReverseLookupConditions,
+): ReverseLookupRequest {
+  return {
+    ...buildSharedRequest(bundle, conditions),
+    maxResults: REVERSE_LOOKUP_MAX_RESULTS,
     timeoutMs: SOLVE_TIMEOUT_MS,
   }
 }

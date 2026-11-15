@@ -11,11 +11,11 @@ import type {
   MasterWeapon,
   SkillKind,
 } from '@swv/data'
-import type { SolverRequest } from '@swv/solver'
+import type { ReverseLookupRequest, SolverRequest } from '@swv/solver'
 import { ARMOR_RANKS, SKILL_KINDS } from '@/constants/labels'
 import { craftedSolverCharms } from '@/lib/charms/crafted'
 import { createSolverClient } from '@/lib/solver/client'
-import type { SolveHandlers } from '@/lib/solver/client'
+import type { ReverseHandlers, SolveHandlers } from '@/lib/solver/client'
 import { fetchMasterData, loadFailureMessage } from '@/lib/solver/masterData'
 import { compareJa } from '@/lib/text'
 
@@ -95,6 +95,16 @@ export const useMasterStore = defineStore('master', () => {
     return client.solve(request, handlers)
   }
 
+  function reverseLookup(request: ReverseLookupRequest, handlers: ReverseHandlers): string {
+    return client.reverseLookup(request, handlers)
+  }
+
+  /** 抽選テーブルのあるレア度（重複を除いた昇順）。マスターが無いときは空。 */
+  const appraisedRarities = computed<number[]>(() => {
+    const patterns = bundle.value?.appraisedCharm.patterns ?? []
+    return [...new Set(patterns.map((pattern) => pattern.rarity))].sort((a, b) => a - b)
+  })
+
   function cancelSolve(): void {
     client.cancel()
   }
@@ -115,6 +125,8 @@ export const useMasterStore = defineStore('master', () => {
     availableRanks,
     skillsByKind,
     solve,
+    reverseLookup,
+    appraisedRarities,
     cancelSolve,
   }
 })

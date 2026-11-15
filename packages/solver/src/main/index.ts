@@ -13,6 +13,14 @@ export type {
   Uuid,
 } from './request'
 export { solveBuilds } from './solveBuilds'
+export { reverseLookup } from './reverseLookup'
+export type {
+  ReverseLookupCandidate,
+  ReverseLookupOptions,
+  ReverseLookupRequest,
+  ReverseLookupResponse,
+  VirtualCharm,
+} from './reverseLookup'
 export { createWorkerHandler } from './worker'
 export type { WorkerDeps, WorkerInbound, WorkerOutbound } from './worker'
 export { evaluateDamage } from './damage'

@@ -15,7 +15,7 @@ import type {
 } from './request'
 import { validateRequest, type ResolvedWeapon } from './validate'
 
-function passModel(highs: Highs, model: Model, ilp: IlpModel) {
+export function passModel(highs: Highs, model: Model, ilp: IlpModel) {
   const { variableType, objectiveSense } = highs.constants
   const { numCols, rows } = ilp
   const starts: number[] = [0]
@@ -41,6 +41,13 @@ function passModel(highs: Highs, model: Model, ilp: IlpModel) {
       integer ? variableType.integer : variableType.continuous,
     ),
   })
+}
+
+/** 時間・キャンセルの判定に要るもの（通常の検索と逆引きで共有する） */
+export interface ClockContext {
+  request: { timeoutMs: number }
+  options: Pick<SolveOptions, 'now' | 'yieldControl' | 'isCancelled'>
+  start: number
 }
 
 /** 列挙の入力と、求解の外部依存をまとめたもの */
@@ -79,7 +86,7 @@ function toBuild(ctx: EnumerateContext, selection: Selection): SolvedBuild {
 export const DAMAGE_EPSILON = 1e-6
 
 /** 求解の前の判定。キャンセルは例外、時間切れなら false。解く前に時計と time_limit を整える */
-async function readyToSolve(ctx: EnumerateContext, model: Model): Promise<boolean> {
+export async function readyToSolve(ctx: ClockContext, model: Model): Promise<boolean> {
   const { request, options, start } = ctx
   await options.yieldControl()
   if (options.isCancelled?.() === true) throw new SolveCancelledError()
@@ -92,7 +99,7 @@ async function readyToSolve(ctx: EnumerateContext, model: Model): Promise<boolea
 }
 
 /** 求解 1 回の結果。optimal・時間切れ・解なし以外は例外 */
-function runModel(highs: Highs, model: Model): 'optimal' | 'timeout' | 'infeasible' {
+export function runModel(highs: Highs, model: Model): 'optimal' | 'timeout' | 'infeasible' {
   const { modelStatus: status } = highs.constants
   const { modelStatus } = model.run()
   if (modelStatus === status.timeLimit) return 'timeout'
