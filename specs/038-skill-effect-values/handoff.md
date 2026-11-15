@@ -2,9 +2,9 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: C
-- 次に起動するコマンド: `/tsod-plan 038-skill-effect-values`
-- 推奨モデル: Opus
+- 区間: D
+- 次に起動するコマンド: `/tsod-build 038-skill-effect-values`
+- 推奨モデル: Sonnet
 - ブランチ: `feat/038-skill-effect-values`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
@@ -27,7 +27,7 @@
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-11-16 / 1012fef |
 | B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | 2026-11-16 |
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-11-16 |
-| C-1 | plan.md・tasks.md | 未 | |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-11-16 / 77708ce |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
@@ -67,6 +67,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - 区間 A: なし
+- 区間 C: 1 件を tasks/lessons.md に起票した（AC-10 が改定前の性能の基準を引いていた）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
@@ -76,3 +77,4 @@
 - A-1 の移設先: Q185・Q186・Q188・Q189・Q190・Q191・Q195・Q196
 - 区間 C で決めること: 対象の候補の確定（decisions.md Q195 の一覧を実データから）、候補のサイトの列挙、取得した HTML と下書きの置き場、新しい発動条件の ID と ja・en の名前（トグルの表示名）、版の値、テストの代表の値
 - 区間 E で、武器種で値が違うと分かった効果があれば、武器種の区別を足す機能を /tsod-discover で起票する（decisions.md Q196）
+- AC-10 の止める基準は plan D16 の読み替え（expectedDamage の 1 件目までの時間の最大が 5 秒超で停止。024 Q50）でゲート C-1 の承認済み。D12（値の無いレベルの除外）・D8（agitator・resentment の流用、antivirus は合計）の読み方も同時に承認済み
