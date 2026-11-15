@@ -105,3 +105,8 @@
 - 種別: 規律昇華
 - 何が起きたか: `scripts/sonar-local.sh` がイメージを引き直したところ、2026-10-04 に作った組込み DB が新しい版（`docker/compose.sonar.yaml` の `sonarqube:26.10.0.133078-community`）に合わず `DB_MIGRATION_NEEDED` で止まった。組込み DB は移行できない（`/api/system/migrate_db` が `NOT_SUPPORTED`）。ユーザーの承認のうえ `docker compose -f docker/compose.sonar.yaml down -v` で作り直して直った。web-agent は原因を環境と見て報告したが、メインでの復旧に時間がかかった。
 - 提案: `.claude/skills/tsod-verify/` の注意書きに、`--sonar-area` が「DB の移行が要る」で落ちたら `down -v` で作り直す（ローカルの解析履歴が消えるのでユーザーの承認を取る）手順を足す（経路 (a)）。
+
+## 2026-11-15 solver の src/main に ES2023 の配列メソッドを使うと、solver 単体は通っても web の type-check・build が落ちる（機能017・区間D）
+- 種別: 規律昇華
+- 何が起きたか: solver-agent が `reverseLookup.ts` で `toSorted` を使った。solver の `lib` は ES2024 で solver 単体の検証は通ったが、web の `tsconfig.app.json` の `lib` が es2023 未満で、web の型検査が solver のソースも読むため `vue-tsc --build` が落ちた。メインが `[...candidates].sort` に直した（直接修正）。
+- 提案: `.claude/rules/solver.md` に、`packages/solver/src/main` は web の型検査も通る（web の `lib` に合わせる）ので、ES2023 以降の標準ライブラリ（`toSorted` など）を使わない、と足す（経路 (a)）。直す前に `.claude/**` の同じ文面を grep する。
