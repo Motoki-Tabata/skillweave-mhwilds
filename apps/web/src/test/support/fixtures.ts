@@ -274,10 +274,10 @@ export function makeBuild(): SolvedBuild {
  * 逆引きの候補1件。護石は レア8・スキル [攻撃 Lv2・任意]・スロット [武器用 Lv1・防具用 Lv2]。
  * 構成は makeBuild() の装飾品の持ち主だけを護石（スロット 1 = 防具用 Lv2）にしたもの。
  */
-export function makeCandidate(): ReverseLookupCandidate {
+export function makeCandidate(rarity = 8): ReverseLookupCandidate {
   return {
     charm: {
-      rarity: 8,
+      rarity,
       skills: [{ skillId: sk('a1'), level: 2 }, null],
       slots: [slotOf('weapon', 1), slotOf('armor', 2)],
     },

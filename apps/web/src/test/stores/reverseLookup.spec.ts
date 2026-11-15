@@ -92,13 +92,23 @@ describe('reverseLookup ストア', () => {
       const { reverse, worker } = await setup()
       reverse.submit()
       const id = worker.lastReverseId
-      worker.emit({ type: 'reverseProgress', requestId: id, found: 1, candidate: makeCandidate() })
-      expect(reverse.found).toBe(1)
-      expect(reverse.candidates).toHaveLength(1)
-      worker.emit({ type: 'reverseResult', requestId: id, response })
+      const a = makeCandidate(7)
+      const b = makeCandidate(8)
+      worker.emit({ type: 'reverseProgress', requestId: id, found: 1, candidate: a })
+      worker.emit({ type: 'reverseProgress', requestId: id, found: 2, candidate: b })
+      expect(reverse.found).toBe(2)
+      expect(reverse.candidates.map((c) => c.charm.rarity)).toEqual([7, 8])
+      // 結果は並びも件数も進捗と異なる（B のみ・並び替え）
+      const finalResponse: ReverseLookupResponse = {
+        status: 'feasible',
+        candidates: [b, a, makeCandidate(6)],
+        elapsedMs: 3,
+      }
+      worker.emit({ type: 'reverseResult', requestId: id, response: finalResponse })
       expect(reverse.status).toBe('done')
-      expect(reverse.response).toEqual(response)
-      expect(reverse.found).toBe(1)
+      expect(reverse.response).toEqual(finalResponse)
+      expect(reverse.candidates.map((c) => c.charm.rarity)).toEqual([8, 7, 6])
+      expect(reverse.found).toBe(3)
     })
 
     it('AC-9: エラーは文言を持ち error にする', async () => {
