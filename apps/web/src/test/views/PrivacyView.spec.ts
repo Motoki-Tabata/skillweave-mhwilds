@@ -127,6 +127,12 @@ describe('PrivacyView（/privacy）', () => {
       expect(text).toContain('護石と個体差のある武器の下書き')
       expect(text).toContain('テーマの設定')
       expect(text).toContain('ログイン後に戻る画面')
+      expect(text).toContain(
+        '画面のファイル・マスターデータ・画像から読み取る機能のファイル・Web フォント',
+      )
+      expect(text).toContain(
+        'サーバーから取得した護石・構成などのデータは、オフラインで使うためには保存しません',
+      )
       expect(text).toContain('ログインして取り込むとサーバーへ送られます')
     })
 
@@ -266,7 +272,7 @@ describe('PrivacyView（/privacy）', () => {
     it('032 AC-8・033 AC-7: 最終更新日は変えた日の日付', async () => {
       stubBackend()
       await open()
-      expect(main()).toContain('最終更新日: 2026/11/04')
+      expect(main()).toContain('最終更新日: 2026/11/15')
     })
 
     it('032 AC-1（節の順）・033 AC-6: h2 の並びはアクセス解析を Web フォントとアクセスログの間に置く', async () => {

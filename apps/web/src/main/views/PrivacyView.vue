@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import ExternalTextLink from '@/components/common/ExternalTextLink.vue'
 
 /** 最終更新日。文面を変えたらこの値も変える。 */
-const LAST_UPDATED = '2026/11/04'
+const LAST_UPDATED = '2026/11/15'
 
 const heading = ref<HTMLElement | null>(null)
 
@@ -37,8 +37,14 @@ const h2Class = 'text-base leading-snug font-bold'
           <li>護石と個体差のある武器の下書き</li>
           <li>テーマの設定</li>
           <li>ログイン後に戻る画面</li>
+          <li>
+            オフラインで使うための、画面のファイル・マスターデータ・画像から読み取る機能のファイル・Web
+            フォント
+          </li>
         </ul>
-        <p>下書きは、ログインして取り込むとサーバーへ送られます。</p>
+        <p>
+          下書きは、ログインして取り込むとサーバーへ送られます。サーバーから取得した護石・構成などのデータは、オフラインで使うためには保存しません。
+        </p>
       </section>
 
       <section class="flex flex-col gap-2 text-sm">
