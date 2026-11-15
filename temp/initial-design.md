@@ -71,6 +71,7 @@ gitleaks / SonarQube（ローカル限定）。
 
 > 卒業記録: 機能015で Tesseract.js の依存（版）と護石の読み取りの測定結果を `design/tech-stack.md` へ移設した。測定は不合格（改善後 85.0%・基準 90%）で、採否と代替の選定は `specs/open-questions.md` の Q117 で決める。
 > 卒業記録: 機能016の再測定（基準は Q117 の「誤った値で埋めた行 0 件」）で合格し、Tesseract.js の採用と測定結果を `design/tech-stack.md` へ反映した。護石 OCR の画面は機能016で実装済み。
+> 卒業記録: 機能018で PWA は `vite-plugin-pwa` を使わず自前の Service Worker とした（`design/tech-stack.md` の判断 3 と `specs/018-pwa-offline/` が正）。オフラインでの閲覧とソルバー実行（§2 の「書き込みはオンライン時のみ」）は機能018で実装済み。
 
 ### 3.3 実測時に確認すること
 
