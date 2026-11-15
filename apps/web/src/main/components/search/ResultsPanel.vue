@@ -5,11 +5,13 @@ import BuildNameDialog from '@/components/builds/BuildNameDialog.vue'
 import LoginRequiredDialog from '@/components/builds/LoginRequiredDialog.vue'
 import ResultAlert from '@/components/search/ResultAlert.vue'
 import ResultBuildCard from '@/components/search/ResultBuildCard.vue'
+import ReverseLookupResults from '@/components/search/ReverseLookupResults.vue'
 import { Button } from '@/components/ui/button'
 import { defaultBuildName } from '@/lib/builds/name'
 import { useAuthStore } from '@/stores/auth'
 import { useBuildsStore } from '@/stores/builds'
 import { useConditionsStore } from '@/stores/conditions'
+import { useReverseLookupStore } from '@/stores/reverseLookup'
 import { useSearchStore } from '@/stores/search'
 
 defineEmits<{ pickWeapon: [] }>()
@@ -18,6 +20,7 @@ const auth = useAuthStore()
 const buildsStore = useBuildsStore()
 const conditions = useConditionsStore()
 const search = useSearchStore()
+const reverse = useReverseLookupStore()
 
 // 構成の保存（D5・D6）。押した「保存」の位置を覚え、ダイアログを閉じたらそこへフォーカスを戻す
 const root = ref<HTMLElement | null>(null)
@@ -79,12 +82,14 @@ const heading = ref<HTMLElement | null>(null)
 
 // 検索を始めたら、結果パネルの見出しへフォーカスを移す
 watch(
-  () => search.runCount,
+  () => [search.runCount, reverse.runCount],
   async () => {
     await nextTick()
     heading.value?.focus()
   },
 )
+
+const headingText = computed(() => (reverse.status === 'idle' ? '検索結果' : '逆引きの結果'))
 
 type Outcome = 'found' | 'infeasible' | 'timeoutWithBuilds' | 'timeoutEmpty'
 
@@ -129,12 +134,15 @@ const TIMEOUT_HINT =
 <template>
   <section ref="root" aria-labelledby="results-heading" class="flex min-w-0 flex-col gap-4">
     <h2 id="results-heading" ref="heading" tabindex="-1" class="text-base leading-snug font-bold">
-      検索結果
+      {{ headingText }}
     </h2>
+
+    <!-- 逆引き（R1〜R6）。idle のときは通常の検索の表示 -->
+    <ReverseLookupResults v-if="reverse.status !== 'idle'" />
 
     <!-- Q0 未検索 -->
     <div
-      v-if="search.status === 'idle'"
+      v-else-if="search.status === 'idle'"
       class="flex flex-col items-start gap-3 rounded-lg border p-4"
     >
       <p class="text-muted-foreground text-sm">

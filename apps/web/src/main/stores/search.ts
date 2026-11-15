@@ -10,6 +10,7 @@ import { useCharmsStore } from '@/stores/charms'
 import { useConditionsStore } from '@/stores/conditions'
 import { useLockExcludeStore } from '@/stores/lockExclude'
 import { useMasterStore } from '@/stores/master'
+import { useReverseLookupStore } from '@/stores/reverseLookup'
 import { useToastStore } from '@/stores/toast'
 
 /** Q0 未検索（キャンセルの後を含む）／Q1 検索中／結果（Q2〜Q5）／Q6 エラー。 */
@@ -178,6 +179,8 @@ export const useSearchStore = defineStore('search', () => {
       excludedArmorIds: [...lockExclude.excludedArmorIds],
       excludedDecorationIds: [...lockExclude.excludedDecorationIds],
     }
+    // 逆引きの結果・実行中の逆引きは捨てる（結果パネルには最後に実行したほうだけを出す）
+    useReverseLookupStore().discard()
     // 前の検索の結果と進捗はすぐに消す
     clearResult()
     status.value = 'searching'
@@ -246,6 +249,14 @@ export const useSearchStore = defineStore('search', () => {
     toast.push(CANCELLED_TOAST_MESSAGE)
   }
 
+  /** 通知を出さずに結果を消して Q0 に戻し、護石の読込待ちを無効にする（逆引きを始めるとき）。 */
+  function discard(): void {
+    waiting = false
+    waitToken += 1
+    clearResult()
+    status.value = 'idle'
+  }
+
   return {
     status,
     found,
@@ -263,5 +274,6 @@ export const useSearchStore = defineStore('search', () => {
     isSaved,
     submit,
     cancel,
+    discard,
   }
 })

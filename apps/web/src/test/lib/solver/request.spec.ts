@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { SolverWeapon, Uuid } from '@swv/solver'
 import type { SearchConditions } from '@/lib/solver/request'
-import { buildSolverRequest, excludedArmorIds, toObjective } from '@/lib/solver/request'
-import { SOLVE_TIMEOUT_MS } from '@/constants/search'
+import {
+  buildReverseLookupRequest,
+  buildSolverRequest,
+  excludedArmorIds,
+  toObjective,
+} from '@/lib/solver/request'
+import { REVERSE_LOOKUP_MAX_RESULTS, SOLVE_TIMEOUT_MS } from '@/constants/search'
 import { VERSION, armorId, cd, dc, makeBundle, sk, wp } from '../../support/fixtures'
 
 // 受入基準 6（SolverRequest への変換）
@@ -176,6 +181,57 @@ describe('buildSolverRequest の固定と除外', () => {
 
   it('AC-6: 固定も装飾品の除外も無ければキーを入れない', () => {
     const request = buildSolverRequest(bundle, base)
+    expect('fixedArmor' in request).toBe(false)
+    expect('excludedDecorationIds' in request).toBe(false)
+  })
+})
+
+// AC-1（逆引きの要求。検索画面の条件を使い、目的・登録した護石は使わない）
+describe('buildReverseLookupRequest', () => {
+  const bundle = makeBundle()
+  const lowHead = armorId('low', 'head')
+  const highChest = armorId('high', 'chest')
+  const conditions = {
+    weapon: { kind: 'master', weaponId: wp('great-sword:1') } as SolverWeapon,
+    required: [{ skillId: sk('a1'), level: 2 }],
+    ranks: ['high'] as ('low' | 'high')[],
+    activeConditionIds: [cd('1')],
+    fixedArmor: { head: armorId('high', 'head') },
+    excludedArmorIds: [highChest],
+    excludedDecorationIds: [dc('1')],
+  }
+
+  it('AC-1: 版・武器・必須スキルを渡し、件数は 10・timeoutMs は検索と同じにする', () => {
+    const request = buildReverseLookupRequest(bundle, conditions)
+    expect(request.masterVersion).toBe(VERSION)
+    expect(request.weapon).toEqual(conditions.weapon)
+    expect(request.required).toEqual(conditions.required)
+    expect(request.maxResults).toBe(REVERSE_LOOKUP_MAX_RESULTS)
+    expect(REVERSE_LOOKUP_MAX_RESULTS).toBe(10)
+    expect(request.timeoutMs).toBe(SOLVE_TIMEOUT_MS)
+  })
+
+  it('AC-1: 目的・護石・発動条件を要求に含めない', () => {
+    const request = buildReverseLookupRequest(bundle, conditions)
+    expect(request).not.toHaveProperty('objective')
+    expect(request).not.toHaveProperty('charms')
+    expect(request).not.toHaveProperty('activeConditionIds')
+  })
+
+  it('AC-1: ランクで外す防具とユーザーの除外を合わせ、固定した防具は外さない', () => {
+    const request = buildReverseLookupRequest(bundle, conditions)
+    expect(request.excludedArmorIds).toContain(lowHead)
+    expect(request.excludedArmorIds).toContain(highChest)
+    expect(request.fixedArmor).toEqual({ head: armorId('high', 'head') })
+    expect(request.excludedDecorationIds).toEqual([dc('1')])
+  })
+
+  it('AC-1: 固定も装飾品の除外も無ければキーを入れない', () => {
+    const request = buildReverseLookupRequest(bundle, {
+      ...conditions,
+      fixedArmor: {},
+      excludedDecorationIds: [],
+    })
     expect('fixedArmor' in request).toBe(false)
     expect('excludedDecorationIds' in request).toBe(false)
   })

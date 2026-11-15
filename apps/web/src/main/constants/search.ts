@@ -1,3 +1,5 @@
+import type { Uuid } from '@swv/solver'
+
 /** 件数の範囲と既定（decisions.md Q20）。 */
 export const MAX_RESULTS_MIN = 1
 export const MAX_RESULTS_MAX = 30
@@ -17,3 +19,9 @@ export const LOADING_SKELETON_DELAY_MS = 300
 
 /** トーストを出しておく時間（ミリ秒）。 */
 export const TOAST_DURATION_MS = 4000
+
+/** 護石の逆引きで示す候補の件数（画面に入力欄を持たない）。 */
+export const REVERSE_LOOKUP_MAX_RESULTS = 10
+
+/** 逆引きの候補の構成を表示するときの、仮想の護石の ID（結果には保存しない web 内だけの値）。 */
+export const REVERSE_CHARM_ID = 'reverse-lookup' as Uuid

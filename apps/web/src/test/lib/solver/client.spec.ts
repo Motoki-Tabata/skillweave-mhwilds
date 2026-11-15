@@ -1,13 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SolverRequest, SolverResponse } from '@swv/solver'
+import type {
+  ReverseLookupRequest,
+  ReverseLookupResponse,
+  SolverRequest,
+  SolverResponse,
+} from '@swv/solver'
 import {
   HIGHS_INIT_FAILED_MESSAGE,
   LoadError,
   WORKER_STOPPED_MESSAGE,
   createSolverClient,
 } from '@/lib/solver/client'
-import type { SolveHandlers } from '@/lib/solver/client'
-import { FakeWorker, makeBuild, makeBundle } from '../../support/fixtures'
+import type { ReverseHandlers, SolveHandlers } from '@/lib/solver/client'
+import { FakeWorker, makeBuild, makeBundle, makeCandidate } from '../../support/fixtures'
 
 // 受入基準 1・2・6・7（Worker との通信）
 describe('createSolverClient', () => {
@@ -247,5 +252,103 @@ describe('createSolverClient', () => {
       worker.emit({ type: 'result', requestId: id, response })
       expect(h.onResult).not.toHaveBeenCalled()
     })
+  })
+})
+
+// AC-9・AC-12（逆引きのメッセージ。通常の検索と実行中の枠を共有する）
+describe('createSolverClient の逆引き', () => {
+  const bundle = makeBundle()
+  const request = { masterVersion: bundle.version } as ReverseLookupRequest
+  const response: ReverseLookupResponse = { status: 'feasible', candidates: [], elapsedMs: 1 }
+
+  function reverseHandlers() {
+    return {
+      onProgress: vi.fn<ReverseHandlers['onProgress']>(),
+      onResult: vi.fn<ReverseHandlers['onResult']>(),
+      onError: vi.fn<ReverseHandlers['onError']>(),
+    }
+  }
+
+  async function setup() {
+    FakeWorker.reset()
+    const client = createSolverClient(() => new FakeWorker())
+    client.start()
+    await client.load(bundle)
+    return { client, worker: FakeWorker.last }
+  }
+
+  it('AC-9: reverseLookup は requestId と要求を送る', async () => {
+    const { client, worker } = await setup()
+    const id = client.reverseLookup(request, reverseHandlers())
+    expect(worker.sent.at(-1)).toEqual({ type: 'reverseLookup', requestId: id, request })
+  })
+
+  it('AC-9: reverseProgress と reverseResult を現在の requestId のものだけ渡す', async () => {
+    const { client, worker } = await setup()
+    const h = reverseHandlers()
+    const id = client.reverseLookup(request, h)
+    worker.emit({
+      type: 'reverseProgress',
+      requestId: 'other',
+      found: 9,
+      candidate: makeCandidate(),
+    })
+    worker.emit({ type: 'reverseProgress', requestId: id, found: 1, candidate: makeCandidate() })
+    worker.emit({ type: 'reverseResult', requestId: id, response })
+    worker.emit({ type: 'reverseResult', requestId: id, response })
+    expect(h.onProgress).toHaveBeenCalledTimes(1)
+    expect(h.onProgress).toHaveBeenCalledWith(1, makeCandidate())
+    expect(h.onResult).toHaveBeenCalledTimes(1)
+    expect(h.onResult).toHaveBeenCalledWith(response)
+  })
+
+  it('AC-9: error・Worker の異常終了・HiGHS の初期化失敗を onError に渡す', async () => {
+    const { client, worker } = await setup()
+    const first = reverseHandlers()
+    const id = client.reverseLookup(request, first)
+    worker.emit({ type: 'error', requestId: id, message: '原因' })
+    expect(first.onError).toHaveBeenCalledWith('原因')
+
+    const second = reverseHandlers()
+    client.reverseLookup(request, second)
+    worker.crash()
+    expect(second.onError).toHaveBeenCalledWith(WORKER_STOPPED_MESSAGE)
+
+    const third = await setup()
+    third.worker.emit({ type: 'initFailed', message: 'wasm' })
+    const late = reverseHandlers()
+    third.client.reverseLookup(request, late)
+    expect(late.onError).toHaveBeenCalledWith(HIGHS_INIT_FAILED_MESSAGE)
+  })
+
+  it('AC-9: cancel 後の応答は捨てる', async () => {
+    const { client, worker } = await setup()
+    const h = reverseHandlers()
+    const id = client.reverseLookup(request, h)
+    client.cancel()
+    worker.emit({ type: 'reverseResult', requestId: id, response })
+    expect(worker.messages('cancel')).toHaveLength(1)
+    expect(h.onResult).not.toHaveBeenCalled()
+  })
+
+  it('AC-12: 逆引きを始めると前の検索の応答を捨て、検索を始めると前の逆引きの応答を捨てる', async () => {
+    const { client, worker } = await setup()
+    const solve = {
+      onProgress: vi.fn<SolveHandlers['onProgress']>(),
+      onResult: vi.fn<SolveHandlers['onResult']>(),
+      onError: vi.fn<SolveHandlers['onError']>(),
+    }
+    const solveId = client.solve({ masterVersion: bundle.version } as SolverRequest, solve)
+    const h = reverseHandlers()
+    const reverseId = client.reverseLookup(request, h)
+    worker.emit({
+      type: 'result',
+      requestId: solveId,
+      response: { status: 'optimal', builds: [], elapsedMs: 1 },
+    })
+    expect(solve.onResult).not.toHaveBeenCalled()
+    client.solve({ masterVersion: bundle.version } as SolverRequest, solve)
+    worker.emit({ type: 'reverseResult', requestId: reverseId, response })
+    expect(h.onResult).not.toHaveBeenCalled()
   })
 })

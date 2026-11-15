@@ -1,5 +1,8 @@
 import type { MasterBundle } from '@swv/data'
 import type {
+  ReverseLookupCandidate,
+  ReverseLookupRequest,
+  ReverseLookupResponse,
   SolvedBuild,
   SolverRequest,
   SolverResponse,
@@ -47,15 +50,23 @@ export interface SolverClient {
   load(bundle: MasterBundle): Promise<void>
   /** 検索を始める。現在の検索があれば捨てる。返すのは `requestId`。 */
   solve(request: SolverRequest, handlers: SolveHandlers): string
+  /** 護石の逆引きを始める。現在の検索・逆引きがあれば捨てる。返すのは `requestId`。 */
+  reverseLookup(request: ReverseLookupRequest, handlers: ReverseHandlers): string
   /** 現在の検索を取り消す（以降の応答は捨てる）。 */
   cancel(): void
   dispose(): void
 }
 
-interface ActiveSolve {
-  requestId: string
-  handlers: SolveHandlers
+export interface ReverseHandlers {
+  onProgress: (found: number, candidate: ReverseLookupCandidate) => void
+  onResult: (response: ReverseLookupResponse) => void
+  onError: (message: string) => void
 }
+
+/** 実行中の要求。通常の検索と逆引きは枠を共有し、届く応答の種類で取り違えを防ぐ。 */
+type ActiveSolve = { requestId: string } & (
+  { kind: 'solve'; handlers: SolveHandlers } | { kind: 'reverse'; handlers: ReverseHandlers }
+)
 
 interface PendingLoad {
   resolve: () => void
@@ -111,12 +122,23 @@ export function createSolverClient(
       }
       case 'progress':
         // 現在の検索と requestId が違う応答は捨てる
-        if (active?.requestId === message.requestId)
+        if (active?.kind === 'solve' && active.requestId === message.requestId)
           active.handlers.onProgress(message.found, message.build)
         return
-      case 'result':
-        takeActive(message.requestId)?.handlers.onResult(message.response)
+      case 'result': {
+        const current = takeActive(message.requestId)
+        if (current?.kind === 'solve') current.handlers.onResult(message.response)
         return
+      }
+      case 'reverseProgress':
+        if (active?.kind === 'reverse' && active.requestId === message.requestId)
+          active.handlers.onProgress(message.found, message.candidate)
+        return
+      case 'reverseResult': {
+        const current = takeActive(message.requestId)
+        if (current?.kind === 'reverse') current.handlers.onResult(message.response)
+        return
+      }
       case 'error':
         takeActive(message.requestId)?.handlers.onError(message.message)
         return
@@ -169,9 +191,10 @@ export function createSolverClient(
     })
   }
 
-  function solve(request: SolverRequest, handlers: SolveHandlers): string {
-    const requestId = crypto.randomUUID()
-    active = { requestId, handlers }
+  /** 実行中の枠に置き、Worker へ送る。HiGHS が初期化できていなければ onError だけ呼ぶ。 */
+  function begin(next: ActiveSolve, message: WorkerInbound): string {
+    const { requestId } = next
+    active = next
     if (worker === null) {
       // 異常終了の後の最初の検索。取得済みのマスターを渡し直す（取り直さない）
       const respawned = spawn()
@@ -179,11 +202,24 @@ export function createSolverClient(
     }
     if (initFailure !== null) {
       active = null
-      handlers.onError(HIGHS_INIT_FAILED_MESSAGE)
+      next.handlers.onError(HIGHS_INIT_FAILED_MESSAGE)
       return requestId
     }
-    worker?.postMessage({ type: 'solve', requestId, request })
+    worker?.postMessage(message)
     return requestId
+  }
+
+  function solve(request: SolverRequest, handlers: SolveHandlers): string {
+    const requestId = crypto.randomUUID()
+    return begin({ requestId, kind: 'solve', handlers }, { type: 'solve', requestId, request })
+  }
+
+  function reverseLookup(request: ReverseLookupRequest, handlers: ReverseHandlers): string {
+    const requestId = crypto.randomUUID()
+    return begin(
+      { requestId, kind: 'reverse', handlers },
+      { type: 'reverseLookup', requestId, request },
+    )
   }
 
   function cancel(): void {
@@ -200,5 +236,5 @@ export function createSolverClient(
     active = null
   }
 
-  return { start, load, solve, cancel, dispose }
+  return { start, load, solve, reverseLookup, cancel, dispose }
 }
