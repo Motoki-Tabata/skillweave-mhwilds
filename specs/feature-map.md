@@ -10,6 +10,7 @@
 033 の入力（2026-11-04）: 公開作業の進行表（`tasks/20261103-launch/plan.md` の B3）。バックアップの方式を決めて分かった `/privacy` の記載の不足（open-questions.md Q143）。
 035 の入力（2026-11-09）: 公開作業の進行表（`tasks/20261103-launch/plan.md` の B5）。Cloud Run で通常と AOT キャッシュ付きのイメージを比べた結果（open-questions.md Q150・`design/tech-stack.md`「API のデプロイ手順」）。
 036 の入力（2026-11-15）: `temp/appraised-charm-table.md`。017 reverse-lookup の区間 A で、鑑定護石の抽選テーブルが空と分かり、整備を 017 より先に行うと決めた事項（017 decisions.md Q166）。
+037・038 の入力（2026-11-15）: 023 element-damage の区間 A で、説明文に数値が無いスキルの効果の数値を Web から集めて設定する作業を、023 より先に別の機能として行うと決めた事項（023 decisions.md Q182。006 decisions.md Q37 の「攻略サイトは取り込まない」方針の見直しを含む）と、その起票の確認でオーナーが求めた、説明文に数値があるものを含めて数値に関わる効果をすべてマスターの項目にする変更。項目化（037）と Web からの収集（038）に分けた。
 機能 ID は実装順に振る（依存の表を満たす順で、同じ段では優先度の高いものを先にする）。初回の分解の後に追加した機能は、既存の ID を振り直さず末尾に採番する。その場合の実装順は依存の表が正である。
 
 ### 機能マップ
@@ -51,6 +52,8 @@
 | 034 | api-proxy-id-token | Web の Worker が Cloud Run の ID トークンを取り、`/api/*` の転送に `X-Serverless-Authorization` で付けて、Invoker の確認を有効にしたまま Cloud Run を呼べるようにする | P0 | S | 済 |
 | 035 | api-aot-cache | API のコンテナイメージを AOT キャッシュ付きで作り、Cloud Run で停止した状態から最初の要求（ログイン開始など）に答えるまでの待ち時間を縮める（本番の DB 接続と実行時の設定は変えない） | P0 | S | 済 |
 | 036 | appraised-charm-table | 鑑定護石の抽選テーブル（スキル枠のパターン・群の中身・スロットの並び）を overlay の `appraisedCharm` に入れてマスターの版を上げ、護石の照合（005）が「未検査」ではなく合否を判定し、017 の逆引きが使える土台を作る | P1 | M | 済 |
+| 037 | skill-effect-stats | 効果の数値の種類（`effectsByLevel` の `stat`）を攻撃力・会心の 4 つから属性・状態異常・防御力などへ広げ、説明文に数値があるスキルの効果をすべてマスターの項目として持つ（計算は変えない。説明文の後ろの数値の補完に出る） | P1 | M | 未着手 |
+| 038 | skill-effect-values | 説明文に数値が無いスキル（連撃・会心撃【属性】・会心撃【特殊】など）の効果の数値を、Web の情報源を読み比べてマスターに入れ、火力の期待値に数えられるようにする（出典の方針を見直す） | P1 | M | 未着手 |
 
 ### 依存
 | 機能 | 直接の依存 | 備考 |
@@ -77,7 +80,7 @@
 | 020 armor-lock-exclude | 004 | 004 decisions.md Q22 で 004 のスコープ外にした。検索画面のレイアウトを変えるなら Q28 に当たる |
 | 021 crafted-charm | 003, 005 | 方式は 021 decisions.md Q31・Q77。生産護石を使った構成の保存は 027（Q78） |
 | 022 skill-category | 002, 004 | 004 handoff.md の区間メモでユーザーが後で作るとした。分類はマスターに無いので `packages/data` の overlay で持つ見込み |
-| 023 element-damage | 006, 007, 008 | 006 decisions.md Q35 で物理だけにした。扱う範囲は Q40 |
+| 023 element-damage | 006, 007, 008, 038 | 006 decisions.md Q35 で物理だけにした。扱う範囲は Q40。属性の効果の種類と書式（023 decisions.md Q40 は区間 C で決めるとした）は 037 で入り、会心撃【属性】など説明文に数値が無いスキルの値は 038 で揃える。038 がマスターに入ってからゲート A-2 を再開する（023 decisions.md Q182） |
 | 024 worker-solve-perf | 007, 019 | `packages/solver` の性能改善か基準の見直しかは Q50 |
 | 025 shared-parts-refactor | 008, 010, 011 | `tasks/lessons.md` の 2026-10-26「削除確認ダイアログと、端末保存のストアの状態機械が護石と武器で二重になった」・2026-10-28「例外クラスと ApiExceptionHandler のハンドラが機能ごとに並行して増える」・2026-10-28「ダイアログのオーバーレイの記述が PickerDialog と BuildDialogFrame で複製された」を扱う。011 の `DeleteConfirmDialog` と既存の2つの削除ダイアログの併存（011 plan D16）も含む |
 | 026 design-system-alignment | 011 | `tasks/lessons.md` の 2026-10-26「見出しの font-semibold（600）が MASTER.md のウェイト3種と食い違う」・2026-10-28「MASTER.md の Typography／Shape と、shadcn-vue の既定・既存画面が食い違ったまま増えている」と、Q27（警告の帯）・009 handoff.md の持ち越し（ライトの outline の枠色）を扱う。どちらに揃えるかは区間 A・B で決める。025 と同じ部品を触るなら 025 の後に行う |
@@ -91,3 +94,5 @@
 | 034 api-proxy-id-token | 031 | Q88 の直接の到達の決定（Invoker の確認を有効にしたまま、Worker が専用のサービスアカウントで ID トークンを付ける）を実装する。扱う範囲は Q151〜Q153。031 の AC-9 の転送のヘッダーの扱いに `X-Serverless-Authorization` の付与が加わる。デプロイ・鍵の発行と登録・本番での確認は含めない（C3・C5）。C5 のログインの確認の前にマージしてデプロイする |
 | 035 api-aot-cache | なし | Q150 の C3 での比較（2026-11-09）で差が出たので起票した。`apps/api/build.gradle.kts` の `bootBuildImage` に `BP_JVM_AOTCACHE_ENABLED` と訓練の実行の設定を足す。扱う範囲は Q154〜Q156。`design/tech-stack.md`「API のデプロイ手順」の更新を含め、本番の `swv-api` へのデプロイと測定は含めない（公開作業の B5・C8）。URL を配る（C8）前にマージし、本番へ出す |
 | 036 appraised-charm-table | 002, 005 | 017 decisions.md Q166 で 017 より先に行うと決めた。型（`AppraisedCharmPattern`・`CharmSkillGroup`）と overlay の検証（規則 `appraised-charm`）は 002 で実装済みで、型を変えずに overlay を書くだけで済む見込み。照合（`apps/web/src/main/lib/charms/match.ts`）は 005 のもの。扱う範囲は Q170〜Q177。少なくとも 1 つのレア度のテーブルがマスターに入れば 017 を再開できる |
+| 037 skill-effect-stats | 002, 006, 007 | 型 `EffectStat` は data・solver（`damage.ts` の種類ごとの合計）・web（`effectSummary.ts` の補完の文言）が使うので、触る領域は 3 つの見込み。効果の overlay（`effects.yaml`）と検証は 006、数値の補完は 007 のもの。扱う範囲は Q187・Q192 |
+| 038 skill-effect-values | 037 | 023 decisions.md Q182 で 023 より先に行うと決めた。037 で広げた種類に、説明文に数値が無いスキルの値を入れる。出典の方針（006 decisions.md Q37・`design/master-data.md` §2・§8）の見直しは Q185・Q186、扱う範囲は Q188〜Q191。サイトの取得と下書きの進め方は 036 decisions.md Q170 が先例。マスターに入れば 023 を再開できる |
