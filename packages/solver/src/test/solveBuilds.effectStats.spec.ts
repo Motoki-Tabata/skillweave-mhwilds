@@ -38,9 +38,10 @@ const slotWeapon = (m: MasterBundle): SolverRequest['weapon'] => ({
 })
 
 // 要求を分ける。新しい種類のスキルは 1 つずつ要求し、残りの枠は期待値の最大化が
-// 数える効果（攻撃力・会心率）のスキルで埋める（スコアが 0 でないことで確かめる）
+// 数える効果（攻撃力・会心率）のスキルで埋める。数える効果のケースは、スコアがスキル無しの期待値を上回ることで確かめる
+const COUNTING_CASE = '数える効果の 2 つ'
 const SEARCH_CASES = [
-  { name: '数える効果の 2 つ', required: [skill(SKILL.attack, 3), skill(SKILL.affinity, 2)] },
+  { name: COUNTING_CASE, required: [skill(SKILL.attack, 3), skill(SKILL.affinity, 2)] },
   { name: '火属性攻撃強化 Lv3', required: [skill(SKILL.fire, 3)] },
   { name: '毒属性強化 Lv3', required: [skill(SKILL.poison, 3)] },
   { name: '防御 Lv7', required: [skill(SKILL.defense, 7)] },
@@ -115,8 +116,12 @@ describe('新しい種類の効果を除いたマスターとの比較', () => {
         expect(actual.builds.length, name).toBeGreaterThan(0)
         expect(actual.status, name).toBe(expected.status)
         expect(actual.builds, name).toEqual(expected.builds)
-        // 数える効果が効いている（検索のスコアが 0 でない）
-        expect(actual.builds[0]?.score, name).not.toBe(0)
+        // 数える効果が効いている: 攻撃・会心を必須にしたケースでは、検索のスコアがスキル無しの期待値を上回る
+        // （他のケースは、残りの枠が攻撃・会心で埋まるため、スキル無しとの一致や大小は求めない）
+        if (name === COUNTING_CASE) {
+          const noSkill = evaluateDamage(master, base, [], activeConditionIds).expectedDamage
+          expect(actual.builds[0]?.score ?? 0, name).toBeGreaterThan(noSkill)
+        }
         for (const build of actual.builds) {
           expect(evaluateDamage(master, base, build.skills, activeConditionIds), name).toEqual(
             evaluateDamage(stripped, base, build.skills, activeConditionIds),
