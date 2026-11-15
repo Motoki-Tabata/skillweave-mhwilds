@@ -33,10 +33,10 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
     expect([ja.version, en.version]).toEqual([MASTER_VERSION, MASTER_VERSION])
   })
 
-  it('全防具に rank があり、版が 2026.11.1 である（12。006 受入基準 3）', async () => {
+  it('全防具に rank があり、版が 2026.11.2 である（12。006 受入基準 3・037 AC-5）', async () => {
     const bundle = await readJson<MasterBundle>(BUNDLE)
-    expect(bundle.version).toBe('2026.11.1')
-    expect(MASTER_VERSION).toBe('2026.11.1')
+    expect(bundle.version).toBe('2026.11.2')
+    expect(MASTER_VERSION).toBe('2026.11.2')
     expect(bundle.armors.length).toBeGreaterThan(0)
     for (const armor of bundle.armors) {
       expect(['low', 'high', 'master'], armor.id).toContain(armor.rank)
@@ -193,6 +193,112 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
       expect(matched.has(id), `${id} は該当しない`).toBe(true)
       expect(bundle.skills.find((s) => s.id === id)?.effectsByLevel, id).toEqual([])
     }
+  })
+
+  describe('属性値・状態異常値・防御力・耐性値の効果が説明文の数値と一致する（037 AC-6）', () => {
+    // 数値は ja の levelDescriptions から書き写したもの（実装の写しではない）。加算の属性値・状態異常値は説明文の ÷ 10
+    const cases: [string, string, number, Effect[]][] = [
+      [
+        'sk:-562534336',
+        '火属性攻撃強化',
+        3,
+        [
+          { stat: 'element_mul', value: 1.2, element: 'fire' },
+          { stat: 'element_add', value: 6, element: 'fire' },
+        ],
+      ],
+      [
+        'sk:-1716324608',
+        '毒属性強化',
+        3,
+        [
+          { stat: 'status_mul', value: 1.2, element: 'poison' },
+          { stat: 'status_add', value: 5, element: 'poison' },
+        ],
+      ],
+      [
+        'sk:1077686656',
+        '防御',
+        7,
+        [
+          { stat: 'defense_mul', value: 1.1 },
+          { stat: 'defense_add', value: 35 },
+          { stat: 'resistance_add', value: 5, element: 'all' },
+        ],
+      ],
+      [
+        'sk:1425756032',
+        '火耐性',
+        3,
+        [
+          { stat: 'resistance_add', value: 20, element: 'fire' },
+          { stat: 'defense_add', value: 10 },
+        ],
+      ],
+    ]
+    it.each(cases)('%s %s Lv%i', async (id, name, level, expected) => {
+      const bundle = await readJson<MasterBundle>(BUNDLE)
+      const ja = await readJson<MasterDictionary>(JA)
+      expect(ja.entries[id]?.name).toBe(name)
+      expect(bundle.skills.find((s) => s.id === id)?.effectsByLevel[level - 1]).toEqual(expected)
+    })
+
+    it('対象のスキル 15 件のすべてのレベルが空でない', async () => {
+      const targets: [string, string][] = [
+        ['sk:-562534336', '火属性攻撃強化'],
+        ['sk:508916704', '水属性攻撃強化'],
+        ['sk:1452140672', '雷属性攻撃強化'],
+        ['sk:1268070400', '氷属性攻撃強化'],
+        ['sk:-776946176', '龍属性攻撃強化'],
+        ['sk:-1716324608', '毒属性強化'],
+        ['sk:-1863702144', '麻痺属性強化'],
+        ['sk:166057120', '睡眠属性強化'],
+        ['sk:-844978880', '爆破属性強化'],
+        ['sk:1077686656', '防御'],
+        ['sk:1425756032', '火耐性'],
+        ['sk:383104832', '水耐性'],
+        ['sk:2143068800', '雷耐性'],
+        ['sk:652161472', '氷耐性'],
+        ['sk:-2125233152', '龍耐性'],
+      ]
+      const bundle = await readJson<MasterBundle>(BUNDLE)
+      const ja = await readJson<MasterDictionary>(JA)
+      for (const [id, name] of targets) {
+        const skill = bundle.skills.find((s) => s.id === id)
+        expect(ja.entries[id]?.name, id).toBe(name)
+        expect(skill?.effectsByLevel.length, id).toBe(skill?.maxLevel)
+        for (const [index, effects] of (skill?.effectsByLevel ?? []).entries()) {
+          expect(effects.length, `${id} Lv${index + 1}`).toBeGreaterThan(0)
+        }
+      }
+    })
+
+    it('説明文に属性値・状態異常値・防御力・耐性値の数値があるスキルは、効果を持つか除外の一覧にある', async () => {
+      const EXCLUDED: Record<string, string> = {
+        'sk:-596764096': '砲術: 砲撃に範囲を限る値',
+        'sk:1489568384': '属性吸収: 種類の区別が定まらない値（発動時に受けた属性）',
+        'sk:1522518528': '防御力ＤＯＷＮ耐性: 効果時間の数値',
+        'sk:1934955136': 'オトモへの采配: オトモは対象外',
+        'sk:1998066176': '毛皮の昂揚: 数値は回数だけ',
+        'sk:565867136': '連撃: 数値は回数だけ',
+      }
+      const bundle = await readJson<MasterBundle>(BUNDLE)
+      const ja = await readJson<MasterDictionary>(JA)
+      const mentionsStat = (text: string): boolean =>
+        /属性攻撃値|属性値|蓄積値|防御力|耐性/.test(text) && /[0-9０-９]/.test(text)
+      const leaked: string[] = []
+      const matched = new Set<string>()
+      for (const skill of bundle.skills) {
+        if (!(ja.entries[skill.id]?.levelDescriptions ?? []).some(mentionsStat)) continue
+        matched.add(skill.id)
+        if (skill.effectsByLevel.length === 0 && !(skill.id in EXCLUDED)) leaked.push(skill.id)
+      }
+      expect(leaked).toEqual([])
+      for (const id of Object.keys(EXCLUDED)) {
+        expect(matched.has(id), `${id} は該当しない`).toBe(true)
+        expect(bundle.skills.find((s) => s.id === id)?.effectsByLevel, id).toEqual([])
+      }
+    })
   })
 
   it('命脈と黙示録の発動部位数がオーバーレイの訂正どおり（9）', async () => {

@@ -249,7 +249,7 @@ function checkSkillEffects(bundle: MasterBundle, out: Violation[]): void {
     levels.forEach((effects, index) => {
       for (const effect of effects) {
         const owner = `${skill.id}: Lv${index + 1}`
-        const problem = effectProblem(effect.stat, effect.value)
+        const problem = effectProblem(effect.stat, effect.value, effect.element)
         if (problem) out.push({ rule: 'skill-effects', message: `${owner}: ${problem}` })
         if (effect.conditionId !== undefined && !conditionIds.has(effect.conditionId)) {
           out.push({

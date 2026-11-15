@@ -1,7 +1,11 @@
 # 火力計算用の発動条件とスキルの効果（006）。
 # 数値の出典は、ゲーム内の説明文（ja の levelDescriptions）。最終確認はオーナー。
 # 条件はきっかけで決める。「スキル発動中」「効果発動時」などは、そのスキルの en の名前の snake_case。
-# 属性・状態異常・オトモ・防御力に効く部分と、数値の無い部分は書かない。
+# 効果の種類は decisions.md Q187 の表（攻撃力・会心率・会心倍率・属性値・状態異常値・防御力・耐性値）だけを書く。
+# 属性値・状態異常値の加算はマスターの単位（説明文の値 ÷ 10）で書く。その他の値は説明文のまま。
+# オトモ・回数や段階を数える数値・種類の区別が定まらない値・攻撃の種類や部位で範囲を限る倍率・数値の無い部分は書かない。
+# 属性の会心倍率・状態異常の会心倍率（会心撃【属性】・会心撃【特殊】）の値は 038 で入れる。
+# 1 レベルの効果は、説明文に出てくる順（乗算→加算→他）に書く。
 
 conditions:
   - id: cd:adrenaline_rush
@@ -65,10 +69,24 @@ effects:
     - - { stat: attack_mul, value: 1.05, conditionId: cd:ambush }
     - - { stat: attack_mul, value: 1.1, conditionId: cd:ambush }
     - - { stat: attack_mul, value: 1.15, conditionId: cd:ambush }
+  sk:-1716324608: # 毒属性強化
+    - - { stat: status_mul, value: 1.05, element: poison }
+      - { stat: status_add, value: 1, element: poison }
+    - - { stat: status_mul, value: 1.1, element: poison }
+      - { stat: status_add, value: 2, element: poison }
+    - - { stat: status_mul, value: 1.2, element: poison }
+      - { stat: status_add, value: 5, element: poison }
   sk:-181127504: # 攻めの守勢
     - - { stat: attack_mul, value: 1.05, conditionId: cd:offensive_guard }
     - - { stat: attack_mul, value: 1.1, conditionId: cd:offensive_guard }
     - - { stat: attack_mul, value: 1.15, conditionId: cd:offensive_guard }
+  sk:-1863702144: # 麻痺属性強化
+    - - { stat: status_mul, value: 1.05, element: paralysis }
+      - { stat: status_add, value: 1, element: paralysis }
+    - - { stat: status_mul, value: 1.1, element: paralysis }
+      - { stat: status_add, value: 2, element: paralysis }
+    - - { stat: status_mul, value: 1.2, element: paralysis }
+      - { stat: status_add, value: 5, element: paralysis }
   sk:-1946345856: # 抜刀術【力】
     - - { stat: attack_add, value: 3, conditionId: cd:punishing_draw }
     - - { stat: attack_add, value: 5, conditionId: cd:punishing_draw }
@@ -79,6 +97,11 @@ effects:
     - - { stat: affinity_add, value: 12 }
     - - { stat: affinity_add, value: 16 }
     - - { stat: affinity_add, value: 20 }
+  sk:-2125233152: # 龍耐性
+    - - { stat: resistance_add, value: 6, element: dragon }
+    - - { stat: resistance_add, value: 12, element: dragon }
+    - - { stat: resistance_add, value: 20, element: dragon }
+      - { stat: defense_add, value: 10 }
   sk:-397570464: # 弱点特効
     - - { stat: affinity_add, value: 5, conditionId: cd:weak_point }
       - { stat: affinity_add, value: 3, conditionId: cd:wound }
@@ -90,9 +113,28 @@ effects:
       - { stat: affinity_add, value: 15, conditionId: cd:wound }
     - - { stat: affinity_add, value: 30, conditionId: cd:weak_point }
       - { stat: affinity_add, value: 20, conditionId: cd:wound }
+  sk:-562534336: # 火属性攻撃強化
+    - - { stat: element_add, value: 4, element: fire }
+    - - { stat: element_mul, value: 1.1, element: fire }
+      - { stat: element_add, value: 5, element: fire }
+    - - { stat: element_mul, value: 1.2, element: fire }
+      - { stat: element_add, value: 6, element: fire }
   sk:-62248528: # 闢獣の力
     - - { stat: attack_add, value: 10, conditionId: cd:doshagumas_might }
     - - { stat: attack_add, value: 25, conditionId: cd:doshagumas_might }
+  sk:-776946176: # 龍属性攻撃強化
+    - - { stat: element_add, value: 4, element: dragon }
+    - - { stat: element_mul, value: 1.1, element: dragon }
+      - { stat: element_add, value: 5, element: dragon }
+    - - { stat: element_mul, value: 1.2, element: dragon }
+      - { stat: element_add, value: 6, element: dragon }
+  sk:-844978880: # 爆破属性強化
+    - - { stat: status_mul, value: 1.05, element: blastblight }
+      - { stat: status_add, value: 1, element: blastblight }
+    - - { stat: status_mul, value: 1.1, element: blastblight }
+      - { stat: status_add, value: 2, element: blastblight }
+    - - { stat: status_mul, value: 1.2, element: blastblight }
+      - { stat: status_add, value: 5, element: blastblight }
   sk:-847539392: # 濡れ刃紋
     - - { stat: affinity_add, value: 3, conditionId: cd:wet }
       - { stat: affinity_add, value: 7, conditionId: cd:bubbleblight }
@@ -108,18 +150,59 @@ effects:
       - { stat: attack_add, value: 8 }
     - - { stat: attack_mul, value: 1.04 }
       - { stat: attack_add, value: 9 }
+  sk:1077686656: # 防御
+    - - { stat: defense_add, value: 5 }
+    - - { stat: defense_add, value: 10 }
+    - - { stat: defense_mul, value: 1.05 }
+      - { stat: defense_add, value: 10 }
+    - - { stat: defense_mul, value: 1.05 }
+      - { stat: defense_add, value: 20 }
+      - { stat: resistance_add, value: 3, element: all }
+    - - { stat: defense_mul, value: 1.08 }
+      - { stat: defense_add, value: 20 }
+      - { stat: resistance_add, value: 3, element: all }
+    - - { stat: defense_mul, value: 1.08 }
+      - { stat: defense_add, value: 35 }
+      - { stat: resistance_add, value: 5, element: all }
+    - - { stat: defense_mul, value: 1.1 }
+      - { stat: defense_add, value: 35 }
+      - { stat: resistance_add, value: 5, element: all }
   sk:1174975744: # 巧撃
     - - { stat: attack_add, value: 10, conditionId: cd:adrenaline_rush }
     - - { stat: attack_add, value: 15, conditionId: cd:adrenaline_rush }
     - - { stat: attack_add, value: 20, conditionId: cd:adrenaline_rush }
     - - { stat: attack_add, value: 25, conditionId: cd:adrenaline_rush }
     - - { stat: attack_add, value: 30, conditionId: cd:adrenaline_rush }
+  sk:1268070400: # 氷属性攻撃強化
+    - - { stat: element_add, value: 4, element: ice }
+    - - { stat: element_mul, value: 1.1, element: ice }
+      - { stat: element_add, value: 5, element: ice }
+    - - { stat: element_mul, value: 1.2, element: ice }
+      - { stat: element_add, value: 6, element: ice }
   sk:1359821952: # 逆恨み
     - - { stat: attack_add, value: 5, conditionId: cd:resentment }
     - - { stat: attack_add, value: 10, conditionId: cd:resentment }
     - - { stat: attack_add, value: 15, conditionId: cd:resentment }
     - - { stat: attack_add, value: 20, conditionId: cd:resentment }
     - - { stat: attack_add, value: 25, conditionId: cd:resentment }
+  sk:1425756032: # 火耐性
+    - - { stat: resistance_add, value: 6, element: fire }
+    - - { stat: resistance_add, value: 12, element: fire }
+    - - { stat: resistance_add, value: 20, element: fire }
+      - { stat: defense_add, value: 10 }
+  sk:1452140672: # 雷属性攻撃強化
+    - - { stat: element_add, value: 4, element: thunder }
+    - - { stat: element_mul, value: 1.1, element: thunder }
+      - { stat: element_add, value: 5, element: thunder }
+    - - { stat: element_mul, value: 1.2, element: thunder }
+      - { stat: element_add, value: 6, element: thunder }
+  sk:166057120: # 睡眠属性強化
+    - - { stat: status_mul, value: 1.05, element: sleep }
+      - { stat: status_add, value: 1, element: sleep }
+    - - { stat: status_mul, value: 1.1, element: sleep }
+      - { stat: status_add, value: 2, element: sleep }
+    - - { stat: status_mul, value: 1.2, element: sleep }
+      - { stat: status_add, value: 5, element: sleep }
   sk:1763191040: # 力の解放
     - - { stat: affinity_add, value: 10, conditionId: cd:latent_power }
     - - { stat: affinity_add, value: 20, conditionId: cd:latent_power }
@@ -143,6 +226,11 @@ effects:
     - - { stat: attack_add, value: 10, conditionId: cd:peak_performance }
     - - { stat: attack_add, value: 15, conditionId: cd:peak_performance }
     - - { stat: attack_add, value: 20, conditionId: cd:peak_performance }
+  sk:2143068800: # 雷耐性
+    - - { stat: resistance_add, value: 6, element: thunder }
+    - - { stat: resistance_add, value: 12, element: thunder }
+    - - { stat: resistance_add, value: 20, element: thunder }
+      - { stat: defense_add, value: 10 }
   sk:27684744: # 攻勢
     - - { stat: attack_add, value: 6, conditionId: cd:foray }
     - - { stat: attack_add, value: 8, conditionId: cd:foray }
@@ -157,16 +245,32 @@ effects:
     - - { stat: attack_add, value: 10, conditionId: cd:counterstrike }
     - - { stat: attack_add, value: 15, conditionId: cd:counterstrike }
     - - { stat: attack_add, value: 25, conditionId: cd:counterstrike }
+  sk:383104832: # 水耐性
+    - - { stat: resistance_add, value: 6, element: water }
+    - - { stat: resistance_add, value: 12, element: water }
+    - - { stat: resistance_add, value: 20, element: water }
+      - { stat: defense_add, value: 10 }
   sk:422666624: # 火事場力（Lv1 は防御力だけ）
     - []
     - - { stat: attack_mul, value: 1.05, conditionId: cd:heroics }
     - - { stat: attack_mul, value: 1.05, conditionId: cd:heroics }
     - - { stat: attack_mul, value: 1.1, conditionId: cd:heroics }
     - - { stat: attack_mul, value: 1.3, conditionId: cd:heroics }
+  sk:508916704: # 水属性攻撃強化
+    - - { stat: element_add, value: 4, element: water }
+    - - { stat: element_mul, value: 1.1, element: water }
+      - { stat: element_add, value: 5, element: water }
+    - - { stat: element_mul, value: 1.2, element: water }
+      - { stat: element_add, value: 6, element: water }
   sk:632127488: # 渾身
     - - { stat: affinity_add, value: 10, conditionId: cd:maximum_might }
     - - { stat: affinity_add, value: 20, conditionId: cd:maximum_might }
     - - { stat: affinity_add, value: 30, conditionId: cd:maximum_might }
+  sk:652161472: # 氷耐性
+    - - { stat: resistance_add, value: 6, element: ice }
+    - - { stat: resistance_add, value: 12, element: ice }
+    - - { stat: resistance_add, value: 20, element: ice }
+      - { stat: defense_add, value: 10 }
   sk:686533440: # 抜刀術【技】
     - - { stat: affinity_add, value: 50, conditionId: cd:critical_draw }
     - - { stat: affinity_add, value: 75, conditionId: cd:critical_draw }
