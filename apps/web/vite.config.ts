@@ -115,6 +115,7 @@ function pwa(): Plugin {
         base,
         files: [...bundled, ...assets, ...master],
         ocrFiles,
+        swCode: sw.code,
       })
       sw.code = precacheHeader(precache) + sw.code
     },

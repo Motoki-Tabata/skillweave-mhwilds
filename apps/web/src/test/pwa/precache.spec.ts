@@ -11,6 +11,8 @@ import {
 
 const files = (names: string[]) => names.map((fileName) => ({ fileName, source: `c:${fileName}` }))
 
+const SW_CODE = 'console.log("sw")'
+
 const BUNDLE = [
   'index.html',
   'assets/main-GxbOW8wZ.js',
@@ -35,6 +37,7 @@ describe('事前キャッシュの一覧（D4）', () => {
       base: '/',
       files: files([...BUNDLE, ...EXCLUDED]),
       ocrFiles: [],
+      swCode: SW_CODE,
     })
     expect(p.urls).toEqual([
       '/',
@@ -53,6 +56,7 @@ describe('事前キャッシュの一覧（D4）', () => {
       base: '/',
       files: files(BUNDLE),
       ocrFiles: files(['tesseract/worker.min.js']),
+      swCode: SW_CODE,
     })
     expect(p.urls.some((u) => u.includes('tesseract'))).toBe(false)
     expect(p.ocrHashes).toEqual({
@@ -74,13 +78,14 @@ describe('事前キャッシュの一覧（D4）', () => {
 })
 
 describe('版の計算（D5）', () => {
-  const input = (body: string) => ({
+  const input = (body: string, swCode = SW_CODE) => ({
     base: '/',
     files: [
       { fileName: 'index.html', source: body },
       { fileName: 'a.js', source: 'a' },
     ],
     ocrFiles: [],
+    swCode,
   })
 
   it('AC-8: 版は 16 桁の 16 進の小文字で、入力の順に依らず決まる', async () => {
@@ -96,10 +101,24 @@ describe('版の計算（D5）', () => {
     )
   })
 
-  it('AC-8: 版は「URL 内容の hash」の一覧の SHA-256 の先頭 16 桁', async () => {
+  it('AC-8: 版は「URL 内容の hash」の一覧（末尾に sw.js の hash）の SHA-256 の先頭 16 桁', async () => {
     const p = await buildPrecache(input('x'))
-    const listing = `/ ${await sha256Hex('x')}\n/a.js ${await sha256Hex('a')}\n`
+    const listing =
+      `/ ${await sha256Hex('x')}\n/a.js ${await sha256Hex('a')}\n` +
+      `sw.js ${await sha256Hex(SW_CODE)}\n`
     expect(p.version).toBe((await sha256Hex(listing)).slice(0, 16))
+  })
+
+  it('AC-8: swCode だけが1バイト変わっても版が変わる', async () => {
+    expect((await buildPrecache(input('x', 'sw-a'))).version).not.toBe(
+      (await buildPrecache(input('x', 'sw-b'))).version,
+    )
+  })
+
+  it('AC-2: sw.js は urls にも ocrHashes にも入らない', async () => {
+    const p = await buildPrecache(input('x'))
+    expect(p.urls.some((u) => u.includes('sw.js'))).toBe(false)
+    expect(Object.keys(p.ocrHashes).some((u) => u.includes('sw.js'))).toBe(false)
   })
 
   it('AC-2: SHA-256 は既知の値に一致し、バイト列も同じ hash になる', async () => {

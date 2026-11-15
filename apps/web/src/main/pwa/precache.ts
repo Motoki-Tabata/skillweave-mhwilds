@@ -15,6 +15,8 @@ export interface PrecacheInput {
   files: BuildFile[]
   /** `tesseract/**` のファイル（事前キャッシュには入れず、hash だけを SW に渡す）。 */
   ocrFiles: BuildFile[]
+  /** 前置前の `sw.js` の chunk のコード。版の計算に含める（SW 本体の変更でも版を変えるため）。 */
+  swCode: string
 }
 
 // 事前キャッシュから除く: SW 自身・OCR・e2e と測定の入口・en の辞書。
@@ -49,7 +51,7 @@ export async function shortHash(source: string | Uint8Array): Promise<string> {
   return (await sha256Hex(source)).slice(0, 16)
 }
 
-/** 事前キャッシュの一覧・OCR の hash・版を作る。版は「URL と内容の hash」の一覧の hash の先頭 16 桁。 */
+/** 事前キャッシュの一覧・OCR の hash・版を作る。版は「URL と内容の hash」の一覧（末尾に SW 本体の hash）の hash の先頭 16 桁。 */
 export async function buildPrecache(input: PrecacheInput): Promise<SwPrecache> {
   const targets = input.files.filter((file) => isPrecacheTarget(file.fileName))
   const entries = await Promise.all(
@@ -59,7 +61,10 @@ export async function buildPrecache(input: PrecacheInput): Promise<SwPrecache> {
     })),
   )
   entries.sort((a, b) => (a.url < b.url ? -1 : a.url > b.url ? 1 : 0))
-  const listing = entries.map((entry) => `${entry.url} ${entry.hash}\n`).join('')
+  // `sw.js` は事前キャッシュに入れないが、版の入力には末尾へ足す。
+  const listing =
+    entries.map((entry) => `${entry.url} ${entry.hash}\n`).join('') +
+    `sw.js ${await sha256Hex(input.swCode)}\n`
   const ocrEntries = await Promise.all(
     input.ocrFiles.map(
       async (file) => [`${input.base}${file.fileName}`, await shortHash(file.source)] as const,
