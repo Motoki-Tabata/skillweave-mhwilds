@@ -1,5 +1,8 @@
 import type { ConditionId, Effect, EffectStat, MasterBundle, MasterSkill, SkillId } from '@swv/data'
 
+/** 火力の計算で数える効果の種類。これ以外の種類の効果は数えない */
+type CountedStat = Extract<EffectStat, 'attack_add' | 'attack_mul' | 'affinity_add' | 'crit_mul'>
+
 /** 武器の攻撃力と会心率（個体差のある武器もそのまま渡せる形） */
 export interface DamageBase {
   attack: number
@@ -59,13 +62,11 @@ export function evaluateDamage(
 ): DamageStats {
   const active = new Set<ConditionId>(activeConditionIds ?? [])
   const byId = new Map(master.skills.map((s) => [s.id, s]))
-  const sums: Record<EffectStat, number> = {
+  const sums: Record<CountedStat, number> = {
     attack_add: 0,
     attack_mul: 1,
     affinity_add: 0,
     crit_mul: BASE_CRIT_MULTIPLIER,
-    element_add: 0,
-    element_mul: 1,
   }
   for (const { skillId, level } of skills) {
     for (const effect of effectsAt(byId.get(skillId), level)) {
