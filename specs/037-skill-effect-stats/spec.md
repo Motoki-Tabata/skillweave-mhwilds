@@ -40,6 +40,7 @@
 触る領域: data, solver, web
 常時許可外の変更予定:
 - `design/master-data.md`（§6 の効果の規則と §8 の効果の数値の出典と書く範囲を、037 の種類と範囲に合わせる）
+- `design-system/skillweave/MASTER.md`（「スキルの説明と補完」節の補完の書式の表を、区間 B の screen-design.md §2 の種類・区別・表示値の規則に合わせる）
 - `packages/data/dist/master-2026.11.2.json`（生成物。効果を足すため、版を上げて生成のコマンドで書く。版の値は plan で決める）
 - `packages/data/dist/master-2026.11.2.ja.json`（生成物の ja の辞書。同上）
 - `packages/data/dist/master-2026.11.2.en.json`（生成物の en の辞書。同上）
