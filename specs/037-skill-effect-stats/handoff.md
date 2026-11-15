@@ -2,8 +2,8 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: B
-- 次に起動するコマンド: `/tsod-screen-table 037-skill-effect-stats`
+- 区間: C
+- 次に起動するコマンド: `/tsod-plan 037-skill-effect-stats`
 - 推奨モデル: Opus
 - ブランチ: `feat/037-skill-effect-stats`（不変）
 <!--
@@ -26,7 +26,7 @@
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-11-15 / 9aa253e |
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-11-15 / 872eea8 |
 | B-1 | 画面設計 screen-design.md | 承認済み | 2026-11-15 / bb8672c |
-| B-2 | テーブル設計（design/・migration） | 未 | |
+| B-2 | テーブル設計（design/・migration） | 該当なし（テーブル変更なし） | 2026-11-15 |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
@@ -67,11 +67,14 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で台帳に起こすべき教訓は出なかった）
+- なし（区間 B で台帳に起こすべき教訓は出なかった）
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
 - 区間 B: 新しい種類の補完の文言と書式を、007 screen-design.md §4 の書式表（符号・小数第2位・発動条件の組）に揃えて決める。属性値・状態異常値の加算は表示値（マスターの値 × 10）で出す（decisions.md Q193）。画面の配置や部品は変えない
 - 区間 C: マスターの版を上げると、apps/web/src/test のマスターのファイル名の直書き（pwa/precache.spec.ts・sw/handlers.spec.ts・sw/route.spec.ts・support/serviceWorker.ts）と packages/data の dist.spec.ts の版の期待値の追従が要る見込み
+- 区間 C: 既存の element_add・element_mul（007 の書式「属性値 …」）を 037 の属性値の種類に置き換えるか残すかを決める。残すなら区別なしの属性値と同じ書式・表示値（× 10）の規則に揃える（screen-design.md §2）
+- 区間 C: overlay の効果は説明文に出てくる順（乗算 → 加算 → 他の種類）に書く。補完は effectsByLevel の順に出すため（screen-design.md §2）
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
