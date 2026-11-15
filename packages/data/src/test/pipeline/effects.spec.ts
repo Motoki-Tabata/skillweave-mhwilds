@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { MasterBundle } from '../../main/index.ts'
+import type { Effect, MasterBundle } from '../../main/index.ts'
 import { convert } from '../../main/pipeline/convert.ts'
 import {
   applyConditionNames,
@@ -210,7 +210,7 @@ describe('overlay の効果と発動条件の失敗（受入基準 2）', () => 
 
   it('stat・値の規則に反する効果は失敗する', () => {
     const cases: [string, RegExp][] = [
-      ['{ stat: element_add, value: 5 }', /stat "element_add"/],
+      ['{ stat: sharpness_add, value: 5 }', /stat "sharpness_add"/],
       ['{ stat: nothing, value: 5 }', /stat "nothing"/],
       ['{ stat: attack_add, value: 1.5 }', /attack_add.*整数/],
       ['{ stat: affinity_add, value: 0.5 }', /affinity_add.*整数/],
@@ -303,7 +303,7 @@ describe('出力前の検証の効果と発動条件（受入基準 2・3）', (
     const effects = check((b) => {
       b.skills.find((s) => s.id === 'sk:101')!.effectsByLevel = [
         [
-          { stat: 'element_add', value: 1 },
+          { stat: 'resistance_add', value: 5 },
           { stat: 'attack_mul', value: Number.NaN },
           { stat: 'crit_mul', value: 1.2 },
           { stat: 'attack_add', value: 1.5 },
@@ -349,6 +349,109 @@ describe('出力前の検証の効果と発動条件（受入基準 2・3）', (
       expect.stringContaining('cd:a: 辞書（ja）'),
       expect.stringContaining('cd:b: 辞書（en）'),
     ])
+  })
+})
+
+// 037 AC-1・AC-2: 新しい種類（属性値・状態異常値・属性/状態異常の会心倍率・防御力・耐性値）と種類の区別
+describe('037 AC-2: overlay の新しい種類の規則違反はファイル名と行・桁つきで失敗する', () => {
+  const violations: [string, RegExp][] = [
+    // 区別の規則
+    ['{ stat: resistance_add, value: 5 }', /resistance_add.*element が必要/],
+    ['{ stat: resistance_add, value: 5, element: poison }', /resistance_add.*element "poison"/],
+    ['{ stat: element_add, value: 5, element: poison }', /element_add.*element "poison"/],
+    ['{ stat: element_mul, value: 1.1, element: all }', /element_mul.*element "all"/],
+    ['{ stat: status_add, value: 1, element: fire }', /status_add.*element "fire"/],
+    ['{ stat: status_mul, value: 1.1, element: all }', /status_mul.*element "all"/],
+    ['{ stat: element_add, value: 5, element: unknown }', /element "unknown"/],
+    ['{ stat: attack_add, value: 5, element: fire }', /attack_add は element を持てません/],
+    ['{ stat: defense_add, value: 5, element: fire }', /defense_add は element を持てません/],
+    ['{ stat: element_crit_mul, value: 1.3, element: fire }', /element を持てません/],
+    // 値の規則
+    ['{ stat: element_add, value: 0.25, element: fire }', /element_add.*小数第1位/],
+    ['{ stat: status_add, value: 1.05, element: poison }', /status_add.*小数第1位/],
+    ['{ stat: defense_add, value: 1.5 }', /defense_add.*整数/],
+    ['{ stat: resistance_add, value: 2.5, element: all }', /resistance_add.*整数/],
+    ['{ stat: element_mul, value: 0, element: fire }', /element_mul.*0 より大きく/],
+    ['{ stat: status_mul, value: -1 }', /status_mul.*0 より大きく/],
+    ['{ stat: defense_mul, value: 0 }', /defense_mul.*0 より大きく/],
+    ['{ stat: element_crit_mul, value: 0.9 }', /element_crit_mul.*1 以上/],
+    ['{ stat: status_crit_mul, value: 0.99 }', /status_crit_mul.*1 以上/],
+  ]
+  it.each(violations)('%s', (effect, pattern) => {
+    expect(errorsOf(file('x.yaml', withEffect(effect)))).toEqual([
+      expect.stringMatching(new RegExp(`^x\\.yaml:10:9: .*${pattern.source}`)),
+    ])
+  })
+
+  it('正しい例（区別あり・区別なし・all・小数第1位）は通り、element を出力に移す', () => {
+    const valid = [
+      '{ stat: element_add, value: 6, element: fire }',
+      '{ stat: element_add, value: 0.1 }',
+      '{ stat: element_mul, value: 1.2, element: dragon }',
+      '{ stat: status_add, value: 0.3, element: blastblight }',
+      '{ stat: status_mul, value: 1.05 }',
+      '{ stat: element_crit_mul, value: 1 }',
+      '{ stat: status_crit_mul, value: 1.1 }',
+      '{ stat: defense_add, value: -5 }',
+      '{ stat: defense_mul, value: 1.1 }',
+      '{ stat: resistance_add, value: 5, element: all }',
+      '{ stat: resistance_add, value: 20, element: ice }',
+    ]
+    for (const effect of valid) {
+      expect(apply(file('x.yaml', withEffect(effect))).ok, effect).toBe(true)
+    }
+    const result = apply(
+      file('x.yaml', withEffect('{ stat: resistance_add, value: 5, element: all }')),
+    )
+    if (!result.ok) throw new Error('失敗')
+    const effects = result.bundle.skills.find((s) => s.id === 'sk:100')?.effectsByLevel[0]
+    expect(effects?.[2]).toEqual({ stat: 'resistance_add', value: 5, element: 'all' })
+    expect(effects?.[0]).not.toHaveProperty('element')
+  })
+})
+
+describe('037 AC-2: 出力前の検証（skill-effects）も同じ規則で検査する', () => {
+  const check = (effect: Effect): Violation[] => {
+    const result = apply(file('effects.yaml', VALID))
+    if (!result.ok) throw new Error('失敗')
+    assignCategories(result.bundle)
+    result.bundle.skills.find((s) => s.id === 'sk:101')!.effectsByLevel = [[effect]]
+    const { dictionaries } = base()
+    return validate({
+      bundle: result.bundle,
+      dictionaries: {
+        ja: applyConditionNames(applyReadings(dictionaries.ja, READINGS), result.conditionNames),
+        en: applyConditionNames(dictionaries.en, result.conditionNames),
+      },
+    })
+  }
+
+  const bad: Effect[] = [
+    { stat: 'resistance_add', value: 5 },
+    { stat: 'resistance_add', value: 5, element: 'poison' },
+    { stat: 'element_add', value: 5, element: 'sleep' },
+    { stat: 'status_add', value: 1, element: 'fire' },
+    { stat: 'attack_add', value: 1, element: 'fire' },
+    { stat: 'element_add', value: 0.25, element: 'fire' },
+    { stat: 'defense_add', value: 1.5 },
+    { stat: 'status_mul', value: 0, element: 'poison' },
+    { stat: 'element_crit_mul', value: 0.9 },
+    { stat: 'status_crit_mul', value: 0.9 },
+  ]
+  it.each(bad)('違反: %o', (effect) => {
+    expect(check(effect).map((v) => v.rule)).toEqual(['skill-effects'])
+  })
+
+  it('正しい例（区別あり・区別なし・all）は違反が 0 件', () => {
+    const good: Effect[] = [
+      { stat: 'element_add', value: 6, element: 'fire' },
+      { stat: 'element_mul', value: 1.2 },
+      { stat: 'status_add', value: 0.5, element: 'poison' },
+      { stat: 'resistance_add', value: 5, element: 'all' },
+      { stat: 'defense_mul', value: 1.1 },
+      { stat: 'element_crit_mul', value: 1.1 },
+    ]
+    for (const effect of good) expect(check(effect).map(formatViolation), effect.stat).toEqual([])
   })
 })
 

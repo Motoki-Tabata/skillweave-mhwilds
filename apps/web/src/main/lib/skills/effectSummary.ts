@@ -1,4 +1,5 @@
 import type { ConditionId, Effect, EffectStat } from '@swv/data'
+import { elementTypeName } from '@/constants/weapons'
 import { formatMultiplier } from '@/lib/format'
 
 /** 補完の先頭。 */
@@ -9,13 +10,41 @@ function signed(value: number): string {
   return value < 0 ? String(value) : `+${value}`
 }
 
-const EFFECT_TEXT: Record<EffectStat, (value: number) => string> = {
-  attack_add: (value) => `攻撃力 ${signed(value)}`,
-  attack_mul: (value) => `攻撃力 ×${formatMultiplier(value)}`,
-  affinity_add: (value) => `会心率 ${signed(value)}%`,
-  crit_mul: (value) => `会心倍率 ${formatMultiplier(value)}`,
-  element_add: (value) => `属性値 ${signed(value)}`,
-  element_mul: (value) => `属性値 ×${formatMultiplier(value)}`,
+/** 耐性値の区別の表示名（「値」は付けない）。 */
+const RESISTANCE_NAMES: Record<string, string> = {
+  fire: '火',
+  water: '水',
+  thunder: '雷',
+  ice: '氷',
+  dragon: '龍',
+  all: '全属性',
+}
+
+/** 属性値・状態異常値の加算は、マスターの値 × 10 を整数に丸めた表示値で出す。 */
+function displayValue(value: number): number {
+  return Math.round(value * 10)
+}
+
+/** 区別があれば属性の表示名を前に付ける（区別なしは label だけ）。 */
+function withElement(effect: Effect, label: string): string {
+  return effect.element === undefined ? label : `${elementTypeName(effect.element)}値`
+}
+
+const EFFECT_TEXT: Record<EffectStat, (effect: Effect) => string> = {
+  attack_add: (e) => `攻撃力 ${signed(e.value)}`,
+  attack_mul: (e) => `攻撃力 ×${formatMultiplier(e.value)}`,
+  affinity_add: (e) => `会心率 ${signed(e.value)}%`,
+  crit_mul: (e) => `会心倍率 ${formatMultiplier(e.value)}`,
+  element_add: (e) => `${withElement(e, '属性値')} ${signed(displayValue(e.value))}`,
+  element_mul: (e) => `${withElement(e, '属性値')} ×${formatMultiplier(e.value)}`,
+  status_add: (e) => `${withElement(e, '状態異常値')} ${signed(displayValue(e.value))}`,
+  status_mul: (e) => `${withElement(e, '状態異常値')} ×${formatMultiplier(e.value)}`,
+  element_crit_mul: (e) => `属性の会心倍率 ${formatMultiplier(e.value)}`,
+  status_crit_mul: (e) => `状態異常の会心倍率 ${formatMultiplier(e.value)}`,
+  defense_add: (e) => `防御力 ${signed(e.value)}`,
+  defense_mul: (e) => `防御力 ×${formatMultiplier(e.value)}`,
+  resistance_add: (e) =>
+    `${RESISTANCE_NAMES[e.element ?? 'all'] ?? e.element}耐性 ${signed(e.value)}`,
 }
 
 /**
@@ -32,7 +61,7 @@ export function summarizeEffects(
   const groups = new Map<ConditionId | undefined, string[]>()
   for (const effect of effects) {
     const texts = groups.get(effect.conditionId) ?? []
-    texts.push(EFFECT_TEXT[effect.stat](effect.value))
+    texts.push(EFFECT_TEXT[effect.stat](effect))
     groups.set(effect.conditionId, texts)
   }
   const parts = Array.from(groups, ([conditionId, texts]) => {

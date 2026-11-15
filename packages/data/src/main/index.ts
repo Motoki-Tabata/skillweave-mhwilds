@@ -54,12 +54,34 @@ export type EffectStat =
   | 'attack_mul'
   | 'affinity_add'
   | 'crit_mul' // 会心倍率
-  | 'element_add'
+  | 'element_add' // 属性値（加算はマスターの単位 = 説明文の値 ÷ 10）
   | 'element_mul'
+  | 'status_add' // 状態異常値（加算はマスターの単位 = 説明文の値 ÷ 10）
+  | 'status_mul'
+  | 'element_crit_mul' // 属性の会心倍率
+  | 'status_crit_mul' // 状態異常の会心倍率
+  | 'defense_add'
+  | 'defense_mul'
+  | 'resistance_add' // 耐性値
+
+/** 効果の種類の区別。武器の属性の種類（`MasterWeapon.element.type`）と同じ文字列に、耐性値の全属性を表す `all` を足したもの */
+export type EffectElement =
+  | 'fire'
+  | 'water'
+  | 'thunder'
+  | 'ice'
+  | 'dragon'
+  | 'poison'
+  | 'paralysis'
+  | 'sleep'
+  | 'blastblight'
+  | 'all'
 
 export interface Effect {
   stat: EffectStat
   value: number
+  /** 種類の区別。属性値・状態異常値は省略で「武器の種類を問わない」、耐性値は必須、それ以外は持てない */
+  element?: EffectElement
   /** 発動条件。未指定なら常時。条件の有無はユーザーがトグルで決める */
   conditionId?: ConditionId
 }

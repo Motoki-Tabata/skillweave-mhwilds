@@ -5,6 +5,7 @@ import type { Node, YAMLMap } from 'yaml'
 import type {
   ConditionId,
   Effect,
+  EffectElement,
   EffectStat,
   MasterBundle,
   MasterDictionary,
@@ -111,6 +112,7 @@ interface ConditionEntry extends Position {
 interface ParsedEffect extends Position {
   stat: unknown
   value: unknown
+  element: unknown
   conditionId: unknown
 }
 
@@ -332,7 +334,7 @@ function parseEffect(
     fail(item, '効果はキーと値の組でなければなりません')
     return undefined
   }
-  rejectUnknownKeys(item, ['stat', 'value', 'conditionId'], '効果', fail)
+  rejectUnknownKeys(item, ['stat', 'value', 'element', 'conditionId'], '効果', fail)
   const missing = ['stat', 'value'].filter((key) => !item.has(key))
   if (missing.length > 0) {
     fail(item, `効果に ${missing.join('・')} がありません`)
@@ -343,6 +345,7 @@ function parseEffect(
     ...at(item),
     stat: item.get('stat'),
     value: item.get('value'),
+    element: item.get('element'),
     conditionId: item.get('conditionId'),
   }
 }
@@ -590,9 +593,10 @@ function applyEffects(
 
 /** 読んだ効果を `Effect` にする。規則に反するときは、その理由の文字列を返す */
 function toEffect(effect: ParsedEffect, conditionIds: ReadonlySet<string>): Effect | string {
-  const problem = effectProblem(effect.stat, effect.value)
+  const problem = effectProblem(effect.stat, effect.value, effect.element)
   if (problem) return problem
   const result: Effect = { stat: effect.stat as EffectStat, value: effect.value as number }
+  if (effect.element !== undefined) result.element = effect.element as EffectElement
   if (effect.conditionId === undefined) return result
   if (typeof effect.conditionId !== 'string' || !conditionIds.has(effect.conditionId)) {
     return `conditionId ${JSON.stringify(effect.conditionId)} が conditions にありません`
