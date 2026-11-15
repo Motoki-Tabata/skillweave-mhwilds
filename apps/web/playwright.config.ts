@@ -11,6 +11,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173',
     trace: 'retain-on-failure',
+    // 既存の e2e と測定は SW なしで動かす（018 の pwa-offline.spec.ts だけが許可に切り替える）。
+    serviceWorkers: 'block',
   },
   projects: [
     { name: 'e2e', testMatch: '**/*.spec.ts', use: { ...devices['Desktop Chrome'] } },

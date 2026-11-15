@@ -92,12 +92,6 @@ pnpm workspace はリポジトリ直下。共有する開発ツールの版は `
 | tesseract.js-core | 7.0.0（2025-12-15） | **採用（016 の再測定。基準は Q117 の「誤った値で埋めた行 0 件」）**。`apps/web` の dependencies。完全一致の版。Apache-2.0。tesseract.js の要求 `^7.0.0` と同じ版。WASM コアを `vite.config.ts` のプラグインが自オリジンの固定のパスで配信するために直接の依存にする |
 | @tesseract.js-data/jpn | 1.0.0（2023-09-04） | **採用（016 の再測定。基準は Q117 の「誤った値で埋めた行 0 件」）**。`apps/web` の dependencies。完全一致の版。MIT。言語データは `4.0.0_best_int/jpn.traineddata.gz`（約 2.0 MB）だけを使う |
 
-### 後の機能で導入するもの（今回は入れない）
-
-| 項目 | 導入する機能 | 備考 |
-|---|---|---|
-| vite-plugin-pwa | 未定（下記「PWA」） | **サプライチェーン対策の判断待ち** |
-
 ---
 
 ## 主な判断
@@ -115,16 +109,13 @@ TypeScript 7.0.2（2026-07-08）は出ているが、typescript-eslint の最新
   `ERR_PNPM_TRUST_DOWNGRADE` で止める。3.2.2 は 2025-01 公開・同一メンテナで悪性の兆候は無いが、
   ポリシーに例外を作る理由も無いため、依存が変わる前の 5.0.1 に留める。上げるときは同じ点を再確認する。
 
-### 3. PWA（vite-plugin-pwa）は導入を保留した
+### 3. PWA は vite-plugin-pwa・workbox を使わず、依存を足さない自前の Service Worker にした
 
-- peer 依存は Vite 8 に適合する（`vite-plugin-pwa@1.3.0`: `^3.1.0 || … || ^8.0.0`）。
-- ただし依存の `workbox-build@7.4.1`（Google 公式・`vite-plugin-pwa` 1.3.0 が `^7.4.1` を要求）が、
-  rollup 4 対応のための**個人フォークのプレリリース版** `@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1`
-  に依存しており、この版は provenance が無い（同パッケージの 2.4.3・2.5.0・4.0.0-pre1/pre2 にはある）。
-  pnpm が `ERR_PNPM_TRUST_DOWNGRADE` で止める。
-- 回避策は (a) `trustPolicy` の例外に加える、(b) overrides でフォークを provenance のある版に差し替える、
-  (c) 上流の修正を待つ、のいずれか。サプライチェーン対策の例外になりうるため、詳細を確認したうえで
-  別途方針を決める（決まるまで PWA 関連の依存は入れない）。
+- `vite-plugin-pwa@1.3.0` は Vite 8 に peer 適合するが、依存の `workbox-build@7.4.1` が
+  個人フォークのプレリリース版 `@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1` に依存し、
+  この版は provenance が無い。pnpm の `trustPolicy: no-downgrade` が `ERR_PNPM_TRUST_DOWNGRADE` で止める。
+- 例外や overrides で回避せず、ブラウザ標準の Service Worker・Cache Storage と、ビルド時の Compression Streams・
+  Web Crypto で自前に書く（`specs/018-pwa-offline/decisions.md` Q6）。サプライチェーンの攻撃面を増やさない。
 
 ### 4. ローカル DB のポートは 5433
 
@@ -216,7 +207,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 | 項目 | 結果 |
 |---|---|
 | マネージド DB の PostgreSQL 18 | **Neon: 提供あり**（14〜18 をサポート。2026-08 時点で 18.6。[Neon の版ポリシー](https://neon.com/docs/postgresql/postgres-version-policy)）。**Supabase: 新規プロジェクトでの提供告知を確認できず**（GitHub の Discussion で要望が出ている段階。17 のままの可能性が高い）。Neon が第一候補 |
-| vite-plugin-pwa と Vite のメジャー版 | peer は適合。導入はサプライチェーン上の理由で保留（上記「判断 3」） |
+| vite-plugin-pwa と Vite のメジャー版 | peer は適合。導入しない（上記「判断 3」） |
 | HiGHS WASM（npm `highs`） | 1.15.3（2026-09-11）。MIT。ESM（`build/highs.mjs`）と型定義あり、peer 依存なし。WASM は `highs/runtime` で取り出せる。採用（性能は下記「HiGHS の測定結果」） |
 | TypeScript 7 と typescript-eslint | 不適合のまま（上記「判断 1」） |
 | Cookie の同一サイト化 | Web と API を同一オリジンにする（`specs/028-api-prod-config/decisions.md` Q84）。ドメインは `skillweave.app`（同 Q83）。dev では Vite の proxy で同一オリジンに見せている |

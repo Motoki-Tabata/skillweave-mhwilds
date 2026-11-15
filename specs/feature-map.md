@@ -72,7 +72,7 @@
 | 015 ocr-spike | なし | フェーズ②の前に行う |
 | 016 charm-ocr | 005, 015 | 着手の前に Q117 を決める。015 handoff.md の持ち越しを含める: `parse.ts` が空行を落とすため枠が空だと以降のスキルが上に詰まる・`reader.ts` の `setParameters` の失敗で worker が残る・測定の通信検査が同一オリジンへの POST を検出しない |
 | 017 reverse-lookup | 003, 005, 036 | フェーズ③。鑑定護石の抽選テーブル（overlay の `appraisedCharm`）が空のため、少なくとも 1 つのレア度のテーブルがマスターに入ってから区間 A のゲート A-2 を再開する（017 decisions.md Q166） |
-| 018 pwa-offline | 004 | 導入方式の判断待ち（Q6） |
+| 018 pwa-offline | 004 | 導入方式は自前の Service Worker（018 decisions.md Q6） |
 | 019 damage-solve-perf | 006 | `packages/solver` だけを触る。対策の中身は 019 の区間 A で Q41 として決める。ID は追加順で末尾だが、実装は 007 の区間 B より前に行う |
 | 020 armor-lock-exclude | 004 | 004 decisions.md Q22 で 004 のスコープ外にした。検索画面のレイアウトを変えるなら Q28 に当たる |
 | 021 crafted-charm | 003, 005 | 方式は 021 decisions.md Q31・Q77。生産護石を使った構成の保存は 027（Q78） |
