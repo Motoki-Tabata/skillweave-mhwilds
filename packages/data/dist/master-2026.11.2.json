@@ -28074,7 +28074,44 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "poison",
+            "stat": "status_mul",
+            "value": 1.05
+          },
+          {
+            "element": "poison",
+            "stat": "status_add",
+            "value": 1
+          }
+        ],
+        [
+          {
+            "element": "poison",
+            "stat": "status_mul",
+            "value": 1.1
+          },
+          {
+            "element": "poison",
+            "stat": "status_add",
+            "value": 2
+          }
+        ],
+        [
+          {
+            "element": "poison",
+            "stat": "status_mul",
+            "value": 1.2
+          },
+          {
+            "element": "poison",
+            "stat": "status_add",
+            "value": 5
+          }
+        ]
+      ],
       "id": "sk:-1716324608",
       "kind": "weapon",
       "maxLevel": 3
@@ -28160,7 +28197,44 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "paralysis",
+            "stat": "status_mul",
+            "value": 1.05
+          },
+          {
+            "element": "paralysis",
+            "stat": "status_add",
+            "value": 1
+          }
+        ],
+        [
+          {
+            "element": "paralysis",
+            "stat": "status_mul",
+            "value": 1.1
+          },
+          {
+            "element": "paralysis",
+            "stat": "status_add",
+            "value": 2
+          }
+        ],
+        [
+          {
+            "element": "paralysis",
+            "stat": "status_mul",
+            "value": 1.2
+          },
+          {
+            "element": "paralysis",
+            "stat": "status_add",
+            "value": 5
+          }
+        ]
+      ],
       "id": "sk:-1863702144",
       "kind": "weapon",
       "maxLevel": 3
@@ -28283,7 +28357,33 @@
     },
     {
       "category": "resistance",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "dragon",
+            "stat": "resistance_add",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "element": "dragon",
+            "stat": "resistance_add",
+            "value": 12
+          }
+        ],
+        [
+          {
+            "element": "dragon",
+            "stat": "resistance_add",
+            "value": 20
+          },
+          {
+            "stat": "defense_add",
+            "value": 10
+          }
+        ]
+      ],
       "id": "sk:-2125233152",
       "kind": "armor",
       "maxLevel": 3
@@ -28442,7 +28542,39 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "fire",
+            "stat": "element_add",
+            "value": 4
+          }
+        ],
+        [
+          {
+            "element": "fire",
+            "stat": "element_mul",
+            "value": 1.1
+          },
+          {
+            "element": "fire",
+            "stat": "element_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "element": "fire",
+            "stat": "element_mul",
+            "value": 1.2
+          },
+          {
+            "element": "fire",
+            "stat": "element_add",
+            "value": 6
+          }
+        ]
+      ],
       "id": "sk:-562534336",
       "kind": "weapon",
       "maxLevel": 3
@@ -28527,14 +28659,83 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "dragon",
+            "stat": "element_add",
+            "value": 4
+          }
+        ],
+        [
+          {
+            "element": "dragon",
+            "stat": "element_mul",
+            "value": 1.1
+          },
+          {
+            "element": "dragon",
+            "stat": "element_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "element": "dragon",
+            "stat": "element_mul",
+            "value": 1.2
+          },
+          {
+            "element": "dragon",
+            "stat": "element_add",
+            "value": 6
+          }
+        ]
+      ],
       "id": "sk:-776946176",
       "kind": "weapon",
       "maxLevel": 3
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "blastblight",
+            "stat": "status_mul",
+            "value": 1.05
+          },
+          {
+            "element": "blastblight",
+            "stat": "status_add",
+            "value": 1
+          }
+        ],
+        [
+          {
+            "element": "blastblight",
+            "stat": "status_mul",
+            "value": 1.1
+          },
+          {
+            "element": "blastblight",
+            "stat": "status_add",
+            "value": 2
+          }
+        ],
+        [
+          {
+            "element": "blastblight",
+            "stat": "status_mul",
+            "value": 1.2
+          },
+          {
+            "element": "blastblight",
+            "stat": "status_add",
+            "value": 5
+          }
+        ]
+      ],
       "id": "sk:-844978880",
       "kind": "weapon",
       "maxLevel": 3
@@ -28687,7 +28888,90 @@
     },
     {
       "category": "defense",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "stat": "defense_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "stat": "defense_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "stat": "defense_mul",
+            "value": 1.05
+          },
+          {
+            "stat": "defense_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "stat": "defense_mul",
+            "value": 1.05
+          },
+          {
+            "stat": "defense_add",
+            "value": 20
+          },
+          {
+            "element": "all",
+            "stat": "resistance_add",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "stat": "defense_mul",
+            "value": 1.08
+          },
+          {
+            "stat": "defense_add",
+            "value": 20
+          },
+          {
+            "element": "all",
+            "stat": "resistance_add",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "stat": "defense_mul",
+            "value": 1.08
+          },
+          {
+            "stat": "defense_add",
+            "value": 35
+          },
+          {
+            "element": "all",
+            "stat": "resistance_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "stat": "defense_mul",
+            "value": 1.1
+          },
+          {
+            "stat": "defense_add",
+            "value": 35
+          },
+          {
+            "element": "all",
+            "stat": "resistance_add",
+            "value": 5
+          }
+        ]
+      ],
       "id": "sk:1077686656",
       "kind": "armor",
       "maxLevel": 7
@@ -28758,7 +29042,39 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "ice",
+            "stat": "element_add",
+            "value": 4
+          }
+        ],
+        [
+          {
+            "element": "ice",
+            "stat": "element_mul",
+            "value": 1.1
+          },
+          {
+            "element": "ice",
+            "stat": "element_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "element": "ice",
+            "stat": "element_mul",
+            "value": 1.2
+          },
+          {
+            "element": "ice",
+            "stat": "element_add",
+            "value": 6
+          }
+        ]
+      ],
       "id": "sk:1268070400",
       "kind": "weapon",
       "maxLevel": 3
@@ -28836,7 +29152,33 @@
     },
     {
       "category": "resistance",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "fire",
+            "stat": "resistance_add",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "element": "fire",
+            "stat": "resistance_add",
+            "value": 12
+          }
+        ],
+        [
+          {
+            "element": "fire",
+            "stat": "resistance_add",
+            "value": 20
+          },
+          {
+            "stat": "defense_add",
+            "value": 10
+          }
+        ]
+      ],
       "id": "sk:1425756032",
       "kind": "armor",
       "maxLevel": 3
@@ -28857,7 +29199,39 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "thunder",
+            "stat": "element_add",
+            "value": 4
+          }
+        ],
+        [
+          {
+            "element": "thunder",
+            "stat": "element_mul",
+            "value": 1.1
+          },
+          {
+            "element": "thunder",
+            "stat": "element_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "element": "thunder",
+            "stat": "element_mul",
+            "value": 1.2
+          },
+          {
+            "element": "thunder",
+            "stat": "element_add",
+            "value": 6
+          }
+        ]
+      ],
       "id": "sk:1452140672",
       "kind": "weapon",
       "maxLevel": 3
@@ -28941,7 +29315,44 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "sleep",
+            "stat": "status_mul",
+            "value": 1.05
+          },
+          {
+            "element": "sleep",
+            "stat": "status_add",
+            "value": 1
+          }
+        ],
+        [
+          {
+            "element": "sleep",
+            "stat": "status_mul",
+            "value": 1.1
+          },
+          {
+            "element": "sleep",
+            "stat": "status_add",
+            "value": 2
+          }
+        ],
+        [
+          {
+            "element": "sleep",
+            "stat": "status_mul",
+            "value": 1.2
+          },
+          {
+            "element": "sleep",
+            "stat": "status_add",
+            "value": 5
+          }
+        ]
+      ],
       "id": "sk:166057120",
       "kind": "weapon",
       "maxLevel": 3
@@ -29235,7 +29646,33 @@
     },
     {
       "category": "resistance",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "thunder",
+            "stat": "resistance_add",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "element": "thunder",
+            "stat": "resistance_add",
+            "value": 12
+          }
+        ],
+        [
+          {
+            "element": "thunder",
+            "stat": "resistance_add",
+            "value": 20
+          },
+          {
+            "stat": "defense_add",
+            "value": 10
+          }
+        ]
+      ],
       "id": "sk:2143068800",
       "kind": "armor",
       "maxLevel": 3
@@ -29439,7 +29876,33 @@
     },
     {
       "category": "resistance",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "water",
+            "stat": "resistance_add",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "element": "water",
+            "stat": "resistance_add",
+            "value": 12
+          }
+        ],
+        [
+          {
+            "element": "water",
+            "stat": "resistance_add",
+            "value": 20
+          },
+          {
+            "stat": "defense_add",
+            "value": 10
+          }
+        ]
+      ],
       "id": "sk:383104832",
       "kind": "armor",
       "maxLevel": 3
@@ -29525,7 +29988,39 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "water",
+            "stat": "element_add",
+            "value": 4
+          }
+        ],
+        [
+          {
+            "element": "water",
+            "stat": "element_mul",
+            "value": 1.1
+          },
+          {
+            "element": "water",
+            "stat": "element_add",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "element": "water",
+            "stat": "element_mul",
+            "value": 1.2
+          },
+          {
+            "element": "water",
+            "stat": "element_add",
+            "value": 6
+          }
+        ]
+      ],
       "id": "sk:508916704",
       "kind": "weapon",
       "maxLevel": 3
@@ -29624,7 +30119,33 @@
     },
     {
       "category": "resistance",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "element": "ice",
+            "stat": "resistance_add",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "element": "ice",
+            "stat": "resistance_add",
+            "value": 12
+          }
+        ],
+        [
+          {
+            "element": "ice",
+            "stat": "resistance_add",
+            "value": 20
+          },
+          {
+            "stat": "defense_add",
+            "value": 10
+          }
+        ]
+      ],
       "id": "sk:652161472",
       "kind": "armor",
       "maxLevel": 3
@@ -29797,7 +30318,7 @@
     "commit": "c50a1eb892f4a1ad9bb35c147801658804be2cc2",
     "repository": "LartTyler/mhdb-wilds-data"
   },
-  "version": "2026.11.1",
+  "version": "2026.11.2",
   "weapons": [
     {
       "affinity": 0,
