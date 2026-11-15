@@ -131,7 +131,7 @@ function sortCandidates(candidates: ReverseLookupCandidate[]): ReverseLookupCand
     const required = requiredOf(charm)
     return [required.length, required.reduce((sum, s) => sum + s.level, 0), charm.rarity] as const
   }
-  return candidates.toSorted((a, b) => {
+  return [...candidates].sort((a, b) => {
     const [ka, kb] = [key(a), key(b)]
     return ka[0] - kb[0] || ka[1] - kb[1] || ka[2] - kb[2]
   })

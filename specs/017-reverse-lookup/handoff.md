@@ -60,6 +60,7 @@
 ## メインの直接修正
 | 区間 | ファイル | 内容（1行） | 理由 |
 |---|---|---|---|
+| D | packages/solver/src/main/reverseLookup.ts | toSorted を [...candidates].sort に置き換え（1行） | web の tsconfig.app.json の lib が es2023 未満で web の type-check・build が落ちたため |
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
