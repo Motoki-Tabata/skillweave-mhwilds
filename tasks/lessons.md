@@ -110,3 +110,8 @@
 - 種別: 規律昇華
 - 何が起きたか: solver-agent が `reverseLookup.ts` で `toSorted` を使った。solver の `lib` は ES2024 で solver 単体の検証は通ったが、web の `tsconfig.app.json` の `lib` が es2023 未満で、web の型検査が solver のソースも読むため `vue-tsc --build` が落ちた。メインが `[...candidates].sort` に直した（直接修正）。
 - 提案: `.claude/rules/solver.md` に、`packages/solver/src/main` は web の型検査も通る（web の `lib` に合わせる）ので、ES2023 以降の標準ライブラリ（`toSorted` など）を使わない、と足す（経路 (a)）。直す前に `.claude/**` の同じ文面を grep する。
+
+## 2026-11-16 薄仕様の受入基準が、後の機能で改めた性能の基準（006 Q36）を引いたまま承認された（機能038・区間C）
+- 種別: 規律昇華
+- 何が起きたか: 038 の spec.md AC-10 は「火力の最大化の検索 1 回の合計時間の最大が 3 秒を超えたら止める（006 decisions.md Q36）」とした。画面の基準は 024 decisions.md Q50 で「1 件目までの時間の最大。届かなければ 5 秒に読み替え。合計時間は基準にしない」に改められており、現行の記録（`design/tech-stack.md` の 024 の節）でも合計時間は 30 秒の打ち切りに達している。字義どおりでは測る前から止まるため、区間 C の plan D16 で Q50 の基準に読み替え、ゲート C-1 で承認を取った。
+- 提案: `.claude/skills/tsod-spec/` の受入基準を書く手順に、過去の decisions.md の基準（性能の目標など）を引くときは、`design/tech-stack.md` の最新の記録と後の機能の decisions.md で改定されていないかを grep で確かめる、と足す（経路 (a)）。
