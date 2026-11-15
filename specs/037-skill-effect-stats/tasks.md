@@ -1,6 +1,6 @@
 # 037 skill-effect-stats タスク
 
-- [ ] T1 [main]           委譲の前の常時許可外の変更: `design/master-data.md` の §6（効果の種類・区別・値の規則）と §8（効果の数値の出典と書く範囲・単位）を書き直し、`design-system/skillweave/MASTER.md` の「スキルの説明と補完」節の書式の表を screen-design.md §2 に合わせる（plan D15・D16）     refs spec §受入基準 AC-9, AC-10
+- [x] T1 [main]           委譲の前の常時許可外の変更: `design/master-data.md` の §6（効果の種類・区別・値の規則）と §8（効果の数値の出典と書く範囲・単位）を書き直し、`design-system/skillweave/MASTER.md` の「スキルの説明と補完」節の書式の表を screen-design.md §2 に合わせる（plan D15・D16）     refs spec §受入基準 AC-9, AC-10
 - [ ] T2 [data-agent]     `index.ts` の `EffectStat` を 11 個にして `Effect.element`（`EffectElement`）を足し、`pipeline/effects.ts` の規則（種類・区別・値）を overlay と出力前の検証の両方で使う（plan D1〜D4）。`overlays/effects.yaml` に対象のスキル 15 件の全レベルを書き、冒頭のコメントを 037 の範囲に改める（plan D5）。`MASTER_VERSION` を `2026.11.2` に上げて `dist.spec.ts` の版を追従し、既存のテストを追従する（plan D6・D7）。`effects.spec.ts` に AC-2 の違反の検査、`dist.spec.ts` に AC-6 の検査を足す（plan D8）。`dist/` は書かない。想定内の失敗は plan D9 のとおり     refs spec §受入基準 AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-10
 - [ ] T3 [main]           `pnpm --filter @swv/data run generate` で `dist/` を `2026.11.2` に再生成する（旧版の 3 ファイルは生成のコマンドが削除する）。`generate:check` の一致・`pnpm --filter @swv/data run test:unit` の成功・`2026.11.1` との比較（版と対象のスキル 15 件の `effectsByLevel` を除いて一致。辞書は版だけが違う）を確かめる（plan D10）     refs spec §受入基準 AC-5, AC-6
 - [ ] T4 [solver-agent]   `damage.ts` の集計の型を数える 4 種だけにする（計算は変えない。plan D11）。`src/test/solveBuilds.effectStats.spec.ts` で、現行のマスターと新しい種類の効果を除いたマスターの火力と検索結果（`expectedDamage`・`defense`）が一致し、`defense` の `score` が防具の防御力の合計であることを確かめる（plan D12）     refs spec §受入基準 AC-7, AC-8
