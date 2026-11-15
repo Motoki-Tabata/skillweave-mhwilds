@@ -1,7 +1,20 @@
 import highsLoader, { type Highs } from 'highs'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { createWorkerHandler, type WorkerInbound, type WorkerOutbound } from '../main/worker'
-import { armor, buildMaster, makeRequest, plainArmors, TEST_VERSION } from './support/builders'
+import {
+  armor,
+  BASE_WEAPON_ID,
+  buildMaster,
+  lotteryGroup,
+  lotteryPattern,
+  makeRequest,
+  masterSkill,
+  plainArmors,
+  skill,
+  slot,
+  TEST_VERSION,
+  weaponId,
+} from './support/builders'
 
 let highs: Highs
 
@@ -35,6 +48,28 @@ function setup(target: Highs = highs) {
   })
   return { sent, hooks, handler }
 }
+
+/** 逆引き用: 同じ防具に、抽選テーブル（スロットの並びが 3 つ。必須なしなら候補は 3 件）を足したマスター */
+const reverseMaster = buildMaster({
+  skills: [masterSkill('A')],
+  armors: plainArmors({ head: ['h1', 'h2', 'h3'].map((id) => armor(id, 'head')) }),
+  appraisedCharm: {
+    patterns: [lotteryPattern(5, ['g', null], [[], [slot(1)], [slot(2)]])],
+    groups: [lotteryGroup('g', [skill('A', 1)])],
+  },
+})
+const loadReverseMaster: WorkerInbound = { type: 'loadMaster', bundle: reverseMaster }
+const reverseMessage = (requestId: string, maxResults = 30): WorkerInbound => ({
+  type: 'reverseLookup',
+  requestId,
+  request: {
+    masterVersion: reverseMaster.version,
+    weapon: { kind: 'master', weaponId: weaponId(BASE_WEAPON_ID) },
+    required: [],
+    maxResults,
+    timeoutMs: 10_000,
+  },
+})
 
 const typesOf = (sent: WorkerOutbound[]) => sent.map((m) => `${m.type}`)
 const requestIdOf = (m: WorkerOutbound) => ('requestId' in m ? m.requestId : undefined)
@@ -178,5 +213,93 @@ describe('[AC12] cancel と実行中の別の solve', () => {
     sent.length = 0
     await handler(solveMessage('r2'))
     expect(sent.at(-1)).toMatchObject({ type: 'result', requestId: 'r2' })
+  })
+})
+
+describe('[017 AC-9][AC-12] 逆引きのメッセージ', () => {
+  it('reverseLookup は候補を 1 件見つけるごとに reverseProgress を送り、最後に reverseResult を送る', async () => {
+    const { sent, handler } = setup()
+    await handler(loadReverseMaster)
+    sent.length = 0
+    await handler(reverseMessage('r1'))
+    expect(typesOf(sent)).toEqual([
+      'reverseProgress',
+      'reverseProgress',
+      'reverseProgress',
+      'reverseResult',
+    ])
+    const last = sent.at(-1)
+    if (last?.type !== 'reverseResult') throw new Error('reverseResult が無い')
+    expect(last).toMatchObject({ requestId: 'r1', response: { status: 'feasible' } })
+    expect(last.response.candidates).toHaveLength(3)
+    const progress = sent.slice(0, 3)
+    expect(progress.map((m) => (m.type === 'reverseProgress' ? m.found : -1))).toEqual([1, 2, 3])
+    for (const m of progress) {
+      if (m.type !== 'reverseProgress') throw new Error('reverseProgress ではない')
+      expect(last.response.candidates).toContainEqual(m.candidate)
+    }
+  })
+
+  it('マスター未読込の reverseLookup は error を送る', async () => {
+    const { sent, handler } = setup()
+    await handler(reverseMessage('r1'))
+    expect(sent).toEqual([
+      { type: 'error', requestId: 'r1', message: 'マスターが読み込まれていない' },
+    ])
+  })
+
+  it('抽選テーブルが空のマスターへの reverseLookup は error を送る', async () => {
+    const { sent, handler } = setup()
+    await handler(loadMaster)
+    sent.length = 0
+    await handler(reverseMessage('r1'))
+    expect(sent).toEqual([{ type: 'error', requestId: 'r1', message: '抽選テーブルが無い' }])
+  })
+
+  it('cancel で次の求解の合間に打ち切り、結果もエラーも送らない', async () => {
+    const { sent, hooks, handler } = setup()
+    await handler(loadReverseMaster)
+    sent.length = 0
+    hooks.onYield = (count) => {
+      if (count === 2) void handler({ type: 'cancel', requestId: 'r1' })
+    }
+    await handler(reverseMessage('r1'))
+    expect(sent).toEqual([
+      expect.objectContaining({ type: 'reverseProgress', requestId: 'r1', found: 1 }),
+    ])
+  })
+
+  it('逆引きの実行中に通常の検索を始めると、逆引きを打ち切って検索を最後まで処理する', async () => {
+    const { sent, hooks, handler } = setup()
+    await handler(loadReverseMaster)
+    sent.length = 0
+    let nested: Promise<void> | undefined
+    hooks.onYield = (count) => {
+      if (count === 2) nested = handler(solveMessage('r2', 1))
+    }
+    await handler(reverseMessage('r1'))
+    await nested
+    expect(sent.filter((m) => requestIdOf(m) === 'r1')).toEqual([
+      expect.objectContaining({ type: 'reverseProgress', requestId: 'r1', found: 1 }),
+    ])
+    expect(sent.filter((m) => m.type === 'result').map(requestIdOf)).toEqual(['r2'])
+    expect(sent.filter((m) => m.type === 'error')).toEqual([])
+  })
+
+  it('通常の検索の実行中に逆引きを始めると、検索を打ち切って逆引きを最後まで処理する', async () => {
+    const { sent, hooks, handler } = setup()
+    await handler(loadReverseMaster)
+    sent.length = 0
+    let nested: Promise<void> | undefined
+    hooks.onYield = (count) => {
+      if (count === 2) nested = handler(reverseMessage('r2', 1))
+    }
+    await handler(solveMessage('r1'))
+    await nested
+    expect(sent.filter((m) => requestIdOf(m) === 'r1')).toEqual([
+      expect.objectContaining({ type: 'progress', requestId: 'r1', found: 1 }),
+    ])
+    expect(sent.filter((m) => m.type === 'reverseResult').map(requestIdOf)).toEqual(['r2'])
+    expect(sent.filter((m) => m.type === 'error')).toEqual([])
   })
 })

@@ -8,6 +8,7 @@ import highsLoader, { type Highs, type Model } from 'highs'
 import type { MasterBundle } from '@swv/data'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { SolverResponse } from '../main/request'
+import { reverseLookup } from '../main/reverseLookup'
 import { solveBuilds } from '../main/solveBuilds'
 import { makeRequest, skill } from './support/builders'
 import { topRankCraftedCharms } from './support/craftedCharms'
@@ -139,6 +140,9 @@ const CRAFTED_CASES: Case[] = [...CASES, ...DAMAGE_CASES].map((c) => ({
   crafted: true,
 }))
 
+/** 017 D9: 003 の defense と同じ武器・必須スキルで逆引きする（maxResults 10）。ラベルの接頭辞で区別する */
+const REVERSE_CASES: Case[] = CASES.map((c) => ({ ...c, label: `逆引き ${c.label}` }))
+
 interface Measurement {
   label: string
   metric: string
@@ -154,6 +158,47 @@ interface Measurement {
   lpIterations: number[]
   builds: number
   status: SolverResponse['status']
+}
+
+/** 017 D9: 逆引きの 1 ケースを REPEATS 回測る。時間切れでなく、答えが出たことだけを確かめる */
+async function measureReverseCase(testCase: Case) {
+  for (let run = 1; run <= REPEATS; run++) {
+    const stats: SolveStats = { solveMs: [], nodes: [], lpIterations: [] }
+    let firstMs: number | undefined
+    const start = performance.now()
+    const result = await reverseLookup(
+      instrument(highs, stats),
+      master,
+      {
+        masterVersion: master.version,
+        weapon: { kind: 'master', weaponId: plainWeaponId() },
+        required: testCase.required.map(([id, level]) => skill(id, level)),
+        maxResults: DAMAGE_MAX_RESULTS,
+        timeoutMs: TIMEOUT_MS,
+      },
+      {
+        now: () => performance.now(),
+        yieldControl: () => new Promise<void>((resolve) => setImmediate(resolve)),
+        onProgress: () => {
+          firstMs ??= performance.now() - start
+        },
+      },
+    )
+    measurements.push({
+      label: testCase.label,
+      metric: 'reverse',
+      crafted: false,
+      run,
+      totalMs: performance.now() - start,
+      firstMs,
+      ...stats,
+      builds: result.candidates.length,
+      status: result.status,
+    })
+    expect(['feasible', 'infeasible']).toContain(result.status)
+    // 護石が自由になるので、護石なしで組める条件は組める
+    if (testCase.expected === 'optimal') expect(result.candidates.length).toBeGreaterThan(0)
+  }
 }
 
 interface SolveStats {
@@ -288,6 +333,18 @@ function damageLines(crafted: boolean): string[] {
   return [...lines, `${tag}expectedDamage verdict: ${verdict}`]
 }
 
+/** 017 AC-11: 1 件目までの時間の最大が基準以下なら合格（1 件も無い回は合計の時間）。合計の最大も出す */
+function reverseLines(): string[] {
+  const reverse = measurements.filter((m) => m.metric === 'reverse')
+  if (reverse.length === 0) return []
+  const maxFirst = Math.max(...reverse.map(firstOrTotal))
+  const maxTotal = Math.max(...reverse.map((m) => m.totalMs))
+  return [
+    `max first-candidate ms over 逆引き cases and runs: ${fmt(maxFirst)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxFirst)}`,
+    `max total ms over 逆引き cases and runs: ${fmt(maxTotal)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxTotal)}`,
+  ]
+}
+
 function report() {
   const maxLine = (metric: string, crafted: boolean) => {
     const tag = crafted ? '生産護石あり ' : ''
@@ -321,6 +378,7 @@ function report() {
     ...maxLine('defense', true),
     ...damageLines(false),
     ...damageLines(true),
+    ...reverseLines(),
   ]
   console.log(lines.join('\n'))
   console.table(rows)
@@ -345,5 +403,9 @@ describe('solveBuilds の測定（実データ）', () => {
 
   it.each([...CASES, ...DAMAGE_CASES, ...CRAFTED_CASES])('$label', async (testCase) => {
     await measureCase(testCase)
+  })
+
+  it.each(REVERSE_CASES)('$label', async (testCase) => {
+    await measureReverseCase(testCase)
   })
 })

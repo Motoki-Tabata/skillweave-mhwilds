@@ -9,6 +9,15 @@ import type {
 } from '@swv/data'
 import { damageTargets, extendWithDamage, type DamageColumns } from './damageModel'
 import type { SolverCharm, SolverRequest } from './request'
+import {
+  applyLotteryCosts,
+  lotteryColumns,
+  lotteryLevelTerms,
+  lotteryRows,
+  lotterySlotTerms,
+  type LotteryCols,
+  type LotteryTable,
+} from './reverseModel'
 import { sparseRow, type Row } from './rows'
 import { findSetBonus, isSetSkill, piecesForLevel, skillLevelOf } from './skills'
 import { PARTS, type ResolvedWeapon } from './validate'
@@ -36,6 +45,8 @@ export interface IlpModel {
   armorCols: { part: ArmorPart; armor: MasterArmor; col: number }[]
   charmCols: { charm: SolverCharm; col: number }[]
   decoCols: { deco: MasterDecoration; col: number }[]
+  /** 逆引き（抽選テーブルを渡したとき）だけ持つ。護石 y の列の後ろに並ぶ */
+  lottery?: LotteryCols
 }
 
 export interface Selection {
@@ -66,6 +77,7 @@ interface Columns {
   charmCols: IlpModel['charmCols']
   decoCols: IlpModel['decoCols']
   zCols: PlacementCol[]
+  lottery?: LotteryCols
 }
 
 function levelSum(slots: Slots, target: SlotTarget): number {
@@ -104,6 +116,15 @@ function candidateArmors(master: MasterBundle, request: SolverRequest): PartCand
   return result
 }
 
+/** 必須スキルのうち通常のスキル（シリーズ／グループスキルを除く） */
+function ordinarySkills(master: MasterBundle, request: SolverRequest): Set<SkillId> {
+  return new Set(
+    request.required
+      .filter((r) => !isSetSkill(master.skills.find((s) => s.id === r.skillId)))
+      .map((r) => r.skillId),
+  )
+}
+
 /**
  * 必須スキルを 1 つでも持つ装飾品だけを変数にする（持たない装飾品は選ばれても空きを減らすだけ）。
  * extra は期待値に寄与する通常のスキル（expectedDamage のときだけ非空）。それを持つ装飾品も変数にする。
@@ -113,11 +134,7 @@ function candidateDecorations(
   request: SolverRequest,
   extra: ReadonlySet<SkillId>,
 ): MasterDecoration[] {
-  const ordinary = new Set(
-    request.required
-      .filter((r) => !isSetSkill(master.skills.find((s) => s.id === r.skillId)))
-      .map((r) => r.skillId),
-  )
+  const ordinary = ordinarySkills(master, request)
   const excluded = new Set<string>(request.excludedDecorationIds ?? [])
   return master.decorations.filter(
     (d) =>
@@ -129,12 +146,14 @@ function assignColumns(
   parts: PartCandidates,
   charms: readonly SolverCharm[],
   decos: readonly MasterDecoration[],
+  lotteryOf?: (alloc: () => number) => LotteryCols,
 ): Columns {
   let numCols = 0
   const armorCols = parts.flatMap((p) =>
     p.armors.map((armor) => ({ part: p.part, armor, col: numCols++ })),
   )
   const charmCols = charms.map((charm) => ({ charm, col: numCols++ }))
+  const lottery = lotteryOf?.(() => numCols++)
   const numBinary = numCols
   const decoCols = decos.map((deco) => ({ deco, col: numCols++ }))
   // 装飾品の変数がある (種別, Lv) だけ配置の列を作る
@@ -147,7 +166,7 @@ function assignColumns(
       }
     }
   }
-  return { numCols, numBinary, armorCols, charmCols, decoCols, zCols }
+  return { numCols, numBinary, armorCols, charmCols, decoCols, zCols, lottery }
 }
 
 /** 空き Lv の合計の上界（目的の重みを決めるため）。部位ごとの候補の最大、護石の候補の最大、武器の合計 */
@@ -155,13 +174,13 @@ function slotUpperBound(
   target: SlotTarget,
   weapon: ResolvedWeapon,
   parts: PartCandidates,
-  charms: readonly SolverCharm[],
+  charmSlots: readonly Slots[],
 ): number {
   const maxOf = (values: number[]) => Math.max(0, ...values)
   return (
     levelSum(weapon.slots, target) +
     parts.reduce((sum, p) => sum + maxOf(p.armors.map((a) => levelSum(a.slots, target))), 0) +
-    maxOf(charms.map((c) => levelSum(c.slots, target)))
+    maxOf(charmSlots.map((slots) => levelSum(slots, target)))
   )
 }
 
@@ -176,7 +195,12 @@ function objectiveCosts(
   parts: PartCandidates,
   cols: Columns,
 ): number[] {
-  const bound = (t: SlotTarget) => slotUpperBound(t, weapon, parts, request.charms)
+  // 護石の候補の最大には、逆引きのスロットの並びも入れる
+  const charmSlots: Slots[] = [
+    ...request.charms.map((c) => c.slots),
+    ...(cols.lottery?.v.map((c) => c.slots) ?? []),
+  ]
+  const bound = (t: SlotTarget) => slotUpperBound(t, weapon, parts, charmSlots)
   const c2 = bound('weapon') + 1
   const c1 = c2 * (bound('armor') + 1)
   const { objective } = request
@@ -194,6 +218,7 @@ function objectiveCosts(
   }
   for (const { charm, col } of cols.charmCols) cost[col] = slotValue(charm.slots)
   for (const { target, s, col } of cols.zCols) cost[col] = -s * weightOf(target)
+  if (cols.lottery !== undefined) applyLotteryCosts(cols.lottery, c1, slotValue, cost)
   return cost
 }
 
@@ -252,6 +277,7 @@ function ordinarySkillRow(
   return sparseRow(level - skillLevelOf(weapon.skills, skillId), infinity, [
     ...cols.armorCols.map((c): [number, number] => [c.col, skillLevelOf(c.armor.skills, skillId)]),
     ...cols.charmCols.map((c): [number, number] => [c.col, skillLevelOf(c.charm.skills, skillId)]),
+    ...(cols.lottery === undefined ? [] : lotteryLevelTerms(cols.lottery, skillId)),
     ...cols.decoCols.map((c): [number, number] => [c.col, skillLevelOf(c.deco.skills, skillId)]),
   ])
 }
@@ -300,6 +326,7 @@ function placementRows(weapon: ResolvedWeapon, cols: Columns, infinity: number):
           ...zs.map((z): [number, number] => [z.col, 1]),
           ...cols.armorCols.map((c): [number, number] => [c.col, -exactCount(c.armor.slots, t, s)]),
           ...cols.charmCols.map((c): [number, number] => [c.col, -exactCount(c.charm.slots, t, s)]),
+          ...(cols.lottery === undefined ? [] : lotterySlotTerms(cols.lottery, t, s)),
         ]),
       )
     }
@@ -316,6 +343,7 @@ export function buildModel(
   request: SolverRequest,
   weapon: ResolvedWeapon,
   infinity: number,
+  lottery?: LotteryTable,
 ): IlpModel | null {
   const parts = candidateArmors(master, request)
   if (parts.some((p) => p.armors.length === 0)) return null
@@ -323,7 +351,15 @@ export function buildModel(
     request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
   const targets = isDamage ? damageTargets(master, request) : []
   const extra = new Set(targets.filter((t) => t.bonus === undefined).map((t) => t.skill.id))
-  const cols = assignColumns(parts, request.charms, candidateDecorations(master, request, extra))
+  const ordinary = ordinarySkills(master, request)
+  const cols = assignColumns(
+    parts,
+    request.charms,
+    candidateDecorations(master, request, extra),
+    lottery && ((alloc) => lotteryColumns(lottery, ordinary, alloc)),
+  )
+  // 護石の候補（スロットの並び）が 1 つも無ければ解なし
+  if (cols.lottery !== undefined && cols.lottery.v.length === 0) return null
   const skills = skillRows(master, request, weapon, cols, infinity)
   if (skills === null) return null
   const base: IlpModel = {
@@ -333,10 +369,16 @@ export function buildModel(
     colLower: Array.from({ length: cols.numCols }, () => 0),
     colUpper: Array.from({ length: cols.numCols }, (_, i) => (i < cols.numBinary ? 1 : infinity)),
     colInteger: Array.from({ length: cols.numCols }, () => true),
-    rows: [...selectionRows(parts, cols), ...skills, ...placementRows(weapon, cols, infinity)],
+    rows: [
+      ...selectionRows(parts, cols),
+      ...(cols.lottery === undefined ? [] : lotteryRows(cols.lottery, ordinary, infinity)),
+      ...skills,
+      ...placementRows(weapon, cols, infinity),
+    ],
     armorCols: cols.armorCols,
     charmCols: cols.charmCols,
     decoCols: cols.decoCols,
+    ...(cols.lottery === undefined ? {} : { lottery: cols.lottery }),
   }
   return isDamage ? extendWithDamage(base, targets, weapon, infinity) : base
 }

@@ -111,6 +111,23 @@ export function charm(
   return { id: uuid(id), rarity: 8, slots: opts.slots ?? [], skills: opts.skills ?? [] }
 }
 
+/** 抽選テーブルのパターン 1 つ（スロットの並びは slot の配列の配列） */
+export function lotteryPattern(
+  rarity: number,
+  skillGroups: (string | null)[],
+  slotPatterns: Slot[][],
+): MasterBundle['appraisedCharm']['patterns'][number] {
+  return { rarity, skillGroups, slotPatterns }
+}
+
+/** 抽選テーブルのスキルグループ 1 つ */
+export function lotteryGroup(
+  group: string,
+  skills: SkillLevel[],
+): MasterBundle['appraisedCharm']['groups'][number] {
+  return { group, skills }
+}
+
 /** 5部位に1つずつ（id は `<part>0`・防御力 10・スロットもスキルも無し）の防具。部位ごとの上書きは overrides */
 export function plainArmors(
   overrides: Partial<Record<ArmorPart, MasterArmor[]>> = {},
@@ -128,6 +145,8 @@ export interface MasterParts {
   decorations?: MasterDecoration[]
   weapons?: MasterWeapon[]
   conditions?: MasterCondition[]
+  /** 鑑定護石の抽選テーブル（省略は空） */
+  appraisedCharm?: MasterBundle['appraisedCharm']
 }
 
 /** 手作りの MasterBundle。武器は既定で何も持たない `w0` を1本入れる */
@@ -142,7 +161,7 @@ export function buildMaster(parts: MasterParts = {}): MasterBundle {
     weapons: parts.weapons ?? [weapon(BASE_WEAPON_ID)],
     charms: [],
     conditions: parts.conditions ?? [],
-    appraisedCharm: { patterns: [], groups: [] },
+    appraisedCharm: parts.appraisedCharm ?? { patterns: [], groups: [] },
   }
 }
 
