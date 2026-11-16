@@ -25,7 +25,7 @@
 |---|---|---|---|
 | A-1 | 未確定事項の決定（decisions.md への移設） | 承認済み | 2026-11-16 / f16ce14 |
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-11-16 / 54275aa |
-| B-1 | 画面設計 screen-design.md | 未 | |
+| B-1 | 画面設計 screen-design.md | 承認済み | 2026-11-16 / 71776fd |
 | B-2 | テーブル設計（design/・migration） | 未 | |
 | C-1 | plan.md・tasks.md | 未 | |
 | D-1 | 実装受入 | 未 | |
@@ -73,3 +73,4 @@
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q136
+- B-1 のキャンバス: https://claude.ai/artifact/6Keku87oCaa2sxw6dwSqxr（MASTER.md への2節の追記は区間 D で行う。spec.md の常時許可外の変更予定に記載済み）
