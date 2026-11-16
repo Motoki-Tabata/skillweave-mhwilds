@@ -2907,6 +2907,15 @@
     "cd:resentment": {
       "name": "逆恨みの発動中"
     },
+    "cd:resonance_far": {
+      "name": "レゾナンス：ファーの発動中"
+    },
+    "cd:resonance_near": {
+      "name": "レゾナンス：ニアーの発動中"
+    },
+    "cd:synthetic_shield": {
+      "name": "シールドオプションの発動中"
+    },
     "cd:weak_point": {
       "name": "有効部位への攻撃"
     },
@@ -11628,5 +11637,5 @@
     }
   },
   "locale": "ja",
-  "version": "2026.11.2"
+  "version": "2026.11.3"
 }
