@@ -22650,6 +22650,15 @@
       "id": "cd:resentment"
     },
     {
+      "id": "cd:resonance_far"
+    },
+    {
+      "id": "cd:resonance_near"
+    },
+    {
+      "id": "cd:synthetic_shield"
+    },
+    {
       "id": "cd:weak_point"
     },
     {
@@ -29841,7 +29850,32 @@
     },
     {
       "category": "weapon_specific",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:resonance_near",
+            "stat": "affinity_add",
+            "value": 20
+          },
+          {
+            "conditionId": "cd:resonance_far",
+            "stat": "attack_add",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:resonance_near",
+            "stat": "affinity_add",
+            "value": 40
+          },
+          {
+            "conditionId": "cd:resonance_far",
+            "stat": "attack_add",
+            "value": 20
+          }
+        ]
+      ],
       "id": "sk:31540",
       "kind": "series",
       "maxLevel": 2
@@ -30223,7 +30257,15 @@
     },
     {
       "category": "weapon_specific",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:synthetic_shield",
+            "stat": "defense_add",
+            "value": 30
+          }
+        ]
+      ],
       "id": "sk:7506",
       "kind": "weapon",
       "maxLevel": 1
@@ -30318,7 +30360,7 @@
     "commit": "c50a1eb892f4a1ad9bb35c147801658804be2cc2",
     "repository": "LartTyler/mhdb-wilds-data"
   },
-  "version": "2026.11.2",
+  "version": "2026.11.3",
   "weapons": [
     {
       "affinity": 0,

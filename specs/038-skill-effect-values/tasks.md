@@ -1,0 +1,9 @@
+# 038 skill-effect-values タスク
+
+- [ ] T1 [main]           各サイトの利用規約・ライセンスを取得して `packages/data/.cache/skill-effects/license.md` に要旨を書き、候補のサイト（Phantom Brawlers を除く）を `curl` で 1 ページずつ取得して `html/` に全文を保存し、`draft/values.md`（スキルごとの各サイトの値・採った値と規則）・`draft/conflicts.md`（食い違い・武器種で違う値・定まらない値）・`draft/facts.md`（023 の前提の 4 つの事実）を作る。取得日・最終更新日・ゲームの版を控える（plan D3〜D9）     refs spec §受入基準 AC-1, AC-2, AC-3, AC-7, AC-8, AC-11
+- [ ] T2 [main]           オーナーの確認つき: 規約の要旨と下書きの要約を示して採用を問う（不採用なら区間 D を止める）。採用後、テストの代表を確定し、data-agent に渡す値の表 `draft/adopted.md` を作る（plan D10・D12）     refs spec §受入基準 AC-1, AC-6, AC-8
+- [ ] T3 [main]           `dist/` が `2026.11.2` のうちに、`pnpm --filter @swv/web run measure --workers=1` で基準の時間（生産護石のオン・オフ）を測って控える（plan D16。T1・T2 の間に進めてよい。plan D18）     refs spec §受入基準 AC-10
+- [ ] T4 [main]           委譲の前の常時許可外の変更: `design/master-data.md` の §2・§8 を Q185 の方針に改め、§9 に 023 の前提の 4 つの事実、§11 に効果の数値の出典（Web）を足す（plan D17）     refs spec §受入基準 AC-7, AC-8
+- [ ] T5 [data-agent]     `overlays/effects.yaml` に `draft/adopted.md` の値と参照される新しい条件を書き、名前のコメントに `（Web）` を添え、冒頭のコメントを改める（単位が覆ったときだけ既存の加算を直す）（plan D8・D9・D11）。`MASTER_VERSION` を `2026.11.3` に上げて `dist.spec.ts` の版を追従し（plan D2）、既存の除外の一覧から効果を持つことになったスキルを外し（plan D13）、`dist.spec.ts` に 038 の検査（代表の値・対象の候補 29 件・対象外 15 件・`（Web）` の注記）を足す（plan D12）。`dist/` は書かない。想定内の失敗は plan D14 のとおり     refs spec §受入基準 AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-8
+- [ ] T6 [main]           `pnpm --filter @swv/data run generate` で `dist/` を `2026.11.3` に再生成する（旧版の 3 ファイルは生成のコマンドが削除する）。`generate:check` の一致・`test:unit` の成功・`2026.11.2` との比較（AC-5）・コードの差分なし（AC-9）・`.cache` の非追跡（AC-11）・一括検証の成功を確かめる（plan D15）     refs spec §受入基準 AC-5, AC-6, AC-9, AC-11
+- [ ] T7 [main]           `pnpm --filter @swv/web run measure --workers=1` で値を入れたマスターの時間を測り、`design/tech-stack.md` に T3 との比較を記録する。`expectedDamage` の 1 件目までの時間の最大が 5 秒を超えたら区間 D を止めて報告する（plan D16）     refs spec §受入基準 AC-10

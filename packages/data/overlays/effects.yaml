@@ -1,10 +1,11 @@
 # 火力計算用の発動条件とスキルの効果（006）。
-# 数値の出典は、ゲーム内の説明文（ja の levelDescriptions）。最終確認はオーナー。
+# 数値の出典は、ゲーム内の説明文（ja の levelDescriptions）。説明文に数値が無い効果は、オーナーが採用した Web の情報源
+# （名前のコメントに `（Web）`。出典の記録は design/master-data.md §11）。最終確認はオーナー。
 # 条件はきっかけで決める。「スキル発動中」「効果発動時」などは、そのスキルの en の名前の snake_case。
 # 効果の種類は decisions.md Q187 の表（攻撃力・会心率・会心倍率・属性値・状態異常値・防御力・耐性値）だけを書く。
 # 属性値・状態異常値の加算はマスターの単位（説明文の値 ÷ 10）で書く。その他の値は説明文のまま。
 # オトモ・回数や段階を数える数値・種類の区別が定まらない値・攻撃の種類や部位で範囲を限る倍率・数値の無い部分は書かない。
-# 属性の会心倍率・状態異常の会心倍率（会心撃【属性】・会心撃【特殊】）の値は 038 で入れる。
+# 回数・ヒット数・経過時間で段階的に強まる効果は、最大の段階の値を 1 つの条件に入れる（条件の名前で最大の段階と分かるようにする）。
 # 1 レベルの効果は、説明文に出てくる順（乗算→加算→他）に書く。
 
 conditions:
@@ -42,6 +43,12 @@ conditions:
     name: { ja: 武器出し攻撃, en: Attacking with Punishing Draw }
   - id: cd:resentment
     name: { ja: 逆恨みの発動中, en: Resentment active }
+  - id: cd:resonance_far
+    name: { ja: レゾナンス：ファーの発動中, en: 'Resonance: Far active' }
+  - id: cd:resonance_near
+    name: { ja: レゾナンス：ニアーの発動中, en: 'Resonance: Near active' }
+  - id: cd:synthetic_shield
+    name: { ja: シールドオプションの発動中, en: Synthetic Shield active }
   - id: cd:weak_point
     name: { ja: 有効部位への攻撃, en: Attacking a weak point }
   - id: cd:wet
@@ -245,6 +252,11 @@ effects:
     - - { stat: attack_add, value: 10, conditionId: cd:counterstrike }
     - - { stat: attack_add, value: 15, conditionId: cd:counterstrike }
     - - { stat: attack_add, value: 25, conditionId: cd:counterstrike }
+  sk:31540: # オメガレゾナンス（Web）
+    - - { stat: affinity_add, value: 20, conditionId: cd:resonance_near }
+      - { stat: attack_add, value: 10, conditionId: cd:resonance_far }
+    - - { stat: affinity_add, value: 40, conditionId: cd:resonance_near }
+      - { stat: attack_add, value: 20, conditionId: cd:resonance_far }
   sk:383104832: # 水耐性
     - - { stat: resistance_add, value: 6, element: water }
     - - { stat: resistance_add, value: 12, element: water }
@@ -275,6 +287,8 @@ effects:
     - - { stat: affinity_add, value: 50, conditionId: cd:critical_draw }
     - - { stat: affinity_add, value: 75, conditionId: cd:critical_draw }
     - - { stat: affinity_add, value: 100, conditionId: cd:critical_draw }
+  sk:7506: # シールドオプション（Web）
+    - - { stat: defense_add, value: 30, conditionId: cd:synthetic_shield }
   sk:918165056: # 兇爪竜の力
     - - { stat: attack_add, value: 8, conditionId: cd:ebony_odogarons_power }
     - - { stat: attack_add, value: 18, conditionId: cd:ebony_odogarons_power }

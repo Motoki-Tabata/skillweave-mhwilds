@@ -2907,6 +2907,15 @@
     "cd:resentment": {
       "name": "Resentment active"
     },
+    "cd:resonance_far": {
+      "name": "Resonance: Far active"
+    },
+    "cd:resonance_near": {
+      "name": "Resonance: Near active"
+    },
+    "cd:synthetic_shield": {
+      "name": "Synthetic Shield active"
+    },
     "cd:weak_point": {
       "name": "Attacking a weak point"
     },
@@ -11449,5 +11458,5 @@
     }
   },
   "locale": "en",
-  "version": "2026.11.2"
+  "version": "2026.11.3"
 }
