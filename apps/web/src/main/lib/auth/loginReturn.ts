@@ -1,4 +1,5 @@
 import type { Router } from 'vue-router'
+import { NOT_FOUND_ROUTE_NAME } from '@/router'
 import type { AuthStatus } from '@/stores/auth'
 
 const LOGIN_DONE = 'Discord でログインしました'
@@ -38,10 +39,11 @@ export function takeLoginReturn(): string | null {
   }
 }
 
-/** 端末の値を信じず、アプリ内でルートに一致するパスだけを通す。それ以外は `/`。 */
+/** 端末の値を信じず、アプリ内の既存のルートに一致するパスだけを通す。キャッチオールにだけ一致するパスは `/`。 */
 export function safeReturnPath(raw: string, router: Router): string {
   if (!raw.startsWith('/') || raw.startsWith('//') || raw.includes('\\')) return '/'
-  return router.resolve(raw).matched.length > 0 ? raw : '/'
+  const matched = router.resolve(raw).matched
+  return matched.length > 0 && matched.at(-1)?.name !== NOT_FOUND_ROUTE_NAME ? raw : '/'
 }
 
 /**

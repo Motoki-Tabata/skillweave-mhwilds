@@ -92,3 +92,24 @@ describe('restoreAfterLogin', () => {
     expect(path).toBe('/')
   })
 })
+
+// 039 not-found-route の AC-4
+describe('039 AC-4: キャッチオールにだけ一致する戻り先は /', () => {
+  it.each([
+    ['/no-such-page', '/'],
+    ['/builds/abc/extra', '/'],
+    ['/charms?tab=1', '/charms?tab=1'],
+    ['/s/abc', '/s/abc'],
+    ['/builds/abc', '/builds/abc'],
+  ])('戻り先 %s は %s', (raw, expected) => {
+    expect(safeReturnPath(raw, router)).toBe(expected)
+  })
+
+  it('restoreAfterLogin は戻り先が /no-such-page なら / を開く', async () => {
+    saveLoginReturn('/no-such-page')
+    const r = createRouter({ history: createMemoryHistory(), routes })
+    await r.push('/charms')
+    await restoreAfterLogin(r, { initialize: async () => 'authenticated' }, { push: vi.fn() })
+    expect(r.currentRoute.value.fullPath).toBe('/')
+  })
+})
