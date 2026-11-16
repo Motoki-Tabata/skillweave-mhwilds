@@ -17,9 +17,11 @@ function chunkNotice(page: Page) {
   return page.locator('[data-slot="chunk-load"]')
 }
 
-/** 護石の画面の部品の読み込みを失敗させる。 */
+/** 護石の画面の部品の読み込みを失敗させる。本番の not_found_handling（存在しない JS に HTML の 200 を返す）を再現する。 */
 async function blockCharmsChunk(page: Page): Promise<void> {
-  await page.route(CHARMS_CHUNK, (route) => route.abort('failed'))
+  await page.route(CHARMS_CHUNK, (route) =>
+    route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html>' }),
+  )
 }
 
 async function clickCharmsNav(page: Page): Promise<void> {
