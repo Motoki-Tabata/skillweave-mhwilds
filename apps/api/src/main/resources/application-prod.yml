@@ -16,6 +16,18 @@ server:
         # TLS を手前で終えて要求が http に見えても Secure を付ける。XSRF-TOKEN も SecurityConfig がこのキーを見る。
         secure: true
 
+# 構造化ログ（041）。1 件 1 行の JSON。@timestamp は time へ、severity は CloudLoggingSeverityCustomizer が足す。
+logging:
+  structured:
+    format:
+      console: logstash
+    json:
+      rename:
+        "[@timestamp]": time
+      customizer: io.github.motokitabata.skillweave.config.CloudLoggingSeverityCustomizer
+      stacktrace:
+        printer: standard
+
 management:
   endpoint:
     health:
