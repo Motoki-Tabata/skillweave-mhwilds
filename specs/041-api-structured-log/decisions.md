@@ -13,3 +13,9 @@
     - `ecs`・`gelf` 形式: `severity` の問題は logstash と同じで、logstash より利点が無い。
     - `logback-spring.xml` と logstash-logback-encoder・Spring Cloud GCP のログ: 依存が増える。組み込みの形式で足りる。
 - 理由: 公式資料（Error Reporting「Formatting errors in Cloud Logging」の「Log a stack trace」）は、`jsonPayload` に `stack_trace`・`exception`・`message` のどれかがあればスタックトレースを拾うとしている。Cloud Logging「Structured logging」は、Cloud Run の組み込みのエージェントが 1 行の JSON の `severity`・`message`・`time` を LogEntry の対応する欄へ移すとしている。LogEntry の LogSeverity の列挙は `DEFAULT`・`DEBUG`・`INFO`・`NOTICE`・`WARNING`・`ERROR`・`CRITICAL`・`ALERT`・`EMERGENCY` で、ほかの表記は標準の値へ読み替えて書くよう求めている。組み込みの logstash 形式は `stack_trace` と `message` を既に持つので、足りないのは `severity` の値の読み替えだけで、依存を増やさずに済む。
+
+## 区間 C での spec の変更（2026-11-17）
+- 変更: spec.md の「スコープ外」に、Spring Boot の FailureAnalyzer が説明に置き換える起動の失敗の `stack_trace` を足した。AC-7 の文面は変えない。
+- 経緯: 区間 C で、ビルド済みの API の jar を `prod` と `logging.structured.format.console=logstash` で起動して確かめた。DB に届かない失敗（Flyway の接続の失敗）と `ProdEnvironmentValidator` の失敗は、`SpringApplication` が `Application run failed` を ERROR と例外つきで出すので、`stack_trace` を持つ 1 行の JSON になった。一方、`server.servlet.session.timeout=abc`（値の束縛の失敗）では、`LoggingFailureAnalysisReporter` が説明文だけを ERROR で出し、原因の例外は DEBUG でしか出さないので、`stack_trace` を持たなかった。Spring Boot 4.1.2 の `SpringApplication.reportFailure` は、FailureAnalyzer が失敗を扱ったときに `Application run failed` を出さない。
+- 理由: FailureAnalyzer が扱う失敗は設定の誤りで、デプロイのときにリビジョンが起動せず分かる。説明文には直し方が書かれ、スタックトレースより読みやすい。埋めるには独自の `FailureAnalysisReporter` を `spring.factories` で登録する必要があり、説明のログと 2 件になるうえ、`local`・`training` の出力も変わる。
+- 外した案: 独自の `FailureAnalysisReporter` で原因の例外を ERROR と `stack_trace` で出す（上の理由）。

@@ -26,6 +26,7 @@
 - ブラウザのエラーの収集と Sentry の導入（`design/tech-stack.md`「Sentry」の行）
 - `local`・`training` プロファイルのログの形式の変更
 - JVM がログの仕組みを用意する前に出す出力（JVM の起動の失敗など）
+- Spring Boot の FailureAnalyzer が説明に置き換える起動の失敗（設定の値の束縛の失敗・ポートの衝突など）の `stack_trace`（`severity` が `ERROR` の説明のログは出る。decisions.md「区間 C での spec の変更」）
 
 ## 契約差分
 - なし（エンドポイント・スキーマを変えない。テーブルも変えない）
