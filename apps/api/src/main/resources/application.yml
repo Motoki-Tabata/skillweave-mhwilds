@@ -23,7 +23,8 @@ spring:
     jdbc:
       # テーブルは Flyway の V2 が作る。
       initialize-schema: never
-      # 期限切れセッションの掃除は1日1回（毎日 3:00。JVM の既定のタイムゾーン＝UTC で解釈される）。
+      # 本番（最小インスタンス 0 の Cloud Run）では起動時の掃除（SessionStartupCleanup）が主で、
+      # この cron はインスタンスが動き続けるときの予備。毎日 3:00、JVM の既定のタイムゾーン＝UTC で解釈される。
       cleanup-cron: "0 0 3 * * *"
     timeout: ${swv.auth.session-timeout}
   security:
