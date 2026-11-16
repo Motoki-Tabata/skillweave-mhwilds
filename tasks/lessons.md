@@ -115,3 +115,8 @@
 - 種別: 規律昇華
 - 何が起きたか: 038 の spec.md AC-10 は「火力の最大化の検索 1 回の合計時間の最大が 3 秒を超えたら止める（006 decisions.md Q36）」とした。画面の基準は 024 decisions.md Q50 で「1 件目までの時間の最大。届かなければ 5 秒に読み替え。合計時間は基準にしない」に改められており、現行の記録（`design/tech-stack.md` の 024 の節）でも合計時間は 30 秒の打ち切りに達している。字義どおりでは測る前から止まるため、区間 C の plan D16 で Q50 の基準に読み替え、ゲート C-1 で承認を取った。
 - 提案: `.claude/skills/tsod-spec/` の受入基準を書く手順に、過去の decisions.md の基準（性能の目標など）を引くときは、`design/tech-stack.md` の最新の記録と後の機能の decisions.md で改定されていないかを grep で確かめる、と足す（経路 (a)）。
+
+## 2026-11-17 構造化ログの形式を確かめるテストは、先に走った prod の起動が残す System プロパティで平文の起動まで JSON になる（機能041・区間D）
+- 種別: 規律昇華
+- 何が起きたか: `StructuredLogRequestTest`（`@SpringBootTest` の prod）が先に走ると、同じ JVM の次の `SpringApplication.run`（training・local）が構造化ログになった。`logging.structured.format.console` を設定しないプロファイルでは `LoggingSystemProperties` が System プロパティ `CONSOLE_LOG_STRUCTURED_FORMAT` を消さないため。`StructuredLogStartupTest` の `@BeforeEach` で `CONSOLE_LOG_STRUCTURED_FORMAT`・`FILE_LOG_STRUCTURED_FORMAT` を `System.clearProperty` して直した（api-agent の報告）。また、テスト下ではメインクラスが `GradleWorkerMain` と推定され、起動メッセージが `Starting SkillweaveApplication` にならない。
+- 提案: `.claude/rules/api-spring.md` に、ログの形式を確かめるテストは `SpringApplication.run` を明示して起動し、前に `CONSOLE_LOG_STRUCTURED_FORMAT`・`FILE_LOG_STRUCTURED_FORMAT` を消す。キャッシュしたコンテキストはログの仕組みを作り直さない。起動メッセージの照合は `using Java` にする、と足す（経路 (a)）。
