@@ -2,9 +2,9 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: C
-- 次に起動するコマンド: `/tsod-plan 041-api-structured-log`
-- 推奨モデル: Opus
+- 区間: D
+- 次に起動するコマンド: `/tsod-build 041-api-structured-log`
+- 推奨モデル: Sonnet
 - ブランチ: `feat/041-api-structured-log`（不変）
 <!--
 区間の終わりの定型（区間コマンドはこの行を逐語で写す。推奨モデルの表記は `Opus`・`Sonnet` だけを使う）
@@ -27,7 +27,7 @@
 | A-2 | 薄仕様 spec.md | 承認済み | 2026-11-17 / 10615c7 |
 | B-1 | 画面設計 screen-design.md | 該当なし（UI・テーブル変更なし） | 2026-11-17 |
 | B-2 | テーブル設計（design/・migration） | 該当なし（UI・テーブル変更なし） | 2026-11-17 |
-| C-1 | plan.md・tasks.md | 未 | |
+| C-1 | plan.md・tasks.md | 承認済み | 2026-11-17 / 0b03242 |
 | D-1 | 実装受入 | 未 | |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
@@ -67,6 +67,7 @@
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
 - なし（区間 A で新しい教訓は出なかった）
+- 候補（区間 C）: キャッシュしたテストのコンテキストを使い回すとログの仕組みが作り直されず、ログの形式を確かめるテストが実行順で変わりうる（plan D6）。区間 C では推論だけで未観測のため持ち越す。区間 D で api-agent の報告と実行の結果を見て、api-spring.md 行きで起票するか捨てるかを決める
 
 ## 要確認事項
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
@@ -76,3 +77,4 @@
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q158
 - 区間 C で A-2 を取り直した（FailureAnalyzer が扱う起動の失敗の stack_trace をスコープ外に追加。decisions.md「区間 C での spec の変更」）
+- 要確認事項の AC-6 は区間 C で確かめた（Tomcat の StandardWrapperValve が根本の原因の例外つきで ERROR を JUL に出し、SLF4JBridgeHandler で Logback に届く。plan D4）。出す箇所のコードは足さない
