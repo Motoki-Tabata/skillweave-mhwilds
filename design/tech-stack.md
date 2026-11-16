@@ -575,7 +575,7 @@ Cloudflare の Web Analytics は残す（2026-11-03 にユーザーが決定）�
 | Resend | 使わない | 送信するメールが無い。受信は Cloudflare Email Routing（無料）で足りる |
 | Stripe | 使わない | 憲法で営利化を禁止している |
 | PostHog | 使わない | 表示の速さは Cloudflare Web Analytics で足りる。行動の記録やセッションの録画は `/privacy` の説明を大きく変える |
-| Sentry | 今は使わない | API のエラーは Google Cloud の Error Reporting（料金なし。Cloud Logging の費用だけ）を先に試す。2026-11-11 に試したところ、今の平文のログでは Cloud Run がスタックトレースを 1 行ずつ別のログに分け、Error Reporting に載らなかった。構造化したログにする扱いは `specs/open-questions.md` Q158。ブラウザのエラーを集めたくなったら、`/privacy` の変更と合わせて機能として検討する |
+| Sentry | 今は使わない | API のエラーは Google Cloud の Error Reporting（料金なし。Cloud Logging の費用だけ）を先に試す。2026-11-11 に試したところ、当時の平文のログでは Cloud Run がスタックトレースを 1 行ずつ別のログに分け、Error Reporting に載らなかった。構造化したログにする扱いは 041 の決定（`specs/041-api-structured-log/decisions.md` Q158。`prod` のログを `stack_trace` と `severity` を持つ 1 行の JSON にした）。ブラウザのエラーを集めたくなったら、`/privacy` の変更と合わせて機能として検討する |
 
 Cloudflare のログの料金は 2026-12-01 に変わる。無料プランは 1 日 0.5 GB・保持 7 日で、上限に達すると取り込みを止め、課金はされない。Workers Logs は引き続き無効のままにする。
 
