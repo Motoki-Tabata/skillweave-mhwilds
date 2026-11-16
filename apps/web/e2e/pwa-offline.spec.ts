@@ -168,6 +168,21 @@ test.describe('018 pwa-offline', () => {
     }
   })
 
+  test('039 AC-3: オフラインで存在しないパスを直接開いても、再読み込みしても、見つかりませんの画面が出る', async ({
+    page,
+    context,
+  }) => {
+    test.setTimeout(180_000)
+    await openControlled(page)
+    await context.setOffline(true)
+
+    await page.goto('/no-such-page')
+    await expectHeading(page, 'ページが見つかりません')
+    await expect(page).toHaveTitle('ページが見つかりません | SkillWeave')
+    await page.reload()
+    await expectHeading(page, 'ページが見つかりません')
+  })
+
   test('AC-4: オフラインで装備検索の結果が出て、端末内の護石と武器の一覧が出る', async ({
     page,
     context,
