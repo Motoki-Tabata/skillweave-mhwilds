@@ -37,7 +37,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [x] C6 Neon が停止するか（Q91）、無料枠の消費、レイテンシを実測して記録する。依存: C5。2026-11-11 に済んだ（`design/tech-stack.md`「稼働の実測」）。Neon は最後の要求から約 20 分で止まる。11 月 1〜11 日の費用は ¥0（定価 ¥4）で、予算の金額は据え置いた。Q149 は残ることを確かめ、スキャナーの要求を Q159 にした
 - [x] C7 Q140 の照合: Email Routing の転送と受信、Cloud Run の地域、ログの保持、Workers Logs、バックアップの保持期間、Web Analytics、ブラウザの通信先。依存: C5。2026-11-14 に済んだ（`design/tech-stack.md`「プライバシーの表記との照合」。Q140 は 030 decisions.md へ移した）。Email Routing は未設定だったので有効にし、受信を確かめた。ほかは表記と合っていて、`/privacy` は直していない
 - [x] C8 ユーザーの判断で URL を 0.x のまま配る。先に release-please の PR #119 を v0.3.0 としてマージし、Web を出す（`design/tech-stack.md`「リリースと版」）。依存: B5、C5、C6、C7。Q158（Error Reporting）・Q149・Q159・Q136 は URL を配った後に D5 で起票する。2026-11-14 に PR #119 をマージし、Release の run 43578068198 で v0.3.0 を出した（版 `9e2f1b6a-0b80-42a8-a37a-32f1104a1056`）。自動の確認（`/`・`/privacy` が 200、`/api/auth/me` が 401）が通り、運営者がブラウザで画面・検索・ログインを確かめた。URL を配る時期と相手は運営者が決める
-- [ ] C9 v1.0.0 をリリースする（`design/tech-stack.md`「リリースと版」）。依存: D1〜D5
+- [ ] C9 v1.0.0 をリリースする（`design/tech-stack.md`「リリースと版」）。依存: D1〜D6
 - [ ] C10 残す内容を `design/`・`specs/` へ移し、このフォルダを消す。依存: C9
 
 ### D. v1.0.0 の前に TSOD で進める機能
@@ -45,14 +45,15 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [ ] D1 016 charm-ocr（着手の前に Q117 を決める）。依存: C8
 - [ ] D2 017 reverse-lookup。依存: D1
 - [ ] D3 018 pwa-offline（導入方式 Q6 を決める）。依存: D2
-- [ ] D4 023 element-damage。依存: D3
-- [ ] D5 `specs/open-questions.md` の Q136（存在しない URL）・Q149（期限切れの `spring_session`）・Q158（Error Reporting）・Q159（スキャナーの要求）を `/tsod-discover` で機能として起票し、TSOD で本番へ出す。依存: D4
+- [ ] D4 023 element-damage。依存: D6
+- [ ] D5 `specs/open-questions.md` の Q136（存在しない URL）・Q149（期限切れの `spring_session`）・Q158（Error Reporting）・Q159（スキャナーの要求）を `/tsod-discover` で機能として起票し、TSOD で本番へ出す。2026-11-16 に 039 not-found-route・040 session-cleanup・041 api-structured-log・042 worker-api-filter として起票した。依存: D3
+- [ ] D6 043 weapon-type-effects（会心撃【属性】など武器種で値が違う効果。023 より先に行う。023 decisions.md Q197）。依存: D5
 
 ### 順番
 1. A2 → A1 → B1
 2. B2 と C1 を並行して進める
 3. B3 と C2 → C3 → C4 を並行して進める。B4 は C3 と並行して進める。B5 は C6・C7 と並行して進める
-4. C5 → C6・C7 → C8 → D1 → D2 → D3 → D4 → D5 → C9 → C10（D1〜D4 は機能 ID の順。2026-11-14 にユーザーが決定）
+4. C5 → C6・C7 → C8 → D1 → D2 → D3 → D5 → D6 → D4 → C9 → C10（D1〜D3 は機能 ID の順。2026-11-14 にユーザーが決定。2026-11-16 に、D5 の 039〜042 を先に進め、D6 の 043 の後に D4 の 023 を行うと決めた）
 
 ## A1 で記録する内容
 
