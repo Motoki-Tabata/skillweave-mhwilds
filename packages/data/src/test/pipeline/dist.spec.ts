@@ -33,10 +33,10 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
     expect([ja.version, en.version]).toEqual([MASTER_VERSION, MASTER_VERSION])
   })
 
-  it('全防具に rank があり、版が 2026.11.2 である（12。006 受入基準 3・037 AC-5）', async () => {
+  it('全防具に rank があり、版が 2026.11.3 である（12。006 受入基準 3・037 AC-5・038 AC-5）', async () => {
     const bundle = await readJson<MasterBundle>(BUNDLE)
-    expect(bundle.version).toBe('2026.11.2')
-    expect(MASTER_VERSION).toBe('2026.11.2')
+    expect(bundle.version).toBe('2026.11.3')
+    expect(MASTER_VERSION).toBe('2026.11.3')
     expect(bundle.armors.length).toBeGreaterThan(0)
     for (const armor of bundle.armors) {
       expect(['low', 'high', 'master'], armor.id).toContain(armor.rank)
@@ -366,5 +366,178 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
       expect(match, line).not.toBeNull()
       expect(match?.[2], line).toBe(ja.entries[match?.[1] ?? '']?.name)
     }
+  })
+})
+
+describe('効果の数値（038。コミット済みの dist/ を読む）', () => {
+  // AC-6: 代表の値。adopted.md の採用した値から書き写したもの（実装の写しではない）
+  describe('代表の値が採用した値と一致する（AC-6）', () => {
+    const cases: [string, string, number, unknown[]][] = [
+      [
+        'sk:31540',
+        'オメガレゾナンス',
+        1,
+        [
+          { stat: 'affinity_add', value: 20, conditionId: 'cd:resonance_near' },
+          { stat: 'attack_add', value: 10, conditionId: 'cd:resonance_far' },
+        ],
+      ],
+      [
+        'sk:31540',
+        'オメガレゾナンス',
+        2,
+        [
+          { stat: 'affinity_add', value: 40, conditionId: 'cd:resonance_near' },
+          { stat: 'attack_add', value: 20, conditionId: 'cd:resonance_far' },
+        ],
+      ],
+      [
+        'sk:7506',
+        'シールドオプション',
+        1,
+        [{ stat: 'defense_add', value: 30, conditionId: 'cd:synthetic_shield' }],
+      ],
+    ]
+    it.each(cases)('%s %s Lv%i', async (id, name, level, expected) => {
+      const bundle = await readJson<MasterBundle>(BUNDLE)
+      const ja = await readJson<MasterDictionary>(JA)
+      expect(ja.entries[id]?.name).toBe(name)
+      expect(bundle.skills.find((s) => s.id === id)?.effectsByLevel[level - 1]).toEqual(expected)
+    })
+  })
+
+  // 対象の候補 29 件（plan D1。ID → ja の名前）
+  const CANDIDATES: Record<string, string> = {
+    'sk:313598432': '会心撃【属性】',
+    'sk:-168922880': '会心撃【特殊】',
+    'sk:565867136': '連撃',
+    'sk:-1700743296': '災禍転福',
+    'sk:1489568384': '属性吸収',
+    'sk:2083363072': '属性変換',
+    'sk:722735744': '黒蝕竜の力',
+    'sk:-215826112': '凍峰竜の反逆',
+    'sk:30992': '千刃竜の闘志',
+    'sk:1998066176': '毛皮の昂揚',
+    'sk:2107855744': 'ヌシの憤激',
+    'sk:1484575872': 'ヌシの魂',
+    'sk:-1769550080': 'ヌシの誇り',
+    'sk:-911441792': '花舞の祈り',
+    'sk:11709': '夢灯の祈り',
+    'sk:30815': '祝謡の祈り',
+    'sk:8694': '踊火の祈り',
+    'sk:2104075392': '波衣竜の守護',
+    'sk:451472896': '革細工の滑性',
+    'sk:741102208': '雪獅子の闘志',
+    'sk:5590': '巨戟龍の黙示録',
+    'sk:24531': '暗黒騎士の証',
+    'sk:16835': '海竜の渦雷',
+    'sk:31540': 'オメガレゾナンス',
+    'sk:1639440000': '研鑽',
+    'sk:28385': 'パワーストーン',
+    'sk:3813': '暗黒',
+    'sk:31998': '連携プログラム',
+    'sk:7506': 'シールドオプション',
+  }
+
+  // 空のまま: 値が出典で定まらない・武器種で違う（Q196）など
+  const KEPT_EMPTY: Record<string, string> = {
+    'sk:313598432': '武器種で値が違う（Q196）',
+    'sk:-168922880': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:565867136': '武器種で値が違う（Q196）',
+    'sk:-1700743296': '武器種で値が違う（Q196）',
+    'sk:1489568384': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:2083363072': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:722735744': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:-215826112': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:30992': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:1998066176': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:2107855744': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:1484575872': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:-1769550080': '値を載せる出典が K のみ・自分に効くかが定まらない',
+    'sk:-911441792': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:11709': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:30815': '値を載せる出典が無い（K のページを取得できず）',
+    'sk:8694': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:2104075392': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:451472896': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:741102208': '値を載せる出典が K のみ・仲間に効く',
+    'sk:5590': '値を載せる出典が無い（K のページを取得できず）',
+    'sk:24531': '全属性への乗算の書式が無く読みが定まらない',
+    'sk:16835': '値を載せる出典が K のみ・読みが定まらない',
+    'sk:1639440000': '値を載せる出典が G8e のみ',
+    'sk:28385': '値を載せる出典が無い',
+    'sk:3813': '値を載せる出典が G8e のみ',
+    'sk:31998': '出典が食い違う（G8e 会心率 +15%、K 30/40）',
+  }
+
+  it('対象の候補は、全レベルが効果を持つか、理由つきの「空のまま」の一覧にある（AC-1・AC-6）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const ja = await readJson<MasterDictionary>(JA)
+    expect(Object.keys(CANDIDATES)).toHaveLength(29)
+    const bad: string[] = []
+    for (const [id, name] of Object.entries(CANDIDATES)) {
+      expect(ja.entries[id]?.name, id).toBe(name)
+      const effects = bundle.skills.find((s) => s.id === id)?.effectsByLevel ?? []
+      const hasValues = effects.length > 0 && effects.every((level) => level.length > 0)
+      const keptEmpty = effects.every((level) => level.length === 0)
+      const listed = id in KEPT_EMPTY
+      // 効果を持つなら一覧に無く、空のままなら理由つきで一覧にある（どちらか一方）
+      if (!(hasValues !== listed && (hasValues || keptEmpty))) bad.push(`${id} ${name}`)
+    }
+    expect(bad).toEqual([])
+    for (const id of Object.keys(KEPT_EMPTY)) expect(id in CANDIDATES, id).toBe(true)
+    expect(Object.values(KEPT_EMPTY).every((reason) => reason.length > 0)).toBe(true)
+  })
+
+  it('対象外の 15 件は効果を持たない（AC-2。Q195）', async () => {
+    const OUT_OF_SCOPE: Record<string, string> = {
+      'sk:-1475134080': 'チャージマスター',
+      'sk:1613139840': 'フォースショット',
+      'sk:-1961297152': '通常弾・通常矢強化',
+      'sk:-2123993856': '散弾・剛射強化',
+      'sk:552982656': '貫通弾・竜の矢強化',
+      'sk:-596764096': '砲術',
+      'sk:1826': '焼き砲モロコシ',
+      'sk:10503': 'にぎりめし',
+      'sk:-856322816': '鎖刃刺撃',
+      'sk:-3666104': '火竜の力',
+      'sk:576193792': '白熾の奔流',
+      'sk:1934955136': 'オトモへの采配',
+      'sk:-2041451904': '護竜の守り',
+      'sk:11481': '耐性変換【水】',
+      'sk:30201': '耐性変換【雷】',
+    }
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const ja = await readJson<MasterDictionary>(JA)
+    expect(Object.keys(OUT_OF_SCOPE)).toHaveLength(15)
+    for (const [id, name] of Object.entries(OUT_OF_SCOPE)) {
+      expect(ja.entries[id]?.name, id).toBe(name)
+      const effects = bundle.skills.find((s) => s.id === id)?.effectsByLevel ?? []
+      expect(
+        effects.every((level) => level.length === 0),
+        id,
+      ).toBe(true)
+    }
+  })
+
+  it('Web 由来の値を持つスキルの行だけが「（Web）」のコメントで終わる（AC-4）', async () => {
+    const text = await readFile(`${import.meta.dirname}/../../../overlays/effects.yaml`, 'utf8')
+    const ja = await readJson<MasterDictionary>(JA)
+    const skillLines = text.split('\n').filter((line) => /^ {2}sk:\S+: # /.test(line))
+    expect(skillLines.length).toBeGreaterThan(0)
+    const webIds = ['sk:31540', 'sk:7506']
+    for (const line of skillLines) {
+      const id = /^ {2}(sk:\S+):/.exec(line)?.[1] ?? ''
+      if (webIds.includes(id)) {
+        expect(line.endsWith(`# ${ja.entries[id]?.name}（Web）`), line).toBe(true)
+      } else {
+        expect(line.includes('（Web）'), line).toBe(false)
+      }
+    }
+    for (const id of webIds)
+      expect(
+        skillLines.some((l) => l.startsWith(`  ${id}:`)),
+        id,
+      ).toBe(true)
   })
 })
