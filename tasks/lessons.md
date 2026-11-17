@@ -120,3 +120,8 @@
 - 種別: 規律昇華
 - 何が起きたか: `StructuredLogRequestTest`（`@SpringBootTest` の prod）が先に走ると、同じ JVM の次の `SpringApplication.run`（training・local）が構造化ログになった。`logging.structured.format.console` を設定しないプロファイルでは `LoggingSystemProperties` が System プロパティ `CONSOLE_LOG_STRUCTURED_FORMAT` を消さないため。`StructuredLogStartupTest` の `@BeforeEach` で `CONSOLE_LOG_STRUCTURED_FORMAT`・`FILE_LOG_STRUCTURED_FORMAT` を `System.clearProperty` して直した（api-agent の報告）。また、テスト下ではメインクラスが `GradleWorkerMain` と推定され、起動メッセージが `Starting SkillweaveApplication` にならない。
 - 提案: `.claude/rules/api-spring.md` に、ログの形式を確かめるテストは `SpringApplication.run` を明示して起動し、前に `CONSOLE_LOG_STRUCTURED_FORMAT`・`FILE_LOG_STRUCTURED_FORMAT` を消す。キャッシュしたコンテキストはログの仕組みを作り直さない。起動メッセージの照合は `using Java` にする、と足す（経路 (a)）。
+
+## 2026-11-18 Sonar の領域モード（web）は apps/web/worker を解析しない（機能042・区間C）
+- 種別: 矛盾是正
+- 何が起きたか: 042 は `sonar-project.properties` の `sonar.sources` に `apps/web/worker` を足すが、`scripts/sonar-local.sh` の `--area web` は対象のパス（`AREA_PATHS`）と `-Dsonar.sources` を `apps/web/src/main`・`apps/web/src/test`・`apps/web/e2e` に固定しているので、`verify.mjs --sonar-area web` の 0 件は Worker を含まない。042 は plan の D9 で、メインの全体解析（`--sonar`）で凌ぐ。
+- 提案: `scripts/sonar-local.sh` の web の `AREA_PATHS` と `-Dsonar.sources` に `apps/web/worker` を足す（検査機構なので人間の明示指示を要する。区間の外の `chore/*` で行う）。
