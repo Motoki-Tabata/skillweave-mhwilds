@@ -467,3 +467,103 @@ describe('直列化の条件（受入基準 1）', () => {
     expect(Object.keys(first?.[0] ?? {})).toEqual(['conditionId', 'stat', 'value'])
   })
 })
+
+describe('weaponTypes の規則（043 AC-1。D3・D4）', () => {
+  const effectOf = (weaponTypes: string): string =>
+    `{ stat: attack_add, value: 1, weaponTypes: ${weaponTypes} }`
+
+  it('overlay: 正しい weaponTypes は並びのまま効果に入る。省略した効果は weaponTypes を持たない', () => {
+    const result = apply(file('x.yaml', withEffect(effectOf('[charge-blade, bow]'))))
+    if (!result.ok) throw new Error(result.errors.map(formatOverlayError).join('\n'))
+    const level = result.bundle.skills.find((s) => s.id === 'sk:100')!.effectsByLevel[0]!
+    expect(level[2]).toEqual({
+      stat: 'attack_add',
+      value: 1,
+      weaponTypes: ['charge-blade', 'bow'],
+    })
+    expect('weaponTypes' in level[0]!).toBe(false)
+  })
+
+  it('overlay: 配列でない・空・文字列でない要素・武器種に無い要素・重複は、位置を示して失敗する', () => {
+    for (const bad of ['bow', '[]', '[1]', '[long_sword]', '[bow, bow]', 'null']) {
+      const messages = errorsOf(file('x.yaml', withEffect(effectOf(bad))))
+      expect(messages, bad).toEqual([expect.stringMatching(/^x\.yaml:10:9: .*weaponTypes/)])
+    }
+  })
+
+  it('overlay: stat・element・conditionId が同じ効果の武器種が交わると、後の効果の位置で失敗する', () => {
+    // 省略（全武器種）と [bow] は交わる
+    const overlap = `${effectOf('[bow]')}\n      - { stat: attack_add, value: 2 }`
+    expect(errorsOf(file('x.yaml', withEffect(overlap)))).toEqual([
+      expect.stringMatching(/^x\.yaml:11:9: .*重なって/),
+    ])
+    const both = `${effectOf('[bow, charge-blade]')}\n      - ${effectOf('[bow]')}`
+    expect(errorsOf(file('x.yaml', withEffect(both)))).toEqual([
+      expect.stringMatching(/^x\.yaml:11:9: .*bow/),
+    ])
+  })
+
+  it('overlay: 武器種が交わらない、または stat か conditionId が違えば通る', () => {
+    const cases = [
+      `${effectOf('[bow]')}\n      - ${effectOf('[charge-blade]')}`,
+      `${effectOf('[bow]')}\n      - { stat: attack_mul, value: 1.1, weaponTypes: [bow] }`,
+      `${effectOf('[bow]')}\n      - { stat: attack_add, value: 2, conditionId: cd:a }`,
+    ]
+    for (const text of cases) {
+      const result = apply(file('x.yaml', withEffect(text)))
+      expect(result.ok, text).toBe(true)
+    }
+  })
+
+  describe('出力前の検証 skill-effects', () => {
+    const violationsOf = (effects: Effect[]) => {
+      const result = apply(file('effects.yaml', VALID))
+      if (!result.ok) throw new Error('失敗')
+      assignCategories(result.bundle)
+      result.bundle.skills.find((s) => s.id === 'sk:101')!.effectsByLevel = [effects]
+      const { dictionaries } = base()
+      return validate({
+        bundle: result.bundle,
+        dictionaries: {
+          ja: applyConditionNames(applyReadings(dictionaries.ja, READINGS), result.conditionNames),
+          en: applyConditionNames(dictionaries.en, result.conditionNames),
+        },
+      })
+    }
+
+    it('正しい weaponTypes は違反が0件', () => {
+      const violations = violationsOf([
+        { stat: 'attack_add', value: 1, weaponTypes: ['bow'] },
+        { stat: 'attack_add', value: 2, weaponTypes: ['charge-blade'] },
+      ])
+      expect(violations.map(formatViolation)).toEqual([])
+    })
+
+    it('空・非配列・非文字列・武器種に無い要素・重複は違反', () => {
+      for (const bad of [[], 'bow', [1], ['long_sword'], ['bow', 'bow']]) {
+        const violations = violationsOf([
+          { stat: 'attack_add', value: 1, weaponTypes: bad as never },
+        ])
+        expect(
+          violations.map((v) => v.rule),
+          JSON.stringify(bad),
+        ).toEqual(['skill-effects'])
+        expect(violations[0]?.message).toContain('weaponTypes')
+      }
+    })
+
+    it('stat・element・conditionId が同じ効果の武器種が交わると違反。省略は全武器種', () => {
+      const violations = violationsOf([
+        { stat: 'attack_add', value: 1, weaponTypes: ['bow'] },
+        { stat: 'attack_add', value: 2 },
+      ])
+      expect(violations.map((v) => v.rule)).toEqual(['skill-effects'])
+      expect(violations[0]?.message).toContain('sk:101')
+      const different = violationsOf([
+        { stat: 'attack_add', value: 1, weaponTypes: ['bow'] },
+        { stat: 'attack_mul', value: 1.1 },
+      ])
+      expect(different).toEqual([])
+    })
+  })
+})

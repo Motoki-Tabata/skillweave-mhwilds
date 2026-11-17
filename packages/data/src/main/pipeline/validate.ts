@@ -1,7 +1,12 @@
 import type { MasterBundle, MasterDictionary, Slot, SkillLevel } from '../index.ts'
 import { SKILL_CATEGORIES } from './categories.ts'
 import type { SetBonusMismatch } from './convert.ts'
-import { CONDITION_ID_PATTERN, effectProblem } from './effects.ts'
+import {
+  CONDITION_ID_PATTERN,
+  effectProblem,
+  weaponTypeOverlaps,
+  weaponTypesProblem,
+} from './effects.ts'
 
 export interface Violation {
   rule: string
@@ -238,6 +243,7 @@ function checkConditions(bundle: MasterBundle, out: Violation[]): void {
 
 function checkSkillEffects(bundle: MasterBundle, out: Violation[]): void {
   const conditionIds = new Set<string>(bundle.conditions.map((condition) => condition.id))
+  const weaponTypes = new Set<string>(bundle.weapons.map((weapon) => weapon.weaponType))
   for (const skill of bundle.skills) {
     const levels = skill.effectsByLevel
     if (levels.length !== 0 && levels.length !== skill.maxLevel) {
@@ -247,8 +253,20 @@ function checkSkillEffects(bundle: MasterBundle, out: Violation[]): void {
       })
     }
     levels.forEach((effects, index) => {
+      const owner = `${skill.id}: Lv${index + 1}`
+      const valid = effects.filter((effect) => {
+        const wtProblem =
+          'weaponTypes' in effect ? weaponTypesProblem(effect.weaponTypes, weaponTypes) : undefined
+        if (wtProblem) out.push({ rule: 'skill-effects', message: `${owner}: ${wtProblem}` })
+        return wtProblem === undefined
+      })
+      for (const [position, message] of weaponTypeOverlaps(valid, weaponTypes)) {
+        out.push({
+          rule: 'skill-effects',
+          message: `${owner}: 効果 ${position + 1} 件目の${message}`,
+        })
+      }
       for (const effect of effects) {
-        const owner = `${skill.id}: Lv${index + 1}`
         const problem = effectProblem(effect.stat, effect.value, effect.element)
         if (problem) out.push({ rule: 'skill-effects', message: `${owner}: ${problem}` })
         if (effect.conditionId !== undefined && !conditionIds.has(effect.conditionId)) {

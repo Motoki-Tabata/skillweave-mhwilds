@@ -89,3 +89,59 @@ export function effectProblem(
   }
   return valueProblem(stat, value) ?? elementProblem(stat, element)
 }
+
+/** `weaponTypes` の規則（空・非配列・非文字列・武器種の集合に無い要素・重複）に反していれば、その理由を返す。守っていれば undefined */
+export function weaponTypesProblem(value: unknown, known: ReadonlySet<string>): string | undefined {
+  if (!Array.isArray(value)) return `weaponTypes ${JSON.stringify(value)} が配列ではありません`
+  if (value.length === 0) return 'weaponTypes が空の配列です'
+  const seen = new Set<string>()
+  for (const item of value as unknown[]) {
+    if (typeof item !== 'string') {
+      return `weaponTypes の要素 ${JSON.stringify(item)} が文字列ではありません`
+    }
+    if (!known.has(item)) {
+      return `weaponTypes の要素 ${JSON.stringify(item)} が武器種（${[...known].join('・')}）のどれでもありません`
+    }
+    if (seen.has(item)) return `weaponTypes の要素 ${JSON.stringify(item)} が重複しています`
+    seen.add(item)
+  }
+  return undefined
+}
+
+export interface OverlapCandidate {
+  stat: string
+  element?: unknown
+  conditionId?: unknown
+  weaponTypes?: readonly string[]
+}
+
+/**
+ * 同じレベルの効果の列で、`stat`・`element`・`conditionId` がすべて同じ効果どうしの武器種の集合が交わるものを探す
+ * （`weaponTypes` の省略は全武器種）。後の効果ごとに、先の効果と交わるときの理由を返す
+ */
+export function weaponTypeOverlaps(
+  effects: readonly OverlapCandidate[],
+  known: ReadonlySet<string>,
+): Map<number, string> {
+  const problems = new Map<number, string>()
+  const kindOf = (effect: OverlapCandidate): string =>
+    JSON.stringify([effect.stat, effect.element ?? null, effect.conditionId ?? null])
+  const typesOf = (effect: OverlapCandidate): ReadonlySet<string> =>
+    new Set(effect.weaponTypes ?? known)
+  effects.forEach((effect, index) => {
+    const types = typesOf(effect)
+    for (let earlier = 0; earlier < index; earlier++) {
+      const other = effects[earlier]
+      if (other === undefined || kindOf(other) !== kindOf(effect)) continue
+      const shared = [...typesOf(other)].filter((type) => types.has(type))
+      if (shared.length > 0) {
+        problems.set(
+          index,
+          `${effect.stat} の武器種が先の効果と重なっています（${shared.join('・')}）`,
+        )
+        return
+      }
+    }
+  })
+  return problems
+}

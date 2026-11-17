@@ -7,6 +7,8 @@
 # オトモ・回数や段階を数える数値・種類の区別が定まらない値・攻撃の種類や部位で範囲を限る倍率・数値の無い部分は書かない。
 # 回数・ヒット数・経過時間で段階的に強まる効果は、最大の段階の値を 1 つの条件に入れる（条件の名前で最大の段階と分かるようにする）。
 # 1 レベルの効果は、説明文に出てくる順（乗算→加算→他）に書く。
+# 武器種で値が違う効果は `weaponTypes: [great-sword, ...]`（MHDB の武器種。ゲーム内の順）で書く。省略は全武器種。
+# 同じレベルで stat・element・conditionId が同じ効果どうしは、武器種を重ねない。
 
 conditions:
   - id: cd:adrenaline_rush
@@ -19,6 +21,10 @@ conditions:
     name: { ja: 狂竜症の克服状態, en: Antivirus active }
   - id: cd:bubbleblight
     name: { ja: 泡状態, en: Bubbleblight }
+  - id: cd:burst_5_hits
+    name: { ja: 連撃の5回継続以降, en: Burst after 5 hits }
+  - id: cd:coalescence
+    name: { ja: 災禍転福の発動中, en: Coalescence active }
   - id: cd:counterstrike
     name: { ja: 逆襲の発動中, en: Counterstrike active }
   - id: cd:critical_draw
@@ -72,6 +78,16 @@ effects:
     - - { stat: affinity_add, value: 3, conditionId: cd:antivirus }
     - - { stat: affinity_add, value: 6, conditionId: cd:antivirus }
     - - { stat: affinity_add, value: 10, conditionId: cd:antivirus }
+  sk:-1700743296: # 災禍転福（Web）
+    - - { stat: element_mul, value: 1.1, conditionId: cd:coalescence, weaponTypes: [great-sword, hammer, hunting-horn, gunlance, switch-axe, charge-blade] }
+      - { stat: element_mul, value: 1.05, conditionId: cd:coalescence, weaponTypes: [long-sword, sword-shield, dual-blades, lance, insect-glaive, light-bowgun, heavy-bowgun, bow] }
+      - { stat: status_mul, value: 1.05, conditionId: cd:coalescence }
+    - - { stat: element_mul, value: 1.2, conditionId: cd:coalescence, weaponTypes: [great-sword, hammer, hunting-horn, gunlance, switch-axe, charge-blade] }
+      - { stat: element_mul, value: 1.1, conditionId: cd:coalescence, weaponTypes: [long-sword, sword-shield, dual-blades, lance, insect-glaive, light-bowgun, heavy-bowgun, bow] }
+      - { stat: status_mul, value: 1.1, conditionId: cd:coalescence }
+    - - { stat: element_mul, value: 1.3, conditionId: cd:coalescence, weaponTypes: [great-sword, hammer, hunting-horn, gunlance, switch-axe, charge-blade] }
+      - { stat: element_mul, value: 1.15, conditionId: cd:coalescence, weaponTypes: [long-sword, sword-shield, dual-blades, lance, insect-glaive, light-bowgun, heavy-bowgun, bow] }
+      - { stat: status_mul, value: 1.15, conditionId: cd:coalescence }
   sk:-171796848: # 急襲
     - - { stat: attack_mul, value: 1.05, conditionId: cd:ambush }
     - - { stat: attack_mul, value: 1.1, conditionId: cd:ambush }
@@ -252,6 +268,11 @@ effects:
     - - { stat: attack_add, value: 10, conditionId: cd:counterstrike }
     - - { stat: attack_add, value: 15, conditionId: cd:counterstrike }
     - - { stat: attack_add, value: 25, conditionId: cd:counterstrike }
+  sk:313598432: # 会心撃【属性】（Web）
+    - - { stat: element_crit_mul, value: 1.05, weaponTypes: [long-sword, sword-shield, dual-blades, lance, insect-glaive, light-bowgun, heavy-bowgun, bow] }
+    - - { stat: element_crit_mul, value: 1.1, weaponTypes: [long-sword, sword-shield, dual-blades, lance, insect-glaive, light-bowgun, heavy-bowgun, bow] }
+    - - { stat: element_crit_mul, value: 1.2, weaponTypes: [great-sword, hammer, hunting-horn, gunlance, switch-axe, charge-blade] }
+      - { stat: element_crit_mul, value: 1.15, weaponTypes: [long-sword, sword-shield, dual-blades, lance, insect-glaive, light-bowgun, heavy-bowgun, bow] }
   sk:31540: # オメガレゾナンス（Web）
     - - { stat: affinity_add, value: 20, conditionId: cd:resonance_near }
       - { stat: attack_add, value: 10, conditionId: cd:resonance_far }
@@ -274,6 +295,52 @@ effects:
       - { stat: element_add, value: 5, element: water }
     - - { stat: element_mul, value: 1.2, element: water }
       - { stat: element_add, value: 6, element: water }
+  sk:565867136: # 連撃（Web）
+    - - { stat: attack_add, value: 10, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: element_add, value: 0.8, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: attack_add, value: 8, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: element_add, value: 0.4, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: attack_add, value: 8, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: element_add, value: 0.6, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: attack_add, value: 6, conditionId: cd:burst_5_hits, weaponTypes: [light-bowgun, heavy-bowgun] }
+      - { stat: attack_add, value: 6, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+      - { stat: element_add, value: 0.4, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+    - - { stat: attack_add, value: 12, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: element_add, value: 1, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: attack_add, value: 10, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: element_add, value: 0.6, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: attack_add, value: 10, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: element_add, value: 0.8, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: attack_add, value: 7, conditionId: cd:burst_5_hits, weaponTypes: [light-bowgun, heavy-bowgun] }
+      - { stat: attack_add, value: 7, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+      - { stat: element_add, value: 0.6, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+    - - { stat: attack_add, value: 14, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: element_add, value: 1.2, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: attack_add, value: 12, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: element_add, value: 0.8, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: attack_add, value: 12, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: element_add, value: 1, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: attack_add, value: 8, conditionId: cd:burst_5_hits, weaponTypes: [light-bowgun, heavy-bowgun] }
+      - { stat: attack_add, value: 8, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+      - { stat: element_add, value: 0.8, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+    - - { stat: attack_add, value: 16, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: element_add, value: 1.6, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: attack_add, value: 15, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: element_add, value: 1, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: attack_add, value: 15, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: element_add, value: 1.2, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: attack_add, value: 9, conditionId: cd:burst_5_hits, weaponTypes: [light-bowgun, heavy-bowgun] }
+      - { stat: attack_add, value: 9, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+      - { stat: element_add, value: 1, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+    - - { stat: attack_add, value: 18, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: element_add, value: 2, conditionId: cd:burst_5_hits, weaponTypes: [great-sword, hunting-horn] }
+      - { stat: attack_add, value: 18, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: element_add, value: 1.2, conditionId: cd:burst_5_hits, weaponTypes: [dual-blades] }
+      - { stat: attack_add, value: 18, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: element_add, value: 1.4, conditionId: cd:burst_5_hits, weaponTypes: [long-sword, sword-shield, hammer, lance, gunlance, switch-axe, charge-blade, insect-glaive] }
+      - { stat: attack_add, value: 10, conditionId: cd:burst_5_hits, weaponTypes: [light-bowgun, heavy-bowgun] }
+      - { stat: attack_add, value: 10, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
+      - { stat: element_add, value: 1.2, conditionId: cd:burst_5_hits, weaponTypes: [bow] }
   sk:632127488: # 渾身
     - - { stat: affinity_add, value: 10, conditionId: cd:maximum_might }
     - - { stat: affinity_add, value: 20, conditionId: cd:maximum_might }

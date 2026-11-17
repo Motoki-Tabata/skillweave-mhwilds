@@ -84,6 +84,8 @@ export interface Effect {
   element?: EffectElement
   /** 発動条件。未指定なら常時。条件の有無はユーザーがトグルで決める */
   conditionId?: ConditionId
+  /** 効く武器種（`MasterWeapon.weaponType` の値）。省略は全武器種。空配列・重複は持てない */
+  weaponTypes?: string[]
 }
 
 /** 発動条件。名前は ja・en の辞書の `{ name }` に持つ */
