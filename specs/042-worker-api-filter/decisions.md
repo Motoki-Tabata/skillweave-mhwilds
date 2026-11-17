@@ -29,3 +29,14 @@
 ## spec.md AC-8 の改訂（2026-11-18・区間 C）
 - 何を: AC-8 の「改めなければならない 031 のテスト」に、031 の AC-1 のテストの `//evil.example/x`（`API_ORIGIN` にパスがあってもオリジンだけを使うことを確かめる例）を足した。許可の一覧に一致するパスに替えて、同じことを確かめ続ける。
 - 理由: 区間 C で `apps/web/src/test/worker/index.spec.ts` の要求のパスを洗い出したところ、許可の一覧に一致しないパスを転送するとした例は `GET /api/auth/me/` のほかにこの 1 例があった。`//` を含むパスは AC-3 により一致しないので、AC-1 の 404 になり、元のままでは通り続けられない。
+
+## 実経路の確認（2026-11-18・区間 D・plan D10）
+- 方法: `pnpm --filter @swv/web build` の後、`apps/web` で wrangler 4.158.0 の `wrangler dev --var API_ORIGIN:http://127.0.0.1:8787` を起動し、Node の偽の上流（`http://127.0.0.1:8787`。受けた要求を記録する）へ向けて curl で確かめた。
+- 結果:
+  - `GET`・`POST /api/.env` → 404、`application/problem+json`、本文 `{"type":"about:blank","title":"Not Found","status":404,"instance":"/api/.env"}`。偽の上流は受けていない。
+  - `GET /api/builds/`（`{id}` が空）・`GET /api/auth/me/` → 404（上流へ届かない）。
+  - `GET /api/builds`・`GET /api/oauth2/authorization/discord` → 200。偽の上流が `GET /api/builds`・`GET /api/oauth2/authorization/discord` を受けた（AC-6 の `http:` の転送を含む）。
+  - Cookie なしの `GET /api/auth/me` → 401（`application/problem+json`）。
+  - `API_ORIGIN` なしで起動し直した場合、`/api/.env`・`/api/builds` とも 503（AC-4）。
+  - 名前付き export（D1）を持つ Worker は workerd で動いた。
+- 偽の上流が受けた要求は、許可した 2 件だけだった。本番での確認はスコープ外。
