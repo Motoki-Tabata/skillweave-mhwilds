@@ -88,7 +88,10 @@ function upstreamHeaders(source: Headers): Headers {
 function b64url(bytes: Uint8Array): string {
   let bin = ''
   for (const b of bytes) bin += String.fromCharCode(b)
-  return btoa(bin).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '')
+  return btoa(bin)
+    .replaceAll('+', '-')
+    .replaceAll('/', '_')
+    .replace(/={1,2}$/, '')
 }
 
 function b64urlText(text: string): string {
