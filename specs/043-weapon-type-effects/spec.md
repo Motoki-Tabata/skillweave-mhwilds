@@ -43,6 +43,7 @@
 常時許可外の変更予定:
 - `design/master-data.md`（§6 に weaponTypes の規則を足し、§11 に対象の 3 件の出典を記録する）
 - `design/tech-stack.md`（値を入れたマスターでの検索の時間の測定の結果を記録する）
+- `design-system/skillweave/MASTER.md`（「スキルの説明と補完」節に、武器種の括弧の書式と構成カードでの絞り込みを足す。screen-design.md §6）
 - `packages/data/dist/master-2026.11.4.json`（生成物。効果を足すため、版を上げて生成のコマンドで書く。版の値は plan で決める）
 - `packages/data/dist/master-2026.11.4.ja.json`（生成物の ja の辞書。同上）
 - `packages/data/dist/master-2026.11.4.en.json`（生成物の en の辞書。同上）
