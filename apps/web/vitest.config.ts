@@ -13,7 +13,7 @@ export default mergeConfig(
       // `pnpm test:coverage` のときだけ有効になる（ローカル限定。閾値は置かない）。
       coverage: {
         provider: 'v8',
-        include: ['src/main/**/*.{ts,vue}'],
+        include: ['src/main/**/*.{ts,vue}', 'worker/**/*.ts'],
         exclude: [
           // 生成物（contracts/openapi.yaml から pnpm contract:types で再生成する）
           'src/main/lib/api/schema.ts',

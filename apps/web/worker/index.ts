@@ -1,5 +1,7 @@
 // `/api/*` だけがここに来る（wrangler.jsonc の run_worker_first）。それ以外は静的ファイルとして配信される。
-// `/api/*` は Secret `API_ORIGIN` の上流へそのまま転送する。セッションの Cookie が無い `GET /api/auth/me` だけは、上流を起こさず 401 を返す。
+// 判定の順序: `API_ORIGIN` が無い・不正なら 503 → 許可の一覧（API_PATH_TEMPLATES）に無いパスは、メソッドによらず転送せず 404
+// → セッションの Cookie が無い `GET /api/auth/me` は上流を起こさず 401 → それ以外は Secret `API_ORIGIN` の上流へそのまま転送する。
+// 404 にする要求では ID トークンを取らない（トークンエンドポイントを呼ばない）。
 // Secret `API_INVOKER_KEY`（サービスアカウントの鍵の JSON）があれば、ID トークンを取り（期限の 5 分前まで使い回す）、`X-Serverless-Authorization` で付ける。
 export interface Env {
   API_ORIGIN?: string
@@ -12,6 +14,22 @@ let cached: { value: string; expiresAt: number } | null = null
 
 const PROBLEM_JSON = 'application/problem+json'
 const ME_PATH = '/api/auth/me'
+// 転送してよいパスのテンプレート。契約（contracts/openapi.yaml の paths）の 11 個と、契約の外で API が受ける OAuth の 2 個。
+export const API_PATH_TEMPLATES: readonly string[] = [
+  '/api/shares',
+  '/api/shares/{id}',
+  '/api/shared-builds/{shortId}',
+  '/api/builds',
+  '/api/builds/{id}',
+  '/api/charms',
+  '/api/charms/{id}',
+  '/api/weapons',
+  '/api/weapons/{id}',
+  '/api/auth/me',
+  '/api/auth/logout',
+  '/api/oauth2/authorization/{registrationId}',
+  '/api/login/oauth2/code/{registrationId}',
+]
 const STRIPPED_HEADERS = new Set([
   'host',
   'forwarded',
@@ -35,6 +53,21 @@ function resolveOrigin(raw: string | undefined): string | null {
   return url.protocol === 'https:' || url.protocol === 'http:' ? url.origin : null
 }
 
+function segmentMatches(template: string, actual: string): boolean {
+  if (template.startsWith('{') && template.endsWith('}')) return actual.length > 0
+  return template === actual
+}
+
+function matchesTemplate(template: string, pathname: string): boolean {
+  const want = template.split('/')
+  const got = pathname.split('/')
+  return want.length === got.length && want.every((seg, i) => segmentMatches(seg, got[i]!))
+}
+
+function isAllowedPath(pathname: string): boolean {
+  return API_PATH_TEMPLATES.some((template) => matchesTemplate(template, pathname))
+}
+
 function hasSessionCookie(cookie: string | null): boolean {
   if (!cookie) return false
   return cookie.split(';').some((part) => {
@@ -55,7 +88,10 @@ function upstreamHeaders(source: Headers): Headers {
 function b64url(bytes: Uint8Array): string {
   let bin = ''
   for (const b of bytes) bin += String.fromCharCode(b)
-  return btoa(bin).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '')
+  return btoa(bin)
+    .replaceAll('+', '-')
+    .replaceAll('/', '_')
+    .replace(/={1,2}$/, '')
 }
 
 function b64urlText(text: string): string {
@@ -157,6 +193,12 @@ export default {
     if (!origin) return problem({ title: 'Service Unavailable', status: 503 }, 503)
 
     const url = new URL(request.url)
+    if (!isAllowedPath(url.pathname)) {
+      return problem(
+        { type: 'about:blank', title: 'Not Found', status: 404, instance: url.pathname },
+        404,
+      )
+    }
     if (
       request.method === 'GET' &&
       url.pathname === ME_PATH &&

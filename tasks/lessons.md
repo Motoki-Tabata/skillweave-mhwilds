@@ -76,20 +76,10 @@
 - 何が起きたか: e2e で `getByRole('link', { name, exact: true })` を使ったところ、`ExternalTextLink.vue` が末尾に sr-only の「（新しいタブで開く）」を付けるためアクセシブルネームが完全一致せず落ちた。部分一致に直して通った。
 - 提案: `.claude/rules/web-vue.md` の Playwright の `exact: true` の注意に、`ExternalTextLink` のリンクは例外（アクセシブルネームに「（新しいタブで開く）」が付く）、と足す（経路 (a)）。直す前に `.claude/**` の同じ文面を grep する。
 
-## 2026-11-03 apps/web/worker/** が Sonar の解析対象と coverage に入っていない（機能031・区間A）
-- 種別: 矛盾是正
-- 何が起きたか: `apps/web/worker/index.ts` は区間の外の作業（e342489）で足されたので、Sonar の解析対象（`sonar-project.properties` の `sonar.sources`）と vitest の coverage に入っていない。
-- 提案: `sonar.sources` に `apps/web/worker` を足す（検査機構なので人間の明示指示を要する）。`apps/web/vitest.config.ts` の coverage の `include` にも足す。
-
 ## 2026-11-03 テスト配置の規約が apps/web/worker のテストに当てはまらない（機能031・区間C）
 - 種別: 矛盾是正
 - 何が起きたか: `.claude/skills/impact-scope/conventions.md` の web 単体の規約は、`src/main` と同じ相対パスに置くことと `@/` での import を前提にしている。`apps/web/worker/**` は `src/main` の外で `@/` が届かない。031 は `specs/031-api-proxy/plan.md` の D8 で、`apps/web/src/test/worker/` に置いて相対パスで import すると決めた。
 - 提案: `conventions.md` の web 単体の項に、`apps/web/worker/**` のテストの置き場所と import の形を足す（経路 (a)）。
-
-## 2026-11-03 apps/web の format:check は worker/ を検査しない（機能031・区間C）
-- 種別: 矛盾是正
-- 何が起きたか: `apps/web/package.json` の `format`・`format:check` は `src/ e2e/` だけを対象にするので、`apps/web/worker/index.ts` は整形されず、CI でも検査されない。lint（`oxlint .`・`eslint .`）と型検査（`tsconfig.node.json`）は対象に入っている。031 は `specs/031-api-proxy/plan.md` の D10 で、手で prettier を実行して凌ぐ。
-- 提案: `apps/web/package.json` の `format`・`format:check` の対象に `worker/` を足す（共有構成ファイルなので、機能の spec か区間の外の `chore/*` で行う）。
 
 ## 2026-11-04 Google Cloud の料金ページは WebFetch で本文が取れない（公開作業・区間外）
 - 種別: 規律昇華
@@ -120,3 +110,8 @@
 - 種別: 規律昇華
 - 何が起きたか: `StructuredLogRequestTest`（`@SpringBootTest` の prod）が先に走ると、同じ JVM の次の `SpringApplication.run`（training・local）が構造化ログになった。`logging.structured.format.console` を設定しないプロファイルでは `LoggingSystemProperties` が System プロパティ `CONSOLE_LOG_STRUCTURED_FORMAT` を消さないため。`StructuredLogStartupTest` の `@BeforeEach` で `CONSOLE_LOG_STRUCTURED_FORMAT`・`FILE_LOG_STRUCTURED_FORMAT` を `System.clearProperty` して直した（api-agent の報告）。また、テスト下ではメインクラスが `GradleWorkerMain` と推定され、起動メッセージが `Starting SkillweaveApplication` にならない。
 - 提案: `.claude/rules/api-spring.md` に、ログの形式を確かめるテストは `SpringApplication.run` を明示して起動し、前に `CONSOLE_LOG_STRUCTURED_FORMAT`・`FILE_LOG_STRUCTURED_FORMAT` を消す。キャッシュしたコンテキストはログの仕組みを作り直さない。起動メッセージの照合は `using Java` にする、と足す（経路 (a)）。
+
+## 2026-11-18 Sonar の領域モード（web）は apps/web/worker を解析しない（機能042・区間C）
+- 種別: 矛盾是正
+- 何が起きたか: 042 は `sonar-project.properties` の `sonar.sources` に `apps/web/worker` を足すが、`scripts/sonar-local.sh` の `--area web` は対象のパス（`AREA_PATHS`）と `-Dsonar.sources` を `apps/web/src/main`・`apps/web/src/test`・`apps/web/e2e` に固定しているので、`verify.mjs --sonar-area web` の 0 件は Worker を含まない。042 は plan の D9 で、メインの全体解析（`--sonar`）で凌ぐ。
+- 提案: `scripts/sonar-local.sh` の web の `AREA_PATHS` と `-Dsonar.sources` に `apps/web/worker` を足す（検査機構なので人間の明示指示を要する。区間の外の `chore/*` で行う）。

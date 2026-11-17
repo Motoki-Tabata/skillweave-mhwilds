@@ -1,5 +1,7 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import worker from '../../../worker/index'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import worker, { API_PATH_TEMPLATES } from '../../../worker/index'
 
 const ORIGIN = 'https://swv-api-abc.a.run.app'
 const env = { API_ORIGIN: ORIGIN }
@@ -39,9 +41,9 @@ describe('worker /api/* proxy', () => {
     expect(sentHeaders().get('X-XSRF-TOKEN')).toBe('tok')
   })
 
-  it('AC-1: uses only the origin of API_ORIGIN, even with a path or a // path', async () => {
-    await call('//evil.example/x', {}, { API_ORIGIN: `${ORIGIN}/foo` })
-    expect(upstream.mock.calls[0]![0]).toBe(`${ORIGIN}//evil.example/x`)
+  it('AC-1: uses only the origin of API_ORIGIN, even with a path', async () => {
+    await call('/api/builds', {}, { API_ORIGIN: `${ORIGIN}/foo` })
+    expect(upstream.mock.calls[0]![0]).toBe(`${ORIGIN}/api/builds`)
   })
 
   it('AC-2: returns upstream status, headers, body and separate Set-Cookie values', async () => {
@@ -121,7 +123,6 @@ describe('worker /api/* proxy', () => {
     ['GET', '/api/shared-builds/abc'],
     ['POST', '/api/auth/me'],
     ['HEAD', '/api/auth/me'],
-    ['GET', '/api/auth/me/'],
     ['GET', '/api/builds'],
   ])('AC-7: forwards %s %s without a session cookie', async (method, path) => {
     await call(path, { method })
@@ -169,6 +170,123 @@ describe('worker /api/* proxy', () => {
     expect(res.status).toBe(502)
     expect(res.headers.get('Content-Type')).toBe('application/problem+json')
     expect(await res.json()).toEqual({ title: 'Bad Gateway', status: 502 })
+  })
+})
+
+// 042: 許可の一覧に無いパスは 404
+describe('worker /api/* allowlist (042)', () => {
+  const upstream = vi.fn<(url: string, init: RequestInit) => Promise<Response>>()
+  const OAUTH = [
+    '/api/oauth2/authorization/{registrationId}',
+    '/api/login/oauth2/code/{registrationId}',
+  ]
+
+  beforeEach(() => {
+    upstream.mockReset()
+    upstream.mockResolvedValue(new Response('ok'))
+    vi.stubGlobal('fetch', upstream)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function call(path: string, init: RequestInit = {}, e: object = { API_ORIGIN: ORIGIN }) {
+    return worker.fetch(new Request(`https://skillweave.app${path}`, init), e)
+  }
+
+  const concrete = (template: string) => template.replaceAll(/\{[^}]+\}/g, 'x1')
+
+  it.each(['/api/.env', '/api/v1/.env', '/api/credentials', '/api/swagger.json', '/api/auth/me/'])(
+    'AC-1: returns a 404 problem without forwarding for %s (any method)',
+    async (path) => {
+      for (const method of ['GET', 'POST', 'DELETE']) {
+        const res = await call(path, { method })
+        expect(res.status).toBe(404)
+        expect(res.headers.get('Content-Type')).toBe('application/problem+json')
+        expect(await res.json()).toEqual({
+          type: 'about:blank',
+          title: 'Not Found',
+          status: 404,
+          instance: path,
+        })
+      }
+      expect(upstream).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each(API_PATH_TEMPLATES.flatMap((t) => ['GET', 'PATCH'].map((m) => [m, t] as const)))(
+    'AC-2: forwards %s %s',
+    async (method, template) => {
+      const path = concrete(template)
+      const res = await call(path, { method, headers: { Cookie: 'SESSION=abc' } })
+      expect(res.status).toBe(200)
+      expect(upstream.mock.calls[0]![0]).toBe(`${ORIGIN}${path}`)
+    },
+  )
+
+  it('AC-2: keeps the 401 for GET /api/auth/me without a session cookie', async () => {
+    const res = await call('/api/auth/me')
+    expect(res.status).toBe(401)
+    expect(upstream).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    '/api/builds/0193f2a4-7b1c-7000-8000-000000000000',
+    '/api/builds/not-a-uuid',
+    '/api/builds/%2F',
+    '/api/oauth2/authorization/discord',
+  ])('AC-3: matches %s without checking the value', async (path) => {
+    expect((await call(path)).status).toBe(200)
+  })
+
+  it.each([
+    '/api/builds/',
+    '/api/Builds',
+    '/api/builds/a/b',
+    '/api//builds',
+    '/api/.env',
+    '/api/v1/.env',
+    '/api/.env?x=/api/builds',
+  ])('AC-3: does not match %s', async (path) => {
+    expect((await call(path)).status).toBe(404)
+    expect(upstream).not.toHaveBeenCalled()
+  })
+
+  it('AC-4: returns 503 before the allowlist check when API_ORIGIN is missing', async () => {
+    const res = await call('/api/.env', {}, {})
+    expect(res.status).toBe(503)
+    expect(upstream).not.toHaveBeenCalled()
+  })
+
+  it('AC-5: does not call the token endpoint when answering 404', async () => {
+    const res = await call('/api/.env', {}, { API_ORIGIN: ORIGIN, API_INVOKER_KEY: '{}' })
+    expect(res.status).toBe(404)
+    expect(upstream).not.toHaveBeenCalled()
+  })
+
+  it('AC-6: forwards to an http: origin', async () => {
+    await call('/api/builds', {}, { API_ORIGIN: 'http://127.0.0.1:8787' })
+    expect(upstream.mock.calls[0]![0]).toBe('http://127.0.0.1:8787/api/builds')
+  })
+
+  it('AC-7: the allowlist minus OAuth equals the paths of contracts/openapi.yaml', () => {
+    const lines = readFileSync(
+      join(import.meta.dirname, '../../../../../contracts/openapi.yaml'),
+      'utf-8',
+    ).split('\n')
+    const start = lines.indexOf('paths:')
+    expect(start).toBeGreaterThanOrEqual(0)
+    const keys: string[] = []
+    for (const line of lines.slice(start + 1)) {
+      if (/^\S/.test(line)) break
+      const m = /^ {2}(\/[^:\s]+):\s*$/.exec(line)
+      if (m) keys.push(m[1]!)
+    }
+    const allowed = API_PATH_TEMPLATES.filter((t) => !OAUTH.includes(t))
+    expect([...allowed].sort()).toEqual([...keys].sort())
+    expect(keys).toHaveLength(11)
+    for (const t of OAUTH) expect(API_PATH_TEMPLATES).toContain(t)
   })
 })
 
