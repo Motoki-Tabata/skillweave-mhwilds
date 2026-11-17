@@ -1,4 +1,5 @@
 import type { ConditionId, Effect, EffectStat } from '@swv/data'
+import { weaponTypeOrder, weaponTypeShortName } from '@/constants/weaponTypes'
 import { elementTypeName } from '@/constants/weapons'
 import { formatMultiplier } from '@/lib/format'
 
@@ -55,18 +56,37 @@ const EFFECT_TEXT: Record<EffectStat, (effect: Effect) => string> = {
 export function summarizeEffects(
   effects: readonly Effect[],
   conditionName: (id: ConditionId) => string,
+  weaponType?: string,
 ): string | null {
-  if (effects.length === 0) return null
-  // Map は挿入順を保つので、組は最初に出た順になる。undefined は常時の組
-  const groups = new Map<ConditionId | undefined, string[]>()
+  // 武器種が分かるときは、武器種を持つ効果をその武器種のものだけにし、［］にはその武器種 1 つを出す
+  const kept: { effect: Effect; types: string[] | undefined }[] = []
   for (const effect of effects) {
-    const texts = groups.get(effect.conditionId) ?? []
-    texts.push(EFFECT_TEXT[effect.stat](effect))
-    groups.set(effect.conditionId, texts)
+    const types = effect.weaponTypes
+    if (types === undefined) kept.push({ effect, types })
+    else if (weaponType === undefined) kept.push({ effect, types: sortedWeaponTypes(types) })
+    else if (types.includes(weaponType)) kept.push({ effect, types: [weaponType] })
   }
-  const parts = Array.from(groups, ([conditionId, texts]) => {
-    const joined = texts.join('・')
-    return conditionId === undefined ? joined : `${joined}（${conditionName(conditionId)}）`
+  if (kept.length === 0) return null
+  // Map は挿入順を保つので、組は最初に出た順になる。鍵は発動条件と武器種の集合（並びを問わない）
+  const groups = new Map<
+    string,
+    { conditionId: ConditionId | undefined; types: string[] | undefined; texts: string[] }
+  >()
+  for (const { effect, types } of kept) {
+    const key = JSON.stringify([effect.conditionId ?? null, types ?? null])
+    const group = groups.get(key) ?? { conditionId: effect.conditionId, types, texts: [] }
+    group.texts.push(EFFECT_TEXT[effect.stat](effect))
+    groups.set(key, group)
+  }
+  const parts = Array.from(groups.values(), ({ conditionId, types, texts }) => {
+    const condition = conditionId === undefined ? '' : `（${conditionName(conditionId)}）`
+    const weapons = types === undefined ? '' : `［${types.map(weaponTypeShortName).join('・')}］`
+    return `${texts.join('・')}${condition}${weapons}`
   })
   return EFFECT_SUMMARY_PREFIX + parts.join(' ／ ')
+}
+
+/** ゲーム内の順に並べる（定数に無い値は末尾。重複は除く）。 */
+function sortedWeaponTypes(types: readonly string[]): string[] {
+  return [...new Set(types)].sort((a, b) => weaponTypeOrder(a) - weaponTypeOrder(b))
 }

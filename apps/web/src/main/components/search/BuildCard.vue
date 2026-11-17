@@ -261,7 +261,11 @@ function levelLabel(level: number | null): string {
                   <span class="font-num tabular-nums">Lv{{ skill.level }}</span>
                 </dt>
                 <dd class="flex flex-col gap-0.5">
-                  <SkillLevelText :skill-id="skill.skillId" :level="skill.level" />
+                  <SkillLevelText
+                    :skill-id="skill.skillId"
+                    :level="skill.level"
+                    :weapon-type="damage?.base?.weaponType"
+                  />
                 </dd>
               </div>
             </dl>

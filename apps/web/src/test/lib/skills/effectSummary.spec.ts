@@ -95,3 +95,79 @@ describe('summarizeEffects', () => {
     expect(summarizeEffects(effects, name)).toBe(expected)
   })
 })
+
+// AC-9: 武器種で値が違う効果の［］と絞り込み（screen-design §2・§3）
+describe('summarizeEffects の武器種', () => {
+  const heavy: Effect = {
+    stat: 'element_crit_mul',
+    value: 1.2,
+    weaponTypes: ['hammer', 'great-sword'],
+  }
+  const light: Effect = {
+    stat: 'element_crit_mul',
+    value: 1.15,
+    weaponTypes: ['long-sword', 'bow'],
+  }
+
+  it('AC-9: weaponTypes を持つ組の末尾に略称の［］を付け、ゲーム内の順に並べ直す', () => {
+    expect(summarizeEffects([heavy, light], name)).toBe(
+      '効果: 属性の会心倍率 1.20［大剣・ハンマー］ ／ 属性の会心倍率 1.15［太刀・弓］',
+    )
+  })
+
+  it('AC-9: 略称で出し、定数に無い武器種はそのまま末尾に出す', () => {
+    const effect: Effect = {
+      stat: 'attack_add',
+      value: 5,
+      weaponTypes: ['mystery', 'gunlance', 'switch-axe'],
+    }
+    expect(summarizeEffects([effect], name)).toBe('効果: 攻撃力 +5［ガンス・スラアク・mystery］')
+  })
+
+  it('AC-9: 集合が同じ組は並びが違っても 1 つにまとめる', () => {
+    const a: Effect = { stat: 'attack_add', value: 1, weaponTypes: ['bow', 'hammer'] }
+    const b: Effect = { stat: 'affinity_add', value: 2, weaponTypes: ['hammer', 'bow'] }
+    expect(summarizeEffects([a, b], name)).toBe('効果: 攻撃力 +1・会心率 +2%［ハンマー・弓］')
+  })
+
+  it('AC-9: 条件の（）の後ろに［］を付け、条件が同じでも集合が違えば別の組にする', () => {
+    const a: Effect = {
+      stat: 'attack_add',
+      value: 1,
+      conditionId: cd('wound'),
+      weaponTypes: ['bow'],
+    }
+    const b: Effect = {
+      stat: 'attack_add',
+      value: 2,
+      conditionId: cd('wound'),
+      weaponTypes: ['hammer'],
+    }
+    expect(summarizeEffects([a, b], name)).toBe(
+      '効果: 攻撃力 +1（傷口への攻撃）［弓］ ／ 攻撃力 +2（傷口への攻撃）［ハンマー］',
+    )
+  })
+
+  it('AC-9: weaponTypes を持たない組には［］を付けない', () => {
+    expect(summarizeEffects([{ stat: 'attack_add', value: 9 }, light], name)).toBe(
+      '効果: 攻撃力 +9 ／ 属性の会心倍率 1.15［太刀・弓］',
+    )
+  })
+
+  it('AC-9: 武器種を渡すと、その武器種を含む効果だけを残して［］にその 1 つを出す', () => {
+    expect(summarizeEffects([heavy, light], name, 'long-sword')).toBe(
+      '効果: 属性の会心倍率 1.15［太刀］',
+    )
+  })
+
+  it('AC-9: 武器種を渡しても、weaponTypes を持たない効果はすべて残す', () => {
+    const plain: Effect = { stat: 'attack_add', value: 9 }
+    expect(summarizeEffects([plain, heavy, light], name, 'bow')).toBe(
+      '効果: 攻撃力 +9 ／ 属性の会心倍率 1.15［弓］',
+    )
+  })
+
+  it('AC-9: 武器種に合う効果が無く、残る効果も無ければ null', () => {
+    expect(summarizeEffects([heavy, light], name, 'lance')).toBeNull()
+  })
+})

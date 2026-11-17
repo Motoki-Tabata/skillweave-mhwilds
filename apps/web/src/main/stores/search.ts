@@ -157,7 +157,11 @@ export const useSearchStore = defineStore('search', () => {
     waitToken += 1
     const submitted: Submitted = {
       bundle,
-      damageBase: { attack: weapon.attack, affinity: weapon.affinity },
+      damageBase: {
+        attack: weapon.attack,
+        affinity: weapon.affinity,
+        weaponType: weapon.weaponType,
+      },
       activeConditionIds: [...conditions.activeConditionIds],
       // 検索の後に武器を編集・削除しても変わらないよう、送信した時点の写しを持つ
       weapon: structuredClone(toRaw(weapon.solverWeapon)),

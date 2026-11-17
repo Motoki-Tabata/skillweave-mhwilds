@@ -2,11 +2,12 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import BuildCard from '@/components/search/BuildCard.vue'
+import { useMasterStore } from '@/stores/master'
 import type { SolvedBuild } from '@swv/solver'
 import type { CharmPayload } from '@/lib/charms/types'
 import { createMemoryCharmRepository } from '../../support/charmRepository'
 import { charmId, storedCharm } from '../../support/charms'
-import { FakeWorker, cd, dc, makeBuild, sk, wp } from '../../support/fixtures'
+import { FakeWorker, cd, dc, makeBuild, makeBundle, sk, wp } from '../../support/fixtures'
 import { createMemoryWeaponRepository } from '../../support/weaponRepository'
 import {
   makeWeaponBundle,
@@ -497,7 +498,11 @@ describe('BuildCard の個体差のある武器', () => {
       document.querySelector('#results-heading ~ ul > li section:nth-of-type(1)'),
     )
     expect(after).toBe(before)
-    expect(m.search.submittedBasis?.damageBase).toEqual({ attack: 200, affinity: 15 })
+    expect(m.search.submittedBasis?.damageBase).toEqual({
+      attack: 200,
+      affinity: 15,
+      weaponType: 'great-sword',
+    })
   })
 })
 
@@ -535,6 +540,87 @@ describe('BuildCard の見出しの行', () => {
     expect(group.className).toContain('items-center')
     expect(group.children[0].className).toContain('flex-wrap')
     expect(group.querySelector('button')).not.toBeNull()
+    w.unmount()
+  })
+})
+
+// AC-9・AC-10・AC-7（武器種で値が違う効果の火力と補完。武器種は DamageBase の weaponType から取る）
+describe('BuildCard の武器種で値が違う効果', () => {
+  const lookup = {
+    charm: () => undefined,
+    armor: () => undefined,
+    weaponSlots: undefined,
+    skillKind: () => 'armor' as const,
+    nameOf: (id: string) => id,
+  }
+  const SKILL = sk('wt')
+  const build = (): SolvedBuild => ({
+    ...makeBuild(),
+    skills: [{ skillId: SKILL, level: 1, rawLevel: 1 }],
+  })
+
+  function mountWith(base: { attack: number; affinity: number; weaponType?: string } | null) {
+    const pinia = createPinia()
+    const master = useMasterStore(pinia)
+    const bundle = makeBundle()
+    master.bundle = {
+      ...bundle,
+      skills: [
+        ...bundle.skills,
+        {
+          id: SKILL,
+          kind: 'armor',
+          maxLevel: 1,
+          category: 'attack',
+          effectsByLevel: [
+            [
+              { stat: 'attack_add', value: 10, weaponTypes: ['great-sword'] },
+              { stat: 'attack_add', value: 50, weaponTypes: ['bow'] },
+            ],
+          ],
+        },
+      ],
+    }
+    return mount(BuildCard, {
+      props: {
+        build: build(),
+        title: '構成 1',
+        lookup,
+        damage: base === null ? null : { base, skills: build().skills, conditionIds: [] },
+        showCharm: false,
+      },
+      global: { plugins: [pinia] },
+    })
+  }
+
+  const summaryOf = async (w: ReturnType<typeof mountWith>) => {
+    await w.find('button[aria-expanded]').trigger('click')
+    return w.find('dl[id] p').text()
+  }
+  const attackOf = (w: ReturnType<typeof mountWith>) =>
+    w
+      .findAll('dl > div')
+      .find((row) => row.find('dt').text() === '攻撃力')!
+      .find('dd')
+      .text()
+
+  it('AC-10: 武器種つきの base は、その武器種の効果だけを火力に数え、補完も［<その武器種>］だけにする', async () => {
+    const w = mountWith({ attack: 200, affinity: 0, weaponType: 'bow' })
+    expect(attackOf(w)).toBe('250.0')
+    expect(await summaryOf(w)).toBe('効果: 攻撃力 +50［弓］')
+    w.unmount()
+  })
+
+  it('AC-7: base に武器種が無いときは weaponTypes を持つ効果を火力に数えず、補完は絞らない', async () => {
+    const w = mountWith({ attack: 200, affinity: 0 })
+    expect(attackOf(w)).toBe('200.0')
+    expect(await summaryOf(w)).toBe('効果: 攻撃力 +10［大剣］ ／ 攻撃力 +50［弓］')
+    w.unmount()
+  })
+
+  it('AC-9: damage が null（火力の節を出さない）のときは絞らない', async () => {
+    const w = mountWith(null)
+    expect(await summaryOf(w)).toBe('効果: 攻撃力 +10［大剣］ ／ 攻撃力 +50［弓］')
     w.unmount()
   })
 })

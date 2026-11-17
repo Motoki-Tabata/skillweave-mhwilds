@@ -15,9 +15,10 @@ export function skillLevelTexts(
   dictionary: MasterDictionary | null,
   level: number,
   nameOf: (id: string) => string,
+  weaponType?: string,
 ): SkillLevelTexts {
   return {
     description: levelDescription(skill && dictionary?.entries[skill.id], level),
-    summary: summarizeEffects(skill?.effectsByLevel[level - 1] ?? [], nameOf),
+    summary: summarizeEffects(skill?.effectsByLevel[level - 1] ?? [], nameOf, weaponType),
   }
 }

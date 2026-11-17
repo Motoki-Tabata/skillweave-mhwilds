@@ -5,7 +5,7 @@ import { skillLevelTexts } from '@/lib/skills/levelText'
 import { useMasterStore } from '@/stores/master'
 
 /** スキルのあるレベルの説明文と補完の組（結果の構成カードと D2 のダイアログで共通）。 */
-const props = defineProps<{ skillId: SkillId; level: number }>()
+const props = defineProps<{ skillId: SkillId; level: number; weaponType?: string }>()
 
 const master = useMasterStore()
 
@@ -15,6 +15,7 @@ const texts = computed(() =>
     master.dictionary,
     props.level,
     master.nameOf,
+    props.weaponType,
   ),
 )
 </script>

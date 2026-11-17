@@ -316,7 +316,7 @@ describe('search ストア', () => {
     conditions.setConditionActive(second.id, true)
     conditions.selectWeapon(wp('bow:1'))
     expect(search.submittedBasis).toEqual({
-      damageBase: { attack: 250, affinity: -15 },
+      damageBase: { attack: 250, affinity: -15, weaponType: 'great-sword' },
       activeConditionIds: [first.id],
     })
     expect(search.summary?.activeConditionNames).toEqual([first.name])
@@ -507,7 +507,11 @@ describe('search ストアの個体差のある武器', () => {
         },
       },
     })
-    expect(search.submittedBasis?.damageBase).toEqual({ attack: 200, affinity: 15 })
+    expect(search.submittedBasis?.damageBase).toEqual({
+      attack: 200,
+      affinity: 15,
+      weaponType: 'great-sword',
+    })
   })
 
   it('要約の武器は「<表示名>（個体差）」で、構成の表示用に武器のスロットを持つ', async () => {
@@ -534,7 +538,11 @@ describe('search ストアの個体差のある武器', () => {
     await weapons.remove(weaponId(1))
     expect(search.summary?.weaponName).toBe('巨戟ブレイド（個体差）')
     expect(search.summary?.weaponSlots).toEqual([{ level: 3 }, { level: 1 }])
-    expect(search.submittedBasis?.damageBase).toEqual({ attack: 200, affinity: 15 })
+    expect(search.submittedBasis?.damageBase).toEqual({
+      attack: 200,
+      affinity: 15,
+      weaponType: 'great-sword',
+    })
   })
 
   it('選んだ個体差のある武器が解決できないときは検索しない', async () => {
