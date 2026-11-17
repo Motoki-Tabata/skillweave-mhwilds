@@ -22614,6 +22614,12 @@
       "id": "cd:bubbleblight"
     },
     {
+      "id": "cd:burst_5_hits"
+    },
+    {
+      "id": "cd:coalescence"
+    },
+    {
       "id": "cd:counterstrike"
     },
     {
@@ -28076,7 +28082,113 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "element_mul",
+            "value": 1.1,
+            "weaponTypes": [
+              "great-sword",
+              "hammer",
+              "hunting-horn",
+              "gunlance",
+              "switch-axe",
+              "charge-blade"
+            ]
+          },
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "element_mul",
+            "value": 1.05,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "dual-blades",
+              "lance",
+              "insect-glaive",
+              "light-bowgun",
+              "heavy-bowgun",
+              "bow"
+            ]
+          },
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "status_mul",
+            "value": 1.05
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "element_mul",
+            "value": 1.2,
+            "weaponTypes": [
+              "great-sword",
+              "hammer",
+              "hunting-horn",
+              "gunlance",
+              "switch-axe",
+              "charge-blade"
+            ]
+          },
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "element_mul",
+            "value": 1.1,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "dual-blades",
+              "lance",
+              "insect-glaive",
+              "light-bowgun",
+              "heavy-bowgun",
+              "bow"
+            ]
+          },
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "status_mul",
+            "value": 1.1
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "element_mul",
+            "value": 1.3,
+            "weaponTypes": [
+              "great-sword",
+              "hammer",
+              "hunting-horn",
+              "gunlance",
+              "switch-axe",
+              "charge-blade"
+            ]
+          },
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "element_mul",
+            "value": 1.15,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "dual-blades",
+              "lance",
+              "insect-glaive",
+              "light-bowgun",
+              "heavy-bowgun",
+              "bow"
+            ]
+          },
+          {
+            "conditionId": "cd:coalescence",
+            "stat": "status_mul",
+            "value": 1.15
+          }
+        ]
+      ],
       "id": "sk:-1700743296",
       "kind": "armor",
       "maxLevel": 3
@@ -29843,7 +29955,68 @@
     },
     {
       "category": "element",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "stat": "element_crit_mul",
+            "value": 1.05,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "dual-blades",
+              "lance",
+              "insect-glaive",
+              "light-bowgun",
+              "heavy-bowgun",
+              "bow"
+            ]
+          }
+        ],
+        [
+          {
+            "stat": "element_crit_mul",
+            "value": 1.1,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "dual-blades",
+              "lance",
+              "insect-glaive",
+              "light-bowgun",
+              "heavy-bowgun",
+              "bow"
+            ]
+          }
+        ],
+        [
+          {
+            "stat": "element_crit_mul",
+            "value": 1.2,
+            "weaponTypes": [
+              "great-sword",
+              "hammer",
+              "hunting-horn",
+              "gunlance",
+              "switch-axe",
+              "charge-blade"
+            ]
+          },
+          {
+            "stat": "element_crit_mul",
+            "value": 1.15,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "dual-blades",
+              "lance",
+              "insect-glaive",
+              "light-bowgun",
+              "heavy-bowgun",
+              "bow"
+            ]
+          }
+        ]
+      ],
       "id": "sk:313598432",
       "kind": "weapon",
       "maxLevel": 3
@@ -30089,7 +30262,463 @@
     },
     {
       "category": "attack",
-      "effectsByLevel": [],
+      "effectsByLevel": [
+        [
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 10,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.8,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 8,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.4,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 8,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.6,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 6,
+            "weaponTypes": [
+              "light-bowgun",
+              "heavy-bowgun"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 6,
+            "weaponTypes": [
+              "bow"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.4,
+            "weaponTypes": [
+              "bow"
+            ]
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 12,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 10,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.6,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 10,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.8,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 7,
+            "weaponTypes": [
+              "light-bowgun",
+              "heavy-bowgun"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 7,
+            "weaponTypes": [
+              "bow"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.6,
+            "weaponTypes": [
+              "bow"
+            ]
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 14,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1.2,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 12,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.8,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 12,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 8,
+            "weaponTypes": [
+              "light-bowgun",
+              "heavy-bowgun"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 8,
+            "weaponTypes": [
+              "bow"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 0.8,
+            "weaponTypes": [
+              "bow"
+            ]
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 16,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1.6,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 15,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 15,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1.2,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 9,
+            "weaponTypes": [
+              "light-bowgun",
+              "heavy-bowgun"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 9,
+            "weaponTypes": [
+              "bow"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1,
+            "weaponTypes": [
+              "bow"
+            ]
+          }
+        ],
+        [
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 18,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 2,
+            "weaponTypes": [
+              "great-sword",
+              "hunting-horn"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 18,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1.2,
+            "weaponTypes": [
+              "dual-blades"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 18,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1.4,
+            "weaponTypes": [
+              "long-sword",
+              "sword-shield",
+              "hammer",
+              "lance",
+              "gunlance",
+              "switch-axe",
+              "charge-blade",
+              "insect-glaive"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 10,
+            "weaponTypes": [
+              "light-bowgun",
+              "heavy-bowgun"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "attack_add",
+            "value": 10,
+            "weaponTypes": [
+              "bow"
+            ]
+          },
+          {
+            "conditionId": "cd:burst_5_hits",
+            "stat": "element_add",
+            "value": 1.2,
+            "weaponTypes": [
+              "bow"
+            ]
+          }
+        ]
+      ],
       "id": "sk:565867136",
       "kind": "armor",
       "maxLevel": 5
@@ -30360,7 +30989,7 @@
     "commit": "c50a1eb892f4a1ad9bb35c147801658804be2cc2",
     "repository": "LartTyler/mhdb-wilds-data"
   },
-  "version": "2026.11.3",
+  "version": "2026.11.4",
   "weapons": [
     {
       "affinity": 0,

@@ -2871,6 +2871,12 @@
     "cd:bubbleblight": {
       "name": "泡状態"
     },
+    "cd:burst_5_hits": {
+      "name": "連撃の5回継続以降"
+    },
+    "cd:coalescence": {
+      "name": "災禍転福の発動中"
+    },
     "cd:counterstrike": {
       "name": "逆襲の発動中"
     },
@@ -11637,5 +11643,5 @@
     }
   },
   "locale": "ja",
-  "version": "2026.11.3"
+  "version": "2026.11.4"
 }
