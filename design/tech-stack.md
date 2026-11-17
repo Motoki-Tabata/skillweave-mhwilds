@@ -748,7 +748,7 @@ Neon の停止（`specs/028-api-prod-config/decisions.md` Q91）:
 | Google Cloud の費用 | Cloud Run の定価 ¥4、無料枠の割引 −¥4 で ¥0。Artifact Registry も ¥0。転送の費目は出ていない | — |
 | Workers | Worker の呼び出し 327 回・静的配信の要求 30.77k（11 月） | 呼び出しは 10 万回/日、静的配信は無制限 |
 
-URL を配る前から、`/api/.env`・`/api/credentials` などを探るスキャナーの要求が来ている（2026-11-09〜11 に約 40 件）。Cookie なしの `/api/auth/me` 以外は Worker が Cloud Run へ転送するので、これだけで Cloud Run と Neon が起きる（`specs/open-questions.md` Q159）。2026-11-11 の時点では、期限切れの `spring_session` の行が消えずに残っていた（25 行すべてが期限切れ）。040 から API の起動のたびに期限切れの行を掃除する（`specs/040-session-cleanup/decisions.md` Q149）。
+URL を配る前から、`/api/.env`・`/api/credentials` などを探るスキャナーの要求が来ている（2026-11-09〜11 に約 40 件）。Cookie なしの `/api/auth/me` 以外は Worker が Cloud Run へ転送するので、これだけで Cloud Run と Neon が起きる（`specs/042-worker-api-filter/decisions.md` Q159）。2026-11-11 の時点では、期限切れの `spring_session` の行が消えずに残っていた（25 行すべてが期限切れ）。040 から API の起動のたびに期限切れの行を掃除する（`specs/040-session-cleanup/decisions.md` Q149）。
 
 ### プライバシーの表記との照合（2026-11-14）
 
