@@ -48,6 +48,10 @@
 ## 委譲の記録
 | 領域 | ワーカー | コミット |
 |---|---|---|
+| data | data-agent | 74af465 |
+| solver | solver-agent | ebbfa5a |
+| web | web-agent | 419ddce |
+| E2E | e2e-agent | 47c80b0 |
 <!-- 区間 D。領域ごとの委譲が済んだらコミットを1行追記する。領域とワーカーは tsod-build/SKILL.md の領域表の語で書く -->
 
 ## レビュー記録
@@ -74,9 +78,12 @@
 <!-- 次の区間で必ず確認すべき事項。仕様の曖昧点は specs/open-questions.md へ -->
 - 区間 B で AC-9 の補完の書式（武器種の組の示し方）と、武器が決まっている画面（検索結果・保存した構成など）で選んだ武器の武器種の値に絞るかを決める。補完は武器の文脈の無い画面（護石の一覧・スキルを選ぶダイアログ）にも出る
 - 上の AC-9 の書式と絞り込みは区間 B で決めた（decisions.md Q204・screen-design.md §2・§3）。区間 C では、補完の絞り込みに渡す武器種を火力の計算と同じ取り方にそろえる
+- E2E は constants/weaponTypes.ts を import すると tsconfig.e2e.json の対象外で vue-tsc が TS6307 になるため、武器種の略称を spec 内の SHORT_NAMES に固定で持った（略称の定義が 2 か所。ゲート D-1 で提示する）
 
 ## 区間メモ
 <!-- 次の区間が知るべき事実だけ（再開位置・保留中の判断）。経緯は書かない -->
 - A-1 の移設先: Q200・Q201・Q202・Q203（open-questions.md からの移設は無く、区間 A で新たに起こした）
 - 区間 B で補完の武器種の書式（Q204）を決め、常時許可外に MASTER.md を足したため、A-2 を 493a89b で取り直した
 - 補完の絞り込みと火力の武器種は、DamageBase の weaponType を 1 つの出どころにそろえた（plan D17・D18。要確認事項の 2 点目への対応）。基準の測定（T1）は dist/ が 2026.11.3 で、solver の変更の前に行う
+- T1 基準測定（2026.11.3）: expectedDamage の 1 件目までの時間の最大 4356.6 ms（k=6 解あり・生産護石オン。measure-before.log は .cache に非追跡）。AC-12 の止める基準は 5 秒（T9）
+- T9 完了: 再測定（2026.11.4・全タスク後）の expectedDamage の 1 件目までの時間の最大 3873.9 ms（基準 4356.6 ms）で 5 秒に合格。design/tech-stack.md に記録済み。再開位置: 一括検証（verify.mjs --e2e）から。T1〜T9 は完了。委譲の記録 data/solver/web/E2E はコミット済み
