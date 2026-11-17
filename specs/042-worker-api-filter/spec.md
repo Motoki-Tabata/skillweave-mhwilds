@@ -15,7 +15,7 @@
 - AC-5: WHEN AC-1 で 404 を返すとき THE system SHALL トークンエンドポイントを呼んではならない。
 - AC-6: WHERE `API_ORIGIN` が `http:` のオリジンである THE system SHALL 許可の一覧に一致する要求を、そのオリジンへ転送しなければならない（031 handoff.md の持ち越し。decisions.md Q199）。
 - AC-7: THE system SHALL Web の単体テストで、許可の一覧から OAuth の 2 個を除いたものが `contracts/openapi.yaml` の `paths` のキーと過不足なく一致することを検証しなければならない。
-- AC-8: THE system SHALL Web の単体テスト（`fetch` をモックする vitest）で AC-1〜AC-6 を検証し、031・034 のテストが通り続けなければならない。ただし、031 の AC-7 のテストのうち `GET /api/auth/me/` を転送するとした例は、AC-3 により 404 になるので、AC-1 のテストへ改めなければならない。
+- AC-8: THE system SHALL Web の単体テスト（`fetch` をモックする vitest）で AC-1〜AC-6 を検証し、031・034 のテストが通り続けなければならない。ただし、031 のテストのうち許可の一覧に一致しないパスを転送するとした 2 例は改めなければならない。031 の AC-7 の `GET /api/auth/me/` は、AC-3 により 404 になるので AC-1 のテストへ改める。031 の AC-1 の `//evil.example/x` は、許可の一覧に一致するパスに替えて、`API_ORIGIN` のオリジンだけを使うことを確かめ続ける。
 - AC-9: THE system SHALL `apps/web/worker` を、Sonar の解析対象（`sonar-project.properties` の `sonar.sources`）・vitest の coverage の対象（`apps/web/vitest.config.ts` の `include`）・整形の対象（`apps/web/package.json` の `format`・`format:check`）に含めなければならない（decisions.md Q199）。
 - AC-10: THE system SHALL `design/tech-stack.md`「稼働の実測」のスキャナーの要求の記述に、042 から契約に無いパスを Worker が 404 にすることを足し、`apps/web/worker/index.ts` の冒頭の説明を AC-1〜AC-5 の挙動に合わせなければならない。
 
