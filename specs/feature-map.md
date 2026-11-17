@@ -58,7 +58,7 @@
 | 039 | not-found-route | 存在しない URL を開いたときに「見つかりません」の画面を出し、デプロイで消えたチャンクの読み込みに失敗したときは再読み込みを案内する（今は空の画面・無反応） | P0 | S | 済 |
 | 040 | session-cleanup | 期限切れの `spring_session` の行を、最小インスタンス 0 の Cloud Run でも確実に消す（今の `cleanup-cron` は一度も動いていない） | P0 | S | 済 |
 | 041 | api-structured-log | `prod` の API のログを `stack_trace`・`severity` を持つ 1 行の JSON にし、例外が Error Reporting に載るようにする | P0 | S | 済 |
-| 042 | worker-api-filter | Web の Worker が契約に無い `/api/*` の要求を Cloud Run へ転送せずに 404 で返し、スキャナーの要求で Cloud Run と Neon を起こさないようにする | P0 | S | 未着手 |
+| 042 | worker-api-filter | Web の Worker が契約に無い `/api/*` の要求を Cloud Run へ転送せずに 404 で返し、スキャナーの要求で Cloud Run と Neon を起こさないようにする | P0 | S | 済 |
 | 043 | weapon-type-effects | スキルの効果に武器種の区別を持たせ、武器種で値が違う会心撃【属性】・災禍転福・連撃の値をマスターに入れて火力の期待値に数える | P0 | M | 未着手 |
 | 044 | skill-effect-values-verify | 038 で出典の読みが定まらず空にしたスキルの効果（Kiranico だけにある 17 件・出典が食い違う連携プログラム・1 サイトだけの研鑽と暗黒など）の値を確かめてマスターに入れる | P2 | M | 未着手 |
 | 045 | skill-effect-combat | 攻撃の種類・部位・斬れ味で範囲を限るダメージ倍率（心眼・鈍器使い・飛燕・破壊王など）・斬れ味（匠・業物など）・被ダメージの軽減（ガード強化など）の数値をマスターの項目にし、説明文の後ろの補完に出す（計算は変えない） | P2 | M | 未着手 |
