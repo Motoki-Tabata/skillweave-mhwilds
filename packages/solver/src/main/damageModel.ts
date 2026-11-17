@@ -51,10 +51,11 @@ function levelEffects(
   skill: MasterSkill,
   level: number,
   active: ReadonlySet<ConditionId>,
+  weaponType: string,
 ): LevelEffects {
   const result: LevelEffects = { ...NEUTRAL }
   for (const e of effectsAt(skill, level)) {
-    if (!isCounted(e, active)) continue
+    if (!isCounted(e, active, weaponType)) continue
     if (e.stat === 'attack_add') result.add += e.value
     else if (e.stat === 'attack_mul') result.mul *= e.value
     else if (e.stat === 'affinity_add') result.aff += e.value
@@ -68,7 +69,11 @@ function isNeutral(e: LevelEffects): boolean {
 }
 
 /** 対象のスキル R（種別を問わない）。マスターのスキルの並びのまま */
-export function damageTargets(master: MasterBundle, request: SolverRequest): TargetSkill[] {
+export function damageTargets(
+  master: MasterBundle,
+  request: SolverRequest,
+  weaponType: string,
+): TargetSkill[] {
   const active = new Set<ConditionId>(request.activeConditionIds ?? [])
   const result: TargetSkill[] = []
   for (const skill of master.skills) {
@@ -76,7 +81,9 @@ export function damageTargets(master: MasterBundle, request: SolverRequest): Tar
     const bonus = set ? findSetBonus(master, skill.id) : undefined
     if (set && bonus === undefined) continue
     const maxLevel = Math.max(skill.maxLevel, ...(bonus?.thresholds.map((t) => t.level) ?? []))
-    const levels = Array.from({ length: maxLevel + 1 }, (_, l) => levelEffects(skill, l, active))
+    const levels = Array.from({ length: maxLevel + 1 }, (_, l) =>
+      levelEffects(skill, l, active, weaponType),
+    )
     if (levels.every(isNeutral)) continue
     result.push({ skill, ...(bonus === undefined ? {} : { bonus }), levels })
   }

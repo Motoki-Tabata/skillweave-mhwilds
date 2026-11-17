@@ -74,7 +74,7 @@ function toBuild(ctx: EnumerateContext, selection: Selection): SolvedBuild {
     // score は ILP の目的値ではなく、返す構成から計算し直した期待値（D15）
     build.score = evaluateDamage(
       master,
-      weapon,
+      { attack: weapon.attack, affinity: weapon.affinity, weaponType: weapon.weaponType },
       build.skills,
       request.activeConditionIds,
     ).expectedDamage
@@ -234,7 +234,9 @@ export async function solveBuilds(
   const isDamage =
     request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
   // 期待値のときだけ、支配される候補を外してからモデルを組む（024 D4）
-  const modelInput = isDamage ? reduceCandidates(master, request) : { master, request }
+  const modelInput = isDamage
+    ? reduceCandidates(master, request, weapon.weaponType)
+    : { master, request }
   const ilp = buildModel(modelInput.master, modelInput.request, weapon, highs.infinity)
   const ctx: EnumerateContext = { highs, master, request, weapon, options, start }
   const { builds, timedOut } =

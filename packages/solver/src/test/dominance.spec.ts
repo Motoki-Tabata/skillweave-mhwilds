@@ -141,7 +141,7 @@ describe('[AC2] reduceCandidates', () => {
   const master = dominanceMaster()
 
   it('支配される防具・装飾品・生産護石と、互いに等しい候補の後ろ側を外す。鑑定護石は残す', () => {
-    const reduced = reduceCandidates(master, dominanceRequest(master))
+    const reduced = reduceCandidates(master, dominanceRequest(master), 'bow')
     expect(armorIds(reduced.master)).toEqual(['h1', 'h4', 'c1', 'c2', 'arms0', 'waist0', 'legs0'])
     expect(decoIds(reduced.master)).toEqual(['dATK', 'dQ', 'dATK2'])
     expect(reduced.request.charms.map((c) => c.id as string)).toEqual([
@@ -159,7 +159,7 @@ describe('[AC2] reduceCandidates', () => {
         charm('ch:a:1', { skills: [skill('ATK')], slots: [slot(1)] }),
       ],
     })
-    const ids = reduceCandidates(master, request).request.charms.map((c) => c.id as string)
+    const ids = reduceCandidates(master, request, 'bow').request.charms.map((c) => c.id as string)
     expect(ids).toEqual(['appraised-1', 'appraised-2', 'ch:a:1'])
   })
 
@@ -170,6 +170,7 @@ describe('[AC2] reduceCandidates', () => {
         excludedArmorIds: ['h1' as ArmorId],
         excludedDecorationIds: ['dATK' as DecorationId],
       }),
+      'bow',
     ).master
     // h1 を除くと h2 が最初の等しい候補になり、h3 は h2 に支配される
     expect(armorIds(excluded).filter((id) => id.startsWith('h'))).toEqual(['h2', 'h4'])
@@ -179,6 +180,7 @@ describe('[AC2] reduceCandidates', () => {
     const fixed = reduceCandidates(
       master,
       dominanceRequest(master, { fixedArmor: { head: 'h3' as ArmorId, chest: null } }),
+      'bow',
     ).master
     // 固定した部位はその 1 件だけ（支配されても残す）、null の部位は候補が無い
     expect(armorIds(fixed)).toEqual(['h3', 'arms0', 'waist0', 'legs0'])
@@ -190,7 +192,7 @@ describe('[AC2] reduceCandidates', () => {
         head: [armor('x1', 'head', { defense: 10 }), armor('x2', 'head', { defense: 99 })],
       }),
     })
-    const reduced = reduceCandidates(m, makeRequest(m))
+    const reduced = reduceCandidates(m, makeRequest(m), 'bow')
     expect(armorIds(reduced.master).filter((id) => id.startsWith('x'))).toEqual(['x1'])
   })
 })

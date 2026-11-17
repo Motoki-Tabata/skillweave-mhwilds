@@ -9,6 +9,7 @@ export function referenceDamage(
   base: { attack: number; affinity: number },
   levels: ReadonlyMap<SkillId, number>,
   active: readonly ConditionId[],
+  weaponType?: string,
 ): number {
   let multiplier = 1
   let addition = 0
@@ -19,6 +20,12 @@ export function referenceDamage(
     if (level < 1) continue
     for (const e of skill.effectsByLevel[level - 1] ?? []) {
       if (e.conditionId !== undefined && !active.includes(e.conditionId)) continue
+      if (
+        e.weaponTypes !== undefined &&
+        !(weaponType !== undefined && e.weaponTypes.includes(weaponType))
+      ) {
+        continue
+      }
       if (e.stat === 'attack_mul') multiplier *= e.value
       if (e.stat === 'attack_add') addition += e.value
       if (e.stat === 'affinity_add') affinity += e.value
