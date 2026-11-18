@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
-import { FakeWorker, makeCandidate, makeTableBundle, wp } from '../../support/fixtures'
+import { FakeWorker, makeCandidate, makeTableBundle, sk, wp } from '../../support/fixtures'
 import {
   click,
   findButton,
@@ -24,10 +24,14 @@ describe('ReverseCandidateCard', () => {
     document.body.innerHTML = ''
   })
 
-  async function showCandidate(candidate = makeCandidate()) {
-    stubBackend({ bundle: makeTableBundle() })
+  async function showCandidate(
+    candidate = makeCandidate(),
+    weaponId = 'great-sword:1',
+    bundle = makeTableBundle(),
+  ) {
+    stubBackend({ bundle })
     mounted = await mountReadyApp()
-    mounted.conditions.selectWeapon(wp('great-sword:1'))
+    mounted.conditions.selectWeapon(wp(weaponId))
     await flushPromises()
     await click(findButton('護石を逆引き'))
     const worker = FakeWorker.last
@@ -89,6 +93,29 @@ describe('ReverseCandidateCard', () => {
     const headings = Array.from(card.querySelectorAll('h4')).map((h) => textOf(h))
     expect(headings.indexOf('狙う護石')).toBe(0)
     expect(headings).toContain('火力')
+  })
+
+  it('AC-10: 武器種で値が違う効果の補完は、選んだ武器の武器種の値だけに絞る', async () => {
+    const bundle = makeTableBundle()
+    bundle.skills = bundle.skills.map((skill) =>
+      skill.id === sk('a1')
+        ? {
+            ...skill,
+            effectsByLevel: [
+              [
+                { stat: 'attack_add', value: 10, weaponTypes: ['great-sword'] },
+                { stat: 'attack_add', value: 50, weaponTypes: ['bow'] },
+              ],
+            ],
+          }
+        : skill,
+    )
+    const card = await showCandidate(makeCandidate(), 'bow:1', bundle)
+    await click(card.querySelector('button[aria-expanded]')!)
+    const effects = textOf(card.querySelector('dl[id]'))
+    expect(effects).toContain('攻撃力 +50［弓］')
+    expect(effects).not.toContain('攻撃力 +10')
+    expect(effects).not.toContain('［大剣］')
   })
 
   it('AC-4: 構成の保存は示さない', async () => {
