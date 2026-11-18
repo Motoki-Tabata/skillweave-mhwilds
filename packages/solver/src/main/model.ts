@@ -349,7 +349,7 @@ export function buildModel(
   if (parts.some((p) => p.armors.length === 0)) return null
   const isDamage =
     request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
-  const targets = isDamage ? damageTargets(master, request) : []
+  const targets = isDamage ? damageTargets(master, request, weapon.weaponType) : []
   const extra = new Set(targets.filter((t) => t.bonus === undefined).map((t) => t.skill.id))
   const ordinary = ordinarySkills(master, request)
   const cols = assignColumns(

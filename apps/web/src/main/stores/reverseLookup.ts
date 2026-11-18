@@ -105,7 +105,11 @@ export const useReverseLookupStore = defineStore('reverseLookup', () => {
       rarities: [...master.appraisedRarities],
     }
     submittedBasis.value = {
-      damageBase: { attack: weapon.attack, affinity: weapon.affinity },
+      damageBase: {
+        attack: weapon.attack,
+        affinity: weapon.affinity,
+        weaponType: weapon.weaponType,
+      },
       activeConditionIds: submitted.activeConditionIds,
     }
     status.value = 'searching'

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
+import type { MasterBundle } from '@swv/data'
 import type { ReverseLookupResponse } from '@swv/solver'
 import { REVERSE_LOOKUP_MAX_RESULTS } from '@/constants/search'
 import {
@@ -9,12 +10,22 @@ import {
 import { useToastStore } from '@/stores/toast'
 import { FakeWorker, makeBuild, makeCandidate, makeTableBundle, sk, wp } from '../support/fixtures'
 import { loadStores, restoreStubs, stubBackend } from '../support/mount'
+import { createMemoryWeaponRepository } from '../support/weaponRepository'
+import {
+  ARTIA_BOW,
+  makeWeaponBundle,
+  makeWeaponDictionary,
+  storedWeapon,
+  weaponId,
+} from '../support/weapons'
 
 const response: ReverseLookupResponse = {
   status: 'feasible',
   candidates: [makeCandidate()],
   elapsedMs: 3,
 }
+
+const pickWeaponParts = ({ weapons, setBonuses }: MasterBundle) => ({ weapons, setBonuses })
 
 // 受入基準 AC-1・AC-7・AC-8・AC-9・AC-12（逆引きの状態）
 describe('reverseLookup ストア', () => {
@@ -77,6 +88,37 @@ describe('reverseLookup ストア', () => {
       expect(request).not.toHaveProperty('objective')
       expect(reverse.summary?.rarities).toEqual([8])
       expect(reverse.summary?.requiredCount).toBe(1)
+    })
+
+    it('AC-10: 火力の元に、選んだ武器の攻撃力・会心率・武器種を写す', async () => {
+      const { reverse } = await setup()
+      reverse.submit()
+      expect(reverse.submittedBasis?.damageBase).toEqual({
+        attack: 250,
+        affinity: -15,
+        weaponType: 'great-sword',
+      })
+    })
+
+    it('AC-10: 個体差のある武器は、入力した攻撃力・会心率と基の武器の武器種を写す', async () => {
+      stubBackend({
+        bundle: { ...makeTableBundle(), ...pickWeaponParts(makeWeaponBundle()) },
+        dictionary: makeWeaponDictionary(),
+      })
+      const stores = await loadStores(
+        undefined,
+        createMemoryWeaponRepository([storedWeapon(1, { baseWeaponId: ARTIA_BOW })]),
+      )
+      await stores.charms.ensureLoaded()
+      await stores.weapons.ensureLoaded()
+      stores.conditions.selectCustomWeapon(weaponId(1))
+      const reverse = useReverseLookupStore(stores.pinia)
+      expect(reverse.submit()).toBe(true)
+      expect(reverse.submittedBasis?.damageBase).toEqual({
+        attack: 200,
+        affinity: 15,
+        weaponType: 'bow',
+      })
     })
 
     it('AC-1: 護石の読込を待たずに送る', async () => {

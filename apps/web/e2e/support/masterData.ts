@@ -11,8 +11,19 @@ const DICTIONARY_FILE = /\.(ja|en)\.json$/
 
 interface RawMaster {
   version: string
-  weapons: { id: string; skills: unknown[]; setBonusIds: unknown[] }[]
-  skills: { id: string; kind: string; maxLevel: number; category: string }[]
+  weapons: {
+    id: string
+    weaponType: string
+    skills: { skillId: string; level: number }[]
+    setBonusIds: unknown[]
+  }[]
+  skills: {
+    id: string
+    kind: string
+    maxLevel: number
+    category: string
+    effectsByLevel: { value: number; weaponTypes?: string[] }[][]
+  }[]
   armors: {
     id: string
     part: string
@@ -51,6 +62,10 @@ export interface MasterInfo {
   grantPair: () => GrantPair
   /** 武器スキルが属する分類の ID（重複なし） */
   weaponSkillCategoryIds: () => string[]
+  /** 指定の武器種で、指定のスキルを指定のレベルでちょうど 1 つだけ持つ武器の名前（先頭の1つ） */
+  weaponNameWithSkill: (weaponType: string, skillId: string, level: number) => string
+  /** スキルの指定レベルの、`weaponTypes` を持つ効果（値と武器種の配列） */
+  weaponTypeEffects: (skillId: string, level: number) => { value: number; weaponTypes: string[] }[]
 }
 
 /** 防具の部位ごとの (シリーズの部位数, グループの部位数) の選び方で、必要部位数に届く組合せがあるか。 */
@@ -157,7 +172,31 @@ export function loadMasterInfo(): MasterInfo {
     return dictionaryName(best.id)
   }
 
+  const weaponNameWithSkill: MasterInfo['weaponNameWithSkill'] = (weaponType, skillId, level) => {
+    const weapon = master.weapons.find(
+      (w) =>
+        w.weaponType === weaponType &&
+        w.skills.length === 1 &&
+        w.skills.some((s) => s.skillId === skillId && s.level === level),
+    )
+    if (weapon === undefined) {
+      throw new Error(`${weaponType} で ${skillId} Lv${level} だけを持つ武器がマスターに無い`)
+    }
+    return dictionaryName(weapon.id)
+  }
+
+  const weaponTypeEffects: MasterInfo['weaponTypeEffects'] = (skillId, level) => {
+    const skill = master.skills.find((s) => s.id === skillId)
+    const effects = skill?.effectsByLevel[level - 1]
+    if (effects === undefined) throw new Error(`マスターに ${skillId} Lv${level} の効果が無い`)
+    return effects.flatMap((e) =>
+      e.weaponTypes === undefined ? [] : [{ value: e.value, weaponTypes: e.weaponTypes }],
+    )
+  }
+
   return {
+    weaponNameWithSkill,
+    weaponTypeEffects,
     headArmorWithSkill,
     kanjiArmorSkill,
     artiaWeaponName,

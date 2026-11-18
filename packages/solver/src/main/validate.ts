@@ -7,6 +7,8 @@ export const MAX_RESULTS_LIMIT = 30
 
 /** 武器の形（マスターの武器も個体差のある武器も同じ形にそろえる） */
 export interface ResolvedWeapon {
+  /** マスターの武器はその武器種、個体差のある武器は基の武器の武器種 */
+  weaponType: string
   attack: number
   affinity: number
   slots: Slot[]
@@ -32,6 +34,7 @@ function resolveWeapon(master: MasterBundle, request: SolverRequest): ResolvedWe
     const found = master.weapons.find((w) => w.id === weapon.weaponId)
     if (found === undefined) fail(`武器 ${weapon.weaponId} がマスターに無い`)
     return {
+      weaponType: found.weaponType,
       attack: found.attack,
       affinity: found.affinity,
       slots: found.slots,
@@ -39,7 +42,8 @@ function resolveWeapon(master: MasterBundle, request: SolverRequest): ResolvedWe
       setBonusIds: found.setBonusIds,
     }
   }
-  if (!master.weapons.some((w) => w.id === weapon.baseWeaponId)) {
+  const base = master.weapons.find((w) => w.id === weapon.baseWeaponId)
+  if (base === undefined) {
     fail(`個体差のある武器の基の武器 ${weapon.baseWeaponId} がマスターに無い`)
   }
   checkSkills(master, '個体差のある武器', weapon.skills)
@@ -49,6 +53,7 @@ function resolveWeapon(master: MasterBundle, request: SolverRequest): ResolvedWe
     }
   }
   return {
+    weaponType: base.weaponType,
     attack: weapon.attack,
     affinity: weapon.affinity,
     slots: weapon.slots,

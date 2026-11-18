@@ -248,11 +248,13 @@ function recountExpected(
   }
   const w = request.weapon
   const found = w.kind === 'custom' ? w : master.weapons.find((m) => m.id === w.weaponId)
+  const typeOf = w.kind === 'custom' ? w.baseWeaponId : w.weaponId
   return referenceDamage(
     master,
     { attack: found?.attack ?? 0, affinity: found?.affinity ?? 0 },
     levels,
     request.activeConditionIds ?? [],
+    master.weapons.find((m) => m.id === typeOf)?.weaponType,
   )
 }
 

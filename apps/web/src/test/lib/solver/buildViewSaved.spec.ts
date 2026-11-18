@@ -209,7 +209,11 @@ describe('savedBuildView', () => {
   it('AC-4: マスターの武器のスロットと火力の基は現在のマスターから引く', () => {
     const result = view(minimalPayload())
     expect(result.lookup.weaponSlots).toEqual(greatSword.slots)
-    expect(result.damageBase).toEqual({ attack: greatSword.attack, affinity: greatSword.affinity })
+    expect(result.damageBase).toEqual({
+      attack: greatSword.attack,
+      affinity: greatSword.affinity,
+      weaponType: greatSword.weaponType,
+    })
     expect(result.weaponName).toBe(NAMES[wp('great-sword:1')])
   })
 
@@ -233,7 +237,11 @@ describe('savedBuildView', () => {
     const named = view(custom('マイ武器'))
     expect(named.weaponName).toBe('マイ武器（個体差）')
     expect(named.lookup.weaponSlots).toEqual([{ level: 2 }])
-    expect(named.damageBase).toEqual({ attack: 321, affinity: 7 })
+    expect(named.damageBase).toEqual({
+      attack: 321,
+      affinity: 7,
+      weaponType: greatSword.weaponType,
+    })
     expect(view(custom('')).weaponName).toBe(`${NAMES[wp('great-sword:1')]}（個体差）`)
   })
 
@@ -257,6 +265,7 @@ describe('savedBuildView', () => {
     )
     expect(result.weaponName).toBe(`${unknownWeaponName('wp:great-sword:999')}（個体差）`)
     expect(result.damageBase).toEqual({ attack: 100, affinity: 0 })
+    expect(result.damageBase).not.toHaveProperty('weaponType')
   })
 
   it('AC-5: マスターの武器が無いときは「不明な武器（<ID>）」・スロットなし・火力の基なし', () => {

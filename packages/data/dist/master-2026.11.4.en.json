@@ -2871,6 +2871,12 @@
     "cd:bubbleblight": {
       "name": "Bubbleblight"
     },
+    "cd:burst_5_hits": {
+      "name": "Burst after 5 hits"
+    },
+    "cd:coalescence": {
+      "name": "Coalescence active"
+    },
     "cd:counterstrike": {
       "name": "Counterstrike active"
     },
@@ -11458,5 +11464,5 @@
     }
   },
   "locale": "en",
-  "version": "2026.11.3"
+  "version": "2026.11.4"
 }

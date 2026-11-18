@@ -38,3 +38,8 @@ export function weaponTypeOrder(id: string): number {
   const index = WEAPON_TYPES.findIndex((type) => type.id === id)
   return index === -1 ? WEAPON_TYPES.length : index
 }
+
+/** 武器種の略称（補完の［］用）。定数に無い値は kind の文字列をそのまま返す。 */
+export function weaponTypeShortName(id: string): string {
+  return WEAPON_TYPE_BY_ID.get(id)?.shortName ?? id
+}

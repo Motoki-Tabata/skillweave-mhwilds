@@ -91,11 +91,12 @@ export function weapon(
     setBonusIds?: string[]
     attack?: number
     affinity?: number
+    weaponType?: string
   } = {},
 ): MasterWeapon {
   return {
     id: weaponId(id),
-    weaponType: 'bow',
+    weaponType: opts.weaponType ?? 'bow',
     attack: opts.attack ?? 100,
     affinity: opts.affinity ?? 0,
     slots: opts.slots ?? [],

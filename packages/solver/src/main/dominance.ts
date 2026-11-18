@@ -26,10 +26,14 @@ export interface Profile {
   armorSlots: number[]
 }
 
-export function relevantSkills(master: MasterBundle, request: SolverRequest): RelevantSkills {
+export function relevantSkills(
+  master: MasterBundle,
+  request: SolverRequest,
+  weaponType: string,
+): RelevantSkills {
   const ordinary = new Set<SkillId>()
   const bonuses = new Set<SetBonusId>()
-  for (const t of damageTargets(master, request)) {
+  for (const t of damageTargets(master, request, weaponType)) {
     if (t.bonus === undefined) ordinary.add(t.skill.id)
     else bonuses.add(t.bonus.id)
   }
@@ -155,8 +159,9 @@ function reduceCharms(
 export function reduceCandidates(
   master: MasterBundle,
   request: SolverRequest,
+  weaponType: string,
 ): { master: MasterBundle; request: SolverRequest } {
-  const rel = relevantSkills(master, request)
+  const rel = relevantSkills(master, request, weaponType)
   return {
     master: {
       ...master,

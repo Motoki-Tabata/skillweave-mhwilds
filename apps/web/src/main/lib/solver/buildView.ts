@@ -272,7 +272,11 @@ function savedWeaponView(weapon: BuildWeapon, master: SavedBuildMaster): SavedWe
     return {
       name: master.nameOf(found.id),
       slots: found.slots,
-      damageBase: { attack: found.attack, affinity: found.affinity },
+      damageBase: {
+        attack: found.attack,
+        affinity: found.affinity,
+        weaponType: found.weaponType,
+      },
     }
   }
   const { payload } = weapon
@@ -282,7 +286,11 @@ function savedWeaponView(weapon: BuildWeapon, master: SavedBuildMaster): SavedWe
   return {
     name: `${payload.name === '' ? baseName : payload.name}（個体差）`,
     slots: payload.slots.map((slot) => ({ level: slot.level })),
-    damageBase: { attack: payload.attack, affinity: payload.affinity },
+    damageBase: {
+      attack: payload.attack,
+      affinity: payload.affinity,
+      ...(base === undefined ? {} : { weaponType: base.weaponType }),
+    },
   }
 }
 

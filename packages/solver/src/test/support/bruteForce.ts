@@ -23,14 +23,23 @@ interface Gear {
   weapon: { slots: Slot[]; skills: { skillId: SkillId; level: number }[]; setBonusIds: string[] }
   attack: number
   affinity: number
+  weaponType: string | undefined
 }
 
 function weaponOf(master: MasterBundle, request: SolverRequest): Gear {
   const w = request.weapon
-  if (w.kind === 'custom') return { weapon: w, attack: w.attack, affinity: w.affinity }
+  if (w.kind === 'custom') {
+    const base = master.weapons.find((m) => m.id === w.baseWeaponId)
+    return { weapon: w, attack: w.attack, affinity: w.affinity, weaponType: base?.weaponType }
+  }
   const found = master.weapons.find((m) => m.id === w.weaponId)
   if (found === undefined) throw new Error('武器が無い')
-  return { weapon: found, attack: found.attack, affinity: found.affinity }
+  return {
+    weapon: found,
+    attack: found.attack,
+    affinity: found.affinity,
+    weaponType: found.weaponType,
+  }
 }
 
 /** 部位ごとの防具の組（全部位とも 1 つ選ぶ。固定・除外は使わない） */
@@ -107,6 +116,7 @@ export function bruteForce(master: MasterBundle, request: SolverRequest): BruteC
             { attack: gear.attack, affinity: gear.affinity },
             levels,
             request.activeConditionIds ?? [],
+            gear.weaponType,
           )
           result.push({ key, expected, armorFree, weaponFree })
           return

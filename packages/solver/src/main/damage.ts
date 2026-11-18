@@ -7,6 +7,8 @@ type CountedStat = Extract<EffectStat, 'attack_add' | 'attack_mul' | 'affinity_a
 export interface DamageBase {
   attack: number
   affinity: number
+  /** 武器の武器種。省略は「分からない」で、`weaponTypes` を持つ効果を数えない */
+  weaponType?: string
 }
 
 /** 発動スキル。`SolvedBuild.skills` をそのまま渡せる */
@@ -28,8 +30,14 @@ export const NEGATIVE_CRIT_MULTIPLIER = 0.75
 export const AFFINITY_LIMIT = 100
 
 /** 有効な条件の下で数える効果か（条件が無い効果は常に数える） */
-export function isCounted(effect: Effect, active: ReadonlySet<ConditionId>): boolean {
-  return effect.conditionId === undefined || active.has(effect.conditionId)
+export function isCounted(
+  effect: Effect,
+  active: ReadonlySet<ConditionId>,
+  weaponType: string | undefined,
+): boolean {
+  if (effect.conditionId !== undefined && !active.has(effect.conditionId)) return false
+  if (effect.weaponTypes === undefined) return true
+  return weaponType !== undefined && effect.weaponTypes.includes(weaponType)
 }
 
 /** レベル level の効果（`effectsByLevel[level - 1]`）。範囲外は効果なし */
@@ -70,7 +78,7 @@ export function evaluateDamage(
   }
   for (const { skillId, level } of skills) {
     for (const effect of effectsAt(byId.get(skillId), level)) {
-      if (!isCounted(effect, active)) continue
+      if (!isCounted(effect, active, base.weaponType)) continue
       if (effect.stat === 'attack_add' || effect.stat === 'affinity_add') {
         sums[effect.stat] += effect.value
       } else if (effect.stat === 'attack_mul') {

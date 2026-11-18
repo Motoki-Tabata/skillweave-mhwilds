@@ -33,10 +33,10 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
     expect([ja.version, en.version]).toEqual([MASTER_VERSION, MASTER_VERSION])
   })
 
-  it('全防具に rank があり、版が 2026.11.3 である（12。006 受入基準 3・037 AC-5・038 AC-5）', async () => {
+  it('全防具に rank があり、版が 2026.11.4 である（12。006 受入基準 3・037 AC-5・038 AC-5・043 AC-4）', async () => {
     const bundle = await readJson<MasterBundle>(BUNDLE)
-    expect(bundle.version).toBe('2026.11.3')
-    expect(MASTER_VERSION).toBe('2026.11.3')
+    expect(bundle.version).toBe('2026.11.4')
+    expect(MASTER_VERSION).toBe('2026.11.4')
     expect(bundle.armors.length).toBeGreaterThan(0)
     for (const armor of bundle.armors) {
       expect(['low', 'high', 'master'], armor.id).toContain(armor.rank)
@@ -174,7 +174,6 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
       'sk:1934955136': 'オトモの攻撃力と防御力だけ（オトモは対象外）',
       'sk:1998066176': '攻撃力と防御力が上がるが数値が無い（回数の２回だけ）',
       'sk:24531': '属性攻撃力が上がるだけ（属性は対象外。Q40）',
-      'sk:565867136': '攻撃力と属性攻撃値がわずかに上昇するが数値が無い（回数の５回だけ）',
     }
     const bundle = await readJson<MasterBundle>(BUNDLE)
     const ja = await readJson<MasterDictionary>(JA)
@@ -280,7 +279,6 @@ describe('コミット済みの dist/（受入基準 9・12・13・14。ネッ�
         'sk:1522518528': '防御力ＤＯＷＮ耐性: 効果時間の数値',
         'sk:1934955136': 'オトモへの采配: オトモは対象外',
         'sk:1998066176': '毛皮の昂揚: 数値は回数だけ',
-        'sk:565867136': '連撃: 数値は回数だけ',
       }
       const bundle = await readJson<MasterBundle>(BUNDLE)
       const ja = await readJson<MasterDictionary>(JA)
@@ -441,10 +439,7 @@ describe('効果の数値（038。コミット済みの dist/ を読む）', () 
 
   // 空のまま: 値が出典で定まらない・武器種で違う（Q196）など
   const KEPT_EMPTY: Record<string, string> = {
-    'sk:313598432': '武器種で値が違う（Q196）',
     'sk:-168922880': '値を載せる出典が K のみ・読みが定まらない',
-    'sk:565867136': '武器種で値が違う（Q196）',
-    'sk:-1700743296': '武器種で値が違う（Q196）',
     'sk:1489568384': '値を載せる出典が K のみ・読みが定まらない',
     'sk:2083363072': '値を載せる出典が K のみ・読みが定まらない',
     'sk:722735744': '値を載せる出典が K のみ・読みが定まらない',
@@ -474,8 +469,12 @@ describe('効果の数値（038。コミット済みの dist/ を読む）', () 
     const bundle = await readJson<MasterBundle>(BUNDLE)
     const ja = await readJson<MasterDictionary>(JA)
     expect(Object.keys(CANDIDATES)).toHaveLength(29)
+    // 武器種で値が違う 3 件は 043 の describe で確かめる（値の定まらないレベルを空にしうるため、全レベルが空でないことを求める本テストから外す）
+    const MOVED_TO_043 = ['sk:313598432', 'sk:565867136', 'sk:-1700743296']
+    for (const id of MOVED_TO_043) expect(id in CANDIDATES, id).toBe(true)
     const bad: string[] = []
     for (const [id, name] of Object.entries(CANDIDATES)) {
+      if (MOVED_TO_043.includes(id)) continue
       expect(ja.entries[id]?.name, id).toBe(name)
       const effects = bundle.skills.find((s) => s.id === id)?.effectsByLevel ?? []
       const hasValues = effects.length > 0 && effects.every((level) => level.length > 0)
@@ -525,7 +524,7 @@ describe('効果の数値（038。コミット済みの dist/ を読む）', () 
     const ja = await readJson<MasterDictionary>(JA)
     const skillLines = text.split('\n').filter((line) => /^ {2}sk:\S+: # /.test(line))
     expect(skillLines.length).toBeGreaterThan(0)
-    const webIds = ['sk:31540', 'sk:7506']
+    const webIds = ['sk:31540', 'sk:7506', 'sk:313598432', 'sk:-1700743296', 'sk:565867136']
     for (const line of skillLines) {
       const id = /^ {2}(sk:\S+):/.exec(line)?.[1] ?? ''
       if (webIds.includes(id)) {
@@ -539,5 +538,154 @@ describe('効果の数値（038。コミット済みの dist/ を読む）', () 
         skillLines.some((l) => l.startsWith(`  ${id}:`)),
         id,
       ).toBe(true)
+  })
+})
+
+describe('武器種で値が違う効果（043。コミット済みの dist/ を読む）', () => {
+  // adopted.md の採用した値から書き写したもの（実装の写しではない）
+  const HEAVY = ['great-sword', 'hammer', 'hunting-horn', 'gunlance', 'switch-axe', 'charge-blade']
+  const LIGHT = [
+    'long-sword',
+    'sword-shield',
+    'dual-blades',
+    'lance',
+    'insect-glaive',
+    'light-bowgun',
+    'heavy-bowgun',
+    'bow',
+  ]
+  const BURST_C = [
+    'long-sword',
+    'sword-shield',
+    'hammer',
+    'lance',
+    'gunlance',
+    'switch-axe',
+    'charge-blade',
+    'insect-glaive',
+  ]
+  const burst = (
+    stat: 'attack_add' | 'element_add',
+    value: number,
+    weaponTypes: string[],
+  ): Effect => ({ stat, value, conditionId: 'cd:burst_5_hits' as never, weaponTypes })
+  const coalescence = (
+    stat: 'element_mul' | 'status_mul',
+    value: number,
+    w?: string[],
+  ): Effect => ({
+    stat,
+    value,
+    conditionId: 'cd:coalescence' as never,
+    ...(w ? { weaponTypes: w } : {}),
+  })
+
+  // 対象の 3 件（ID → ja の名前、最大 Lv）
+  const TARGETS: Record<string, [string, number]> = {
+    'sk:313598432': ['会心撃【属性】', 3],
+    'sk:-1700743296': ['災禍転福', 3],
+    'sk:565867136': ['連撃', 5],
+  }
+  // 「空のまま」の一覧（ID → 理由）。採用した値では全レベルに効果があるので空
+  const KEPT_EMPTY: Record<string, string> = {}
+  // 空のレベル（スキル ID・Lv・理由）。会心撃【属性】の Lv1・Lv2 の重い武器種は出典が「約」の値だけなので、その組だけを書かない
+  // （レベル自体は軽い武器種の効果を持つので、空のレベルは無い）
+  const EMPTY_LEVELS: [string, number, string][] = []
+
+  it('対象の 3 件は、効果を持つか、理由つきの「空のまま」の一覧にある（AC-5）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const ja = await readJson<MasterDictionary>(JA)
+    for (const [id, [name, maxLevel]] of Object.entries(TARGETS)) {
+      expect(ja.entries[id]?.name, id).toBe(name)
+      const effects = bundle.skills.find((s) => s.id === id)?.effectsByLevel ?? []
+      if (id in KEPT_EMPTY) {
+        expect(effects, id).toEqual([])
+        expect(KEPT_EMPTY[id]?.length, id).toBeGreaterThan(0)
+      } else {
+        expect(effects, id).toHaveLength(maxLevel)
+        effects.forEach((level, index) => {
+          const listed = EMPTY_LEVELS.some(([s, lv]) => s === id && lv === index + 1)
+          expect(level.length === 0, `${id} Lv${index + 1}`).toBe(listed)
+        })
+      }
+    }
+  })
+
+  it('会心撃【属性】Lv3 は 2 つの武器種の組（AC-5）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const levels = bundle.skills.find((s) => s.id === 'sk:313598432')?.effectsByLevel
+    expect(levels?.[2]).toEqual([
+      { stat: 'element_crit_mul', value: 1.2, weaponTypes: HEAVY },
+      { stat: 'element_crit_mul', value: 1.15, weaponTypes: LIGHT },
+    ])
+    // Lv1・Lv2 の重い武器種は出典が「約」の値だけなので書かない
+    expect(levels?.[0]).toEqual([{ stat: 'element_crit_mul', value: 1.05, weaponTypes: LIGHT }])
+    expect(levels?.[1]).toEqual([{ stat: 'element_crit_mul', value: 1.1, weaponTypes: LIGHT }])
+  })
+
+  it('災禍転福 Lv3 は条件 cd:coalescence の element_mul 2 つと status_mul（AC-5）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const levels = bundle.skills.find((s) => s.id === 'sk:-1700743296')?.effectsByLevel
+    expect(levels?.[2]).toEqual([
+      coalescence('element_mul', 1.3, HEAVY),
+      coalescence('element_mul', 1.15, LIGHT),
+      coalescence('status_mul', 1.15),
+    ])
+    expect(levels?.[0]?.at(-1)).toEqual(coalescence('status_mul', 1.05))
+  })
+
+  it('連撃 Lv5 は条件 cd:burst_5_hits の A〜E の効果（AC-5）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const levels = bundle.skills.find((s) => s.id === 'sk:565867136')?.effectsByLevel
+    expect(levels?.[4]).toEqual([
+      burst('attack_add', 18, ['great-sword', 'hunting-horn']),
+      burst('element_add', 2, ['great-sword', 'hunting-horn']),
+      burst('attack_add', 18, ['dual-blades']),
+      burst('element_add', 1.2, ['dual-blades']),
+      burst('attack_add', 18, BURST_C),
+      burst('element_add', 1.4, BURST_C),
+      burst('attack_add', 10, ['light-bowgun', 'heavy-bowgun']),
+      burst('attack_add', 10, ['bow']),
+      burst('element_add', 1.2, ['bow']),
+    ])
+    expect(levels?.[0]?.[0]).toEqual(burst('attack_add', 10, ['great-sword', 'hunting-horn']))
+  })
+
+  it('weaponTypes の要素は実際の武器の武器種で、対象の 3 件の外の効果は weaponTypes を持たない（AC-1・AC-4）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const known = new Set(bundle.weapons.map((w) => w.weaponType))
+    for (const skill of bundle.skills) {
+      for (const effect of skill.effectsByLevel.flat()) {
+        if (!(skill.id in TARGETS)) {
+          expect('weaponTypes' in effect, skill.id).toBe(false)
+          continue
+        }
+        const types = effect.weaponTypes ?? []
+        expect(
+          types.every((t) => known.has(t)),
+          skill.id,
+        ).toBe(true)
+      }
+    }
+  })
+
+  it('採用で参照された新しい条件だけが conditions にあり、ja・en の名前が一致する（AC-3）', async () => {
+    const bundle = await readJson<MasterBundle>(BUNDLE)
+    const ja = await readJson<MasterDictionary>(JA)
+    const en = await readJson<MasterDictionary>(EN)
+    const NEW = {
+      'cd:burst_5_hits': ['連撃の5回継続以降', 'Burst after 5 hits'],
+      'cd:coalescence': ['災禍転福の発動中', 'Coalescence active'],
+    }
+    const ids = new Set(bundle.conditions.map((c) => c.id as string))
+    const referenced = new Set(
+      bundle.skills.flatMap((s) => s.effectsByLevel.flat()).flatMap((e) => e.conditionId ?? []),
+    )
+    for (const [id, [jaName, enName]] of Object.entries(NEW)) {
+      expect(ids.has(id), id).toBe(true)
+      expect(referenced.has(id as never), id).toBe(true)
+      expect(ja.entries[id]?.name, id).toBe(jaName)
+      expect(en.entries[id]?.name, id).toBe(enName)
+    }
   })
 })

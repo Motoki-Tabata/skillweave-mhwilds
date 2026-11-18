@@ -13,7 +13,12 @@ import type {
 } from '../index.ts'
 import type { SetBonusMismatch } from './convert.ts'
 import { SKILL_CATEGORIES } from './categories.ts'
-import { CONDITION_ID_PATTERN, effectProblem } from './effects.ts'
+import {
+  CONDITION_ID_PATTERN,
+  effectProblem,
+  weaponTypeOverlaps,
+  weaponTypesProblem,
+} from './effects.ts'
 import { compareCodeUnits } from './sort.ts'
 
 export interface OverlayFile {
@@ -114,6 +119,8 @@ interface ParsedEffect extends Position {
   value: unknown
   element: unknown
   conditionId: unknown
+  weaponTypes: unknown
+  hasWeaponTypes: boolean
 }
 
 interface EffectsEntry extends Position {
@@ -324,6 +331,13 @@ function parseConditions(
   }
 }
 
+/** YAML のノードを JS の値にする（配列は要素のスカラーを取り出す。入れ子の構造はノードのまま残し、規則違反として扱う） */
+function plainValue(node: unknown): unknown {
+  if (isScalar(node)) return node.value
+  if (isSeq(node)) return node.items.map((item) => (isScalar(item) ? item.value : item))
+  return node
+}
+
 function parseEffect(
   item: Node | null,
   file: string,
@@ -334,7 +348,7 @@ function parseEffect(
     fail(item, '効果はキーと値の組でなければなりません')
     return undefined
   }
-  rejectUnknownKeys(item, ['stat', 'value', 'element', 'conditionId'], '効果', fail)
+  rejectUnknownKeys(item, ['stat', 'value', 'element', 'conditionId', 'weaponTypes'], '効果', fail)
   const missing = ['stat', 'value'].filter((key) => !item.has(key))
   if (missing.length > 0) {
     fail(item, `効果に ${missing.join('・')} がありません`)
@@ -347,6 +361,8 @@ function parseEffect(
     value: item.get('value'),
     element: item.get('element'),
     conditionId: item.get('conditionId'),
+    weaponTypes: plainValue(item.get('weaponTypes', true)),
+    hasWeaponTypes: item.has('weaponTypes'),
   }
 }
 
@@ -546,6 +562,9 @@ function applyEffects(
         .flatMap((effect) => (typeof effect.conditionId === 'string' ? [effect.conditionId] : [])),
     ),
   )
+  const weaponTypes: ReadonlySet<string> = new Set(
+    bundle.weapons.map((weapon) => weapon.weaponType),
+  )
   const seen = new Map<string, EffectsEntry>()
   for (const entry of entries) {
     const { file, id } = entry
@@ -573,16 +592,24 @@ function applyEffects(
       )
       continue
     }
-    skill.effectsByLevel = entry.levels.map((level) =>
-      level.flatMap((effect) => {
-        const result = toEffect(effect, conditionIds)
-        if (typeof result === 'string') {
-          fail(`effects の ${id}: ${result}`, effect)
-          return []
-        }
-        return [result]
-      }),
-    )
+    skill.effectsByLevel = entry.levels.map((level) => {
+      const converted: { effect: ParsedEffect; result: Effect }[] = []
+      for (const effect of level) {
+        const result = toEffect(effect, conditionIds, weaponTypes)
+        if (typeof result === 'string') fail(`effects の ${id}: ${result}`, effect)
+        else converted.push({ effect, result })
+      }
+      const overlaps = weaponTypeOverlaps(
+        converted.map(({ result }) => result),
+        weaponTypes,
+      )
+      return converted.flatMap(({ effect, result }, index) => {
+        const overlap = overlaps.get(index)
+        if (overlap === undefined) return [result]
+        fail(`effects の ${id}: ${overlap}`, effect)
+        return []
+      })
+    })
   }
   for (const { file, line, col, id } of conditions) {
     if (!referenced.has(id)) {
@@ -592,16 +619,26 @@ function applyEffects(
 }
 
 /** 読んだ効果を `Effect` にする。規則に反するときは、その理由の文字列を返す */
-function toEffect(effect: ParsedEffect, conditionIds: ReadonlySet<string>): Effect | string {
+function toEffect(
+  effect: ParsedEffect,
+  conditionIds: ReadonlySet<string>,
+  weaponTypes: ReadonlySet<string>,
+): Effect | string {
   const problem = effectProblem(effect.stat, effect.value, effect.element)
   if (problem) return problem
   const result: Effect = { stat: effect.stat as EffectStat, value: effect.value as number }
   if (effect.element !== undefined) result.element = effect.element as EffectElement
-  if (effect.conditionId === undefined) return result
-  if (typeof effect.conditionId !== 'string' || !conditionIds.has(effect.conditionId)) {
-    return `conditionId ${JSON.stringify(effect.conditionId)} が conditions にありません`
+  if (effect.conditionId !== undefined) {
+    if (typeof effect.conditionId !== 'string' || !conditionIds.has(effect.conditionId)) {
+      return `conditionId ${JSON.stringify(effect.conditionId)} が conditions にありません`
+    }
+    result.conditionId = effect.conditionId as ConditionId
   }
-  result.conditionId = effect.conditionId as ConditionId
+  if (effect.hasWeaponTypes) {
+    const weaponProblem = weaponTypesProblem(effect.weaponTypes, weaponTypes)
+    if (weaponProblem) return weaponProblem
+    result.weaponTypes = effect.weaponTypes as string[]
+  }
   return result
 }
 
