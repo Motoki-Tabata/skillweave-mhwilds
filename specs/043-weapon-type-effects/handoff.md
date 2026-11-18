@@ -85,6 +85,10 @@
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- ゲート D-1 の判断（2026-11-18）: E2E の武器種の略称 SHORT_NAMES が constants/weaponTypes.ts と 2 か所に重なるのは許容（e2e から src/main を import すると tsconfig.e2e.json の対象外で TS6307。略称を変えると E2E が落ちてずれに気付ける）
+- ゲート D-1 の判断: E2E の題は AC-9・AC-10 だが、火力の数値（連撃の攻撃力）は実データでなく単体テスト（BuildCard.spec・solver の weaponType.spec）が担う
+- 多数で採った（未検証の）値: 連撃の狩猟笛（3 対 1）・弓の属性値。取得した HTML と下書きはコミットしていない。常時許可外の変更: design/master-data.md・design/tech-stack.md・design-system/skillweave/MASTER.md・packages/data/dist（2026.11.4 の 3 ファイル、旧版 3 ファイルの削除）。メインの直接修正は上の表のとおり（「（記録のみ…）」の行は不要な追記で、直接修正は 2 件）
+- 持ち越し（レビュー）: validate.ts の重なり報告の「効果 N 件目」のずれ（表示のみ）・dist.spec.ts の EMPTY_LEVELS のコメント・AC-8 の ILP 側の専用テスト・E2E の pair() の並び・sortedWeaponTypes の未知の値どうしの並び
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
