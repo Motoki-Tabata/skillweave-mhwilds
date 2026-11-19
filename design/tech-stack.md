@@ -1066,6 +1066,30 @@ API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm worksp
 - `defense` の合計時間の最大は、オンが 1346.9 → 1353.5 ms、オフが 864.0 → 882.4 ms。
 - 判断: 5 秒の基準に合格したので、区間 D を止めない。3 秒への未達は 024 の後の状態と同じ性質で、043 のスコープ外（ソルバーの性能の改善）として扱う。
 
+## ブラウザの Worker 上の属性の最大化の測定（023 element-damage・2026-11-19）
+
+**結論: 属性の最大化（`expectedElement`）の 1 件目までの時間の最大（生産護石のオンとオフの全ケース・全回）は 849.2 ms で、5 秒の基準（`specs/019-damage-solve-perf/decisions.md` Q41・`specs/024-worker-solve-perf/decisions.md` Q50 が読み替えた現行の基準。023 の Q183 が引く）に合格した。5 秒までの余裕は約 4.15 秒。区間 D は止めない。**
+
+- 条件: 実データ（マスターの版 `2026.11.4`）・発動条件はすべてオン・武器は「マスターの並びで先頭の、属性が 5 属性の武器」（`wp:bow:10`。雷属性・値 11・表示 110）・目的は「属性の最大化」・件数 10・候補のランクは下位と上位・必須スキル 3／6／10 個 × 解あり／解なしの 6 ケース・各 3 回・上限は画面の `SOLVE_TIMEOUT_MS`（30 秒）・生産護石のオンとオフの両方。`pnpm --filter @swv/web run measure --workers=1 e2e/measure/element-ui.measure.ts`（ハーネスは `apps/web/e2e/measure/element-ui.measure.ts`。時間は assert しない）。
+- 測定環境: Node v24.22.3・linux x64（WSL2）・Chromium（Playwright 1.65.0）・HiGHS は npm `highs` 1.15.4。043 の節と同じマシン（AMD Ryzen 7 5700X）。
+- 武器スキルを持つ武器なので、生産護石がオフでも「解なし」のケースで解が見つかることがある（オンの k=3・k=10 の解なしは `found`）。表の「解なし」は、状態が `infeasible` で構成が 0 件のケース。
+
+`expectedElement` の 1 件目までの時間（ms。3 回の範囲）:
+
+| ケース | 生産護石オフ | 生産護石オン |
+|---|---|---|
+| k=3 解あり | 338.0〜345.4 | 336.0〜338.3 |
+| k=3 解なし | 解なし（`infeasible`） | 332.8〜354.7 |
+| k=6 解あり | 238.0〜264.0 | 240.1〜349.0 |
+| k=6 解なし | 解なし（`infeasible`） | 844.4〜849.2 |
+| k=10 解あり | 836.1〜845.5 | 833.4〜839.3 |
+| k=10 解なし | 解なし（`infeasible`） | 334.2〜347.4 |
+| 最大 | 845.5 | 849.2 |
+
+- 合計時間（10 件を求め終えるまで）の最大は、オンが 7445.3 ms（k=10 解なし）、オフが 3889.6 ms（k=10 解あり）。画面の上限（30 秒）で打ち切られたケースは無い（参考。基準にしない）。
+- Node の測定（`packages/solver/src/test/solveBuilds.measure.ts`・solver-agent。同じ武器・条件）の 1 件目までの最大は 391.4 ms（生産護石オン・k=10 解あり）。画面との差は Worker・描画・通信の分で、plan D10 の目安（約 4.2 秒）を大きく下回った。
+- 判断: 5 秒の基準に合格したので、区間 D を止めない（AC-12）。
+
 ## 既知の警告
 
 - `pnpm --filter @swv/web test:unit` で Vite が「`vitest.config.ts` の `import './vite.config'` に拡張子が無い
