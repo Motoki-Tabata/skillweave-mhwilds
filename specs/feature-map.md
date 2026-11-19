@@ -39,7 +39,7 @@
 | 020 | armor-lock-exclude | 検索画面で防具の部位を固定し、使わない防具・装飾品を除外して検索できる（防具の固定・除外はソルバーが 003 で対応済み。装飾品の除外はソルバーにも足す（020 decisions.md Q79）） | P1 | M | 済 |
 | 021 | crafted-charm | 生産護石（マスターの `charms`）をソルバーの護石候補にでき、鑑定護石を入力しなくても護石込みの構成を探せる | P1 | M | 済 |
 | 022 | skill-category | スキルに攻撃系・会心系などの分類を持たせ、スキルを選ぶダイアログを分類ごとに並べる | P2 | M | 済 |
-| 023 | element-damage | 属性の期待値（`element_add`・`element_mul`・会心撃【属性】）を計算し、結果の火力に出し、`maximize: expectedDamage` でも使えるようにする | P2 | L | 未着手 |
+| 023 | element-damage | 属性の期待値（`element_add`・`element_mul`・会心撃【属性】）を計算し、結果の火力に出し、`maximize: expectedDamage` でも使えるようにする | P2 | L | 済 |
 | 024 | worker-solve-perf | ブラウザの Worker 上の `expectedDamage` の1件目までの時間を基準の 3 秒以内に収める（Q50） | P2 | S | 済 |
 | 025 | shared-parts-refactor | 機能ごとに複製された部品（削除確認ダイアログ・端末保存のストアの状態機械・ダイアログのオーバーレイ・404／409 の例外とハンドラ）を共有部品にまとめ、次の保存機能が同じ複製を増やさないようにする（画面と API の挙動は変えない） | P1 | M | 済 |
 | 026 | design-system-alignment | MASTER.md と、shadcn-vue の既定・既存画面との食い違い（見出しのウェイト・影・オーバーレイの濃さ・警告の帯・outline の枠色）を、規約か実装のどちらかに揃える | P2 | M | 済 |
