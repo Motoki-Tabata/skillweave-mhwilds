@@ -60,9 +60,9 @@ function elementMaster(): MasterBundle {
         [{ stat: 'element_mul', value: 1.25, element: 'thunder' }],
       ]),
       masterSkill('ECRIT', 'armor', 3, [
-        [{ stat: 'element_crit_mul', value: 1.2, element: 'thunder' }],
+        [{ stat: 'element_crit_mul', value: 1.2 }],
         [{ conditionId: C1, stat: 'element_crit_mul', value: 1.5 }],
-        [{ stat: 'element_crit_mul', value: 1.4, element: 'thunder' }],
+        [{ stat: 'element_crit_mul', value: 1.4 }],
       ]),
       masterSkill('AFF', 'armor', 3, [
         [{ stat: 'affinity_add', value: 15 }],
