@@ -39,7 +39,8 @@ const EPS = DAMAGE_EPSILON
 /**
  * 属性の最大化の手作りのマスター。どの部位の候補も互いに支配し合わない形にしてある
  * （支配される候補の除外で 2 件目以降が総当たりと変わらないように。.claude/rules/solver.md）。
- * 雷の武器には EADD・EMUL・ECRIT・AFF が効き、FIRE は効かない。火の武器ではその逆。
+ * 雷の武器には EADD・EMUL・AFF が効き、FIRE は効かない。火の武器ではその逆。
+ * ECRIT は element を持たない（実マスターの形）ので、どちらの武器にも効く。
  */
 function elementMaster(): MasterBundle {
   return buildMaster({
@@ -171,7 +172,7 @@ const SCENARIOS: Scenario[] = [
     overrides: { weapon: masterWeapon('w-fire'), activeConditionIds: ALL },
   },
   {
-    name: '火の武器で条件なし（有効な会心倍率が無く、会心率は属性期待値に効かない）',
+    name: '火の武器で条件なし（条件つきの効果を数えない）',
     overrides: { weapon: masterWeapon('w-fire') },
   },
   {

@@ -125,7 +125,7 @@ describe('ConditionsCard', () => {
       )
     })
 
-    it('AC-9: 選べない行はラベルも無効の見た目（opacity-50）にし、選べる行・選んだ後のエラー時は付けない', async () => {
+    it('AC-9: 選べない行はラベルも無効の見た目（opacity-50）にし、選べる行には付けない', async () => {
       const { conditions } = await readyWithElements()
       const labelOf = (id: string) => document.querySelector(`label[for="objective-${id}"]`)
       conditions.selectWeapon(wp('long-sword:1'))
