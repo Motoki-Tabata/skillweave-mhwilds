@@ -45,6 +45,7 @@
 常時許可外の変更予定:
 - `design/tech-stack.md`（属性の最大化の検索の時間の測定の結果を記録する）
 - `design/master-data.md`（§9 の 023 の前提の確認を、decisions.md Q184・Q205 の決定に書き換える）
+- `design-system/skillweave/MASTER.md`（区間 B で決めた火力の表示の属性の行と上限の注記、用語「属性期待値」を足す）
 
 ## 依存する機能ID
 - 006
