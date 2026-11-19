@@ -450,7 +450,7 @@ Dependabot の設定（`.github/dependabot.yml`）はこの節に従う。
 
 ## 本番の構成（2026-11-02）
 
-Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0、続けて v0.2.0（034 の ID トークンの付与）を出した。Neon のプロジェクトは 2026-11-04 に作った。API は 2026-11-07 に Cloud Run（Singapore）へ初めてデプロイし、起動時の Flyway で V1〜V6 が `neondb` に入った。同日に Worker の `API_ORIGIN` と `API_INVOKER_KEY` を登録し、`/api/*` が Cloud Run へ届くようになった。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、残りの手順は `specs/open-questions.md` の Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
+Web は 2026-11-03 に初めてデプロイし、2026-11-07 に v0.1.0、続けて v0.2.0（034 の ID トークンの付与）を出した。Neon のプロジェクトは 2026-11-04 に作った。API は 2026-11-07 に Cloud Run（Singapore）へ初めてデプロイし、起動時の Flyway で V1〜V6 が `neondb` に入った。同日に Worker の `API_ORIGIN` と `API_INVOKER_KEY` を登録し、`/api/*` が Cloud Run へ届くようになった。決定の経緯は `specs/028-api-prod-config/decisions.md` の Q83・Q84・Q87・Q129・Q131 に、デプロイの手順と自動化の決定は同じファイルの Q88 にある。無料枠は 2026-11-02 に確認した値で、変わりうる。
 
 | 用途 | 採用 | 無料枠と設定 |
 |---|---|---|
@@ -604,7 +604,7 @@ Cookie の無いゲストの `GET /api/auth/me` は Worker が答えるので、
 | CPU | 1 vCPU、`--cpu-throttling`（リクエストベースの課金） | インスタンスベースは存続の間ずっと課金される |
 | 起動ブースト | `--cpu-boost` | 起動中は 2 vCPU 分が課金されるが、待ち時間が減る |
 | インスタンス数 | 最小 0・最大 1 | 最小 1 は Singapore で月約 $13 かかる |
-| Invoker の確認 | 有効（既定のまま） | Worker だけが ID トークンを付けて呼ぶ。料金ページによると IAM で拒否した要求は課金されないので、`run.app` への直接の要求で費用が増えない（`specs/open-questions.md` Q88）。デプロイと更新で `--no-invoker-iam-check` を使わない。外すと `run.app` の URL を誰でも呼べ、Worker の制限も効かない |
+| Invoker の確認 | 有効（既定のまま） | Worker だけが ID トークンを付けて呼ぶ。料金ページによると IAM で拒否した要求は課金されないので、`run.app` への直接の要求で費用が増えない（`specs/028-api-prod-config/decisions.md` Q88）。デプロイと更新で `--no-invoker-iam-check` を使わない。外すと `run.app` の URL を誰でも呼べ、Worker の制限も効かない |
 | シークレット | `swv-db-url`・`swv-db-username`・`swv-db-password`・`swv-discord-client-id`・`swv-discord-client-secret` | 5 個で無料枠に収まる。値を入れ替えたら古い版を破棄する |
 
 `SPRING_DATASOURCE_URL` は `jdbc:postgresql://<direct のホスト>/neondb?sslmode=require` の形にする。ユーザー名とパスワードは URL に入れない。
@@ -910,7 +910,7 @@ Neon のプロジェクトは `skillweave`。コンピュートは 0.25 CU 固�
 - **リリースの流れ**: `main` へのマージのたびに、release-please がリリース PR（`chore(main): release x.y.z`）を作るか更新する。PR は GitHub App の名義なので CI が走る。リリース PR をマージした時点で、タグ・GitHub Release を作り、Web を本番へ出す。`main` のルールセットは必須チェックに最新化を求める（strict）。リリースの対象にならないコミット（`docs` など）だけが `main` に入ると、release-please はリリース PR を書き換えず、PR が `main` より古いままになる。そのときは `gh pr update-branch` で追随させ、CI が通ってからマージする（2026-11-14・2026-11-19 に実施）。
 - **起点**: v0.1.0 は、release-please の導入の直後の `main` に手で作った GitHub Release である。それより前の履歴は CHANGELOG に載せない（`bootstrap-sha` は導入前の `main` の HEAD）。手で作ったタグはワークフローを起動しないので、v0.1.0 の本番への反映は `workflow_dispatch` で行う。
 - **Dependabot**: npm の本番の依存は `fix(deps)` で PATCH のリリースを作り、CHANGELOG の「修正」に載る。npm の開発の依存（`build(deps-dev)`）・gradle と docker-compose（`build(deps)`）・Actions（`ci(deps)`）は版を上げない。1本の PR に本番と開発の依存が混ざったときの接頭辞は資料に記載が無いので（2026-11-07 に確認）、npm のグループを `dependency-type` で分けている。
-- **API**: CD の対象外。Cloud Run への手順は `specs/open-questions.md` の Q88。
+- **API**: CD の対象外。Cloud Run への手順は「API のデプロイ手順」で、決定は `specs/028-api-prod-config/decisions.md` の Q88。
 - **v1.0.0**: `specs/feature-map.md` の機能（2026-11-14 時点で未着手の 016・017・018・023）と、`specs/open-questions.md` の Q136・Q149・Q158・Q159 を扱う機能をすべて本番へ出した時に、`release-please-config.json` のパッケージ `.` に `"release-as": "1.0.0"` を入れた PR をマージし、リリース PR を v1.0.0 にする。リリースの後、次の PR で `release-as` を外す（残すと、以後も 1.0.0 を作ろうとする）。`release-as` は版の番号を決めるだけで、前のリリースから CHANGELOG に載る種類（`feat`・`fix` など）のコミットが無いと、release-please は「No user facing commits found」でリリース PR を作らない（2026-11-19 に確認）。そのときは、本文に `Release-As: 1.0.0` を付けた空の `feat` のコミットを PR でマージする。2026-11-19 に v1.0.0 を出し（PR #157・#158・#159）、次の PR で `release-as` を外した。1.0.0 以後は `bump-minor-pre-major` が効かず、`feat` で MINOR、`fix` で PATCH、破壊的変更（`feat!` などの `!` や `BREAKING CHANGE`）で MAJOR を上げる。
 
 ## SonarQube のローカル限定採用

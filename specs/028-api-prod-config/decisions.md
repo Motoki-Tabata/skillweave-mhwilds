@@ -45,3 +45,13 @@
 - 問い: 本番の DB のバックアップをどうするか。Neon の無料プランの復元期間は 6 時間で、手動のスナップショットは 1 つだけ。リポジトリは public なので、ダンプをそのまま Actions の成果物に置けない（仮: `pg_dump` を定期的に取り、暗号化してリポジトリの外に保存する。頻度と保存先は公開の作業で決める）
 - 決定: 週 1 回とマイグレーションの前に、運営者が手元で `pg_dump` を取り、AES256 で暗号化してリポジトリの外に保存する。4 世代（約 4 週間）を残し、`spring_session*` のデータは除外する。手順は `design/tech-stack.md`「DB の設定とバックアップ」。保存先とパスフレーズは運営者が管理し、リポジトリに書かない。
 - 理由: 無料プランでは定期バックアップを使えず、復元期間だけでは 6 時間より前の誤操作を戻せない。セッションを除外すれば、ダンプに有効なログイン状態が入らず、復元の後は再ログインで済む。往復は Neon の使い捨ての DB と手元の PostgreSQL 18.6 で確かめた（2026-11-04）。`/privacy` の表記との整合は Q143。
+
+## Q88（決定: 2026-11-19）
+- 問い: デプロイの手順と自動化をどうするか。リポジトリに公開の設定（API のコンテナイメージの作り方・Cloudflare の設定・デプロイのワークフロー）が無い。Web を先に公開したかも記録が無い（009 decisions.md Q5 の問いの仮は「004 の後に Web だけ先に公開」だったが、決定には書かれていない）。構成は決めた（2026-11-02。Web は Workers Static Assets で `/api/*` を Cloud Run へ転送する。Cloud Run の地域は Singapore を第一候補に、東京とも測って決める。`design/tech-stack.md`「本番の構成」）。残りは Cloud Run の地域の確定・手順と自動化・最小インスタンス数（028 decisions.md Q91）・Cloud Run への直接の到達の扱い（028 decisions.md Q84）。直接の到達は 2026-11-07 に決めた。Cloud Run の Invoker の確認を有効にしたままにし、Worker が専用のサービスアカウントで ID トークンを取って `X-Serverless-Authorization` で付ける（理由: 料金ページによると IAM で拒否した要求は課金されず、`run.app` への直接の要求で費用が増えない。ingress を絞る案は外部のロードバランサーが要る。アプリで秘密のヘッダーを確かめる案は要求がコンテナに届くので課金を防げない。Worker の変更は機能として起票する。`tasks/20261103-launch/plan.md` の B4（2026-11-19 に削除。経緯は PR とコミットに残る）。034 api-proxy-id-token として起票した）。Web のデプロイ手順は `design/tech-stack.md` に記録した。Web の自動のデプロイは、release-please のリリースで `.github/workflows/release.yml` が出す形にした（2026-11-07。`design/tech-stack.md`「リリースと版」）。031 の転送の本番の確認（ログインの往復・`Set-Cookie` の分離・Cloud Run のログに利用者の IP が残るか。031 decisions.md Q142）もこの手順で行う。残りは API 側の手順（仮: 最初は手元から手動で出し、手順を `design/` に記録する。GitHub Actions からの自動のデプロイは、公開が落ち着いてから、認証情報の渡し方（Workload Identity 連携など）と合わせて決める）
+- 決定: 構成と手順を次のとおりに確定する。
+  - Web は Workers Static Assets で配信し、Worker が `/api/*` を Cloud Run へ転送する（031）。
+  - Cloud Run は Singapore に置き、最小インスタンス数を 0、最大を 1 にする。
+  - Cloud Run への直接の到達は、Invoker の確認を有効にしたまま、Worker が ID トークンを付けて呼ぶ（034）。
+  - Web は release-please のリリースで `.github/workflows/release.yml` が自動で出す。
+  - API は手元から手動で出し、手順は `design/tech-stack.md`「API のデプロイ手順」を正とする。GitHub Actions からの API の自動のデプロイは入れない。入れるときは、認証情報の渡し方（Workload Identity 連携など）と合わせて新しい Q として起票する。
+- 理由: API の手順は本番で通した。2026-11-07 に初回のデプロイ・地域の測定・Invoker の鍵の登録、2026-11-11 に AOT キャッシュ付きのイメージへの入れ替え、2026-11-19 に 040・041 を含む `api:51993fc` への入れ替えを行った。Web はリリースのたびに自動で出て、v1.0.0 まで出した。031 の転送も本番で確かめた。2026-11-07 に、運営者がブラウザでログイン・保存・共有 URL・ログアウトを確かめた。Cloud Run のログとの照合は `design/tech-stack.md`「プライバシーの表記との照合」（030 decisions.md Q140）。API の変更は数週間に 1 度で、手動の手順で足りる。自動化には GCP の認証情報を GitHub に渡す設計が要り、今の頻度では見合わない。
