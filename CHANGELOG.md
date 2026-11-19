@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/Motoki-Tabata/skillweave-mhwilds/compare/v0.4.0...v1.0.0) (2026-11-19)
+
+
+### 機能
+
+* 正式版（v1.0.0）として公開する, refs specs/feature-map.md ([3ae1e63](https://github.com/Motoki-Tabata/skillweave-mhwilds/commit/3ae1e6369bdbf498d16ff15c463c677267dcfd64))
+
 ## [0.4.0](https://github.com/Motoki-Tabata/skillweave-mhwilds/compare/v0.3.0...v0.4.0) (2026-11-19)
 
 
