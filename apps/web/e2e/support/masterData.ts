@@ -14,6 +14,7 @@ interface RawMaster {
   weapons: {
     id: string
     weaponType: string
+    element?: { type: string; value: number }
     skills: { skillId: string; level: number }[]
     setBonusIds: unknown[]
   }[]
@@ -52,6 +53,10 @@ export interface MasterInfo {
   maxLevelOf: (skillId: string) => number
   /** スキルを持たず、シリーズ／グループスキルも持たない、マスターの先頭の武器の ID */
   plainWeaponId: string
+  /** マスターの並びで先頭の、属性が 5 属性（火・水・雷・氷・龍）の武器（plan D12） */
+  elementWeapon: () => { id: string; type: string; value: number }
+  /** マスターの並びで先頭の、属性が状態異常（毒・麻痺・睡眠・爆破）の武器（plan D12） */
+  statusWeapon: () => { id: string; type: string; value: number }
   /** 護石に入れる防具スキルのうち、名前に漢字を含み、読み（ひらがな）があり、名前が一意のもの */
   kanjiArmorSkill: () => { id: string; name: string; reading: string; maxLevel: number }
   /** 指定のスキルを持つ上位の頭の防具の名前（そのスキルのレベルが最も高いもの） */
@@ -99,6 +104,18 @@ export function loadMasterInfo(): MasterInfo {
 
   const plain = master.weapons.find((w) => w.skills.length === 0 && w.setBonusIds.length === 0)
   if (plain === undefined) throw new Error('スキルを持たないマスターの武器が無い')
+
+  const ELEMENT_TYPES = ['fire', 'water', 'thunder', 'ice', 'dragon']
+  const STATUS_TYPES = ['poison', 'paralysis', 'sleep', 'blastblight']
+  function firstWeaponOfElements(types: string[]): { id: string; type: string; value: number } {
+    for (const weapon of master.weapons) {
+      const element = weapon.element
+      if (element !== undefined && types.includes(element.type)) {
+        return { id: weapon.id, type: element.type, value: element.value }
+      }
+    }
+    throw new Error(`属性が ${types} のマスターの武器が無い`)
+  }
 
   const kanjiArmorSkill: MasterInfo['kanjiArmorSkill'] = () => {
     const names = Object.values(dictionary.entries).map((e) => e.name)
@@ -213,6 +230,8 @@ export function loadMasterInfo(): MasterInfo {
       return skill.maxLevel
     },
     plainWeaponId: plain.id,
+    elementWeapon: () => firstWeaponOfElements(ELEMENT_TYPES),
+    statusWeapon: () => firstWeaponOfElements(STATUS_TYPES),
     weaponSkillCategoryIds: () => [
       ...new Set(master.skills.filter((s) => s.kind === 'weapon').map((s) => s.category)),
     ],
