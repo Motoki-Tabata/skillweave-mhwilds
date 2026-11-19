@@ -2,7 +2,7 @@ import type { Highs, Model } from 'highs'
 import type { MasterBundle } from '@swv/data'
 import { SolveCancelledError } from './errors'
 import { buildModel, readSelection, type IlpModel, type Selection } from './model'
-import { evaluateDamage } from './damage'
+import { evaluateDamage, type DamageStats } from './damage'
 import type { DamageColumns } from './damageModel'
 import { reduceCandidates } from './dominance'
 import { assembleBuild } from './placement'
@@ -66,18 +66,30 @@ interface Enumerated {
   timedOut: boolean
 }
 
+/** 属性期待値（検証が 5 属性の武器だけを通すので、常にある） */
+function elementExpected(stats: DamageStats): number {
+  return stats.element?.kind === 'element' ? stats.element.expected : 0
+}
+
 /** 構成を 1 件読み出す。進捗は呼び出し側が送る */
 function toBuild(ctx: EnumerateContext, selection: Selection): SolvedBuild {
   const { master, weapon, request } = ctx
   const build = assembleBuild(master, weapon, selection, request.objective)
-  if (request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage') {
-    // score は ILP の目的値ではなく、返す構成から計算し直した期待値（D15）
-    build.score = evaluateDamage(
+  const metric = request.objective.kind === 'maximize' ? request.objective.metric : undefined
+  if (metric === 'expectedDamage' || metric === 'expectedElement') {
+    // score は ILP の目的値ではなく、返す構成から計算し直した期待値（D15・023 D4）
+    const stats = evaluateDamage(
       master,
-      { attack: weapon.attack, affinity: weapon.affinity, weaponType: weapon.weaponType },
+      {
+        attack: weapon.attack,
+        affinity: weapon.affinity,
+        weaponType: weapon.weaponType,
+        ...(weapon.element === undefined ? {} : { element: weapon.element }),
+      },
       build.skills,
       request.activeConditionIds,
-    ).expectedDamage
+    )
+    build.score = metric === 'expectedDamage' ? stats.expectedDamage : elementExpected(stats)
   }
   return build
 }
@@ -231,12 +243,17 @@ export async function solveBuilds(
 ): Promise<SolverResponse> {
   const start = options.now()
   const weapon = validateRequest(master, request)
-  const isDamage =
-    request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
-  // 期待値のときだけ、支配される候補を外してからモデルを組む（024 D4）
-  const modelInput = isDamage
-    ? reduceCandidates(master, request, weapon.weaponType)
-    : { master, request }
+  const metric = request.objective.kind === 'maximize' ? request.objective.metric : undefined
+  // 期待値（物理・属性）のときだけ、支配される候補を外してからモデルを組む（024 D4・023 D7）
+  const modelInput =
+    metric === 'expectedDamage' || metric === 'expectedElement'
+      ? reduceCandidates(
+          master,
+          request,
+          weapon.weaponType,
+          metric === 'expectedElement' ? weapon.element?.type : undefined,
+        )
+      : { master, request }
   const ilp = buildModel(modelInput.master, modelInput.request, weapon, highs.infinity)
   const ctx: EnumerateContext = { highs, master, request, weapon, options, start }
   const { builds, timedOut } =

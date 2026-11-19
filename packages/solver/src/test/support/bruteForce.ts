@@ -8,7 +8,7 @@ import type {
 } from '@swv/data'
 import type { SolvedBuild, SolverCharm, SolverRequest } from '../../main/request'
 import { PARTS } from './builders'
-import { referenceDamage } from './damageReference'
+import { referenceDamage, referenceElement } from './damageReference'
 
 /** 総当たりで数えた構成 1 件（防具・護石の組と、装飾品の付け方ごと） */
 export interface BruteConfig {
@@ -24,13 +24,20 @@ interface Gear {
   attack: number
   affinity: number
   weaponType: string | undefined
+  element: { type: string; value: number } | undefined
 }
 
 function weaponOf(master: MasterBundle, request: SolverRequest): Gear {
   const w = request.weapon
   if (w.kind === 'custom') {
     const base = master.weapons.find((m) => m.id === w.baseWeaponId)
-    return { weapon: w, attack: w.attack, affinity: w.affinity, weaponType: base?.weaponType }
+    return {
+      weapon: w,
+      attack: w.attack,
+      affinity: w.affinity,
+      weaponType: base?.weaponType,
+      element: w.element,
+    }
   }
   const found = master.weapons.find((m) => m.id === w.weaponId)
   if (found === undefined) throw new Error('武器が無い')
@@ -39,7 +46,38 @@ function weaponOf(master: MasterBundle, request: SolverRequest): Gear {
     attack: found.attack,
     affinity: found.affinity,
     weaponType: found.weaponType,
+    element: found.element,
   }
+}
+
+/** 目的関数に応じた参照実装の期待値（expectedElement は属性期待値、それ以外は物理） */
+function referenceScore(
+  master: MasterBundle,
+  request: SolverRequest,
+  gear: Gear,
+  levels: ReadonlyMap<SkillId, number>,
+): number {
+  const active = request.activeConditionIds ?? []
+  if (
+    request.objective.kind === 'maximize' &&
+    request.objective.metric === 'expectedElement' &&
+    gear.element !== undefined
+  ) {
+    return referenceElement(
+      master,
+      { affinity: gear.affinity, element: gear.element },
+      levels,
+      active,
+      gear.weaponType,
+    )
+  }
+  return referenceDamage(
+    master,
+    { attack: gear.attack, affinity: gear.affinity },
+    levels,
+    active,
+    gear.weaponType,
+  )
 }
 
 /** 部位ごとの防具の組（全部位とも 1 つ選ぶ。固定・除外は使わない） */
@@ -111,13 +149,7 @@ export function bruteForce(master: MasterBundle, request: SolverRequest): BruteC
         if (slot === undefined) {
           const levels = levelsOf(master, gear, armors, charm, chosen)
           if (request.required.some((r) => (levels.get(r.skillId) ?? 0) < r.level)) return
-          const expected = referenceDamage(
-            master,
-            { attack: gear.attack, affinity: gear.affinity },
-            levels,
-            request.activeConditionIds ?? [],
-            gear.weaponType,
-          )
+          const expected = referenceScore(master, request, gear, levels)
           result.push({ key, expected, armorFree, weaponFree })
           return
         }

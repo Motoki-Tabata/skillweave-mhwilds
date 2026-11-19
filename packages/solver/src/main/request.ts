@@ -43,7 +43,7 @@ export type SolverWeapon =
 
 export type Objective =
   | { kind: 'feasible' } // 条件を満たす構成を列挙するだけ
-  | { kind: 'maximize'; metric: 'expectedDamage' | 'defense' | 'freeSlots' }
+  | { kind: 'maximize'; metric: 'expectedDamage' | 'expectedElement' | 'defense' | 'freeSlots' }
 
 export interface SolverRequest {
   masterVersion: MasterVersion

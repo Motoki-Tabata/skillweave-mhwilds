@@ -7,6 +7,7 @@ import os from 'node:os'
 import highsLoader, { type Highs, type Model } from 'highs'
 import type { MasterBundle } from '@swv/data'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { ELEMENT_TYPES } from '../main/damage'
 import type { SolverResponse } from '../main/request'
 import { reverseLookup } from '../main/reverseLookup'
 import { solveBuilds } from '../main/solveBuilds'
@@ -41,7 +42,7 @@ interface Case {
   required: Pair[]
   expected: 'optimal' | 'infeasible'
   /** 目的関数。省略は 003 の defense（maxResults 30）。expectedDamage は条件をすべて有効にして maxResults 10（機能 006 D17） */
-  metric?: 'expectedDamage'
+  metric?: 'expectedDamage' | 'expectedElement'
   /** 021 D16: 系統ごとの最上位ランクの生産護石を候補にする。護石が増えると解なしが解ありになりうるので、状態の一致は検査しない */
   crafted?: boolean
 }
@@ -139,6 +140,19 @@ const CRAFTED_CASES: Case[] = [...CASES, ...DAMAGE_CASES].map((c) => ({
   label: `生産護石あり ${c.label}`,
   crafted: true,
 }))
+
+/**
+ * 023 D10: 003 と同じ必須スキルの組を expectedElement で解く（5 属性の武器・条件はすべて有効・生産護石のオンとオフ）。
+ * 各ケース 1 回。目安だけで、合否は画面の測定で決める
+ */
+const ELEMENT_CASES: Case[] = [false, true].flatMap((crafted) =>
+  CASES.map((c): Case => ({
+    ...c,
+    label: `${crafted ? '生産護石あり ' : ''}expectedElement ${c.label}`,
+    metric: 'expectedElement',
+    crafted,
+  })),
+)
 
 /** 017 D9: 003 の defense と同じ武器・必須スキルで逆引きする（maxResults 10）。ラベルの接頭辞で区別する */
 const REVERSE_CASES: Case[] = CASES.map((c) => ({ ...c, label: `逆引き ${c.label}` }))
@@ -258,15 +272,26 @@ function plainWeaponId() {
   return found.id
 }
 
+/** 023 D12: マスターの並びで先頭の、属性が 5 属性の武器（ID は書き込まない） */
+function elementWeaponId() {
+  const found = master.weapons.find(
+    (w) => w.element !== undefined && (ELEMENT_TYPES as readonly string[]).includes(w.element.type),
+  )
+  if (found === undefined) throw new Error('5 属性の武器がマスターに無い')
+  return found.id
+}
+
 async function measureCase(testCase: Case) {
-  for (let run = 1; run <= REPEATS; run++) {
+  const isElement = testCase.metric === 'expectedElement'
+  for (let run = 1; run <= (isElement ? 1 : REPEATS); run++) {
     const stats: SolveStats = { solveMs: [], nodes: [], lpIterations: [] }
-    const isDamage = testCase.metric === 'expectedDamage'
+    const isDamage = testCase.metric === 'expectedDamage' || isElement
+    const metric = testCase.metric ?? 'defense'
     const request = makeRequest(master, {
-      weapon: { kind: 'master', weaponId: plainWeaponId() },
+      weapon: { kind: 'master', weaponId: isElement ? elementWeaponId() : plainWeaponId() },
       charms: testCase.crafted === true ? topRankCraftedCharms(master) : [],
       required: testCase.required.map(([id, level]) => skill(id, level)),
-      objective: { kind: 'maximize', metric: isDamage ? 'expectedDamage' : 'defense' },
+      objective: { kind: 'maximize', metric },
       ...(isDamage && { activeConditionIds: master.conditions.map((c) => c.id) }),
       maxResults: isDamage ? DAMAGE_MAX_RESULTS : MAX_RESULTS,
       timeoutMs: TIMEOUT_MS,
@@ -283,7 +308,7 @@ async function measureCase(testCase: Case) {
     const totalMs = performance.now() - start
     measurements.push({
       label: testCase.label,
-      metric: isDamage ? 'expectedDamage' : 'defense',
+      metric,
       crafted: testCase.crafted === true,
       run,
       totalMs,
@@ -292,7 +317,7 @@ async function measureCase(testCase: Case) {
       builds: result.builds.length,
       status: result.status,
     })
-    if (testCase.crafted === true) {
+    if (testCase.crafted === true || isElement) {
       // 生産護石ありは状態が変わりうる。時間切れでなく、答えが出たことだけを確かめる
       expect(['optimal', 'infeasible']).toContain(result.status)
       continue
@@ -314,15 +339,15 @@ const firstOrTotal = (m: Measurement) => m.firstMs ?? m.totalMs
 const passFail = (ms: number) => (ms <= THRESHOLD_MS ? 'PASS' : 'FAIL')
 
 /** 機能 019 D8: 合計時間の最大が基準以下なら合格。超えたときは 1 件目までの時間の最大が基準以下なら合格 */
-function damageLines(crafted: boolean): string[] {
+function damageLines(crafted: boolean, metric = 'expectedDamage'): string[] {
   const tag = crafted ? '生産護石あり ' : ''
-  const damage = measurements.filter((m) => m.metric === 'expectedDamage' && m.crafted === crafted)
+  const damage = measurements.filter((m) => m.metric === metric && m.crafted === crafted)
   if (damage.length === 0) return []
   const maxTotal = Math.max(...damage.map((m) => m.totalMs))
   const maxFirst = Math.max(...damage.map(firstOrTotal))
   const lines = [
-    `max total ms over ${tag}expectedDamage cases and runs: ${fmt(maxTotal)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxTotal)}`,
-    `max first-build ms over ${tag}expectedDamage cases and runs: ${fmt(maxFirst)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxFirst)}`,
+    `max total ms over ${tag}${metric} cases and runs: ${fmt(maxTotal)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxTotal)}`,
+    `max first-build ms over ${tag}${metric} cases and runs: ${fmt(maxFirst)} (threshold ${THRESHOLD_MS} ms): ${passFail(maxFirst)}`,
   ]
   const verdict =
     maxTotal <= THRESHOLD_MS
@@ -330,7 +355,7 @@ function damageLines(crafted: boolean): string[] {
       : maxFirst <= THRESHOLD_MS
         ? 'PASS (first build only; onProgress must deliver builds one by one)'
         : 'FAIL (even the first build exceeds the threshold)'
-  return [...lines, `${tag}expectedDamage verdict: ${verdict}`]
+  return [...lines, `${tag}${metric} verdict: ${verdict}`]
 }
 
 /** 017 AC-11: 1 件目までの時間の最大が基準以下なら合格（1 件も無い回は合計の時間）。合計の最大も出す */
@@ -378,6 +403,8 @@ function report() {
     ...maxLine('defense', true),
     ...damageLines(false),
     ...damageLines(true),
+    ...damageLines(false, 'expectedElement'),
+    ...damageLines(true, 'expectedElement'),
     ...reverseLines(),
   ]
   console.log(lines.join('\n'))
@@ -401,9 +428,12 @@ describe('solveBuilds の測定（実データ）', () => {
     if (measurements.length > 0) report()
   })
 
-  it.each([...CASES, ...DAMAGE_CASES, ...CRAFTED_CASES])('$label', async (testCase) => {
-    await measureCase(testCase)
-  })
+  it.each([...CASES, ...DAMAGE_CASES, ...CRAFTED_CASES, ...ELEMENT_CASES])(
+    '$label',
+    async (testCase) => {
+      await measureCase(testCase)
+    },
+  )
 
   it.each(REVERSE_CASES)('$label', async (testCase) => {
     await measureReverseCase(testCase)

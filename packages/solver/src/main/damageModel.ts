@@ -1,5 +1,11 @@
 import type { ConditionId, MasterBundle, MasterSkill, SetBonus, SkillId } from '@swv/data'
-import { BASE_CRIT_MULTIPLIER, AFFINITY_LIMIT, effectsAt, isCounted } from './damage'
+import {
+  BASE_CRIT_MULTIPLIER,
+  AFFINITY_LIMIT,
+  effectsAt,
+  elementMatches,
+  isCounted,
+} from './damage'
 import type { IlpModel } from './model'
 import type { SolverRequest } from './request'
 import { sparseRow, type Coefs, type Row } from './rows'
@@ -47,47 +53,74 @@ export interface DamageColumns {
 
 const NEUTRAL: LevelEffects = { add: 0, mul: 1, aff: 0, crit: 0 }
 
+/**
+ * 数える効果の種類。physical は攻撃力・会心率・会心倍率（基の会心倍率 1.25）、
+ * element は武器の属性（種類が type の 5 属性）の属性値・属性の会心倍率（基の会心倍率 1）。
+ */
+export type DamageKind = { kind: 'physical' } | { kind: 'element'; type: string }
+
+const basePhysical = (kind: DamageKind) => (kind.kind === 'physical' ? BASE_CRIT_MULTIPLIER : 1)
+
 function levelEffects(
   skill: MasterSkill,
   level: number,
   active: ReadonlySet<ConditionId>,
   weaponType: string,
+  kind: DamageKind,
 ): LevelEffects {
   const result: LevelEffects = { ...NEUTRAL }
+  const [addStat, mulStat, critStat] =
+    kind.kind === 'physical'
+      ? (['attack_add', 'attack_mul', 'crit_mul'] as const)
+      : (['element_add', 'element_mul', 'element_crit_mul'] as const)
   for (const e of effectsAt(skill, level)) {
     if (!isCounted(e, active, weaponType)) continue
-    if (e.stat === 'attack_add') result.add += e.value
-    else if (e.stat === 'attack_mul') result.mul *= e.value
-    else if (e.stat === 'affinity_add') result.aff += e.value
-    else if (e.stat === 'crit_mul') result.crit = Math.max(result.crit, e.value)
+    // affinity_add は属性の種類で絞らない（evaluateDamage と同じ。種類に紐づくのは element_* だけ）
+    if (e.stat === 'affinity_add') {
+      result.aff += e.value
+      continue
+    }
+    if (kind.kind === 'element' && !elementMatches(e, kind.type)) continue
+    if (e.stat === addStat) result.add += e.value
+    else if (e.stat === mulStat) result.mul *= e.value
+    else if (e.stat === critStat) result.crit = Math.max(result.crit, e.value)
   }
   return result
 }
 
-function isNeutral(e: LevelEffects): boolean {
-  return e.add === 0 && e.mul === 1 && e.aff === 0 && e.crit <= BASE_CRIT_MULTIPLIER
+function isNeutral(e: LevelEffects, kind: DamageKind): boolean {
+  return e.add === 0 && e.mul === 1 && e.aff === 0 && e.crit <= basePhysical(kind)
 }
 
-/** 対象のスキル R（種別を問わない）。マスターのスキルの並びのまま */
+/**
+ * 対象のスキル R（種別を問わない）。マスターのスキルの並びのまま。
+ * element のときは、有効な element_crit_mul に 1 を超える値が 1 つも無ければ会心率は効かないので、
+ * affinity_add を数えない（plan D6）。
+ */
 export function damageTargets(
   master: MasterBundle,
   request: SolverRequest,
   weaponType: string,
+  elementType?: string,
 ): TargetSkill[] {
+  const kind: DamageKind =
+    elementType === undefined ? { kind: 'physical' } : { kind: 'element', type: elementType }
   const active = new Set<ConditionId>(request.activeConditionIds ?? [])
-  const result: TargetSkill[] = []
+  const all: TargetSkill[] = []
   for (const skill of master.skills) {
     const set = isSetSkill(skill)
     const bonus = set ? findSetBonus(master, skill.id) : undefined
     if (set && bonus === undefined) continue
     const maxLevel = Math.max(skill.maxLevel, ...(bonus?.thresholds.map((t) => t.level) ?? []))
     const levels = Array.from({ length: maxLevel + 1 }, (_, l) =>
-      levelEffects(skill, l, active, weaponType),
+      levelEffects(skill, l, active, weaponType, kind),
     )
-    if (levels.every(isNeutral)) continue
-    result.push({ skill, ...(bonus === undefined ? {} : { bonus }), levels })
+    all.push({ skill, ...(bonus === undefined ? {} : { bonus }), levels })
   }
-  return result
+  if (kind.kind === 'element' && !all.some((t) => t.levels.some((l) => l.crit > 1))) {
+    for (const t of all) for (const l of t.levels) l.aff = 0
+  }
+  return all.filter((t) => !t.levels.every((l) => isNeutral(l, kind)))
 }
 
 /** 列と行を足していく作業用の入れ物 */
@@ -249,13 +282,13 @@ function addAttack(
   b: Builder,
   targets: readonly TargetSkill[],
   ys: number[][],
-  weapon: ResolvedWeapon,
+  baseValue: number,
 ): { attackCol: number; attackUpper: number } {
   const chain = targets
     .map((t, i) => ({ t, y: ys[i] ?? [] }))
     .filter(({ t }) => t.levels.some((l) => l.mul !== 1))
   let previous: number[] | null = null
-  let bound = weapon.attack
+  let bound = baseValue
   for (const { t, y } of chain) {
     const levelBound = (l: number) => (t.levels[l]?.mul ?? 1) * bound
     const q = t.levels.map((_, l) => b.addCol(levelBound(l), false))
@@ -281,7 +314,7 @@ function addAttack(
     t.levels.map((l, level): [number, number] => [ys[i]?.[level] ?? 0, -l.add]),
   )
   const chainTail: Coefs = (previous ?? []).map((p): [number, number] => [p, -1])
-  const constant = previous === null ? weapon.attack : 0
+  const constant = previous === null ? baseValue : 0
   b.addRow(constant, constant, [[attackCol, 1], ...chainTail, ...adds])
   return { attackCol, attackUpper }
 }
@@ -344,12 +377,11 @@ function addCritMultiplier(
   b: Builder,
   targets: readonly TargetSkill[],
   ys: number[][],
+  baseCrit: number,
 ): { value: number; col: number }[] {
   const values = [
-    BASE_CRIT_MULTIPLIER,
-    ...new Set(
-      targets.flatMap((t) => t.levels.map((l) => l.crit)).filter((v) => v > BASE_CRIT_MULTIPLIER),
-    ),
+    baseCrit,
+    ...new Set(targets.flatMap((t) => t.levels.map((l) => l.crit)).filter((v) => v > baseCrit)),
   ].sort((x, y) => x - y)
   const candidates = values.map((value) => ({ value, col: b.addBinary() }))
   b.addRow(
@@ -358,7 +390,7 @@ function addCritMultiplier(
     candidates.map(({ col }): [number, number] => [col, 1]),
   )
   for (const { value, col } of candidates) {
-    if (value === BASE_CRIT_MULTIPLIER) continue
+    if (value === baseCrit) continue
     const supports: Coefs = targets.flatMap((t, i) =>
       t.levels.flatMap((l, level): [number, number][] =>
         l.crit >= value ? [[ys[i]?.[level] ?? 0, -1]] : [],
@@ -379,6 +411,8 @@ function addTheta(
   const { attackCol, attackUpper } = attack
   const thetaTerms: Coefs = []
   for (const { value, col: g } of crit) {
+    // 会心倍率 1 の候補は属性期待値に項を足さない
+    if (value === 1) continue
     bits.plus.forEach((p, bit) => {
       const w = b.addCol(attackUpper, false)
       b.addRow(-Infinity, 0, [
@@ -417,12 +451,19 @@ export function extendWithDamage(
   targets: readonly TargetSkill[],
   weapon: ResolvedWeapon,
   infinity: number,
+  elementValue?: number,
 ): IlpModel {
   const b = new Builder(base)
+  const isElement = elementValue !== undefined
   const ys = addLevelVariables(b, base, weapon, targets)
-  const attack = addAttack(b, targets, ys, weapon)
-  const bits = addAffinity(b, targets, ys, weapon)
-  const crit = addCritMultiplier(b, targets, ys)
+  const attack = addAttack(b, targets, ys, elementValue ?? weapon.attack)
+  const noAffinity = isElement && !targets.some((t) => t.levels.some((l) => l.crit > 1))
+  // 属性期待値は、会心倍率が 1 を超える効果があるときだけ会心率に依存する（負の部分は持たない）
+  const affinityBits: AffinityBits = noAffinity
+    ? { plus: [], minus: [] }
+    : addAffinity(b, targets, ys, weapon)
+  const bits: AffinityBits = isElement ? { ...affinityBits, minus: [] } : affinityBits
+  const crit = addCritMultiplier(b, targets, ys, isElement ? 1 : BASE_CRIT_MULTIPLIER)
   const thetaCol = addTheta(b, attack, bits, crit)
   const numCols = b.colUpper.length
   const stage1Cost = Array.from({ length: numCols }, (_, i) => (i === thetaCol ? 1 : 0))

@@ -110,9 +110,13 @@ export const CASES: MeasureCase[] = [
 export const master = loadMasterInfo()
 
 /** 画面を開き、武器（先頭の武器）と必須スキル・下限を入れる（目的・ランク・検索は呼び出し側）。 */
-export async function fillRequiredSkills(page: Page, testCase: MeasureCase): Promise<void> {
+export async function fillRequiredSkills(
+  page: Page,
+  testCase: MeasureCase,
+  weaponId: string = master.plainWeaponId,
+): Promise<void> {
   await openSearch(page)
-  await selectWeapon(page, master.nameOf(master.plainWeaponId))
+  await selectWeapon(page, master.nameOf(weaponId))
   await addSkills(
     page,
     testCase.required.map(([id]) => master.nameOf(id)),

@@ -1,6 +1,6 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
-import { makeBundle, makeDictionary } from '../../support/fixtures'
+import { makeBundle, makeDictionary, wp } from '../../support/fixtures'
 import {
   click,
   findByLabel,
@@ -79,6 +79,80 @@ describe('ConditionsCard', () => {
       await click(radio('freeSlots'))
       expect(conditions.objective).toBe('freeSlots')
       expect(radio('freeSlots').getAttribute('aria-checked')).toBe('true')
+    })
+  })
+
+  // 023 AC-9（属性の最大化を選べないときの理由・無効・エラー）
+  describe('属性の最大化', () => {
+    const NO_ELEMENT =
+      '選んだ武器（無属性）では選べません。火・水・雷・氷・龍属性の武器で選べます。'
+    const ERROR =
+      '選んだ武器（無属性）では、属性の最大化で探せません。目的を選び直すか、火・水・雷・氷・龍属性の武器を選んでください。'
+
+    async function readyWithElements(): Promise<Mounted> {
+      const base = makeBundle()
+      return ready({
+        bundle: {
+          ...base,
+          weapons: base.weapons.map((w) =>
+            w.id === wp('great-sword:1') ? { ...w, element: { type: 'fire', value: 30 } } : w,
+          ),
+        },
+        dictionary: makeDictionary(),
+      })
+    }
+
+    it('選択肢と補助文を出す。5 属性の武器では選べて、理由は出さない', async () => {
+      const { conditions } = await readyWithElements()
+      conditions.selectWeapon(wp('great-sword:1'))
+      await flushPromises()
+      expect(textOf(document.body)).toContain('属性の最大化')
+      expect(textOf(document.body)).toContain(
+        '属性期待値が大きい順に探します。「発動条件」でオンにした効果を数えます。',
+      )
+      expect(radio('expectedElement').hasAttribute('disabled')).toBe(false)
+      expect(textOf(document.body)).not.toContain('では選べません')
+    })
+
+    it('無属性の武器では選べなくし、理由を補助文と並べて aria-describedby に結ぶ', async () => {
+      const { conditions } = await readyWithElements()
+      conditions.selectWeapon(wp('long-sword:1'))
+      await flushPromises()
+      expect(radio('expectedElement').hasAttribute('disabled')).toBe(true)
+      expect(textOf(document.getElementById('objective-expectedElement-reason'))).toBe(NO_ELEMENT)
+      expect(radio('expectedElement').getAttribute('aria-describedby')).toBe(
+        'objective-expectedElement-description objective-expectedElement-reason',
+      )
+    })
+
+    it('AC-9: 選べない行はラベルも無効の見た目（opacity-50）にし、選べる行には付けない', async () => {
+      const { conditions } = await readyWithElements()
+      const labelOf = (id: string) => document.querySelector(`label[for="objective-${id}"]`)
+      conditions.selectWeapon(wp('long-sword:1'))
+      await flushPromises()
+      expect(labelOf('expectedElement')?.classList.contains('opacity-50')).toBe(true)
+      expect(labelOf('feasible')?.classList.contains('opacity-50')).toBe(false)
+      conditions.selectWeapon(wp('great-sword:1'))
+      await flushPromises()
+      expect(labelOf('expectedElement')?.classList.contains('opacity-50')).toBe(false)
+    })
+
+    it('選んだ後に選べない武器にすると、選択を無効にせずエラーを目的の直下に出し、理由は出さない', async () => {
+      const { conditions } = await readyWithElements()
+      conditions.selectWeapon(wp('great-sword:1'))
+      await click(radio('expectedElement'))
+      conditions.selectWeapon(wp('long-sword:1'))
+      await flushPromises()
+      expect(radio('expectedElement').getAttribute('aria-checked')).toBe('true')
+      expect(radio('expectedElement').hasAttribute('disabled')).toBe(false)
+      expect(textOf(document.getElementById('objective-error'))).toBe(ERROR)
+      expect(document.querySelector('[role="radiogroup"]')?.getAttribute('aria-describedby')).toBe(
+        'objective-error',
+      )
+      expect(document.getElementById('objective-expectedElement-reason')).toBeNull()
+      // 目的を選び直すとエラーが消える
+      await click(radio('feasible'))
+      expect(document.getElementById('objective-error')).toBeNull()
     })
   })
 

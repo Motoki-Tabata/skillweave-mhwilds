@@ -10,10 +10,12 @@ import type {
   SkillLevel,
   WeaponId,
 } from '@swv/data'
+import { ELEMENT_TYPES } from '@swv/solver'
 import type { SolverWeapon } from '@swv/solver'
 import { SKILL_KINDS } from '@/constants/labels'
 import type { ObjectiveChoice } from '@/constants/labels'
 import { MAX_RESULTS_DEFAULT, MAX_RESULTS_MAX, MAX_RESULTS_MIN } from '@/constants/search'
+import { elementTypeName } from '@/constants/weapons'
 import { weaponDisplayName, toSolverWeapon } from '@/lib/weapons/convert'
 import type { StoredWeapon } from '@/lib/weapons/types'
 import { compareJa } from '@/lib/text'
@@ -22,6 +24,18 @@ import { useWeaponsStore } from '@/stores/weapons'
 
 export const NO_WEAPON_REASON = '武器を選ぶと検索できます。'
 export const NO_RANK_REASON = '候補にするランクを選ぶと検索できます。'
+export const ELEMENT_OBJECTIVE_SEARCH_REASON =
+  '目的の「属性の最大化」は、火・水・雷・氷・龍属性の武器でだけ探せます。'
+
+/** 目的の選択肢の下に出す、属性の最大化を選べない理由。 */
+export function elementObjectiveDisabledReason(elementName: string): string {
+  return `選んだ武器（${elementName}）では選べません。火・水・雷・氷・龍属性の武器で選べます。`
+}
+
+/** 属性の最大化を選んだまま、選べない武器に選び直したときのエラー。 */
+export function elementObjectiveError(elementName: string): string {
+  return `選んだ武器（${elementName}）では、属性の最大化で探せません。目的を選び直すか、火・水・雷・氷・龍属性の武器を選んでください。`
+}
 
 /** 検索条件で選んでいる武器。マスターの武器か、個体差のある武器（端末に保存した ID）。 */
 export type WeaponSelection =
@@ -39,6 +53,8 @@ export interface ResolvedWeapon {
   attack: number
   affinity: number
   slots: readonly { level: number }[]
+  /** 武器の属性（マスターの単位）。無属性は省略 */
+  element?: { type: string; value: number }
   /** ソルバーに渡す武器 */
   solverWeapon: SolverWeapon
   /** 個体差のある武器のとき、保存した武器 */
@@ -91,6 +107,7 @@ export const useConditionsStore = defineStore('conditions', () => {
       attack: found.attack,
       affinity: found.affinity,
       slots: found.slots,
+      ...(found.element === undefined ? {} : { element: found.element }),
       solverWeapon: { kind: 'master', weaponId: found.id },
       master: found,
     }
@@ -112,6 +129,7 @@ export const useConditionsStore = defineStore('conditions', () => {
       attack: payload.attack,
       affinity: payload.affinity,
       slots: payload.slots,
+      ...(payload.element === undefined ? {} : { element: payload.element }),
       solverWeapon: toSolverWeapon(stored),
       stored,
     }
@@ -156,11 +174,40 @@ export const useConditionsStore = defineStore('conditions', () => {
 
   const rankError = computed(() => ranks.value.length === 0)
 
-  /** 検索できない理由。複数あてはまるときは上のものを返す。 */
-  const unavailableReason = computed<string | null>(() => {
+  /** 武器とランクの理由（逆引きも止める）。複数あてはまるときは上のものを返す。 */
+  const weaponRankReason = computed<string | null>(() => {
     if (selection.value === null) return NO_WEAPON_REASON
     if (rankError.value) return NO_RANK_REASON
     return null
+  })
+
+  /** 選んだ武器が 5 属性でないとき、その属性の表示名（無属性は「無属性」）。選べる・未解決は null。 */
+  const nonElementName = computed<string | null>(() => {
+    const current = weapon.value
+    if (current === null) return null
+    const type = current.element?.type
+    if (type !== undefined && (ELEMENT_TYPES as readonly string[]).includes(type)) return null
+    return type === undefined ? '無属性' : elementTypeName(type)
+  })
+
+  /** 属性の最大化を選べない理由（選択肢の下）。選択中のときは出さない（エラーを出す）。 */
+  const elementObjectiveReason = computed<string | null>(() => {
+    const name = nonElementName.value
+    if (name === null || objective.value === 'expectedElement') return null
+    return elementObjectiveDisabledReason(name)
+  })
+
+  /** 属性の最大化を選んだまま、選べない武器にしたときのエラー（目的の直下）。 */
+  const objectiveError = computed<string | null>(() => {
+    const name = nonElementName.value
+    if (name === null || objective.value !== 'expectedElement') return null
+    return elementObjectiveError(name)
+  })
+
+  /** 検索できない理由。複数あてはまるときは上のものを返す（武器 → ランク → 目的と武器）。 */
+  const unavailableReason = computed<string | null>(() => {
+    if (weaponRankReason.value !== null) return weaponRankReason.value
+    return objectiveError.value === null ? null : ELEMENT_OBJECTIVE_SEARCH_REASON
   })
 
   /** 必須スキルを種類ごと（武器・防具・シリーズ・グループ）にまとめる。種類の中は追加した順。 */
@@ -261,6 +308,10 @@ export const useConditionsStore = defineStore('conditions', () => {
     weapon,
     ranks,
     rankError,
+    weaponRankReason,
+    nonElementName,
+    elementObjectiveReason,
+    objectiveError,
     unavailableReason,
     requiredGroups,
     conditionOptions,

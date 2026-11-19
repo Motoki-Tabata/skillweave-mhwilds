@@ -1,4 +1,5 @@
 import type { ArmorPart, MasterBundle, SetBonusId, SkillLevel, Slot } from '@swv/data'
+import { isElementType } from './damage'
 import { InvalidRequestError } from './errors'
 import type { SolverRequest } from './request'
 
@@ -14,6 +15,8 @@ export interface ResolvedWeapon {
   slots: Slot[]
   skills: SkillLevel[]
   setBonusIds: SetBonusId[]
+  /** 武器の属性（マスターの武器は `element`、個体差のある武器は `custom.element`）。無属性は持たない */
+  element?: { type: string; value: number }
 }
 
 function fail(message: string): never {
@@ -40,6 +43,7 @@ function resolveWeapon(master: MasterBundle, request: SolverRequest): ResolvedWe
       slots: found.slots,
       skills: found.skills,
       setBonusIds: found.setBonusIds,
+      ...(found.element === undefined ? {} : { element: found.element }),
     }
   }
   const base = master.weapons.find((w) => w.id === weapon.baseWeaponId)
@@ -59,7 +63,21 @@ function resolveWeapon(master: MasterBundle, request: SolverRequest): ResolvedWe
     slots: weapon.slots,
     skills: weapon.skills,
     setBonusIds: weapon.setBonusIds,
+    ...(weapon.element === undefined ? {} : { element: weapon.element }),
   }
+}
+
+/** 属性の最大化の要求の武器（5 属性の武器だけ。個体差のある武器の属性値は 0 より大きい有限の数） */
+function checkElementWeapon(request: SolverRequest, resolved: ResolvedWeapon) {
+  const { element } = resolved
+  if (element === undefined) fail('属性の最大化には属性を持つ武器が要る')
+  if (!isElementType(element.type)) {
+    fail(`属性の最大化には 5 属性の武器が要る（武器の属性の種類は ${element.type}）`)
+  }
+  if (request.weapon.kind === 'custom' && !(Number.isFinite(element.value) && element.value > 0)) {
+    fail(`個体差のある武器の属性値 ${element.value} は 0 より大きい有限の数でなければならない`)
+  }
+  checkDamageWeapon(request)
 }
 
 /** 個体差のある武器の攻撃力と会心率（期待値の計算に使うので expectedDamage のときだけ確かめる） */
@@ -139,6 +157,9 @@ export function validateRequest(master: MasterBundle, request: SolverRequest): R
   checkConditions(master, request)
   if (objective.kind === 'maximize' && objective.metric === 'expectedDamage') {
     checkDamageWeapon(request)
+  }
+  if (objective.kind === 'maximize' && objective.metric === 'expectedElement') {
+    checkElementWeapon(request, weapon)
   }
   return weapon
 }

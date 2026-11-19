@@ -115,3 +115,8 @@
 - 種別: 矛盾是正
 - 何が起きたか: 042 は `sonar-project.properties` の `sonar.sources` に `apps/web/worker` を足すが、`scripts/sonar-local.sh` の `--area web` は対象のパス（`AREA_PATHS`）と `-Dsonar.sources` を `apps/web/src/main`・`apps/web/src/test`・`apps/web/e2e` に固定しているので、`verify.mjs --sonar-area web` の 0 件は Worker を含まない。042 は plan の D9 で、メインの全体解析（`--sonar`）で凌ぐ。
 - 提案: `scripts/sonar-local.sh` の web の `AREA_PATHS` と `-Dsonar.sources` に `apps/web/worker` を足す（検査機構なので人間の明示指示を要する。区間の外の `chore/*` で行う）。
+
+## 2026-11-19 総当たりと比べるソルバーのテストは、全構成を配列で持つとスタックが溢れ、件数の比較は組の数で崩れる（機能023・区間D）
+- 種別: 規律昇華
+- 何が起きたか: solver-agent の報告。`support/bruteForce.ts` で全構成を配列に持ち続け `Math.max(...全件)` で最大を取ると、候補が多いときに「Maximum call stack size exceeded」になった。防具と護石の組ごとに要約してから比べて直した。また、総当たりとの比較で、組の数が `maxResults`（30）を超えると件数が一致しない。件数の比較は `min(組の数, maxResults)` にする。
+- 提案: `.claude/rules/solver.md` に、総当たりの比較テストは、全件を配列に持って `Math.max(...)` を取らず（組ごとに要約する）、件数は `min(組の数, maxResults)` で比べる、と足す（経路 (a)）。

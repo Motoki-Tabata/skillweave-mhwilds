@@ -94,6 +94,10 @@ describe('buildSolverRequest', () => {
     expect(toObjective('feasible')).toEqual({ kind: 'feasible' })
     expect(toObjective('defense')).toEqual({ kind: 'maximize', metric: 'defense' })
     expect(toObjective('freeSlots')).toEqual({ kind: 'maximize', metric: 'freeSlots' })
+    expect(toObjective('expectedElement')).toEqual({
+      kind: 'maximize',
+      metric: 'expectedElement',
+    })
     expect(buildSolverRequest(bundle, { ...base, objective: 'defense' }).objective).toEqual({
       kind: 'maximize',
       metric: 'defense',

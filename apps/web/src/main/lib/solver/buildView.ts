@@ -276,6 +276,7 @@ function savedWeaponView(weapon: BuildWeapon, master: SavedBuildMaster): SavedWe
         attack: found.attack,
         affinity: found.affinity,
         weaponType: found.weaponType,
+        ...(found.element === undefined ? {} : { element: { ...found.element } }),
       },
     }
   }
@@ -290,6 +291,7 @@ function savedWeaponView(weapon: BuildWeapon, master: SavedBuildMaster): SavedWe
       attack: payload.attack,
       affinity: payload.affinity,
       ...(base === undefined ? {} : { weaponType: base.weaponType }),
+      ...(payload.element === undefined ? {} : { element: { ...payload.element } }),
     },
   }
 }

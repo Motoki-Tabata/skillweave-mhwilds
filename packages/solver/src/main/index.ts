@@ -23,5 +23,5 @@ export type {
 } from './reverseLookup'
 export { createWorkerHandler } from './worker'
 export type { WorkerDeps, WorkerInbound, WorkerOutbound } from './worker'
-export { evaluateDamage } from './damage'
-export type { ActiveSkill, DamageBase, DamageStats } from './damage'
+export { ELEMENT_TYPES, STATUS_TYPES, evaluateDamage } from './damage'
+export type { ActiveSkill, DamageBase, DamageStats, ElementStats } from './damage'
