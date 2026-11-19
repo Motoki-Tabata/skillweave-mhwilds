@@ -74,21 +74,48 @@ async function searchOnce(
 
 const fmt = (ms: number) => ms.toFixed(1)
 const charmName = (charm: boolean) => (charm ? '生産護石オン' : '生産護石オフ')
-const verdict = (ms: number) => (ms <= LIMIT_MS ? 'PASS' : 'FAIL')
 
-/** 1件目までの時間（NaN を除く）の最大。無ければ NaN。 */
+/** 1件目までの時間（NaN を除く）の最大。無ければ NaN。解なし（infeasible）の NaN は正しい結果として除く。 */
 function maxFirstMs(list: Measurement[]): number {
   const firsts = list.map((m) => m.firstMs).filter((v) => !Number.isNaN(v))
   return firsts.length > 0 ? Math.max(...firsts) : Number.NaN
 }
 
+/** state ごとの件数（found・infeasible・timeout。それ以外は error に数える）。 */
+function stateCounts(list: Measurement[]): Record<string, number> {
+  const counts: Record<string, number> = { found: 0, infeasible: 0, timeout: 0 }
+  for (const m of list) counts[m.state] = (counts[m.state] ?? 0) + 1
+  return counts
+}
+
+/** 5 秒の基準の根拠にならない測定（打ち切り・found なのに 1 件目の時間なし）の理由。無ければ空。 */
+function invalidReasons(list: Measurement[]): string[] {
+  const timeouts = list.filter((m) => m.state === 'timeout').length
+  const missing = list.filter((m) => m.state === 'found' && Number.isNaN(m.firstMs)).length
+  const reasons: string[] = []
+  if (timeouts > 0) reasons.push(`打ち切り ${timeouts} 件`)
+  if (missing > 0) reasons.push(`1 件目の時間なし ${missing} 件`)
+  return reasons
+}
+
+function verdict(list: Measurement[]): string {
+  const reasons = invalidReasons(list)
+  if (reasons.length > 0) return `FAIL（${reasons.join('・')}）`
+  const maxFirst = maxFirstMs(list)
+  if (Number.isNaN(maxFirst)) return 'N/A（1 件目の測定なし）'
+  return maxFirst <= LIMIT_MS ? 'PASS' : 'FAIL'
+}
+
 function summaryLine(name: string, list: Measurement[]): string {
   if (list.length === 0) return `${name}: no data`
-  const maxFirst = maxFirstMs(list)
+  const counts = stateCounts(list)
   return [
     `[${name}] max total ms: ${fmt(Math.max(...list.map((m) => m.totalMs)))}`,
-    `max first-build ms: ${fmt(maxFirst)}`,
-    `<=${LIMIT_MS} ms: ${verdict(maxFirst)}`,
+    `max first-build ms: ${fmt(maxFirstMs(list))}`,
+    `states: ${Object.entries(counts)
+      .map(([k, v]) => `${k}=${v}`)
+      .join(' ')}`,
+    `<=${LIMIT_MS} ms: ${verdict(list)}`,
   ].join(' / ')
 }
 
