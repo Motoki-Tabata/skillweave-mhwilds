@@ -75,10 +75,14 @@ function levelEffects(
       : (['element_add', 'element_mul', 'element_crit_mul'] as const)
   for (const e of effectsAt(skill, level)) {
     if (!isCounted(e, active, weaponType)) continue
+    // affinity_add は属性の種類で絞らない（evaluateDamage と同じ。種類に紐づくのは element_* だけ）
+    if (e.stat === 'affinity_add') {
+      result.aff += e.value
+      continue
+    }
     if (kind.kind === 'element' && !elementMatches(e, kind.type)) continue
     if (e.stat === addStat) result.add += e.value
     else if (e.stat === mulStat) result.mul *= e.value
-    else if (e.stat === 'affinity_add') result.aff += e.value
     else if (e.stat === critStat) result.crit = Math.max(result.crit, e.value)
   }
   return result
