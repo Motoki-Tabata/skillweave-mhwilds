@@ -98,7 +98,11 @@ defineExpose({ focusRanks })
                 :aria-describedby="describedBy(option.id)"
               />
               <div class="flex flex-col">
-                <Label :for="`objective-${option.id}`">{{ option.label }}</Label>
+                <Label
+                  :for="`objective-${option.id}`"
+                  :class="isDisabled(option.id) ? 'opacity-50' : undefined"
+                  >{{ option.label }}</Label
+                >
                 <span
                   :id="`objective-${option.id}-description`"
                   class="text-muted-foreground text-xs"

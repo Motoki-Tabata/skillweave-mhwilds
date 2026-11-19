@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import type { WeaponPayload } from '@/lib/weapons/types'
 import { NO_RANK_REASON, NO_WEAPON_REASON } from '@/stores/conditions'
 import { MAX_RESULTS_DEFAULT } from '@/constants/search'
 import { compareJa } from '@/lib/text'
@@ -351,6 +352,52 @@ describe('conditions ストアの属性の最大化', () => {
     conditions.setRank('high', true)
     expect(conditions.unavailableReason).toBe(
       '目的の「属性の最大化」は、火・水・雷・氷・龍属性の武器でだけ探せます。',
+    )
+  })
+})
+
+// 023 AC-9（個体差のある武器の属性で、属性の最大化を選べるかを判定する）
+describe('conditions ストアの属性の最大化（個体差のある武器）', () => {
+  beforeEach(() => stubBackend({ bundle: makeWeaponBundle(), dictionary: makeWeaponDictionary() }))
+  afterEach(restoreStubs)
+
+  async function selectCustom(element: WeaponPayload['element']) {
+    const stores = await loadStores(
+      undefined,
+      createMemoryWeaponRepository([storedWeapon(1, { element })]),
+    )
+    await stores.weapons.ensureLoaded()
+    stores.conditions.selectCustomWeapon(weaponId(1))
+    return stores.conditions
+  }
+
+  it.each(['fire', 'water', 'thunder', 'ice', 'dragon'] as const)(
+    'AC-9: 5 属性（%s）の個体差のある武器では選べる（理由もエラーも無い）',
+    async (type) => {
+      const conditions = await selectCustom({ type, value: 30 })
+      expect(conditions.elementObjectiveReason).toBeNull()
+      conditions.setObjective('expectedElement')
+      expect(conditions.objectiveError).toBeNull()
+      expect(conditions.unavailableReason).toBeNull()
+    },
+  )
+
+  it('AC-9: 無属性（属性なし）の個体差のある武器では選べず、理由に「無属性」を出す', async () => {
+    const conditions = await selectCustom(undefined)
+    expect(conditions.elementObjectiveReason).toBe(
+      '選んだ武器（無属性）では選べません。火・水・雷・氷・龍属性の武器で選べます。',
+    )
+  })
+
+  it('AC-9: 毒属性の個体差のある武器では選べず、選んだ後のエラーも出る', async () => {
+    const conditions = await selectCustom({ type: 'poison', value: 20 })
+    expect(conditions.elementObjectiveReason).toBe(
+      '選んだ武器（毒属性）では選べません。火・水・雷・氷・龍属性の武器で選べます。',
+    )
+    conditions.setObjective('expectedElement')
+    expect(conditions.elementObjectiveReason).toBeNull()
+    expect(conditions.objectiveError).toBe(
+      '選んだ武器（毒属性）では、属性の最大化で探せません。目的を選び直すか、火・水・雷・氷・龍属性の武器を選んでください。',
     )
   })
 })

@@ -125,6 +125,18 @@ describe('ConditionsCard', () => {
       )
     })
 
+    it('AC-9: 選べない行はラベルも無効の見た目（opacity-50）にし、選べる行・選んだ後のエラー時は付けない', async () => {
+      const { conditions } = await readyWithElements()
+      const labelOf = (id: string) => document.querySelector(`label[for="objective-${id}"]`)
+      conditions.selectWeapon(wp('long-sword:1'))
+      await flushPromises()
+      expect(labelOf('expectedElement')?.classList.contains('opacity-50')).toBe(true)
+      expect(labelOf('feasible')?.classList.contains('opacity-50')).toBe(false)
+      conditions.selectWeapon(wp('great-sword:1'))
+      await flushPromises()
+      expect(labelOf('expectedElement')?.classList.contains('opacity-50')).toBe(false)
+    })
+
     it('選んだ後に選べない武器にすると、選択を無効にせずエラーを目的の直下に出し、理由は出さない', async () => {
       const { conditions } = await readyWithElements()
       conditions.selectWeapon(wp('great-sword:1'))
