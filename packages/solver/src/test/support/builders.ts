@@ -92,6 +92,7 @@ export function weapon(
     attack?: number
     affinity?: number
     weaponType?: string
+    element?: { type: string; value: number }
   } = {},
 ): MasterWeapon {
   return {
@@ -99,6 +100,7 @@ export function weapon(
     weaponType: opts.weaponType ?? 'bow',
     attack: opts.attack ?? 100,
     affinity: opts.affinity ?? 0,
+    ...(opts.element === undefined ? {} : { element: opts.element }),
     slots: opts.slots ?? [],
     skills: opts.skills ?? [],
     setBonusIds: (opts.setBonusIds ?? []).map(setBonusId),

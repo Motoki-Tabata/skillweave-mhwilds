@@ -347,9 +347,13 @@ export function buildModel(
 ): IlpModel | null {
   const parts = candidateArmors(master, request)
   if (parts.some((p) => p.armors.length === 0)) return null
-  const isDamage =
-    request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
-  const targets = isDamage ? damageTargets(master, request, weapon.weaponType) : []
+  const metric = request.objective.kind === 'maximize' ? request.objective.metric : undefined
+  const isDamage = metric === 'expectedDamage' || metric === 'expectedElement'
+  // 属性の最大化は、検証が 5 属性の武器だけを通す（weapon.element がある）
+  const elementWeapon = metric === 'expectedElement' ? weapon.element : undefined
+  const targets = isDamage
+    ? damageTargets(master, request, weapon.weaponType, elementWeapon?.type)
+    : []
   const extra = new Set(targets.filter((t) => t.bonus === undefined).map((t) => t.skill.id))
   const ordinary = ordinarySkills(master, request)
   const cols = assignColumns(
@@ -380,7 +384,7 @@ export function buildModel(
     decoCols: cols.decoCols,
     ...(cols.lottery === undefined ? {} : { lottery: cols.lottery }),
   }
-  return isDamage ? extendWithDamage(base, targets, weapon, infinity) : base
+  return isDamage ? extendWithDamage(base, targets, weapon, infinity, elementWeapon?.value) : base
 }
 
 /** 解の値（colValue）から防具・護石・装飾品の個数を読み出す */

@@ -2,7 +2,7 @@ import type { ArmorPart, MasterArmor, MasterBundle, SetBonusId, SkillId, Slot } 
 import type { SlotOwner, SolvedBuild, SolverRequest } from '../../main/request'
 import { DAMAGE_EPSILON } from '../../main/solveBuilds'
 import { PARTS } from './builders'
-import { referenceDamage } from './damageReference'
+import { referenceDamage, referenceElement } from './damageReference'
 
 interface Equipped {
   weapon: {
@@ -224,8 +224,13 @@ function checkSkills(
   })
 }
 
+/** 期待値（物理または属性）を目的にする要求か */
 function isExpectedDamage(request: SolverRequest): boolean {
-  return request.objective.kind === 'maximize' && request.objective.metric === 'expectedDamage'
+  return (
+    request.objective.kind === 'maximize' &&
+    (request.objective.metric === 'expectedDamage' ||
+      request.objective.metric === 'expectedElement')
+  )
 }
 
 /** 装備から数え直した発動スキルのレベルで、参照実装の期待値を計算する。skipDecorationAt の装飾品を除ける */
@@ -249,6 +254,21 @@ function recountExpected(
   const w = request.weapon
   const found = w.kind === 'custom' ? w : master.weapons.find((m) => m.id === w.weaponId)
   const typeOf = w.kind === 'custom' ? w.baseWeaponId : w.weaponId
+  const weaponType = master.weapons.find((m) => m.id === typeOf)?.weaponType
+  const element = found?.element
+  if (
+    request.objective.kind === 'maximize' &&
+    request.objective.metric === 'expectedElement' &&
+    element !== undefined
+  ) {
+    return referenceElement(
+      master,
+      { affinity: found?.affinity ?? 0, element },
+      levels,
+      request.activeConditionIds ?? [],
+      weaponType,
+    )
+  }
   return referenceDamage(
     master,
     { attack: found?.attack ?? 0, affinity: found?.affinity ?? 0 },

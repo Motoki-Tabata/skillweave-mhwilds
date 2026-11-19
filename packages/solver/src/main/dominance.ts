@@ -30,10 +30,11 @@ export function relevantSkills(
   master: MasterBundle,
   request: SolverRequest,
   weaponType: string,
+  elementType?: string,
 ): RelevantSkills {
   const ordinary = new Set<SkillId>()
   const bonuses = new Set<SetBonusId>()
-  for (const t of damageTargets(master, request, weaponType)) {
+  for (const t of damageTargets(master, request, weaponType, elementType)) {
     if (t.bonus === undefined) ordinary.add(t.skill.id)
     else bonuses.add(t.bonus.id)
   }
@@ -160,8 +161,9 @@ export function reduceCandidates(
   master: MasterBundle,
   request: SolverRequest,
   weaponType: string,
+  elementType?: string,
 ): { master: MasterBundle; request: SolverRequest } {
-  const rel = relevantSkills(master, request, weaponType)
+  const rel = relevantSkills(master, request, weaponType, elementType)
   return {
     master: {
       ...master,
