@@ -19,8 +19,19 @@ const ELEMENT_NAMES: Record<string, string> = {
 const master = loadMasterInfo()
 const elementWeapon = master.elementWeapon()
 const statusWeapon = master.statusWeapon()
-const elementName = ELEMENT_NAMES[elementWeapon.type] ?? ''
-const statusName = ELEMENT_NAMES[statusWeapon.type] ?? ''
+
+function displayNameOf(type: string): string {
+  const name = ELEMENT_NAMES[type]
+  if (name === undefined) {
+    throw new Error(
+      `ELEMENT_NAMES に属性の種類 "${type}" の表示名が無い（マスターデータの種類が増えた可能性）`,
+    )
+  }
+  return name
+}
+
+const elementName = displayNameOf(elementWeapon.type)
+const statusName = displayNameOf(statusWeapon.type)
 
 const CAP_NOTE = (name: string) => `${name}値は、スキルによる強化の上限を考えずに計算しています。`
 const BUILD_COUNT = 5
