@@ -50,6 +50,8 @@ export function toObjective(choice: ObjectiveChoice): Objective {
       return { kind: 'maximize', metric: 'freeSlots' }
     case 'expectedDamage':
       return { kind: 'maximize', metric: 'expectedDamage' }
+    case 'expectedElement':
+      return { kind: 'maximize', metric: 'expectedElement' }
   }
 }
 

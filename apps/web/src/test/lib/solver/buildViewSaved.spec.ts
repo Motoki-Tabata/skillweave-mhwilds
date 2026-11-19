@@ -136,6 +136,52 @@ describe('savedBuildView', () => {
   const view = (payload: BuildPayload, version = 'test-1') =>
     savedBuildView(savedBuild(1, { payload, masterVersion: version }), master)
 
+  it('023 AC-5: 火力の基の属性は、マスターの武器は今のマスターから、個体差のある武器は写しから引く（基の武器が無くても写しを使う）', () => {
+    const withElement: SavedBuildMaster = {
+      ...master,
+      weaponById: new Map(
+        bundle.weapons.map((w) =>
+          w.id === greatSword.id
+            ? [w.id, { ...w, element: { type: 'fire', value: 30 } }]
+            : [w.id, w],
+        ),
+      ),
+    }
+    const fromMaster = savedBuildView(
+      savedBuild(1, { payload: minimalPayload(), masterVersion: 'test-1' }),
+      withElement,
+    )
+    expect(fromMaster.damageBase?.element).toEqual({ type: 'fire', value: 30 })
+    // 属性の無い武器は element を持たない（AC-4）
+    expect(view(minimalPayload()).damageBase).not.toHaveProperty('element')
+
+    const custom = (baseWeaponId: string): BuildPayload =>
+      minimalPayload({
+        weapon: {
+          kind: 'custom',
+          id: '01900000-0000-7000-8000-0000000000aa',
+          payload: {
+            baseWeaponId: baseWeaponId as never,
+            name: '',
+            attack: 100,
+            affinity: 0,
+            element: { type: 'poison', value: 12 },
+            slots: [],
+            seriesBonusId: null,
+            groupBonusId: null,
+          },
+        },
+      })
+    expect(view(custom(wp('great-sword:1'))).damageBase?.element).toEqual({
+      type: 'poison',
+      value: 12,
+    })
+    expect(view(custom('wp:great-sword:999')).damageBase?.element).toEqual({
+      type: 'poison',
+      value: 12,
+    })
+  })
+
   it('012 AC-5, AC-6: 共有された構成（名前・版・構成の内容だけ）も同じ表示の材料にし、版の違いを示す', () => {
     const shared = { masterVersion: 'old-0', payload: minimalPayload() }
     const result = savedBuildView(shared, master)

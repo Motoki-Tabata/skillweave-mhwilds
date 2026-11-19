@@ -2,12 +2,13 @@
 import { computed, ref, useId } from 'vue'
 import { ChevronDown, ChevronRight } from '@lucide/vue'
 import { evaluateDamage } from '@swv/solver'
-import type { DamageBase, SolvedBuild } from '@swv/solver'
+import type { DamageBase, ElementStats, SolvedBuild } from '@swv/solver'
 import type { ConditionId } from '@swv/data'
 import SkillLevelText from '@/components/search/SkillLevelText.vue'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { SKILL_KINDS } from '@/constants/labels'
+import { ELEMENT_DISPLAY_FACTOR, elementTypeName } from '@/constants/weapons'
 import { formatAffinityPercent, formatDamageValue, formatMultiplier } from '@/lib/format'
 import { toBuildView } from '@/lib/solver/buildView'
 import type { BuildLookup } from '@/lib/solver/buildView'
@@ -41,16 +42,50 @@ const view = computed(() => toBuildView(props.build, props.lookup))
 
 // 火力は渡された材料（武器の攻撃力・会心率とオンの条件）だけから計算する。ソルバーの score は使わない
 const damageUnknown = computed(() => props.damage !== null && props.damage.base === null)
-const damageRows = computed(() => {
+const damageStats = computed(() => {
   const input = props.damage
   if (master.bundle === null || input === null || input.base === null) return null
-  const stats = evaluateDamage(master.bundle, input.base, input.skills, input.conditionIds)
+  return evaluateDamage(master.bundle, input.base, input.skills, input.conditionIds)
+})
+
+/** 属性の値を表示値（マスターの単位 × 10）にして丸める（Q206）。 */
+function displayValue(value: number): string {
+  return formatDamageValue(value * ELEMENT_DISPLAY_FACTOR)
+}
+
+/** 火力の `<dl>` の2行目。5 属性は属性期待値と属性値、状態異常は蓄積値、属性が無ければ空。 */
+function elementRows(element: ElementStats | undefined) {
+  if (element === undefined) return []
+  const valueRow = {
+    label: `${elementTypeName(element.type)}値`,
+    text: displayValue(element.value),
+    strong: false,
+  }
+  if (element.kind === 'status') return [valueRow]
+  return [{ label: '属性期待値', text: displayValue(element.expected), strong: true }, valueRow]
+}
+
+const damageRows = computed(() => {
+  const stats = damageStats.value
+  if (stats === null) return null
   return [
     { label: '期待値', text: formatDamageValue(stats.expectedDamage), strong: true },
     { label: '攻撃力', text: formatDamageValue(stats.attack), strong: false },
     { label: '会心率', text: formatAffinityPercent(stats.affinity), strong: false },
     { label: '会心倍率', text: formatMultiplier(stats.critMultiplier), strong: false },
+    ...elementRows(stats.element),
   ]
+})
+
+// 見出し行の属性期待値（5 属性のみ）と、火力の上限の注記
+const elementExpectedText = computed(() => {
+  const element = damageStats.value?.element
+  return element?.kind === 'element' ? displayValue(element.expected) : null
+})
+const elementNote = computed(() => {
+  const element = damageStats.value?.element
+  if (element === undefined) return null
+  return `${elementTypeName(element.type)}値は、スキルによる強化の上限を考えずに計算しています。`
 })
 
 // スキルの効果の一覧。並びはチップと同じ（種類の順、種類の中はチップの順）
@@ -79,6 +114,10 @@ function levelLabel(level: number | null): string {
           <p v-if="damageRows !== null">
             期待値 <span class="font-num font-bold tabular-nums">{{ damageRows[0].text }}</span>
           </p>
+          <p v-if="elementExpectedText !== null">
+            属性期待値
+            <span class="font-num font-bold tabular-nums">{{ elementExpectedText }}</span>
+          </p>
           <p>
             防御力 <span class="font-num font-bold tabular-nums">{{ view.defenseTotal }}</span>
           </p>
@@ -88,6 +127,10 @@ function levelLabel(level: number | null): string {
       <div v-else class="flex flex-wrap justify-end gap-x-4 text-sm">
         <p v-if="damageRows !== null">
           期待値 <span class="font-num font-bold tabular-nums">{{ damageRows[0].text }}</span>
+        </p>
+        <p v-if="elementExpectedText !== null">
+          属性期待値
+          <span class="font-num font-bold tabular-nums">{{ elementExpectedText }}</span>
         </p>
         <p>
           防御力 <span class="font-num font-bold tabular-nums">{{ view.defenseTotal }}</span>
@@ -112,6 +155,7 @@ function levelLabel(level: number | null): string {
           </dd>
         </div>
       </dl>
+      <p v-if="elementNote !== null" class="text-muted-foreground text-xs">{{ elementNote }}</p>
     </section>
     <div class="grid gap-4 px-4 @[600px]:grid-cols-2">
       <div class="flex flex-col gap-4">

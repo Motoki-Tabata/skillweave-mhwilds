@@ -118,6 +118,7 @@ describe('reverseLookup ストア', () => {
         attack: 200,
         affinity: 15,
         weaponType: 'bow',
+        element: { type: 'fire', value: 30 },
       })
     })
 
@@ -244,5 +245,22 @@ describe('reverseLookup ストア', () => {
       expect(stores.search.status).toBe('idle')
       expect(FakeWorker.last.messages('solve')).toHaveLength(0)
     })
+  })
+})
+
+// 023 AC-9（逆引きは目的を使わないので、目的と武器が合わなくても止めない）
+describe('reverseLookup ストアと属性の最大化', () => {
+  afterEach(restoreStubs)
+
+  it('AC-9: 属性の最大化を選んだまま属性の無い武器にしても、逆引きの理由は無く始められる', async () => {
+    stubBackend({ bundle: makeTableBundle() })
+    const stores = await loadStores()
+    await stores.charms.ensureLoaded()
+    stores.conditions.selectWeapon(wp('long-sword:1'))
+    stores.conditions.setObjective('expectedElement')
+    const reverse = useReverseLookupStore(stores.pinia)
+    expect(stores.conditions.unavailableReason).not.toBeNull()
+    expect(reverse.unavailableReason).toBeNull()
+    expect(reverse.submit()).toBe(true)
   })
 })

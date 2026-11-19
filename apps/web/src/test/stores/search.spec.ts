@@ -511,6 +511,7 @@ describe('search ストアの個体差のある武器', () => {
       attack: 200,
       affinity: 15,
       weaponType: 'great-sword',
+      element: { type: 'fire', value: 30 },
     })
   })
 
@@ -542,6 +543,7 @@ describe('search ストアの個体差のある武器', () => {
       attack: 200,
       affinity: 15,
       weaponType: 'great-sword',
+      element: { type: 'fire', value: 30 },
     })
   })
 

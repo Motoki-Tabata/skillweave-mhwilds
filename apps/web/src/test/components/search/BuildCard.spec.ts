@@ -502,6 +502,7 @@ describe('BuildCard の個体差のある武器', () => {
       attack: 200,
       affinity: 15,
       weaponType: 'great-sword',
+      element: { type: 'fire', value: 30 },
     })
   })
 })
@@ -622,5 +623,125 @@ describe('BuildCard の武器種で値が違う効果', () => {
     const w = mountWith(null)
     expect(await summaryOf(w)).toBe('効果: 攻撃力 +10［大剣］ ／ 攻撃力 +50［弓］')
     w.unmount()
+  })
+})
+
+// 023 の AC-4・AC-5・AC-6（属性値・属性期待値・蓄積値の表示と上限の注記）
+describe('BuildCard の属性の値', () => {
+  const lookup = {
+    charm: () => undefined,
+    armor: () => undefined,
+    weaponSlots: undefined,
+    skillKind: () => 'armor' as const,
+    nameOf: (id: string) => id,
+  }
+  const SKILL = sk('el-neg')
+  const build = (): SolvedBuild => ({
+    ...makeBuild(),
+    skills: [{ skillId: SKILL, level: 1, rawLevel: 1 }],
+  })
+
+  function mountWith(
+    element: { type: string; value: number } | undefined,
+    skills: SolvedBuild['skills'] = [],
+  ) {
+    const pinia = createPinia()
+    const master = useMasterStore(pinia)
+    const bundle = makeBundle()
+    master.bundle = {
+      ...bundle,
+      skills: [
+        ...bundle.skills,
+        {
+          id: SKILL,
+          kind: 'armor',
+          maxLevel: 1,
+          category: 'attack',
+          effectsByLevel: [[{ stat: 'element_add', value: -10 }]],
+        },
+      ],
+    }
+    const base = { attack: 200, affinity: 0, weaponType: 'great-sword' }
+    return mount(BuildCard, {
+      props: {
+        build: build(),
+        title: '構成 1',
+        lookup,
+        damage: {
+          base: element === undefined ? base : { ...base, element },
+          skills,
+          conditionIds: [],
+        },
+        showCharm: false,
+      },
+      global: { plugins: [pinia] },
+    })
+  }
+
+  const labelsOf = (w: ReturnType<typeof mountWith>) =>
+    w.findAll('dl > div').map((row) => row.find('dt').text())
+  const valueOf = (w: ReturnType<typeof mountWith>, label: string) =>
+    w
+      .findAll('dl > div')
+      .find((row) => row.find('dt').text() === label)
+      ?.find('dd')
+      .text()
+  const headerOf = (w: ReturnType<typeof mountWith>) => w.find('h3 + div').text()
+  const noteOf = (w: ReturnType<typeof mountWith>) =>
+    w
+      .findAll('p')
+      .find((p) => p.text().includes('上限を考えず'))
+      ?.text()
+
+  it('AC-5: 5 属性の武器は、見出し行に属性期待値、2行目に属性期待値と属性値を表示値（× 10）で小数第1位に丸めて出す', () => {
+    const w = mountWith({ type: 'fire', value: 11.234 })
+    expect(labelsOf(w)).toEqual([
+      '期待値',
+      '攻撃力',
+      '会心率',
+      '会心倍率',
+      '属性期待値',
+      '火属性値',
+    ])
+    expect(valueOf(w, '属性期待値')).toBe('112.3')
+    expect(valueOf(w, '火属性値')).toBe('112.3')
+    expect(headerOf(w)).toContain('属性期待値 112.3')
+    // 期待値の表記は変えない（AC-10）
+    expect(valueOf(w, '期待値')).toBe('200.0')
+    w.unmount()
+  })
+
+  it('AC-5: 状態異常の武器は、2行目に蓄積値だけを出し、見出し行には出さない', () => {
+    const w = mountWith({ type: 'poison', value: 32 })
+    expect(labelsOf(w)).toEqual(['期待値', '攻撃力', '会心率', '会心倍率', '毒属性値'])
+    expect(valueOf(w, '毒属性値')).toBe('320.0')
+    expect(headerOf(w)).not.toContain('属性期待値')
+    w.unmount()
+  })
+
+  it('AC-5: 属性値が負のときは半角の - を付ける', () => {
+    const w = mountWith({ type: 'fire', value: 3 }, build().skills)
+    expect(valueOf(w, '火属性値')).toBe('-70.0')
+    w.unmount()
+  })
+
+  it('AC-6: 属性の値を出すとき、その種類の表示名で上限を考えていない注記を出す', () => {
+    const fire = mountWith({ type: 'fire', value: 30 })
+    expect(noteOf(fire)).toBe('火属性値は、スキルによる強化の上限を考えずに計算しています。')
+    fire.unmount()
+    const sleep = mountWith({ type: 'sleep', value: 20 })
+    expect(noteOf(sleep)).toBe('睡眠属性値は、スキルによる強化の上限を考えずに計算しています。')
+    sleep.unmount()
+  })
+
+  it('AC-4: 属性が無い武器・属性の種類が分からない武器は、属性の値も注記も出さない', () => {
+    for (const element of [undefined, { type: 'unknown-type', value: 30 }]) {
+      const w = mountWith(element)
+      expect(labelsOf(w)).toEqual(['期待値', '攻撃力', '会心率', '会心倍率'])
+      expect(noteOf(w)).toBeUndefined()
+      expect(headerOf(w)).not.toContain('属性期待値')
+      expect(valueOf(w, '期待値')).toBe('200.0')
+      w.unmount()
+    }
   })
 })

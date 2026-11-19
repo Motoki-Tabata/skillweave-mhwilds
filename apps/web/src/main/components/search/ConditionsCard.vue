@@ -20,6 +20,7 @@ import { useConditionsStore } from '@/stores/conditions'
 import { useMasterStore } from '@/stores/master'
 
 const RANK_ERROR_ID = 'rank-error'
+const OBJECTIVE_ERROR_ID = 'objective-error'
 
 const conditions = useConditionsStore()
 const master = useMasterStore()
@@ -42,6 +43,16 @@ function onCountChange(value: number | undefined): void {
     return
   }
   conditions.setMaxResults(value)
+}
+
+/** 属性の最大化は、選べない武器のときに選べなくする（選択中は無効にしない）。 */
+function isDisabled(id: ObjectiveChoice): boolean {
+  return id === 'expectedElement' && conditions.elementObjectiveReason !== null
+}
+
+function describedBy(id: ObjectiveChoice): string {
+  const description = `objective-${id}-description`
+  return isDisabled(id) ? `${description} objective-${id}-reason` : description
 }
 
 function onObjectiveChange(value: AcceptableValue): void {
@@ -70,6 +81,7 @@ defineExpose({ focusRanks })
           <RadioGroup
             :model-value="conditions.objective"
             aria-labelledby="objective-label"
+            :aria-describedby="conditions.objectiveError ? OBJECTIVE_ERROR_ID : undefined"
             class="gap-0"
             @update:model-value="onObjectiveChange"
           >
@@ -82,7 +94,8 @@ defineExpose({ focusRanks })
                 :id="`objective-${option.id}`"
                 :value="option.id"
                 class="mt-0.5"
-                :aria-describedby="`objective-${option.id}-description`"
+                :disabled="isDisabled(option.id)"
+                :aria-describedby="describedBy(option.id)"
               />
               <div class="flex flex-col">
                 <Label :for="`objective-${option.id}`">{{ option.label }}</Label>
@@ -91,9 +104,22 @@ defineExpose({ focusRanks })
                   class="text-muted-foreground text-xs"
                   >{{ option.description }}</span
                 >
+                <span
+                  v-if="isDisabled(option.id)"
+                  :id="`objective-${option.id}-reason`"
+                  class="text-muted-foreground text-xs"
+                  >{{ conditions.elementObjectiveReason }}</span
+                >
               </div>
             </div>
           </RadioGroup>
+          <p
+            v-if="conditions.objectiveError"
+            :id="OBJECTIVE_ERROR_ID"
+            class="text-destructive text-sm"
+          >
+            {{ conditions.objectiveError }}
+          </p>
         </div>
 
         <div class="flex flex-col gap-1">

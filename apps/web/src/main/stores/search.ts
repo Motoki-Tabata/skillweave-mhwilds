@@ -161,6 +161,7 @@ export const useSearchStore = defineStore('search', () => {
         attack: weapon.attack,
         affinity: weapon.affinity,
         weaponType: weapon.weaponType,
+        ...(weapon.element === undefined ? {} : { element: { ...weapon.element } }),
       },
       activeConditionIds: [...conditions.activeConditionIds],
       // 検索の後に武器を編集・削除しても変わらないよう、送信した時点の写しを持つ

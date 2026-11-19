@@ -62,7 +62,8 @@ export const useReverseLookupStore = defineStore('reverseLookup', () => {
   let token = 0
 
   const unavailableReason = computed<string | null>(() => {
-    if (conditions.unavailableReason !== null) return toReverseReason(conditions.unavailableReason)
+    // 逆引きは目的を使わないので、武器とランクの理由だけを見る
+    if (conditions.weaponRankReason !== null) return toReverseReason(conditions.weaponRankReason)
     if (master.appraisedRarities.length === 0) return REVERSE_UNAVAILABLE_NO_TABLE
     return null
   })
@@ -109,6 +110,7 @@ export const useReverseLookupStore = defineStore('reverseLookup', () => {
         attack: weapon.attack,
         affinity: weapon.affinity,
         weaponType: weapon.weaponType,
+        ...(weapon.element === undefined ? {} : { element: { ...weapon.element } }),
       },
       activeConditionIds: submitted.activeConditionIds,
     }
