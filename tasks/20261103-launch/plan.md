@@ -46,7 +46,7 @@ SkillWeave をフレンドが使える状態まで公開する。この plan.md 
 - [ ] D2 017 reverse-lookup。依存: D1
 - [ ] D3 018 pwa-offline（導入方式 Q6 を決める）。依存: D2
 - [ ] D4 023 element-damage。依存: D6
-- [ ] D5 `specs/open-questions.md` の Q136（存在しない URL）・Q149（期限切れの `spring_session`）・Q158（Error Reporting）・Q159（スキャナーの要求）を `/tsod-discover` で機能として起票し、TSOD で本番へ出す。2026-11-16 に 039 not-found-route・040 session-cleanup・041 api-structured-log・042 worker-api-filter として起票した。依存: D3
+- [ ] D5 `specs/open-questions.md` の Q136（存在しない URL）・Q149（期限切れの `spring_session`）・Q158（Error Reporting）・Q159（スキャナーの要求）を `/tsod-discover` で機能として起票し、TSOD で本番へ出す。2026-11-16 に 039 not-found-route・040 session-cleanup・041 api-structured-log・042 worker-api-filter として起票した。2026-11-19 に 040・041 を含む API（`api:51993fc`）を本番へ出した。039・042 は Web のリリースで出る。依存: D3
 - [ ] D6 043 weapon-type-effects（会心撃【属性】など武器種で値が違う効果。023 より先に行う。023 decisions.md Q197）。依存: D5
 
 ### 順番
