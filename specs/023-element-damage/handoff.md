@@ -2,8 +2,8 @@
 <!-- 書き手はメイン（メインセッション）だけ。区間コマンドは開始時に必ず全文を読む。会話にしか無い情報をここへ移す。handoff は `.claude/skills/tsod-workflow/scripts/handoff.mjs` だけで更新し、Edit・sed・python・node -e で書き換えない。ゲート記録は `handoff.mjs gate` で書き、次の区間が `handoff.mjs check` で照合する。コミットハッシュは、既に存在するコミットのものだけを書く（handoff を含むコミット自身のハッシュは書かない。ハッシュを書くための amend はしない） -->
 
 ## 現在地
-- 区間: D
-- 次に起動するコマンド: `/tsod-build 023-element-damage`
+- 区間: E
+- 次に起動するコマンド: `/tsod-ship 023-element-damage`
 - 推奨モデル: Sonnet
 - ブランチ: `feat/023-element-damage`（不変）
 <!--
@@ -28,7 +28,7 @@
 | B-1 | 画面設計 screen-design.md | 承認済み | 2026-11-19 / da7d812 |
 | B-2 | テーブル設計（design/・migration） | 該当なし（テーブル変更なし） | 2026-11-19 |
 | C-1 | plan.md・tasks.md | 承認済み | 2026-11-19 / 7c397f4 |
-| D-1 | 実装受入 | 未 | |
+| D-1 | 実装受入 | 承認済み | 2026-11-19 / 3a27402 |
 | E-1 | マージ（PR・CI 緑） | 未 | |
 | E-2 | ドリフト是正と drift PR のマージ | 未 | |
 <!-- 状態: 未 / 承認済み / 該当なし（理由）。記録: 承認済みなら `YYYY-MM-DD / <短縮ハッシュ>`（ハッシュは、成果物をコミットした直後の HEAD の短縮ハッシュ。ゲートのコミット自身ではない。gate を打った後のコミットは handoff.md だけにする）。E-1 は ship の呼び出しどおり `PR #番号`（手動マージ済みなら `手動マージ PR #番号`）。E-2 は `drift PR #番号`（是正なしなら `--na "是正なし"` で「該当なし（是正なし）」）。A-1 の記録には「decisions.md への移設先（Q 番号の一覧）」を併記する（該当なしなら「なし」） -->
@@ -89,6 +89,7 @@
 
 ## PR 本文に必須の記載事項
 <!-- 例: ユーザー承認のうえ追加した常時許可外の変更（パス・理由・承認した区間）、メインの直接修正（上の表をそのまま転記）、台帳（tasks/lessons.md）の変更 -->
+- 常時許可外の変更（C-1 で承認済み）: design-system/skillweave/MASTER.md（火力の表示・用語の統一。T1）、design/master-data.md（§9 の前提の確認。T1）、design/tech-stack.md（属性の最大化の画面測定の記録。T7）。メインの直接修正は handoff の表のとおり（docs の記録・テストの文言のみ）。台帳 tasks/lessons.md に1件起票（solver の総当たりテスト）。レビューの持ち越し: コメントの陳腐化・elementExpected の 0 返し・buildModel のフォールバック・minus 列の余り・未知の属性種類の文言・BuildCard 見出し行の複製・reselectWeapon の再実装
 
 ## 未起票の教訓
 <!-- 台帳へまだ書けない候補だけ。区間の終わりに起票するか、持ち越す理由を書く -->
