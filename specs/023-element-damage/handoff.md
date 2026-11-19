@@ -84,6 +84,7 @@
 | D | design/tech-stack.md | 測定の節の「オンの k=3・k=10」を k=6 も含めて直す | レビュー所見1（表と説明の食い違い） |
 | D | design/master-data.md | §9 に Q205 の理由を足し、見出しの「023 で決定」の範囲を明記する | レビュー所見2（Q205 の理由の欠落・誤読の防止） |
 | D | packages/solver/src/test/solveBuilds.element.spec.ts・apps/web/src/test/components/search/ConditionsCard.spec.ts | 是正で古くなったコメント・シナリオ名・テスト名の文言だけを直す | 再レビューの要修正（軽微）2件 |
+| D | design/tech-stack.md | 測定の節に状態の内訳（found 27・infeasible 9・timeout 0）と、ハーネス修正後の再測定の結果を足す | 要判断2の是正（記録で取りこぼしを確認できるようにする） |
 <!-- 直接修正の直後、同じターンで1行追記する（後でまとめて書かない）。1件も無ければ「なし」と書く。空欄のままゲート D-1 を提示しない。PR 本文にはこの表をそのまま転記する -->
 
 ## PR 本文に必須の記載事項
