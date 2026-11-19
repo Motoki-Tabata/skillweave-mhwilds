@@ -1072,7 +1072,7 @@ API は JaCoCo（`./gradlew test contractTest jacocoTestReport`）、pnpm worksp
 
 - 条件: 実データ（マスターの版 `2026.11.4`）・発動条件はすべてオン・武器は「マスターの並びで先頭の、属性が 5 属性の武器」（`wp:bow:10`。雷属性・値 11・表示 110）・目的は「属性の最大化」・件数 10・候補のランクは下位と上位・必須スキル 3／6／10 個 × 解あり／解なしの 6 ケース・各 3 回・上限は画面の `SOLVE_TIMEOUT_MS`（30 秒）・生産護石のオンとオフの両方。`pnpm --filter @swv/web run measure --workers=1 e2e/measure/element-ui.measure.ts`（ハーネスは `apps/web/e2e/measure/element-ui.measure.ts`。時間は assert しない）。
 - 測定環境: Node v24.22.3・linux x64（WSL2）・Chromium（Playwright 1.65.0）・HiGHS は npm `highs` 1.15.4。043 の節と同じマシン（AMD Ryzen 7 5700X）。
-- 武器スキルを持つ武器なので、生産護石がオフでも「解なし」のケースで解が見つかることがある（オンの k=3・k=10 の解なしは `found`）。表の「解なし」は、状態が `infeasible` で構成が 0 件のケース。
+- 武器スキルを持つ武器なので、生産護石がオフでも「解なし」のケースで解が見つかることがある（オンの k=3・k=6・k=10 の解なしは `found`）。表の「解なし」は、状態が `infeasible` で構成が 0 件のケース。
 
 `expectedElement` の 1 件目までの時間（ms。3 回の範囲）:
 
