@@ -12,11 +12,11 @@ catalog:
   '@types/node': 24.19.2
   '@vitest/coverage-v8': 5.1.0
   eslint: 10.14.0
-  eslint-plugin-oxlint: 1.90.0
-  oxlint: 1.90.0
-  prettier: 3.9.10
+  eslint-plugin-oxlint: 1.93.0
+  oxlint: 1.93.0
+  prettier: 3.10.1
   typescript: 6.0.3
-  typescript-eslint: 8.72.1
+  typescript-eslint: 8.72.2
   vitest: 5.1.0
 
 # ワーム型マルウェアによる npm サプライチェーン汚染対策（2026年に複数件発生:
